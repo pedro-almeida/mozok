@@ -17,7 +17,9 @@ pub struct SearchIndex {
 
 impl SearchIndex {
     pub fn new() -> Self {
-        Self { entries: Vec::new() }
+        Self {
+            entries: Vec::new(),
+        }
     }
 
     pub fn index_region(&mut self, region: &AnatomicalRegion, synonyms: Vec<String>) {

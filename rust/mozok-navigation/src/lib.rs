@@ -6,5 +6,5 @@
 pub mod camera;
 pub mod lod;
 
-pub use camera::{NeuroCamera, CameraFrustum};
-pub use lod::{LodSelector, LodEvaluation};
+pub use camera::{CameraFrustum, NeuroCamera};
+pub use lod::{LodEvaluation, LodSelector};

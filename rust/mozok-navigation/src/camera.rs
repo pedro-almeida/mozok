@@ -30,9 +30,10 @@ impl Default for NeuroCamera {
 
 impl NeuroCamera {
     pub fn new(pos: Point3D) -> Self {
-        let mut cam = Self::default();
-        cam.world_position = pos;
-        cam
+        Self {
+            world_position: pos,
+            ..Default::default()
+        }
     }
 
     /// Check if camera has drifted far enough from the floating origin to warrant recentering

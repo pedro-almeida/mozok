@@ -1,8 +1,8 @@
 //! Hierarchical Level of Detail (LOD) and Screen-Space Error (SSE) evaluation.
 
+use crate::camera::NeuroCamera;
 use mozok_core::bounds::BoundingSphere;
 use mozok_core::coords::SpatialScale;
-use crate::camera::NeuroCamera;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LodEvaluation {
@@ -38,7 +38,12 @@ impl LodSelector {
     }
 
     /// Evaluates if a bounding sphere should be refined, rendered, or culled
-    pub fn evaluate(&self, camera: &NeuroCamera, sphere: &BoundingSphere, geometric_error_mm: f64) -> LodEvaluation {
+    pub fn evaluate(
+        &self,
+        camera: &NeuroCamera,
+        sphere: &BoundingSphere,
+        geometric_error_mm: f64,
+    ) -> LodEvaluation {
         let distance = camera.world_position.distance_to(&sphere.center) - sphere.radius;
         if distance <= 0.0 {
             // Camera is inside or penetrating the bounding volume

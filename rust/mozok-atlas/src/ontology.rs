@@ -1,7 +1,7 @@
 //! Hierarchical neuro-ontology tree representation.
 
-use std::collections::HashMap;
 use crate::region::AnatomicalRegion;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct BrainRegionNode {

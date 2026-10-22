@@ -6,5 +6,5 @@
 pub mod ontology;
 pub mod region;
 
-pub use ontology::{OntologyTree, BrainRegionNode};
+pub use ontology::{BrainRegionNode, OntologyTree};
 pub use region::{AnatomicalRegion, Hemisphere};

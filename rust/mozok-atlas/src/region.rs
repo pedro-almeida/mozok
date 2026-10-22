@@ -23,7 +23,12 @@ pub struct AnatomicalRegion {
 }
 
 impl AnatomicalRegion {
-    pub fn new(id: u32, acronym: impl Into<String>, name: impl Into<String>, hemisphere: Hemisphere) -> Self {
+    pub fn new(
+        id: u32,
+        acronym: impl Into<String>,
+        name: impl Into<String>,
+        hemisphere: Hemisphere,
+    ) -> Self {
         Self {
             id,
             acronym: acronym.into(),

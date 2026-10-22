@@ -1,7 +1,7 @@
 //! Memory budget governor and LRU eviction policy.
 
+use crate::chunk::{ChunkPayload, SpatialChunkKey};
 use std::collections::HashMap;
-use crate::chunk::{SpatialChunkKey, ChunkPayload};
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct CacheMetrics {
@@ -46,9 +46,11 @@ impl ChunkCacheGovernor {
 
     pub fn insert(&mut self, payload: ChunkPayload) {
         let size = payload.byte_size;
-        
+
         // Evict until memory fits inside budget
-        while self.current_memory_bytes + size > self.max_memory_budget_bytes && !self.store.is_empty() {
+        while self.current_memory_bytes + size > self.max_memory_budget_bytes
+            && !self.store.is_empty()
+        {
             self.evict_lru();
         }
 
@@ -56,7 +58,7 @@ impl ChunkCacheGovernor {
         let key = payload.key;
         self.current_memory_bytes += size;
         self.store.insert(key, (payload, self.access_counter));
-        
+
         self.metrics.active_chunks = self.store.len();
         self.metrics.total_allocated_bytes = self.current_memory_bytes;
     }
@@ -74,7 +76,8 @@ impl ChunkCacheGovernor {
 
         if let Some(key) = oldest_key {
             if let Some((removed, _)) = self.store.remove(&key) {
-                self.current_memory_bytes = self.current_memory_bytes.saturating_sub(removed.byte_size);
+                self.current_memory_bytes =
+                    self.current_memory_bytes.saturating_sub(removed.byte_size);
                 self.metrics.evictions += 1;
             }
         }

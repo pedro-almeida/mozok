@@ -1,8 +1,8 @@
 //! Brain dataset abstractions.
 //! Allows zero-cost decoupling from specific neuroimaging formats (NIfTI, SWC, Zarr, etc.)
 
-use crate::coords::{CoordinateFrame, SpatialScale};
 use crate::bounds::AABB;
+use crate::coords::{CoordinateFrame, SpatialScale};
 
 #[derive(Debug, Clone)]
 pub struct DatasetMetadata {
@@ -22,9 +22,12 @@ pub trait BrainDatasetReader: Send + Sync {
     /// Test if a spatial bounding box intersects valid dataset domains
     fn intersects(&self, region: &AABB) -> bool {
         let b = &self.metadata().bounds;
-        !(region.max.x < b.min.x || region.min.x > b.max.x
-            || region.max.y < b.min.y || region.min.y > b.max.y
-            || region.max.z < b.min.z || region.min.z > b.max.z)
+        !(region.max.x < b.min.x
+            || region.min.x > b.max.x
+            || region.max.y < b.min.y
+            || region.min.y > b.max.y
+            || region.max.z < b.min.z
+            || region.min.z > b.max.z)
     }
 
     /// Read raw byte chunks or streaming structures for a spatial region
