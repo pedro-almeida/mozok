@@ -1,0 +1,13 @@
+[configuration]
+entry_symbol = "mozok_library_init"
+compatibility_minimum = "4.2"
+
+[libraries]
+windows.debug.x86_64 = "res://bin/mozok_core.windows.debug.x86_64.dll"
+windows.release.x86_64 = "res://bin/mozok_core.windows.release.x86_64.dll"
+linux.debug.x86_64 = "res://bin/libmozok_core.linux.debug.x86_64.so"
+linux.release.x86_64 = "res://bin/libmozok_core.linux.release.x86_64.so"
+android.debug.arm64 = "res://bin/libmozok_core.android.debug.arm64.so"
+android.release.arm64 = "res://bin/libmozok_core.android.release.arm64.so"
+web.debug.wasm32 = "res://bin/mozok_core.web.debug.wasm32.wasm"
+web.release.wasm32 = "res://bin/mozok_core.web.release.wasm32.wasm"

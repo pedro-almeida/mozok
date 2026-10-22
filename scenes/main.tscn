@@ -1,0 +1,58 @@
+[gd_scene load_steps=3 format=3 uid="uid://c6xk4yq0v7a2e"]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 1
+background_color = Color(0.04, 0.05, 0.07, 1.0)
+ambient_light_source = 2
+ambient_light_color = Color(0.85, 0.90, 0.95, 1.0)
+ambient_light_energy = 0.4
+tonemap_mode = 2
+ssao_enabled = true
+glow_enabled = true
+glow_intensity = 0.2
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 10, 0)
+light_color = Color(0.98, 0.98, 1.0, 1.0)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="NeuroCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 250)
+current = true
+fov = 45.0
+near = 0.001
+far = 10000.0
+
+[node name="BrainRoot" type="Node3D" parent="."]
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="ScaleOverlay" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="StatusLabel" type="Label" parent="HUD/ScaleOverlay"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -64.0
+offset_right = 400.0
+offset_bottom = -24.0
+grow_vertical = 0
+text = "MOZOK Neuroanatomy Engine | Scale: Macro (10^-3 m)"
