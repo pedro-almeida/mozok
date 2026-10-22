@@ -1,0 +1,17 @@
+[package]
+name = "mozok-tests"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[[test]]
+name = "foundation_tests"
+path = "../tests/foundation_tests.rs"
+
+[dependencies]
+mozok-core = { path = "../rust/mozok-core" }
+mozok-atlas = { path = "../rust/mozok-atlas" }
+mozok-navigation = { path = "../rust/mozok-navigation" }
+mozok-streaming = { path = "../rust/mozok-streaming" }
+mozok-search = { path = "../rust/mozok-search" }
