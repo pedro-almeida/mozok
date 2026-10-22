@@ -1,59 +1,73 @@
-# MOZOK
+# MOZOK (МОЗОК)
 
-> **Open-Source Interactive Neuroanatomy Platform**  
-> *"A Google Earth for the Human Brain"*
+> **Open-Source Interactive Atlas of the Human Body**  
+> *"A Google Earth for Human Biology — The Brain is Only the Beginning"*
 
-[![License](https://img.shields.io/badge/License-Apache%202.0%20%2F%20MIT-blue.svg)](LICENSE_RECOMMENDATION.md)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/Rust-2021%20Edition-orange.svg)](https://www.rust-lang.org)
 [![Engine](https://img.shields.io/badge/Godot-4.x-478cbf.svg)](https://godotengine.org)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20Android%20%7C%20Wasm-lightgrey.svg)](#target-platforms)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20Android%20%7C%20Wasm-lightgrey.svg)](#5-target-platforms)
+[![Manifesto](https://img.shields.io/badge/Manifesto-Read%20Here-green.svg)](MANIFESTO.md)
 
 ---
 
 ## 1. What is MOZOK?
 
-**MOZOK** (Ukrainian: *Мозок* — "Brain") is an open-source, scientific visualization and educational exploration platform designed to render the human brain across vast hierarchical scales.
+**MOZOK** (Ukrainian: *Мозок* — "Brain") is an open-source, scientifically validated, interactive visualization platform designed to explore the human body across vast hierarchical scales: from whole-body organ systems down to individual cells, organelles, and molecular processes.
 
-Unlike static 3D anatomical atlases or traditional neuroimaging viewers confined to orthogonal 2D slice cuts, MOZOK aims to offer continuous, scale-independent navigation through the central nervous system:
+The project launches with the human brain as its pilot module, but its sovereign architecture is engineered from the ground up to encompass **every biological system of the human body**:
 
-$$\text{Whole Brain} \longrightarrow \text{Lobes} \longrightarrow \text{Structures} \longrightarrow \text{Tissue} \longrightarrow \text{Neuronal Clusters} \longrightarrow \text{Individual Neurons} \longrightarrow \text{Synapses}$$
+$$\text{Whole Organism} \longrightarrow \text{Organ Systems} \longrightarrow \text{Organs} \longrightarrow \text{Tissues} \longrightarrow \text{Cells} \longrightarrow \text{Organelles} \longrightarrow \text{Molecular Structures}$$
 
-This is **not a video game**. MOZOK is engineered strictly for **neuroscience, clinical medicine, academic research, medical education, and scientific communication**.
-
----
-
-## 2. Why MOZOK Exists
-
-Modern neuroscience suffers from a spatial disconnect:
-- **Macro-scale tools** (MRI/fMRI viewers like FreeSurfer, FSL, ITK-SNAP) operate at millimeter resolution ($10^{-3}\,\text{m}$).
-- **Meso-scale tools** (histology, tractography, tissue clearing) operate at micrometer resolution ($10^{-6}\,\text{m}$).
-- **Micro-scale tools** (electron microscopy, connectomics like Neuroglancer) operate at nanometer resolution ($10^{-9}\,\text{m}$).
-
-Researchers, educators, and clinicians are forced to jump between disjoint tools with disparate coordinate systems. MOZOK is built to bridge these regimes into a single, cohesive, interactive digital universe—retaining spatial context and topological coherence across 6 orders of spatial magnitude.
+MOZOK is **not a video game**. It is an open public utility built for **medical education, clinical research, neuroscience, anatomy, and scientific literacy**.
 
 ---
 
-## 3. Long-Term Vision
+## 2. Ethical Foundation: Kantian Deontology & Ukrainian Heritage
 
-Our vision is to build the definitive **"Google Earth for the Human Brain"**:
-- **Seamless Hierarchical LOD (Level of Detail):** Smooth zooming and view-dependent streaming from global cortical folds down to individual synaptic clefts and postsynaptic densities.
-- **Multimodal Dataset Fusion:** Overlaying anatomical reference atlases, diffusion MRI tractography streamlines, spatial transcriptomics, single-cell morphometry (SWC), and electron microscopy connectomes.
-- **Pathology & Disease Modules:** Visualizing progressive degeneration and pathophysiology in neurodegenerative and cerebrovascular diseases (Alzheimer's, Parkinson's, Prion diseases, Multiple Sclerosis, and Ischemic/Hemorrhagic Stroke).
+Read the full [MOZOK Manifesto (MANIFESTO.md)](MANIFESTO.md).
+
+### The Philosophy of Immanuel Kant
+1. **Good Will (*Der gute Wille*):** Knowledge about the human body is shared unconditionally because it is intrinsically good to do so. We reject paywalls and artificial data monopolies.
+2. **The Categorical Imperative (*Kategorischer Imperativ*):** We assert as a universal maxim: *"Should scientific understanding of the human body be universally accessible to all people without barrier?"* MOZOK answers with an absolute yes.
+3. **Humanity as an End in Itself:** Every student, clinician, and curious mind is an autonomous human being deserving access to truth, never a monetization metric.
+
+### Tribute to Ukrainian Scientific Resilience
+The name **MOZOK** honors Ukrainian linguistic sovereignty and its monumental contributions to world medicine and biology:
+- **Volodymyr Bets (Kyiv, 1834–1894):** Discovered the giant pyramidal neurons (Betz cells) in the motor cortex, pioneering functional cytoarchitecture.
+- **Ilya Mechnikov (Kharkiv region, 1845–1916):** Father of innate cellular immunology and phagocytosis, 1908 Nobel Laureate.
+- **Mykola Amosov (Kyiv, 1913–2002):** World pioneer in cardiovascular surgery, artificial heart valves, and physiological cybernetics.
+
+Keeping Ukrainian culture, language, and scientific courage alive is an integral commitment of this project.
 
 ---
 
-## 4. Technology Stack & Philosophy
+## 3. Scope: The Whole Human Body
 
-| Component | Technology | Rationale |
+While initial execution focuses on the central nervous system, MOZOK's data model and streaming engine are organ-agnostic:
+
+* **Nervous System (Pilot Focus):** Whole brain, lobes, nuclei, cortical layers, neuronal reconstructions (SWC), connectomes, synapses.
+* **Cardiovascular System:** Heart chambers, coronary vasculature, microcirculation, systemic hemodynamics.
+* **Respiratory System:** Tracheobronchial tree, alveolar gas exchange, respiratory mechanics.
+* **Digestive System:** Gastrointestinal tracts, hepatic lobules, pancreatic acini.
+* **Musculoskeletal System:** Osteoarticular geometry, muscle fascicles, sarcomeres.
+* **Endocrine & Lymphatic Systems:** Glands, hormonal cascades, lymph nodes, cellular immune response.
+* **Cellular & Molecular Biology:** Organelles, lipid bilayers, receptor complexes.
+
+---
+
+## 4. Architecture: Presentation Decoupled from Core Logic
+
+| Layer | Technology | Role |
 | :--- | :--- | :--- |
-| **Presentation & UI** | [Godot 4](https://godotengine.org) | Lightweight, cross-platform scene graph, Vulkan/Forward+/Mobile renderers, high-performance UI system, zero licensing friction. |
-| **Core Architecture** | [Rust](https://www.rust-lang.org) | Zero-cost abstractions, memory safety without GC latency, predictable performance, fearless concurrency for streaming & spatial indexing. |
-| **Interoperability** | GDExtension / C-FFI / Wasm | Decoupled core logic enabling presentation layers to evolve independently from dataset parsing and streaming algorithms. |
+| **Presentation & UI** | [Godot 4](https://godotengine.org) | Viewport rendering (Forward+/Mobile), input dispatch, scene graph, UI/HUD. |
+| **Core Architecture** | [Rust](https://www.rust-lang.org) | 64-bit spatial math, LOD evaluation, out-of-core streaming, ontologies, search. |
+| **Integration Bridge** | GDExtension (`mozok-godot`) | Direct C-ABI bridge exposing Rust core nodes to Godot without GC latency. |
 
-### Architectural Philosophy
-1. **Never load everything at once:** The human brain comprises $\sim 86$ billion neurons and $\sim 100$ trillion synapses. The system must operate under an out-of-core, streaming-first paradigm inspired by Cesium 3D Tiles, Neuroglancer, and geospatial indexing (Octrees, BVH, Hilbert curves).
-2. **Open Source & Open Knowledge:** Transparent open science. Unencumbered by proprietary formats.
-3. **Hardware Accessibility:** Must run smoothly on standard consumer PCs (e.g., GTX 1650 tier), mid-range mobile devices (Android), and browsers via WebAssembly.
+### Architectural Invariants
+1. **Never load everything at once:** Out-of-core chunk streaming with bounded LRU memory budgets (`mozok-streaming`).
+2. **Kantian Hardware Accessibility:** Must maintain fluid 60 FPS navigation on modest consumer hardware (e.g., GTX 1650, standard laptops, mid-range Android devices).
+3. **Scientific Provenance:** Every biological structure carries DOI links, literature citations, and peer-review validation.
 
 ---
 
@@ -61,65 +75,36 @@ Our vision is to build the definitive **"Google Earth for the Human Brain"**:
 
 - **Desktop:** Windows (x86_64), Linux (x86_64, aarch64)
 - **Mobile:** Android (ARM64)
-- **Web:** WebAssembly + WebGPU / WebGL2
+- **Web:** WebAssembly + WebGPU
 
 ---
 
-## 6. Project Structure
+## 6. Repository Layout
 
 ```text
-/
-├── .github/              # CI/CD workflows and repository standards
-├── assets/               # Godot theme definitions and visual tokens
-├── core/                 # Shared data definitions and contracts
-├── datasets/             # Directory structure for cached/imported datasets
-├── docs/                 # Extended technical architecture & design specs
-├── models/               # 3D assets and procedural mesh definitions
-├── plugins/              # Godot editor plugins & custom extensions
-├── rust/                 # Sovereign Rust workspace
-│   ├── mozok-core/       # Math, coordinate transforms, memory pools
-│   ├── mozok-atlas/      # Atlas hierarchies, brain regions, ontologies
-│   ├── mozok-navigation/ # Spatial camera, LOD calculation, frustum culling
-│   ├── mozok-streaming/  # Chunk caching, asynchronous out-of-core loader
-│   └── mozok-search/     # Anatomical name resolution, fuzzy ontology search
-├── scenes/               # Godot 4 scene tree hierarchies
-├── scripts/              # Godot GDScript glue and controller layer
-├── tests/                # Integration and verification test suites
-├── tools/                # Pipeline converters, data verification scripts
-├── ui/                   # Modular UI controls, HUD, navigation widgets
-├── ARCHITECTURE.md       # Full architectural specification
-├── CONTRIBUTING.md       # Contribution guidelines
-├── DEVELOPMENT_ROADMAP.md# Phased execution milestones
-├── PROJECT_VISION.md     # Manifesto and scientific principles
-└── TECH_STACK.md         # Detailed technology evaluation & strategy
+mozok/
+├── Cargo.toml                  # Sovereign Rust workspace
+├── LICENSE                     # Apache License 2.0
+├── MANIFESTO.md                # Ethics, Kantian Deontology & Ukrainian Tribute
+├── README.md                   # Project overview and quickstart
+├── ARCHITECTURE.md             # Full engineering and LOD specification
+├── DEVELOPMENT_ROADMAP.md      # Phased execution milestones
+├── docs/                       # Technical RFCs (coordinates, streaming, ontologies, DOIs)
+├── rust/                       # Native Rust crates
+│   ├── mozok-core/             # 64-bit coordinates, scales, biological datasets
+│   ├── mozok-atlas/            # Anatomical ontologies (DAG), regions
+│   ├── mozok-navigation/       # Floating-origin camera, LOD evaluators
+│   ├── mozok-streaming/        # Out-of-core chunk caching and LRU governor
+│   ├── mozok-search/           # Fuzzy inverted index for anatomical terms
+│   └── mozok-godot/            # GDExtension entry point and native bindings
+├── project.godot               # Godot 4 project configuration
+├── mozok.gdextension           # GDExtension manifest
+├── scenes/                     # Godot scene trees (main.tscn)
+└── scripts/                    # Godot GDScript presentation controllers
 ```
 
 ---
 
-## 7. Roadmap Overview
+## 7. License
 
-- **Phase 1: Foundation** — Architecture baseline, Rust workspace, Godot GDExtension skeleton, spatial coordinates.
-- **Phase 2: Navigation** — Continuous 6-DOF camera, spatial LOD controller, Octree chunking.
-- **Phase 3: Atlas Integration** — Hierarchical ontology indexing (Allen Brain Atlas, Desikan-Killiany, Julich Brain).
-- **Phase 4: Neuron Visualization** — SWC/morphology streaming, GPU instancing for neuronal arbors.
-- **Phase 5: Synapse Visualization** — Ultra-scale density streaming, nanometer-level point/mesh structures.
-- **Phase 6: Educational Features** — Guided anatomical tours, dissection modes, clinical cross-sections.
-- **Phase 7: Disease Modules** — Alzheimer's, Parkinson's, Creutzfeldt-Jakob, Multiple Sclerosis, and Stroke.
-
-See [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md) for detailed deliverables.
-
----
-
-## 8. References & Architectural Inspiration
-
-- [Godot Engine](https://github.com/godotengine/godot) — Modern, extensible scene graph and rendering pipeline.
-- [Google Neuroglancer](https://github.com/google/neuroglancer) — WebGL-based viewer for petascale volume and connectomic data.
-- [BrainGlobe Atlas API](https://github.com/brainglobe/brainglobe-atlasapi) — Unified Python API for neuroanatomical atlases.
-- [BrainRender](https://github.com/brainglobe/brainrender) — Python package for 3D neuroanatomical visualization.
-- [MorphAPI](https://github.com/brainglobe/morphapi) — Computational morphology downloader and parser.
-
----
-
-## 9. License
-
-See [LICENSE_RECOMMENDATION.md](LICENSE_RECOMMENDATION.md) for license details (dual-license recommendation: Apache-2.0 or MIT).
+Licensed under the **Apache License, Version 2.0** ([LICENSE](LICENSE)). Free for academic, clinical, educational, and commercial use.

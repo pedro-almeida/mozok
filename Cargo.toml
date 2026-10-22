@@ -7,14 +7,23 @@ members = [
     "rust/mozok-search",
     "tests",
 ]
+default-members = [
+    "rust/mozok-core",
+    "rust/mozok-atlas",
+    "rust/mozok-navigation",
+    "rust/mozok-streaming",
+    "rust/mozok-search",
+    "tests",
+]
 resolver = "2"
 
 [workspace.package]
 version = "0.1.0"
 edition = "2021"
-authors = ["MOZOK Open Source Contributors"]
-license = "MIT OR Apache-2.0"
+authors = ["Pedro Luís <pedro@mozok.org>", "MOZOK Open Source Contributors"]
+license = "Apache-2.0"
 repository = "https://github.com/pedro-almeida/mozok"
+homepage = "https://mozok.org"
 
 [profile.dev]
 opt-level = 1

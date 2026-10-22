@@ -1,0 +1,17 @@
+[package]
+name = "mozok-godot"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+godot = { version = "0.1", default-features = false, features = ["experimental-threads"] }
+mozok-core = { path = "../mozok-core" }
+mozok-atlas = { path = "../mozok-atlas" }
+mozok-navigation = { path = "../mozok-navigation" }
+mozok-streaming = { path = "../mozok-streaming" }
+mozok-search = { path = "../mozok-search" }
