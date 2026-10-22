@@ -1,0 +1,61 @@
+# Rust & Cargo
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# Godot 4 specific
+.godot/
+*.translation
+*.import
+export.cfg
+export_presets.cfg
+
+# Shared libraries compiled from Rust (GDExtension outputs)
+bin/
+*.dll
+*.so
+*.dylib
+*.wasm
+
+# Mono/C# (if ever invoked)
+.mono/
+[Bb]in/
+[Oo]bj/
+
+# IDEs and Editors
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+.fleet/
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
+
+# Environment and sensitive keys
+.env
+.env.*
+!.env.example
+
+# Large Data & Assets (Neuroimaging/Datasets)
+/datasets/cache/
+/datasets/raw/
+/datasets/downloads/
+*.nii
+*.nii.gz
+*.swc
+*.obj
+*.gltf
+*.glb
+# Preserve sample directories via .gitkeep
+!/datasets/.gitkeep
+!/models/.gitkeep
+!/assets/.gitkeep
