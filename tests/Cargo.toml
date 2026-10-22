@@ -15,3 +15,5 @@ mozok-atlas = { path = "../rust/mozok-atlas" }
 mozok-navigation = { path = "../rust/mozok-navigation" }
 mozok-streaming = { path = "../rust/mozok-streaming" }
 mozok-search = { path = "../rust/mozok-search" }
+mozok-physiology = { path = "../rust/mozok-physiology" }
+mozok-pathology = { path = "../rust/mozok-pathology" }

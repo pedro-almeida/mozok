@@ -56,7 +56,7 @@ far = 2000.0
 [node name="TelemetryPanel" type="PanelContainer" parent="HUD"]
 offset_left = 20.0
 offset_top = 20.0
-offset_right = 380.0
+offset_right = 400.0
 offset_bottom = 175.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
@@ -74,18 +74,81 @@ theme_override_colors/font_color = Color(0.88, 0.92, 0.98, 1.0)
 text = "MOZOK TELEMETRY (v0.1.0-alpha)
 Scale Tier: Whole Organism (10^-1 m)
 Camera Distance: 220.00 mm
-MNI152 Eye: (0.00, 0.00, 0.00) mm
+MNI152 Target: (0.0, 0.0, 0.0) mm
 Floating Origin Shifts: 0
 Memory Governor: 1.5GB Budget [ACTIVE]"
+
+[node name="DiseasePanel" type="PanelContainer" parent="HUD"]
+offset_left = 20.0
+offset_top = 185.0
+offset_right = 400.0
+offset_bottom = 390.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="HUD/DiseasePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="HUD/DiseasePanel/Margin"]
+layout_mode = 2
+
+[node name="DiseaseHeader" type="Label" parent="HUD/DiseasePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(1.0, 0.45, 0.35, 1.0)
+text = "DISEASE & PHYSIOLOGY SIMULATOR"
+
+[node name="CjdToggle" type="CheckButton" parent="HUD/DiseasePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Simulate Creutzfeldt-Jakob Disease (CJD / PrP^Sc)"
+
+[node name="SpeedHBox" type="HBoxContainer" parent="HUD/DiseasePanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="SpeedLabel" type="Label" parent="HUD/DiseasePanel/Margin/VBox/SpeedHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Speed:"
+
+[node name="SpeedSlider" type="HSlider" parent="HUD/DiseasePanel/Margin/VBox/SpeedHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.5
+max_value = 25.0
+step = 0.5
+value = 5.0
+
+[node name="SpeedValue" type="Label" parent="HUD/DiseasePanel/Margin/VBox/SpeedHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "5.0 Days/s"
+
+[node name="HSeparator" type="HSeparator" parent="HUD/DiseasePanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="BiomarkersLabel" type="Label" parent="HUD/DiseasePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.78, 0.85, 0.95, 1.0)
+text = "Elapsed Time: Day 0.0
+Aqueduct CSF Velocity: 32.0 mm/s
+Glymphatic AQP4 Efficiency: 100%
+Protein 14-3-3: 0.40 ng/mL (Normal < 1.0; CJD > 2.0)
+Total Tau: 180 pg/mL (Normal < 300; CJD > 4000)
+RT-QuIC Assay: NEGATIVE"
 
 [node name="QuickJumpPanel" type="PanelContainer" parent="HUD"]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -320.0
+offset_left = -340.0
 offset_top = 20.0
 offset_right = -20.0
-offset_bottom = 320.0
+offset_bottom = 360.0
 grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 

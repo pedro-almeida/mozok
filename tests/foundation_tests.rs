@@ -150,7 +150,7 @@ fn test_scientific_provenance_and_multi_system_dataset() {
 #[test]
 fn test_alpha_seed_ontology_and_logarithmic_camera() {
     let tree = OntologyTree::create_alpha_brain_seed();
-    assert_eq!(tree.len(), 9);
+    assert_eq!(tree.len(), 12);
 
     // Verify Whole Brain (ID 1)
     let wb = tree.get_region(1).expect("Whole Brain node must exist");
@@ -223,5 +223,100 @@ fn test_alpha_seed_ontology_and_logarithmic_camera() {
     assert_eq!(
         selector.resolve_scale_tier(camera.distance_mm),
         SpatialScale::MacroWholeBrain
+    );
+}
+
+#[test]
+fn test_cjd_prion_progression_and_csf_biomarkers() {
+    use mozok_pathology::prion_cjd::CjdSimulator;
+    use mozok_physiology::csf::{CsfHydrodynamics, VentricularCompartment};
+    use mozok_physiology::synapse::SynapticCleftState;
+
+    let mut csf = CsfHydrodynamics::new();
+    let mut cjd = CjdSimulator::new();
+
+    // Verify basal CSF flow velocities and pulsatility
+    let vel_aqueduct_0 =
+        csf.instantaneous_flow_velocity_mm_s(VentricularCompartment::CerebralAqueductOfSylvius);
+    assert!(vel_aqueduct_0 > 25.0 && vel_aqueduct_0 < 60.0);
+    csf.step(0.25);
+    let vel_aqueduct_t =
+        csf.instantaneous_flow_velocity_mm_s(VentricularCompartment::CerebralAqueductOfSylvius);
+    assert_ne!(vel_aqueduct_0, vel_aqueduct_t);
+
+    // Setup network connectome topology:
+    // Thalamus (12) -> Frontal Lobe (2) -> Motor Cortex Betz Cells (8)
+    cjd.add_connectome_edge(12, 2, 1.2);
+    cjd.add_connectome_edge(2, 8, 1.0);
+
+    // Seed sporadic CJD in Thalamus (Pulvinar)
+    cjd.seed_sporadic_cjd(12, 0.45);
+    assert_eq!(cjd.nodes.get(&12).unwrap().prp_sc_scrapie, 0.45);
+    assert_eq!(cjd.nodes.get(&8).unwrap().prp_sc_scrapie, 0.0);
+
+    // Initial biomarkers should be normal
+    assert!(!csf.biomarkers.rt_quic_prion_positive);
+    assert!(csf.biomarkers.total_tau_pg_ml < 300.0);
+    assert!(csf.biomarkers.protein_14_3_3_ng_ml < 1.0);
+
+    // Advance 60 days of disease progression
+    for _ in 0..60 {
+        cjd.step_days(1.0, &mut csf);
+    }
+
+    // 1. Assert PrP^Sc propagation across connected nodes
+    let prp_sc_betz = cjd.nodes.get(&8).unwrap().prp_sc_scrapie;
+    assert!(
+        prp_sc_betz > 0.05,
+        "PrP^Sc must propagate through connectome to Betz cells"
+    );
+
+    // 2. Assert microscopic spongiform vacuole accumulation
+    let vacuole_thalamus = cjd.nodes.get(&12).unwrap().spongiform_vacuole_density;
+    assert!(
+        vacuole_thalamus > 0.25,
+        "Spongiform vacuoles must exceed 0.25 in CJD target"
+    );
+
+    // 3. Assert neuronal survival degradation
+    let survival_thalamus = cjd.nodes.get(&12).unwrap().neuronal_survival;
+    assert!(
+        survival_thalamus < 0.85,
+        "Neuronal survival must degrade in infected region"
+    );
+
+    // 4. Assert CSF biomarkers reflect severe neurolysis & positive RT-QuIC
+    assert!(
+        csf.biomarkers.rt_quic_prion_positive,
+        "RT-QuIC must detect pathogenic prion seeding"
+    );
+    assert!(
+        csf.biomarkers.total_tau_pg_ml > 4000.0,
+        "Total Tau must surge > 4000 pg/mL in CJD"
+    );
+    assert!(
+        csf.biomarkers.protein_14_3_3_ng_ml > 2.0,
+        "14-3-3 protein must exceed 2.0 ng/mL in CJD"
+    );
+    assert!(
+        csf.biomarkers.glymphatic_aqp4_efficiency < 0.85,
+        "Glymphatic clearance must be impaired"
+    );
+
+    // 5. Assert synaptic degeneration under prion load
+    let mut synapse = SynapticCleftState::new();
+    synapse.trigger_action_potential();
+    assert!(synapse.glutamate_concentration_umol > 500.0);
+    // Apply chronic toxic prion load
+    for _ in 0..100 {
+        synapse.step_kinetics(0.01, prp_sc_betz);
+    }
+    assert!(
+        synapse.structural_integrity < 1.0,
+        "Synaptic integrity must degrade under prion toxicity"
+    );
+    assert!(
+        synapse.cleft_width_nm > 20.0,
+        "Synaptic cleft must pathologically widen"
     );
 }

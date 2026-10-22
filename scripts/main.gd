@@ -4,17 +4,24 @@ extends Node3D
 ## "Google Earth for the Human Body" — The Brain is Only the Beginning
 ##
 ## Implements continuous 6-DOF logarithmic navigation, floating-origin stabilization,
-## procedural multi-scale visual proxies, and scientific provenance tracking.
+## pulsatile cerebrospinal fluid (CSF) hydrodynamics, active synaptic neurotransmission,
+## and multi-scale Creutzfeldt-Jakob Disease (CJD / PrP^Sc) pathophysiology simulation.
 
 @onready var camera: Camera3D = $NeuroCamera
 @onready var brain_root: Node3D = $BrainRoot
 
-# Telemetry HUD
-@onready var telemetry_label: Label = $HUD/TelemetryPanel/TelemetryLabel
-@onready var provenance_title: Label = $HUD/ProvenanceBanner/TitleLabel
-@onready var provenance_details: Label = $HUD/ProvenanceBanner/DetailsLabel
-@onready var provenance_doi: Label = $HUD/ProvenanceBanner/DoiLabel
-@onready var search_buttons_container: VBoxContainer = $HUD/QuickJumpPanel/Scroll/VBox
+# Telemetry & Provenance HUD
+@onready var telemetry_label: Label = $HUD/TelemetryPanel/Margin/TelemetryLabel
+@onready var provenance_title: Label = $HUD/ProvenanceBanner/Margin/VBox/TitleLabel
+@onready var provenance_details: Label = $HUD/ProvenanceBanner/Margin/VBox/DetailsLabel
+@onready var provenance_doi: Label = $HUD/ProvenanceBanner/Margin/VBox/HBox/DoiLabel
+@onready var search_buttons_container: VBoxContainer = $HUD/QuickJumpPanel/Margin/VBox/Scroll/VBox
+
+# Disease Simulation Controls
+@onready var cjd_toggle_btn: CheckButton = $HUD/DiseasePanel/Margin/VBox/CjdToggle
+@onready var cjd_speed_slider: HSlider = $HUD/DiseasePanel/Margin/VBox/SpeedHBox/SpeedSlider
+@onready var cjd_speed_label: Label = $HUD/DiseasePanel/Margin/VBox/SpeedHBox/SpeedValue
+@onready var csf_biomarker_label: Label = $HUD/DiseasePanel/Margin/VBox/BiomarkersLabel
 
 # Spatial scale categories matching mozok-core
 enum SpatialScale {
@@ -35,7 +42,7 @@ var camera_pitch_rad: float = 0.0
 const MIN_DISTANCE_MM: float = 0.00005 # 50 nm
 const MAX_DISTANCE_MM: float = 500.0   # 0.5 m
 
-# Floating Origin stabilization (prevents 32-bit GPU jitter at micro/nano scales)
+# Floating Origin stabilization
 var floating_origin_mni: Vector3 = Vector3.ZERO
 const RECENTER_THRESHOLD_MM: float = 50.0
 var recenter_count: int = 0
@@ -50,11 +57,47 @@ var last_mouse_pos: Vector2 = Vector2.ZERO
 var alpha_regions: Dictionary = {}
 var proxy_nodes: Dictionary = {}
 
+# -------------------------------------------------------------
+# Living Physiology State
+# -------------------------------------------------------------
+var phys_time_sec: float = 0.0
+const HEART_RATE_HZ: float = 1.1        # 66 bpm
+const RESPIRATORY_RATE_HZ: float = 0.25  # 15 bpm
+var csf_flow_aqueduct_mm_s: float = 32.0
+var glymphatic_aqp4_eff: float = 1.0
+
+# Synaptic active transmission (Micro/Nano scale)
+var synaptic_vesicles: int = 200
+var synaptic_glutamate_umol: float = 0.0
+var synaptic_integrity: float = 1.0
+var vesicle_nodes: Array[MeshInstance3D] = []
+
+# -------------------------------------------------------------
+# Creutzfeldt-Jakob Disease (CJD) Simulator State
+# -------------------------------------------------------------
+var cjd_active: bool = false
+var cjd_speed_days_per_sec: float = 5.0
+var cjd_elapsed_days: float = 0.0
+
+# Regional pathology: prp_sc, vacuole_density, astrogliosis, neuronal_survival
+var cjd_regions: Dictionary = {}
+
+# Biomarkers
+var protein_14_3_3_ng_ml: float = 0.4
+var total_tau_pg_ml: float = 180.0
+var rt_quic_positive: bool = false
+
+# Procedural Spongiform Vacuoles and Amyloid Plaques
+var vacuole_nodes: Array[Node3D] = []
+var plaque_nodes: Array[MeshInstance3D] = []
+
 func _ready() -> void:
-	print("[MOZOK] Interactive Alpha v0.1.0 presentation initialized.")
+	print("[MOZOK] Interactive Living Brain & CJD Simulation Engine initialized.")
 	_init_alpha_seed_data()
+	_init_cjd_pathology_state()
 	_create_visual_proxies()
 	_build_quick_jump_ui()
+	_setup_disease_ui()
 	_update_camera_transform()
 	_update_hud()
 
@@ -83,6 +126,19 @@ func _init_alpha_seed_data() -> void:
 		"color": Color(0.28, 0.52, 0.95, 0.55),
 		"citation": "Desikan et al. (2006) Cortical Parcellation",
 		"context": "Macro-scale anatomical lobar demarcation",
+		"doi": "10.1016/j.neuroimage.2006.01.021"
+	}
+	alpha_regions[3] = {
+		"id": 3,
+		"acronym": "TL",
+		"name": "Temporal Lobe",
+		"scale": SpatialScale.MACRO_LOBES,
+		"center": Vector3(50, -15, -15),
+		"radius": 45.0,
+		"optimal_dist": 85.0,
+		"color": Color(0.85, 0.55, 0.22, 0.55),
+		"citation": "Desikan et al. (2006) Cortical Parcellation",
+		"context": "Archicortex and neocortical auditory/memory centers",
 		"doi": "10.1016/j.neuroimage.2006.01.021"
 	}
 	alpha_regions[4] = {
@@ -163,6 +219,58 @@ func _init_alpha_seed_data() -> void:
 		"context": "Synaptic cleft width ~20 nm, vesicle pool & postsynaptic density",
 		"doi": "10.1126/science.adk4858"
 	}
+	alpha_regions[10] = {
+		"id": 10,
+		"acronym": "VENT-LAT",
+		"name": "Lateral Ventricles & Choroid Plexus (CSF)",
+		"scale": SpatialScale.MESO_STRUCTURES,
+		"center": Vector3(0, -10, 15),
+		"radius": 28.0,
+		"optimal_dist": 35.0,
+		"color": Color(0.12, 0.82, 0.92, 0.45),
+		"citation": "Nedergaard et al. (Glymphatic System Discovery) (2013) Science",
+		"context": "Macroscopic ventricular volume and perivascular Virchow-Robin spaces",
+		"doi": "10.1126/science.1234098"
+	}
+	alpha_regions[11] = {
+		"id": 11,
+		"acronym": "AQUEDUCT",
+		"name": "Cerebral Aqueduct of Sylvius (CSF Flow)",
+		"scale": SpatialScale.MESO_STRUCTURES,
+		"center": Vector3(0, -28, -8),
+		"radius": 5.0,
+		"optimal_dist": 15.0,
+		"color": Color(0.20, 0.70, 1.0, 0.60),
+		"citation": "Barkhof et al. High-resolution MRI of CSF Circulation",
+		"context": "Peak pulsatile ventricular flow velocity ~30–50 mm/s",
+		"doi": "10.1148/radiology.182.2.1732958"
+	}
+	alpha_regions[12] = {
+		"id": 12,
+		"acronym": "PULV",
+		"name": "Pulvinar & Medial Thalamus (CJD Target)",
+		"scale": SpatialScale.MESO_STRUCTURES,
+		"center": Vector3(-12, -24, 6),
+		"radius": 12.0,
+		"optimal_dist": 20.0,
+		"color": Color(0.75, 0.28, 0.55, 0.70),
+		"citation": "Zerr et al. (European CJD Surveillance Consortium) (2009) Lancet Neurol",
+		"context": "Bilateral pulvinar and hockey-stick high-signal intensity on MRI DWI",
+		"doi": "10.1016/S1474-4422(09)70291-1"
+	}
+
+func _init_cjd_pathology_state() -> void:
+	for id in alpha_regions.keys():
+		cjd_regions[id] = {
+			"prp_c": 1.0,
+			"prp_sc": 0.0,
+			"vacuole_density": 0.0,
+			"astrogliosis": 0.0,
+			"neuronal_survival": 1.0
+		}
+	# Seed initial infection in Pulvinar Thalamus (classic sCJD initiation)
+	cjd_regions[12]["prp_sc"] = 0.5
+	cjd_regions[12]["prp_c"] = 0.5
 
 func _create_visual_proxies() -> void:
 	for id in alpha_regions.keys():
@@ -170,7 +278,6 @@ func _create_visual_proxies() -> void:
 		var node = Node3D.new()
 		node.name = "Proxy_" + str(data["acronym"])
 		
-		# Build representative geometry for each scale
 		var mesh_inst = MeshInstance3D.new()
 		var mat = StandardMaterial3D.new()
 		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -181,7 +288,6 @@ func _create_visual_proxies() -> void:
 		mat.emission_energy_multiplier = 0.25
 		
 		if data["scale"] == SpatialScale.MICRO_NEURONS:
-			# Stylized Betz cell: Soma + apical dendrite cylinder
 			var sphere = SphereMesh.new()
 			sphere.radius = data["radius"]
 			sphere.height = data["radius"] * 2.0
@@ -199,7 +305,6 @@ func _create_visual_proxies() -> void:
 			dendrite.material_override = mat
 			node.add_child(dendrite)
 		elif data["scale"] == SpatialScale.MICRO_SYNAPSES:
-			# Pre- and post-synaptic pair
 			var pre = SphereMesh.new()
 			pre.radius = data["radius"] * 0.7
 			pre.height = data["radius"] * 1.4
@@ -212,11 +317,40 @@ func _create_visual_proxies() -> void:
 			post_mesh.radius = data["radius"] * 0.7
 			post_mesh.height = data["radius"] * 1.4
 			post.mesh = post_mesh
-			post.position = Vector3(data["radius"] * 1.2, 0, 0)
+			post.position = Vector3(data["radius"] * 1.4, 0, 0)
 			var post_mat = mat.duplicate()
 			post_mat.albedo_color = Color(0.9, 0.4, 0.1, 0.95)
 			post.material_override = post_mat
 			node.add_child(post)
+			
+			# Create animated neurotransmitter vesicle particles
+			for i in range(8):
+				var v = MeshInstance3D.new()
+				var sm = SphereMesh.new()
+				sm.radius = data["radius"] * 0.12
+				sm.height = data["radius"] * 0.24
+				v.mesh = sm
+				var vm = StandardMaterial3D.new()
+				vm.albedo_color = Color(1.0, 1.0, 0.3, 0.9)
+				vm.emission_enabled = true
+				vm.emission = Color(1.0, 1.0, 0.3)
+				v.material_override = vm
+				v.position = Vector3(randf_range(0.1, 0.9) * data["radius"], randf_range(-0.3, 0.3) * data["radius"], 0)
+				node.add_child(v)
+				vesicle_nodes.append(v)
+		elif id == 10 or id == 11:
+			# Ventricular Cavities (CSF)
+			var tor = TorusMesh.new() if id == 10 else CylinderMesh.new()
+			if id == 10:
+				tor.inner_radius = data["radius"] * 0.4
+				tor.outer_radius = data["radius"]
+			else:
+				tor.top_radius = data["radius"] * 0.5
+				tor.bottom_radius = data["radius"] * 0.5
+				tor.height = data["radius"] * 2.5
+			mesh_inst.mesh = tor
+			mesh_inst.material_override = mat
+			node.add_child(mesh_inst)
 		else:
 			var sphere = SphereMesh.new()
 			sphere.radius = data["radius"]
@@ -234,12 +368,14 @@ func _build_quick_jump_ui() -> void:
 		
 	var jump_list = [
 		{"label": "[1] Whole Brain (220mm)", "id": 1},
-		{"label": "[2] Motor Cortex M1 (25mm)", "id": 4},
-		{"label": "[3] Hippocampus (18mm)", "id": 5},
-		{"label": "[4] Substantia Nigra (12mm)", "id": 6},
-		{"label": "[5] Layer V Tissue (1.8mm)", "id": 7},
-		{"label": "[6] Betz Giant Neuron (0.12mm)", "id": 8},
-		{"label": "[7] Synaptic Cleft (2µm)", "id": 9},
+		{"label": "[2] Frontal Lobe (90mm)", "id": 2},
+		{"label": "[3] Lateral Ventricles (CSF)", "id": 10},
+		{"label": "[4] Cerebral Aqueduct (Flow)", "id": 11},
+		{"label": "[5] Pulvinar Thalamus (CJD)", "id": 12},
+		{"label": "[6] Motor Cortex M1 (25mm)", "id": 4},
+		{"label": "[7] Layer V Pyramidal Tissue", "id": 7},
+		{"label": "[8] Betz Giant Neuron (0.12mm)", "id": 8},
+		{"label": "[9] Synaptic Cleft (2µm)", "id": 9},
 	]
 	
 	for item in jump_list:
@@ -249,6 +385,128 @@ func _build_quick_jump_ui() -> void:
 		var target_id: int = item["id"]
 		btn.pressed.connect(func(): focus_on_region(target_id))
 		search_buttons_container.add_child(btn)
+
+func _setup_disease_ui() -> void:
+	cjd_toggle_btn.toggled.connect(func(pressed: bool):
+		cjd_active = pressed
+		print("[MOZOK] CJD Simulation active: ", cjd_active)
+	)
+	cjd_speed_slider.value_changed.connect(func(val: float):
+		cjd_speed_days_per_sec = val
+		cjd_speed_label.text = "%.1f Days/s" % val
+	)
+
+func _process(delta: float) -> void:
+	# 1. Living Physiology Update
+	phys_time_sec += delta
+	var card_pulse = sin(2.0 * PI * HEART_RATE_HZ * phys_time_sec)
+	var resp_pulse = sin(2.0 * PI * RESPIRATORY_RATE_HZ * phys_time_sec)
+	csf_flow_aqueduct_mm_s = (32.0 + 18.0 * card_pulse + 7.0 * resp_pulse) * glymphatic_aqp4_eff
+	
+	# Animate ventricular pulsation & aqueduct CSF stream
+	if proxy_nodes.has(10):
+		var v_node = proxy_nodes[10]
+		var pulse_scale = 1.0 + 0.03 * card_pulse
+		# Ex-vacuo ventricular dilation under CJD neurodegeneration
+		var dilation = 1.0 + 0.45 * (1.0 - _get_mean_neuronal_survival())
+		v_node.scale = Vector3(pulse_scale, pulse_scale, pulse_scale) * dilation
+	
+	# Animate micro-scale synaptic vesicle transmission across cleft
+	for i in range(vesicle_nodes.size()):
+		var v = vesicle_nodes[i]
+		var t = fmod(phys_time_sec * 3.0 + float(i) * 0.35, 1.0)
+		var cleft_dist = 0.0015 * 1.4
+		v.position.x = t * cleft_dist
+		v.visible = (synaptic_integrity > 0.15)
+	
+	# 2. CJD Pathophysiology Simulation Progression
+	if cjd_active:
+		var sim_days = delta * cjd_speed_days_per_sec
+		_step_cjd_simulation(sim_days)
+		
+	_update_hud()
+
+func _step_cjd_simulation(dt_days: float) -> void:
+	cjd_elapsed_days += dt_days
+	
+	# Connectome diffusion network: Thalamus (12) <-> Frontal (2) <-> Motor (4) <-> Layer V (7) <-> Betz (8)
+	var edges = [
+		{"from": 12, "to": 2, "weight": 1.2},
+		{"from": 12, "to": 3, "weight": 0.9},
+		{"from": 2, "to": 4, "weight": 1.1},
+		{"from": 4, "to": 7, "weight": 1.5},
+		{"from": 7, "to": 8, "weight": 1.8},
+		{"from": 8, "to": 9, "weight": 2.0},
+	]
+	
+	var diff_flux: Dictionary = {}
+	for id in cjd_regions.keys():
+		diff_flux[id] = 0.0
+		
+	for edge in edges:
+		var u: int = edge["from"]
+		var v: int = edge["to"]
+		if cjd_regions.has(u) and cjd_regions.has(v):
+			var sc_u: float = cjd_regions[u]["prp_sc"]
+			var sc_v: float = cjd_regions[v]["prp_sc"]
+			var flux = 0.035 * edge["weight"] * (sc_u - sc_v)
+			diff_flux[v] += flux
+			diff_flux[u] -= flux
+			
+	var aqp4_clearance = glymphatic_aqp4_eff * 0.012
+	var max_prp_sc = 0.0
+	var total_prp_sc = 0.0
+	
+	for id in cjd_regions.keys():
+		var node = cjd_regions[id]
+		var diff: float = diff_flux[id]
+		
+		# Autocatalytic conversion: PrP^C + PrP^Sc -> 2 PrP^Sc
+		var converted = min(0.08 * node["prp_c"] * node["prp_sc"], node["prp_c"])
+		var cleared = node["prp_sc"] * aqp4_clearance
+		
+		node["prp_c"] = max(0.0, node["prp_c"] - converted * dt_days)
+		node["prp_sc"] = clamp(node["prp_sc"] + (converted - cleared + diff) * dt_days, 0.0, 10.0)
+		
+		# Spongiform vacuolation & astrogliosis
+		node["vacuole_density"] = clamp(node["vacuole_density"] + 0.04 * node["prp_sc"] * dt_days, 0.0, 1.0)
+		node["astrogliosis"] = clamp(node["astrogliosis"] + 0.035 * node["prp_sc"] * dt_days, 0.0, 1.0)
+		node["neuronal_survival"] = clamp(node["neuronal_survival"] - 0.035 * node["vacuole_density"] * dt_days, 0.0, 1.0)
+		
+		total_prp_sc += node["prp_sc"]
+		max_prp_sc = max(max_prp_sc, node["prp_sc"])
+		
+		# Visual feedback: update material colors & cortical ribboning glow
+		if proxy_nodes.has(id):
+			var p_node = proxy_nodes[id]
+			var mi = p_node.get_child(0) as MeshInstance3D
+			if mi and mi.material_override:
+				var mat = mi.material_override as StandardMaterial3D
+				# DWI Hyperintensity ribboning (bright yellow-green glow)
+				if node["prp_sc"] > 0.1:
+					var glow_intensity = clamp(node["prp_sc"] * 0.8, 0.0, 2.5)
+					mat.emission = Color(0.8, 1.0, 0.2)
+					mat.emission_energy_multiplier = 0.25 + glow_intensity
+					# Atrophy shrinkage
+					var atrophy = 1.0 - 0.25 * (1.0 - node["neuronal_survival"])
+					p_node.scale = Vector3(atrophy, atrophy, atrophy)
+					
+	var mean_prp_sc = total_prp_sc / float(cjd_regions.size())
+	glymphatic_aqp4_eff = clamp(1.0 - 0.7 * min(mean_prp_sc, 1.0), 0.15, 1.0)
+	
+	if max_prp_sc > 0.15:
+		rt_quic_positive = true
+		
+	var cell_loss = 1.0 - _get_mean_neuronal_survival()
+	protein_14_3_3_ng_ml = 0.4 + 5.0 * cell_loss
+	total_tau_pg_ml = 180.0 + 12000.0 * cell_loss
+	synaptic_integrity = clamp(1.0 - max_prp_sc * 0.6, 0.0, 1.0)
+
+func _get_mean_neuronal_survival() -> float:
+	var total = 0.0
+	for id in cjd_regions.keys():
+		total += cjd_regions[id]["neuronal_survival"]
+	return total / float(cjd_regions.size())
 
 func focus_on_region(id: int) -> void:
 	if not alpha_regions.has(id):
@@ -288,7 +546,6 @@ func orbit(delta_yaw: float, delta_pitch: float) -> void:
 	_update_hud()
 
 func _update_camera_transform() -> void:
-	# Compute world position in MNI coordinates from spherical orbit
 	var cos_p: float = cos(camera_pitch_rad)
 	var sin_p: float = sin(camera_pitch_rad)
 	var cos_y: float = cos(camera_yaw_rad)
@@ -297,17 +554,14 @@ func _update_camera_transform() -> void:
 	var dir = Vector3(sin_y * cos_p, sin_p, cos_y * cos_p)
 	var world_eye_mni: Vector3 = camera_target_mni + dir * camera_distance_mm
 	
-	# Floating origin check: if eye drifts far from current origin, recenter
 	if (world_eye_mni - floating_origin_mni).length() > RECENTER_THRESHOLD_MM:
 		floating_origin_mni = world_eye_mni
 		recenter_count += 1
 		
-	# Transform scene root relative to floating origin
 	brain_root.position = -floating_origin_mni
 	camera.position = world_eye_mni - floating_origin_mni
 	camera.look_at(camera_target_mni - floating_origin_mni, Vector3.UP)
 	
-	# Update spatial scale tier
 	current_scale = _resolve_scale(camera_distance_mm)
 	_update_lod_visibility()
 
@@ -326,13 +580,11 @@ func _resolve_scale(dist_mm: float) -> SpatialScale:
 		return SpatialScale.MICRO_SYNAPSES
 
 func _update_lod_visibility() -> void:
-	# Position proxy nodes in brain_root (MNI coordinates)
 	for id in proxy_nodes.keys():
 		var node: Node3D = proxy_nodes[id]
 		var data: Dictionary = alpha_regions[id]
 		node.position = data["center"]
 		
-		# Hierarchical visibility & cross-fading
 		var s: SpatialScale = data["scale"]
 		var visible_tier: bool = false
 		match current_scale:
@@ -352,7 +604,6 @@ func _update_lod_visibility() -> void:
 		node.visible = visible_tier
 
 func _update_hud() -> void:
-	# Format distance with scientific units
 	var dist_str: String = ""
 	if camera_distance_mm >= 1.0:
 		dist_str = "%.2f mm" % camera_distance_mm
@@ -371,7 +622,7 @@ func _update_hud() -> void:
 			scale_name = "Organ Lobes & Sulci"
 			order_mag = "10^-2 m"
 		SpatialScale.MESO_STRUCTURES:
-			scale_name = "Anatomical Nuclei / Structures"
+			scale_name = "Anatomical Nuclei / Ventricles"
 			order_mag = "10^-3 m"
 		SpatialScale.MESO_TISSUE:
 			scale_name = "Cortical Layers / Tissue"
@@ -386,11 +637,30 @@ func _update_hud() -> void:
 	telemetry_label.text = "MOZOK TELEMETRY (v0.1.0-alpha)\n" \
 		+ "Scale Tier: %s (%s)\n" % [scale_name, order_mag] \
 		+ "Camera Distance: %s\n" % dist_str \
-		+ "MNI152 Eye: (%.2f, %.2f, %.2f) mm\n" % [camera_target_mni.x, camera_target_mni.y, camera_target_mni.z] \
+		+ "MNI152 Target: (%.1f, %.1f, %.1f) mm\n" % [camera_target_mni.x, camera_target_mni.y, camera_target_mni.z] \
 		+ "Floating Origin Shifts: %d\n" % recenter_count \
 		+ "Memory Governor: 1.5GB Budget [ACTIVE]"
 
 	var reg = alpha_regions[active_region_id]
-	provenance_title.text = "%s [%s] — %s" % [reg["name"], reg["acronym"], scale_name]
+	var node_pathology = cjd_regions.get(active_region_id, {})
+	var prp_info = ""
+	if cjd_active and node_pathology.has("prp_sc"):
+		prp_info = " | PrP^Sc: %.2f | Spongiform Vacuoles: %.1f%% | Survival: %.1f%%" % [
+			node_pathology["prp_sc"],
+			node_pathology["vacuole_density"] * 100.0,
+			node_pathology["neuronal_survival"] * 100.0
+		]
+		
+	provenance_title.text = "%s [%s] — %s%s" % [reg["name"], reg["acronym"], scale_name, prp_info]
 	provenance_details.text = "Citation: %s\nSpecimen Context: %s" % [reg["citation"], reg["context"]]
 	provenance_doi.text = "DOI: %s" % reg["doi"]
+
+	# Biomarkers readout
+	var rt_str = "POSITIVE (Prion Amyloid Detected)" if rt_quic_positive else "NEGATIVE"
+	var rt_color = "red" if rt_quic_positive else "lightgreen"
+	csf_biomarker_label.text = "Elapsed Time: Day %.1f\n" % cjd_elapsed_days \
+		+ "Aqueduct CSF Velocity: %.1f mm/s\n" % csf_flow_aqueduct_mm_s \
+		+ "Glymphatic AQP4 Efficiency: %.0f%%\n" % (glymphatic_aqp4_eff * 100.0) \
+		+ "Protein 14-3-3: %.2f ng/mL (Normal < 1.0; CJD > 2.0)\n" % protein_14_3_3_ng_ml \
+		+ "Total Tau: %.0f pg/mL (Normal < 300; CJD > 4000)\n" % total_tau_pg_ml \
+		+ "RT-QuIC Assay: %s" % rt_str

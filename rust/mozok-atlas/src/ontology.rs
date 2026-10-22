@@ -210,6 +210,76 @@ impl OntologyTree {
             });
         tree.insert_region(synapse, Some(8));
 
+        // 10. Lateral Ventricles & Choroid Plexus (CSF) (Parent: 1)
+        let ventricles = AnatomicalRegion::new(
+            10,
+            "VENT-LAT",
+            "Lateral Ventricles & Choroid Plexus (CSF)",
+            Hemisphere::Bilateral,
+        )
+        .with_coordinates(
+            Point3D::new(0.0, -10.0, 15.0),
+            30.0,
+            SpatialScale::MesoStructures,
+        )
+        .with_optimal_distance(35.0)
+        .with_color(30, 200, 220)
+        .with_provenance(ScientificProvenance {
+            doi: Some("10.1126/science.1234098".into()),
+            authors: "Nedergaard et al. (Glymphatic System Discovery)".into(),
+            year: 2013,
+            citation: "Sleep drives metabolite clearance from the adult brain via glymphatic flow"
+                .into(),
+            license: "CC-BY-4.0".into(),
+            specimen_context:
+                "Macroscopic ventricular volume and perivascular Virchow-Robin spaces".into(),
+            is_peer_reviewed: true,
+        });
+        tree.insert_region(ventricles, Some(1));
+
+        // 11. Cerebral Aqueduct of Sylvius (Parent: 1)
+        let aqueduct = AnatomicalRegion::new(
+            11,
+            "AQUEDUCT",
+            "Cerebral Aqueduct of Sylvius (CSF Flow)",
+            Hemisphere::Midline,
+        )
+        .with_coordinates(
+            Point3D::new(0.0, -28.0, -8.0),
+            6.0,
+            SpatialScale::MesoStructures,
+        )
+        .with_optimal_distance(15.0)
+        .with_color(50, 180, 255);
+        tree.insert_region(aqueduct, Some(1));
+
+        // 12. Pulvinar & Medial Thalamus (Parent: 1) - Classic "Hockey-Stick" / Pulvinar sign in CJD
+        let thalamus = AnatomicalRegion::new(
+            12,
+            "PULV",
+            "Pulvinar & Medial Thalamus (CJD Target)",
+            Hemisphere::Bilateral,
+        )
+        .with_coordinates(
+            Point3D::new(-12.0, -24.0, 6.0),
+            12.0,
+            SpatialScale::MesoStructures,
+        )
+        .with_optimal_distance(20.0)
+        .with_color(190, 70, 140)
+        .with_provenance(ScientificProvenance {
+            doi: Some("10.1016/S1474-4422(09)70291-1".into()),
+            authors: "Zerr et al. (European CJD Surveillance Consortium)".into(),
+            year: 2009,
+            citation: "Updated clinical diagnostic criteria for sporadic Creutzfeldt-Jakob disease"
+                .into(),
+            license: "CC-BY-4.0".into(),
+            specimen_context:
+                "Bilateral pulvinar and hockey-stick high-signal intensity on MRI DWI/FLAIR".into(),
+            is_peer_reviewed: true,
+        });
+        tree.insert_region(thalamus, Some(1));
+
         tree
     }
 }

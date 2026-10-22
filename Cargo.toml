@@ -5,6 +5,8 @@ members = [
     "rust/mozok-navigation",
     "rust/mozok-streaming",
     "rust/mozok-search",
+    "rust/mozok-physiology",
+    "rust/mozok-pathology",
     "tests",
 ]
 default-members = [
@@ -13,6 +15,8 @@ default-members = [
     "rust/mozok-navigation",
     "rust/mozok-streaming",
     "rust/mozok-search",
+    "rust/mozok-physiology",
+    "rust/mozok-pathology",
     "tests",
 ]
 resolver = "2"
