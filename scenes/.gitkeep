@@ -1,0 +1,6 @@
+# Godot Scenes Directory
+Contains `.tscn` and `.tres` definitions for Godot 4:
+- Main viewport
+- Multi-scale camera controller
+- Diagnostic HUD and HUD overlays
+- Hierarchical region pickers

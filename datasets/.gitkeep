@@ -1,0 +1,4 @@
+# Datasets Directory
+This directory serves as the local development mount point for external neuroimaging data, atlas schemas, and chunk caches.
+Actual scan data (.nii, .swc, .zarr, .h5) is excluded via `.gitignore` to maintain a lightweight repository.
+Refer to `/docs` for data acquisition and ingestion tooling.
