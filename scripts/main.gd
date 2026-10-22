@@ -36,8 +36,8 @@ enum SpatialScale {
 # 6-DOF Orbital & Logarithmic Camera State
 var camera_target_mni: Vector3 = Vector3.ZERO
 var camera_distance_mm: float = 220.0
-var camera_yaw_rad: float = 0.0
-var camera_pitch_rad: float = 0.0
+var camera_yaw_rad: float = 0.55
+var camera_pitch_rad: float = 0.28
 
 const MIN_DISTANCE_MM: float = 0.00005 # 50 nm
 const MAX_DISTANCE_MM: float = 500.0   # 0.5 m
@@ -287,7 +287,84 @@ func _create_visual_proxies() -> void:
 		mat.emission = data["color"]
 		mat.emission_energy_multiplier = 0.25
 		
-		if data["scale"] == SpatialScale.MICRO_NEURONS:
+		if id == 1:
+			# Whole Human Brain (Мозок): Procedural Anatomical Brain Architecture
+			# Left & Right Cerebral Hemispheres, Cerebellum, and Brainstem
+			var hemisphere_mat = StandardMaterial3D.new()
+			hemisphere_mat.albedo_color = Color(0.88, 0.76, 0.72, 1.0) # Warm cortical grey/pink
+			hemisphere_mat.roughness = 0.45
+			hemisphere_mat.specular = 0.5
+			hemisphere_mat.rim_enabled = true
+			hemisphere_mat.rim = 0.6
+			hemisphere_mat.rim_tint = 0.5
+			
+			# Left Hemisphere
+			var left_hemi = MeshInstance3D.new()
+			var left_mesh = SphereMesh.new()
+			left_mesh.radius = 42.0
+			left_mesh.height = 135.0
+			left_mesh.radial_segments = 32
+			left_mesh.rings = 16
+			left_hemi.mesh = left_mesh
+			left_hemi.scale = Vector3(0.9, 0.95, 1.25)
+			left_hemi.position = Vector3(-24.0, 5.0, 0.0)
+			left_hemi.material_override = hemisphere_mat
+			node.add_child(left_hemi)
+			
+			# Right Hemisphere
+			var right_hemi = MeshInstance3D.new()
+			var right_mesh = SphereMesh.new()
+			right_mesh.radius = 42.0
+			right_mesh.height = 135.0
+			right_mesh.radial_segments = 32
+			right_mesh.rings = 16
+			right_hemi.mesh = right_mesh
+			right_hemi.scale = Vector3(0.9, 0.95, 1.25)
+			right_hemi.position = Vector3(24.0, 5.0, 0.0)
+			right_hemi.material_override = hemisphere_mat
+			node.add_child(right_hemi)
+			
+			# Cerebellum (Posterior-Inferior)
+			var cereb_mat = StandardMaterial3D.new()
+			cereb_mat.albedo_color = Color(0.82, 0.68, 0.65, 1.0)
+			cereb_mat.roughness = 0.5
+			cereb_mat.rim_enabled = true
+			cereb_mat.rim = 0.5
+			
+			var cereb_l = MeshInstance3D.new()
+			var cereb_mesh = SphereMesh.new()
+			cereb_mesh.radius = 22.0
+			cereb_mesh.height = 36.0
+			cereb_l.mesh = cereb_mesh
+			cereb_l.scale = Vector3(1.1, 0.8, 0.9)
+			cereb_l.position = Vector3(-18.0, -32.0, -36.0)
+			cereb_l.material_override = cereb_mat
+			node.add_child(cereb_l)
+			
+			var cereb_r = MeshInstance3D.new()
+			cereb_r.mesh = cereb_mesh
+			cereb_r.scale = Vector3(1.1, 0.8, 0.9)
+			cereb_r.position = Vector3(18.0, -32.0, -36.0)
+			cereb_r.material_override = cereb_mat
+			node.add_child(cereb_r)
+			
+			# Brainstem (Inferior/Spinal Cord transition)
+			var stem_mat = StandardMaterial3D.new()
+			stem_mat.albedo_color = Color(0.85, 0.80, 0.74, 1.0)
+			stem_mat.roughness = 0.4
+			
+			var stem = MeshInstance3D.new()
+			var stem_mesh = CylinderMesh.new()
+			stem_mesh.top_radius = 11.0
+			stem_mesh.bottom_radius = 8.0
+			stem_mesh.height = 55.0
+			stem.mesh = stem_mesh
+			stem.position = Vector3(0.0, -48.0, -16.0)
+			stem.rotation_degrees = Vector3(12.0, 0.0, 0.0)
+			stem.material_override = stem_mat
+			node.add_child(stem)
+			
+		elif data["scale"] == SpatialScale.MICRO_NEURONS:
 			var sphere = SphereMesh.new()
 			sphere.radius = data["radius"]
 			sphere.height = data["radius"] * 2.0
