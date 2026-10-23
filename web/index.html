@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOZOK v1.0 — Interactive 3D Human Brain & 500-Neuron Connectome Atlas</title>
+  <meta name="description" content="Google Earth for the Human Brain — Multi-scale neuroanatomical explorer, 500-neuron connectome, living CSF hydrodynamics, CJD prion pathophysiology simulator, and natural AI voice narration.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #060911;
+      --bg-panel: rgba(10, 16, 28, 0.88);
+      --bg-panel-border: rgba(45, 75, 125, 0.45);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-cyan: #00f2fe;
+      --accent-blue: #38bdf8;
+      --accent-emerald: #10b981;
+      --accent-gold: #fbbf24;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #webgl-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      outline: none;
+    }
+
+    /* TOP HEADER & TELEMETRY BAR */
+    .top-header {
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .brand-pill {
+      pointer-events: auto;
+      background: var(--bg-panel);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 12px;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #ffffff 0%, var(--accent-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .top-controls {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-action {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--text-main);
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-action:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-action.active {
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.3), rgba(56, 189, 248, 0.4));
+      border-color: var(--accent-cyan);
+      color: #ffffff;
+      box-shadow: 0 0 24px rgba(0, 242, 254, 0.5);
+    }
+
+    .btn-action.danger.active {
+      background: linear-gradient(135deg, rgba(244, 63, 94, 0.35), rgba(225, 29, 72, 0.45));
+      border-color: var(--accent-rose);
+      box-shadow: 0 0 24px rgba(244, 63, 94, 0.5);
+    }
+
+    /* COMPACT BIOMARKER & METRICS BAR */
+    .metrics-bar {
+      position: absolute;
+      top: 76px;
+      left: 16px;
+      right: 16px;
+      z-index: 10;
+      pointer-events: auto;
+      background: rgba(10, 16, 28, 0.82);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 10px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+    }
+
+    .metric-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .metric-label {
+      color: var(--text-muted);
+    }
+
+    .metric-val {
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+
+    .metric-val.warn {
+      color: var(--accent-rose);
+    }
+
+    .metric-val.gold {
+      color: var(--accent-gold);
+    }
+
+    /* LEFT SIDEBAR: 14 ANATOMICAL STUDY AREAS */
+    .sidebar-left {
+      position: absolute;
+      top: 130px;
+      bottom: 120px;
+      left: 16px;
+      width: 330px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 14px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .sidebar-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .search-box {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 7px 12px;
+      color: var(--text-main);
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-box:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .regions-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .regions-list::-webkit-scrollbar {
+      width: 5px;
+    }
+    .regions-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+
+    .region-item {
+      padding: 9px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+    }
+
+    .region-item:hover {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+
+    .region-item.active {
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(56, 189, 248, 0.25));
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 16px rgba(0, 242, 254, 0.25);
+    }
+
+    .region-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .region-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .region-tier {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .region-badge {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 3px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--accent-cyan);
+    }
+
+    /* RIGHT HUD: MULTI-SCALE ZOOM TIER & 3D HUD */
+    .hud-right {
+      position: absolute;
+      top: 130px;
+      right: 16px;
+      width: 280px;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .hud-card {
+      pointer-events: auto;
+      background: var(--bg-panel);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    .hud-card-title {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .scale-bar-container {
+      margin-top: 8px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .scale-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-emerald));
+      width: 80%;
+      transition: width 0.3s ease;
+    }
+
+    /* BOTTOM SCIENTIFIC CARD & PROVENANCE BANNER */
+    .bottom-banner {
+      position: absolute;
+      bottom: 14px;
+      left: 16px;
+      right: 16px;
+      height: 94px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 14px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 22px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    .card-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-right: 20px;
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .card-badge {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(0, 242, 254, 0.15);
+      border: 1px solid rgba(0, 242, 254, 0.4);
+      color: var(--accent-cyan);
+    }
+
+    .card-details {
+      font-size: 12px;
+      color: #cbd5e1;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .card-doi {
+      color: var(--accent-blue);
+      text-decoration: none;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 3D FLOATING OVERLAY NOTIFICATION */
+    .tour-banner {
+      position: absolute;
+      top: 130px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 16, 28, 0.92);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--accent-cyan);
+      border-radius: 30px;
+      padding: 8px 24px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      box-shadow: 0 0 30px rgba(0, 242, 254, 0.4);
+      z-index: 15;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+      animation: pulseGlow 2s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      from { box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); }
+      to { box-shadow: 0 0 35px rgba(0, 242, 254, 0.7); }
+    }
+  </style>
+</head>
+<body>
+  <!-- 3D WebGL Canvas -->
+  <canvas id="webgl-canvas"></canvas>
+
+  <!-- TOP HEADER -->
+  <header class="top-header">
+    <div class="brand-pill">
+      <div>
+        <div class="brand-title">MOZOK v1.0.0 — Connectome Studio</div>
+        <div class="brand-subtitle">Google Earth for the Human Brain | 500 Neurons 3D</div>
+      </div>
+    </div>
+
+    <div class="top-controls">
+      <button id="btn-tour" class="btn-action">
+        <span>🎬 Tour Guiado IA</span>
+      </button>
+      <button id="btn-voice" class="btn-action active">
+        <span>🔊 Voz IA: ON</span>
+      </button>
+      <button id="btn-cjd" class="btn-action danger">
+        <span>☣️ Simular DCJ (Príons)</span>
+      </button>
+      <button id="btn-fullscreen" class="btn-action" title="Tela Cheia">
+        <span>⛶ Tela Cheia</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- COMPACT BIOMARKERS AND METRICS BAR -->
+  <div class="metrics-bar">
+    <div class="metric-item">
+      <span class="metric-label">Escala:</span>
+      <span id="metric-scale" class="metric-val">MACRO (220 mm)</span>
+    </div>
+    <div class="metric-item">
+      <span class="metric-label">PrPC:</span>
+      <span id="metric-prpc" class="metric-val">100%</span>
+    </div>
+    <div class="metric-item">
+      <span class="metric-label">PrPSc:</span>
+      <span id="metric-prpsc" class="metric-val">0.00</span>
+    </div>
+    <div class="metric-item">
+      <span class="metric-label">Vacúolos:</span>
+      <span id="metric-vacuoles" class="metric-val">0.0%</span>
+    </div>
+    <div class="metric-item">
+      <span class="metric-label">Tau Total:</span>
+      <span id="metric-tau" class="metric-val">180 pg/mL</span>
+    </div>
+    <div class="metric-item">
+      <span class="metric-label">14-3-3:</span>
+      <span id="metric-1433" class="metric-val">0.40 ng/mL</span>
+    </div>
+    <div class="metric-item">
+      <span class="metric-label">Líquor Aqueduto:</span>
+      <span id="metric-csf" class="metric-val">32.4 mm/s</span>
+    </div>
+    <div class="metric-item">
+      <span class="metric-label">RT-QuIC:</span>
+      <span id="metric-rtquic" class="metric-val gold">NEGATIVO</span>
+    </div>
+  </div>
+
+  <!-- LEFT SIDEBAR: 14 ANATOMICAL STUDY AREAS -->
+  <aside class="sidebar-left">
+    <div class="sidebar-header">
+      <div class="sidebar-title">
+        <span>ESTUDO NEUROANATÔMICO</span>
+        <span style="font-size: 11px; color: var(--text-muted);">14 Estruturas</span>
+      </div>
+      <input type="text" id="search-input" class="search-box" placeholder="Buscar região ou função...">
+    </div>
+    <div class="regions-list" id="regions-container"></div>
+  </aside>
+
+  <!-- RIGHT HUD: SCALE & VIEWPORT TELEMETRY -->
+  <div class="hud-right">
+    <div class="hud-card">
+      <div class="hud-card-title">
+        <span>RESOLUÇÃO ESPACIAL</span>
+        <span id="hud-tier-name">MACRO</span>
+      </div>
+      <div style="font-size: 12px; color: #cbd5e1; font-family: 'JetBrains Mono', monospace;" id="hud-cam-dist">
+        Distância: 220.0 mm
+      </div>
+      <div class="scale-bar-container">
+        <div class="scale-bar-fill" id="hud-scale-bar"></div>
+      </div>
+      <div style="margin-top: 8px; font-size: 10px; color: var(--text-muted); line-height: 1.3;" id="hud-scale-desc">
+        Visualização externa dos hemisférios cerebrais, fólias do cerebelo e tronco encefálico.
+      </div>
+    </div>
+
+    <div class="hud-card">
+      <div class="hud-card-title">
+        <span>MICRO-CONECTOMA</span>
+        <span style="color: var(--accent-emerald);">500 NEURÔNIOS</span>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+        Aproxime o zoom (< 45 mm) para penetrar no córtex e explorar 500 neurônios 3D interconectados com vesículas de glutamato/GABA e fluxo líquórico!
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING TOUR BANNER -->
+  <div id="tour-banner" class="tour-banner">
+    <span>🎬 Tour Guiado Ativo:</span>
+    <span id="tour-banner-text">Encéfalo Humano Completo</span>
+  </div>
+
+  <!-- BOTTOM SCIENTIFIC CARD -->
+  <footer class="bottom-banner">
+    <div class="card-main">
+      <div class="card-title-row">
+        <span class="card-title" id="card-title">Encéfalo Humano Completo (Мозок - MNI152)</span>
+        <span class="card-badge" id="card-badge">MACRO</span>
+      </div>
+      <div class="card-details" id="card-details">
+        Integração sensorial, motora, cognitiva, emocional e homeostática global. MNI152 nonlinear 6th generation average MRI.
+      </div>
+      <div class="card-meta-row">
+        <span id="card-neurotrans">Neurotransmissor: Polissináptico</span>
+        <span id="card-clinical">Correlação Clínica: Atrofia cortical na DCJ</span>
+        <a href="https://doi.org/10.1016/j.neuroimage.2009.04.041" target="_blank" class="card-doi" id="card-doi">DOI: 10.1016/j.neuroimage.2009.04.041</a>
+      </div>
+    </div>
+    <div class="card-actions">
+      <button id="btn-narrate-card" class="btn-action active">
+        <span>🔊 Narrar Região</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- OFFLINE SCIENTIFIC DATA ASSETS (100% Local & Fast) -->
+  <script src="js/vendor/three.min.js"></script>
+  <script src="js/vendor/OrbitControls.js"></script>
+  <script src="js/swc-neurons-data.js"></script>
+  <script src="js/scientific-atlas-meshes.js"></script>
+  <script src="js/brain-mesh-data.js"></script>
+
+  <!-- APPLICATION ARCHITECTURE SCRIPT -->
+  <script>
+    (function () {
+      'use strict';
+
+      // 1. REGISTRY OF 14 FUNDAMENTAL ANATOMICAL STRUCTURES
+      const ANATOMICAL_REGIONS = [
+        {
+          id: 1,
+          acronym: 'WB',
+          name: 'Encéfalo Humano Completo (Мозок - MNI152)',
+          tier: 'MACRO',
+          center: [0, 0, 0],
+          optimalDist: 210,
+          color: '#d1d5db',
+          functionText: 'Integração sensorial, motora, cognitiva, emocional e homeostática global do organismo.',
+          clinicalText: 'Atrofia cortical generalizada, demência rapidamente progressiva na DCJ, hidrocefalia ex-vacuo.',
+          neurotransmitter: 'Polissináptico integrado (Glutamato, GABA, Dopamina, 5-HT, ACh)',
+          citation: 'Fonov et al. (ICBM / MNI Consortium) (2011)',
+          doi: '10.1016/j.neuroimage.2009.04.041',
+          audioScript: 'Você está contemplando o Encéfalo Humano Completo no espaço MNI 152. Composta por cerca de 86 bilhões de neurônios, esta obra-prima orquestra toda a cognição e motricidade humana.'
+        },
+        {
+          id: 2,
+          acronym: 'DLPFC',
+          name: 'Córtex Pré-Frontal Dorsolateral (BA 9/46)',
+          tier: 'MESO',
+          center: [-3.6, 4.5, 3.0],
+          optimalDist: 85,
+          color: '#38bdf8',
+          functionText: 'Funções executivas, memória operacional, planejamento estratégico e controle inibitório.',
+          clinicalText: 'Síndrome disexecutiva, depressão maior, apatia e labilidade afetiva na DCJ.',
+          neurotransmitter: 'Dopamina (receptores D1/D2) e L-Glutamato córtico-cortical',
+          citation: 'Miller & Cohen (2001) / Petrides (2005)',
+          doi: '10.1146/annurev.neuro.24.1.167',
+          audioScript: 'O Córtex Pré-Frontal Dorsolateral é o centro executivo superior do cérebro, responsável pelo planejamento, tomada de decisão e memória de trabalho.'
+        },
+        {
+          id: 3,
+          acronym: 'M1',
+          name: 'Giro Pré-Central — Córtex Motor Primário (M1)',
+          tier: 'MESO',
+          center: [-3.8, -1.4, 5.2],
+          optimalDist: 65,
+          color: '#f43f5e',
+          functionText: 'Comando voluntário somatotópico fino (Homúnculo Motor de Penfield).',
+          clinicalText: 'Paresia espástica, perda da motricidade fina, hiperreflexia e mioclonias corticais na DCJ.',
+          neurotransmitter: 'L-Glutamato excitatório nas sinapses córtico-espinhais',
+          citation: 'Brodmann (1909) / Penfield & Boldrey (1937)',
+          doi: '10.1093/brain/60.4.389',
+          audioScript: 'O Giro Pré-Central hospeda o córtex motor primário M1, de onde partem os axônios do trato piramidal que cruzam nas pirâmides bulbares para acionar a musculatura voluntária.'
+        },
+        {
+          id: 4,
+          acronym: 'BROCA',
+          name: 'Área de Broca — Giro Frontal Inferior (BA 44/45)',
+          tier: 'MESO',
+          center: [-4.8, 1.8, 1.2],
+          optimalDist: 70,
+          color: '#fb923c',
+          functionText: 'Expressão da fala, planejamento motor orofacial e sintaxe gramatical.',
+          clinicalText: 'Afasia de Broca expressiva não-fluente, apraxia da fala e mutismo acinético na DCJ.',
+          neurotransmitter: 'Acetilcolina e modulação inibitória por GABA',
+          citation: 'Paul Broca (1861) / Dronkers et al. (2007)',
+          doi: '10.1093/brain/awm042',
+          audioScript: 'A Área de Broca no lobo frontal esquerdo coordena a mecânica motora da fala e a articulação dos fonemas, conectando-se a Wernicke pelo fascículo arqueado.'
+        },
+        {
+          id: 5,
+          acronym: 'WERN',
+          name: 'Área de Wernicke — Giro Temporal Superior (BA 22)',
+          tier: 'MESO',
+          center: [-5.4, -3.8, 1.6],
+          optimalDist: 70,
+          color: '#06b6d4',
+          functionText: 'Compreensão auditiva e processamento semântico dos símbolos linguísticos.',
+          clinicalText: 'Afasia de Wernicke fluente com parafasias verbais, logorreia e anosognosia.',
+          neurotransmitter: 'Glutamato e GABA em circuitos córtico-talâmicos auditivos',
+          citation: 'Carl Wernicke (1874) / Catani et al. (2005)',
+          doi: '10.1002/ana.20404',
+          audioScript: 'A Área de Wernicke processa a semântica e a compreensão da linguagem. Lesões causam afasia fluente, onde o paciente fala fluentemente sem perceber a falta de sentido.'
+        },
+        {
+          id: 6,
+          acronym: 'HIP',
+          name: 'Hipocampo — Corno de Amon (CA1-CA4 e Subículo)',
+          tier: 'MESO',
+          center: [-2.8, -2.0, -1.4],
+          optimalDist: 50,
+          color: '#a855f7',
+          functionText: 'Consolidação da memória declarativa episódica e mapeamento espacial.',
+          clinicalText: 'Amnésia anterógrada, Doença de Alzheimer precoce e declínio mnemônico rápido na DCJ.',
+          neurotransmitter: 'L-Glutamato (receptores NMDA para Potenciação de Longa Duração)',
+          citation: 'Julich Brain Cytoarchitectonic Atlas (2020) Science',
+          doi: '10.1126/science.abb3333',
+          audioScript: 'O Hipocampo, situado na profundidade do lobo temporal medial, é a estrutura chave para transformar memórias de curto prazo em memórias duradouras.'
+        },
+        {
+          id: 7,
+          acronym: 'AMYG',
+          name: 'Complexo Amigdaloidiano (Basolateral & Central)',
+          tier: 'MESO',
+          center: [-2.2, -0.6, -1.8],
+          optimalDist: 48,
+          color: '#ec4899',
+          functionText: 'Atribuição de valência emocional, detecção de perigo e condicionamento do medo.',
+          clinicalText: 'Transtornos de ansiedade, estresse pós-traumático e labilidade emocional.',
+          neurotransmitter: 'Serotonina (5-HT), Noradrenalina e GABA',
+          citation: 'LeDoux (2000) / Janak & Tye (2015) Nature',
+          doi: '10.1038/nature14188',
+          audioScript: 'A Amígdala avalia instantaneamente a relevância afetiva de cada estímulo do ambiente, orquestrando reações instintivas de luta ou fuga.'
+        },
+        {
+          id: 8,
+          acronym: 'STR',
+          name: 'Corpo Estriado — Caudado e Putâmen',
+          tier: 'MESO',
+          center: [-1.8, 0.8, 0.4],
+          optimalDist: 55,
+          color: '#f59e0b',
+          functionText: 'Automatização de hábitos motores, seleção de ações e modulação do tônus.',
+          clinicalText: 'Coreia de Huntington, discinesias e mioclonias estriatais graves na DCJ.',
+          neurotransmitter: 'Dopamina nigroestriatal e GABA (neurônios espinhosos médios)',
+          citation: 'Graybiel (2008) Annu Rev Neurosci',
+          doi: '10.1146/annurev.neuro.29.051605.112851',
+          audioScript: 'O Corpo Estriado integra os gânglios da base para automatizar hábitos motores. Na DCJ, a agressão estriatal descontrola os reflexos, disparando abalos mioclônicos violentos.'
+        },
+        {
+          id: 9,
+          acronym: 'PULV',
+          name: 'Tálamo Pulvinar e Medial (Alvo Primário da DCJ)',
+          tier: 'MESO',
+          center: [-1.2, -2.4, 0.6],
+          optimalDist: 50,
+          color: '#ea580c',
+          functionText: 'Revezamento sensorial multimodal, atenção visual e sincronização rítmica.',
+          clinicalText: 'Sinal do Taco de Hóquei e Pulvinar bilateral na ressonância magnética DWI na DCJ.',
+          neurotransmitter: 'L-Glutamato talâmico e neurônios inibitórios GABAérgicos',
+          citation: 'Zerr et al. Lancet Neurol (2009)',
+          doi: '10.1016/S1474-4422(09)70291-1',
+          audioScript: 'O Tálamo Pulvinar é o grande maestro das vias sensoriais. Na Doença de Creutzfeldt-Jakob, o acúmulo de príons cria o característico sinal do taco de hóquei na ressonância magnética.'
+        },
+        {
+          id: 10,
+          acronym: 'SNC',
+          name: 'Substância Negra Pars Compacta',
+          tier: 'MESO',
+          center: [-1.0, -1.8, -1.2],
+          optimalDist: 45,
+          color: '#334155',
+          functionText: 'Síntese de dopamina via tirosina hidroxilase com pigmento de neuromelanina.',
+          clinicalText: 'Doença de Parkinson, rigidez plástica, bradicinesia e parkinsonismo na DCJ.',
+          neurotransmitter: 'Dopamina (via nigroestriatal excitatória D1 e inibitória D2)',
+          citation: 'Keuken et al. 7T MRI Human Subcortex (2014)',
+          doi: '10.1016/j.neuroimage.2014.03.032',
+          audioScript: 'A Substância Negra pars compacta fornece dopamina para manter a fluidez do movimento corporal. A perda destes neurônios produz rigidez e lentidão motora.'
+        },
+        {
+          id: 11,
+          acronym: 'CEREB',
+          name: 'Córtex Cerebelar e Células de Purkinje',
+          tier: 'MESO',
+          center: [0.0, -3.8, -3.2],
+          optimalDist: 90,
+          color: '#fda4af',
+          functionText: 'Coordenação motora fina, equilíbrio vestibular e correção de erros dinâmicos.',
+          clinicalText: 'Ataxia cerebelar da marcha, dismetria e variante de Brownell-Oppenheimer da DCJ.',
+          neurotransmitter: 'GABA inibitório das células de Purkinje e Glutamato das fibras paralelas',
+          citation: 'Ito (2006) Nature Rev Neurosci',
+          doi: '10.1038/nrn1938',
+          audioScript: 'O Cerebelo contém mais da metade dos neurônios encefálicos. Suas células de Purkinje equilibram o tônus muscular com exatidão milimétrica.'
+        },
+        {
+          id: 12,
+          acronym: 'VENT',
+          name: 'Ventrículos Laterais e Sistema Glinfático AQP4',
+          tier: 'MESO',
+          center: [0.0, -1.0, 1.5],
+          optimalDist: 75,
+          color: '#0ea5e9',
+          functionText: 'Produção de 500 mL/dia de LCR e drenagem glinfática contínua de toxinas via AQP4.',
+          clinicalText: 'Hidrocefalia de pressão normal, colapso glinfático, elevação de Tau e 14-3-3 no líquor.',
+          neurotransmitter: 'Líquido cefalorraquidiano com íons vitais e fluxo hidrostático pulsátil',
+          citation: 'Nedergaard et al. Science (2013)',
+          doi: '10.1126/science.1234098',
+          audioScript: 'Os Ventrículos circulam o líquor de forma pulsátil. O sistema glinfático dependente de aquaporina quatro limpa o cérebro das proteínas tóxicas durante o sono.'
+        },
+        {
+          id: 13,
+          acronym: 'BETZ',
+          name: 'Camada Piramidal V & Célula Gigante de Betz (1874)',
+          tier: 'MICRO',
+          center: [-3.81, -1.40, 5.21],
+          optimalDist: 22,
+          color: '#4ade80',
+          functionText: 'Neurônios motores gigantes com soma de 100 µm descritos por Volodymyr Bets.',
+          clinicalText: 'Degeneração do neurônio motor superior, esclerose lateral e mioclonias corticais.',
+          neurotransmitter: 'L-Glutamato vesicular em terminais axônicos motores',
+          citation: 'Volodymyr Bets (1874) / BICCN Nature (2021)',
+          doi: '10.1038/s41586-021-03950-0',
+          audioScript: 'Identificada pelo anatomista ucraniano Volodymyr Bets em 1874, esta célula piramidal gigante na camada cinco do córtex motor primário dispara comandos até a medula espinhal.'
+        },
+        {
+          id: 14,
+          acronym: 'SYN',
+          name: 'Fenda Sináptica Glutamatérgica & Banho Molecular',
+          tier: 'NANO',
+          center: [-3.8102, -1.4001, 5.2101],
+          optimalDist: 8,
+          color: '#facc15',
+          functionText: 'Transmissão quântica de neurotransmissores em fenda de vinte nanômetros.',
+          clinicalText: 'Ataque de príons PrPSc, perda de sinapses e excitotoxicidade por influxo de Ca2+.',
+          neurotransmitter: 'L-Glutamato e GABA em equilíbrio estequiométrico',
+          citation: 'Shapson-Coe et al. Science (2024)',
+          doi: '10.1126/science.adk4858',
+          audioScript: 'Na fenda sináptica de vinte nanômetros, vesículas de glutamato sofrem exocitose ativando receptores pós-sinápticos. É aqui que os príons PrPSc destroem a comunicação neural.'
+        }
+      ];
+
+      // 2. VIEWER STATE
+      let scene, camera, renderer, controls;
+      let brainMesh = null;
+      let brainGroup = null;
+      let markersGroup = null;
+      let subcorticalGroup = null;
+      let connectomeGroup = null;
+      let synapticVesicles = [];
+      let csfMolecules = [];
+      let neuronInstances = [];
+
+      let activeRegion = ANATOMICAL_REGIONS[0];
+      let isVoiceEnabled = true;
+      let isCjdActive = false;
+      let isTourActive = false;
+      let tourIndex = 0;
+      let tourTimer = null;
+
+      // Pathology & Physiology state
+      let physTime = 0;
+      let cjdDays = 0;
+      let prpScValue = 0.0;
+      let vacuolesValue = 0.0;
+      let tauValue = 180;
+      let p1433Value = 0.40;
+
+      // 3. INITIALIZATION
+      function init() {
+        const canvas = document.getElementById('webgl-canvas');
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        renderer = new THREE.WebGLRenderer({
+          canvas: canvas,
+          antialias: true,
+          powerPreference: 'high-performance'
+        });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.25;
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x060911);
+
+        camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000);
+        camera.position.set(0, 35, 220);
+
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 3.5;
+        controls.maxDistance = 320;
+        controls.target.set(0, -2, 0);
+
+        // Lighting rig for anatomical fidelity
+        const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.7);
+        scene.add(ambientLight);
+
+        const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        keyLight.position.set(50, 80, 70);
+        scene.add(keyLight);
+
+        const fillLight = new THREE.DirectionalLight(0x38bdf8, 0.8);
+        fillLight.position.set(-60, 20, -40);
+        scene.add(fillLight);
+
+        const bottomLight = new THREE.DirectionalLight(0x10b981, 0.4);
+        bottomLight.position.set(0, -60, 20);
+        scene.add(bottomLight);
+
+        // Master container groups
+        brainGroup = new THREE.Group();
+        scene.add(brainGroup);
+
+        subcorticalGroup = new THREE.Group();
+        brainGroup.add(subcorticalGroup);
+
+        markersGroup = new THREE.Group();
+        brainGroup.add(markersGroup);
+
+        connectomeGroup = new THREE.Group();
+        connectomeGroup.position.set(-3.8, -1.4, 5.2); // Layer V Motor Cortex coordinates
+        brainGroup.add(connectomeGroup);
+
+        // Build 3D structures
+        buildAnatomicalBrain();
+        buildSubcorticalAtlasMeshes();
+        build500NeuronConnectome();
+        buildInteractiveMarkers();
+
+        // Build UI elements
+        buildRegionListUI();
+        setupEventListeners();
+
+        window.addEventListener('resize', onResize);
+        animate();
+      }
+
+      // 4. ANATOMICAL CORTICAL BRAIN BUILDER
+      function buildAnatomicalBrain() {
+        let geo;
+        if (window.REAL_MNI_BRAIN && window.REAL_MNI_BRAIN.vertices && window.REAL_MNI_BRAIN.indices) {
+          const data = window.REAL_MNI_BRAIN;
+          geo = new THREE.BufferGeometry();
+          geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(data.vertices), 3));
+          geo.setIndex(new THREE.BufferAttribute(new Uint32Array(data.indices), 1));
+          geo.computeVertexNormals();
+        } else {
+          // Fallback high-density spherical brain generator
+          geo = new THREE.SphereGeometry(32, 64, 48);
+        }
+
+        // Custom anatomical material with progressive transparency
+        const mat = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(0xd1d5db),
+          roughness: 0.45,
+          metalness: 0.05,
+          transparent: true,
+          opacity: 1.0,
+          depthWrite: true,
+          side: THREE.DoubleSide
+        });
+
+        brainMesh = new THREE.Mesh(geo, mat);
+        brainMesh.scale.set(10.5, 10.5, 10.5);
+        brainMesh.rotation.y = -Math.PI / 2;
+        brainMesh.position.set(0, -2, 0);
+        brainGroup.add(brainMesh);
+      }
+
+      // 5. SUBCORTICAL ATLAS NUCLEI MESHES
+      function buildSubcorticalAtlasMeshes() {
+        if (!window.SCIENTIFIC_ATLAS_MESHES) return;
+        const meshes = window.SCIENTIFIC_ATLAS_MESHES;
+
+        // Striatum (Caudate & Putamen)
+        if (meshes.striatum_caudate_putamen) {
+          const m = meshes.striatum_caudate_putamen;
+          const geo = new THREE.BufferGeometry();
+          geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(m.vertices), 3));
+          geo.setIndex(new THREE.BufferAttribute(new Uint32Array(m.indices), 1));
+          geo.computeVertexNormals();
+
+          const mat = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(m.color[0], m.color[1], m.color[2]),
+            roughness: 0.35,
+            emissive: new THREE.Color(m.color[0] * 0.3, m.color[1] * 0.3, m.color[2] * 0.3)
+          });
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.scale.set(10, 10, 10);
+          mesh.rotation.y = -Math.PI / 2;
+          subcorticalGroup.add(mesh);
+        }
+
+        // Pulvinar Thalamus (CJD Target)
+        if (meshes.pulvinar_thalamus) {
+          const m = meshes.pulvinar_thalamus;
+          const geo = new THREE.BufferGeometry();
+          geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(m.vertices), 3));
+          geo.setIndex(new THREE.BufferAttribute(new Uint32Array(m.indices), 1));
+          geo.computeVertexNormals();
+
+          const mat = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(m.color[0], m.color[1], m.color[2]),
+            roughness: 0.35,
+            emissive: new THREE.Color(0.8, 0.3, 0.1),
+            emissiveIntensity: 0.4
+          });
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.scale.set(10, 10, 10);
+          mesh.rotation.y = -Math.PI / 2;
+          subcorticalGroup.add(mesh);
+        }
+
+        // Lateral Ventricles (Pulsating CSF)
+        if (meshes.lateral_ventricles_csf) {
+          const m = meshes.lateral_ventricles_csf;
+          const geo = new THREE.BufferGeometry();
+          geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(m.vertices), 3));
+          geo.setIndex(new THREE.BufferAttribute(new Uint32Array(m.indices), 1));
+          geo.computeVertexNormals();
+
+          const mat = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(0x0ea5e9),
+            roughness: 0.1,
+            metalness: 0.1,
+            transparent: true,
+            opacity: 0.75,
+            emissive: new THREE.Color(0x0284c7),
+            emissiveIntensity: 0.5
+          });
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.scale.set(10, 10, 10);
+          mesh.rotation.y = -Math.PI / 2;
+          mesh.name = "lateral_ventricles";
+          subcorticalGroup.add(mesh);
+        }
+
+        // Cerebellum Folia
+        if (meshes.cerebellum_folia) {
+          const m = meshes.cerebellum_folia;
+          const geo = new THREE.BufferGeometry();
+          geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(m.vertices), 3));
+          geo.setIndex(new THREE.BufferAttribute(new Uint32Array(m.indices), 1));
+          geo.computeVertexNormals();
+
+          const mat = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(0xfda4af),
+            roughness: 0.5
+          });
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.scale.set(10, 10, 10);
+          mesh.rotation.y = -Math.PI / 2;
+          subcorticalGroup.add(mesh);
+        }
+      }
+
+      // 6. 500-NEURON 3D CONNECTOME WITH SYNAPSES & CSF
+      function build500NeuronConnectome() {
+        const palette = [
+          new THREE.Color(0x00f2fe), // Electric Cyan
+          new THREE.Color(0x38bdf8), // Bioluminescent Blue
+          new THREE.Color(0x10b981), // Confocal Green
+          new THREE.Color(0xd946ef), // Magenta
+          new THREE.Color(0xfbbf24)  // Amber Gold
+        ];
+
+        // 500 Neuronal Somas rendered via InstancedMesh for 60 FPS performance
+        const somaGeo = new THREE.SphereGeometry(0.35, 16, 12);
+        const somaMat = new THREE.MeshStandardMaterial({
+          roughness: 0.25,
+          metalness: 0.1,
+          emissive: new THREE.Color(0x0ea5e9),
+          emissiveIntensity: 0.45
+        });
+
+        const instancedSomas = new THREE.InstancedMesh(somaGeo, somaMat, 500);
+        const dummy = new THREE.Object3D();
+
+        for (let i = 0; i < 500; i++) {
+          const theta = Math.random() * Math.PI * 2;
+          const rad = Math.sqrt(Math.random()) * 18.0;
+          const px = Math.cos(theta) * rad;
+          const pz = Math.sin(theta) * rad;
+          const py = (Math.random() - 0.5) * 24.0;
+
+          dummy.position.set(px, py, pz);
+          const s = 0.6 + Math.random() * 0.9;
+          dummy.scale.set(s, s * 1.3, s);
+          dummy.rotation.set(Math.random() * 0.3, Math.random() * Math.PI * 2, 0);
+          dummy.updateMatrix();
+
+          instancedSomas.setMatrixAt(i, dummy.matrix);
+          const col = palette[i % palette.length];
+          instancedSomas.setColorAt(i, col);
+
+          neuronInstances.push({
+            pos: new THREE.Vector3(px, py, pz),
+            color: col
+          });
+        }
+        instancedSomas.instanceMatrix.needsUpdate = true;
+        if (instancedSomas.instanceColor) instancedSomas.instanceColor.needsUpdate = true;
+        connectomeGroup.add(instancedSomas);
+
+        // Axon fiber bundle connections between neurons
+        const lineGeo = new THREE.BufferGeometry();
+        const linePositions = [];
+        for (let i = 0; i < 500; i += 2) {
+          const n1 = neuronInstances[i];
+          const n2 = neuronInstances[(i + 1 + Math.floor(Math.random() * 5)) % 500];
+          if (n1 && n2) {
+            linePositions.push(n1.pos.x, n1.pos.y, n1.pos.z);
+            // Midpoint curve
+            const mid = n1.pos.clone().lerp(n2.pos, 0.5).add(new THREE.Vector3((Math.random()-0.5)*2, (Math.random()-0.5)*2, (Math.random()-0.5)*2));
+            linePositions.push(mid.x, mid.y, mid.z);
+            linePositions.push(mid.x, mid.y, mid.z);
+            linePositions.push(n2.pos.x, n2.pos.y, n2.pos.z);
+          }
+        }
+        lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+        const lineMat = new THREE.LineBasicMaterial({
+          color: 0x38bdf8,
+          transparent: true,
+          opacity: 0.35
+        });
+        const axonLines = new THREE.LineSegments(lineGeo, lineMat);
+        connectomeGroup.add(axonLines);
+
+        // Synaptic Vesicles (Glutamate & GABA) at active junctions
+        const vesicleGeo = new THREE.SphereGeometry(0.08, 8, 6);
+        const vesicleMatGlut = new THREE.MeshBasicMaterial({ color: 0x4ade80 });
+        const vesicleMatGaba = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+
+        for (let j = 0; j < 60; j++) {
+          const vMesh = new THREE.Mesh(vesicleGeo, j % 3 === 0 ? vesicleMatGaba : vesicleMatGlut);
+          const host = neuronInstances[j % 50];
+          vMesh.position.copy(host.pos).add(new THREE.Vector3((Math.random()-0.5)*1.5, (Math.random()-0.5)*1.5, (Math.random()-0.5)*1.5));
+          connectomeGroup.add(vMesh);
+          synapticVesicles.push({
+            mesh: vMesh,
+            basePos: vMesh.position.clone(),
+            phase: Math.random() * Math.PI * 2,
+            speed: 1.5 + Math.random() * 2.5
+          });
+        }
+
+        // PrPC & PrPSc molecular nanoparticles in the interstitial CSF
+        const prpGeo = new THREE.SphereGeometry(0.12, 8, 6);
+        for (let k = 0; k < 50; k++) {
+          const prpMesh = new THREE.Mesh(prpGeo, new THREE.MeshBasicMaterial({ color: 0x10b981 }));
+          prpMesh.position.set((Math.random()-0.5)*30, (Math.random()-0.5)*30, (Math.random()-0.5)*30);
+          connectomeGroup.add(prpMesh);
+          csfMolecules.push({
+            mesh: prpMesh,
+            isSc: false,
+            vel: new THREE.Vector3((Math.random()-0.5)*0.04, (Math.random()-0.5)*0.04, (Math.random()-0.5)*0.04)
+          });
+        }
+      }
+
+      // 7. INTERACTIVE 3D LUMINOUS MARKERS
+      function buildInteractiveMarkers() {
+        ANATOMICAL_REGIONS.forEach((reg) => {
+          if (reg.id === 1) return; // Whole brain has no single marker
+          const markerGroup = new THREE.Group();
+          markerGroup.position.set(reg.center[0] * 8, reg.center[1] * 8, reg.center[2] * 8);
+
+          // Glowing nucleus sphere
+          const sphere = new THREE.Mesh(
+            new THREE.SphereGeometry(1.2, 16, 16),
+            new THREE.MeshBasicMaterial({ color: new THREE.Color(reg.color) })
+          );
+          markerGroup.add(sphere);
+
+          // Outer pulsing ring
+          const ring = new THREE.Mesh(
+            new THREE.RingGeometry(1.6, 2.2, 24),
+            new THREE.MeshBasicMaterial({
+              color: new THREE.Color(reg.color),
+              side: THREE.DoubleSide,
+              transparent: true,
+              opacity: 0.65
+            })
+          );
+          ring.rotation.x = Math.PI / 2;
+          markerGroup.add(ring);
+
+          markerGroup.userData = { region: reg };
+          markersGroup.add(markerGroup);
+        });
+      }
+
+      // 8. SIDEBAR REGION LIST UI BUILDER
+      function buildRegionListUI() {
+        const container = document.getElementById('regions-container');
+        container.innerHTML = '';
+
+        ANATOMICAL_REGIONS.forEach((reg) => {
+          const item = document.createElement('div');
+          item.className = 'region-item' + (reg.id === activeRegion.id ? ' active' : '');
+          item.id = `region-item-${reg.id}`;
+          item.innerHTML = `
+            <div class="region-info">
+              <span class="region-name">${reg.name}</span>
+              <span class="region-tier">${reg.tier} • ${reg.acronym}</span>
+            </div>
+            <span class="region-badge">${reg.id}</span>
+          `;
+          item.addEventListener('click', () => {
+            selectRegion(reg, true);
+          });
+          container.appendChild(item);
+        });
+
+        // Search filtering
+        const searchInput = document.getElementById('search-input');
+        searchInput.addEventListener('input', (e) => {
+          const q = e.target.value.toLowerCase();
+          ANATOMICAL_REGIONS.forEach((reg) => {
+            const el = document.getElementById(`region-item-${reg.id}`);
+            if (el) {
+              const match = reg.name.toLowerCase().includes(q) ||
+                            reg.functionText.toLowerCase().includes(q) ||
+                            reg.acronym.toLowerCase().includes(q);
+              el.style.display = match ? 'flex' : 'none';
+            }
+          });
+        });
+      }
+
+      // 9. REGION SELECTION & SMOOTH FLIGHT
+      function selectRegion(reg, triggerSpeech) {
+        activeRegion = reg;
+
+        // Update active class in sidebar
+        document.querySelectorAll('.region-item').forEach((el) => el.classList.remove('active'));
+        const activeEl = document.getElementById(`region-item-${reg.id}`);
+        if (activeEl) {
+          activeEl.classList.add('active');
+          activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Update Bottom Card
+        document.getElementById('card-title').textContent = `${reg.name} [${reg.acronym}]`;
+        document.getElementById('card-badge').textContent = reg.tier;
+        document.getElementById('card-details').textContent = reg.functionText;
+        document.getElementById('card-neurotrans').textContent = `Neurotransmissor: ${reg.neurotransmitter}`;
+        document.getElementById('card-clinical').textContent = `Correlação: ${reg.clinicalText}`;
+        const doiLink = document.getElementById('card-doi');
+        doiLink.textContent = `DOI: ${reg.doi}`;
+        doiLink.href = `https://doi.org/${reg.doi}`;
+
+        // Smooth camera transition to optimal distance and coordinates
+        const targetPos = new THREE.Vector3(reg.center[0] * 8, reg.center[1] * 8, reg.center[2] * 8);
+        smoothFlyCamera(targetPos, reg.optimalDist);
+
+        if (triggerSpeech && isVoiceEnabled) {
+          speakText(reg.audioScript);
+        }
+      }
+
+      function smoothFlyCamera(targetLookAt, targetDist) {
+        const startTarget = controls.target.clone();
+        const startPos = camera.position.clone();
+        const dir = startPos.clone().sub(startTarget).normalize();
+        const endPos = targetLookAt.clone().add(dir.multiplyScalar(targetDist));
+
+        let t = 0;
+        const duration = 1.0; // 1 second flight
+        const startTime = performance.now();
+
+        function step() {
+          const now = performance.now();
+          t = Math.min(1.0, (now - startTime) / (duration * 1000));
+          const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+          controls.target.lerpVectors(startTarget, targetLookAt, ease);
+          camera.position.lerpVectors(startPos, endPos, ease);
+          controls.update();
+
+          if (t < 1.0) {
+            requestAnimationFrame(step);
+          }
+        }
+        requestAnimationFrame(step);
+      }
+
+      // 10. AI NATURAL VOICE SYNTHESIS (PORTUGUESE pt-BR)
+      function speakText(text) {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'pt-BR';
+        utterance.rate = 1.05;
+        utterance.pitch = 1.0;
+
+        // Try selecting natural Portuguese voice
+        const voices = window.speechSynthesis.getVoices();
+        const ptVoice = voices.find(v => v.lang.includes('pt') || v.lang.includes('PT'));
+        if (ptVoice) utterance.voice = ptVoice;
+
+        window.speechSynthesis.speak(utterance);
+      }
+
+      // 11. GUIDED PRESENTATION TOUR (4 ACTS: MACRO -> MESO -> MICRO -> NANO)
+      function toggleGuidedTour() {
+        isTourActive = !isTourActive;
+        const btn = document.getElementById('btn-tour');
+        const banner = document.getElementById('tour-banner');
+
+        if (isTourActive) {
+          btn.classList.add('active');
+          btn.innerHTML = '<span>⏸ Pausar Tour</span>';
+          banner.style.display = 'flex';
+          tourIndex = 0;
+          runNextTourStep();
+        } else {
+          btn.classList.remove('active');
+          btn.innerHTML = '<span>🎬 Tour Guiado IA</span>';
+          banner.style.display = 'none';
+          if (tourTimer) clearTimeout(tourTimer);
+          if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        }
+      }
+
+      function runNextTourStep() {
+        if (!isTourActive) return;
+        if (tourIndex >= ANATOMICAL_REGIONS.length) {
+          toggleGuidedTour();
+          return;
+        }
+
+        const reg = ANATOMICAL_REGIONS[tourIndex];
+        selectRegion(reg, true);
+        document.getElementById('tour-banner-text').textContent = reg.name;
+
+        // Auto advance after speech or 9 seconds
+        tourIndex++;
+        tourTimer = setTimeout(runNextTourStep, 9500);
+      }
+
+      // 12. EVENT LISTENERS SETUP
+      function setupEventListeners() {
+        // Tour button
+        document.getElementById('btn-tour').addEventListener('click', toggleGuidedTour);
+
+        // Voice toggle button
+        const voiceBtn = document.getElementById('btn-voice');
+        voiceBtn.addEventListener('click', () => {
+          isVoiceEnabled = !isVoiceEnabled;
+          voiceBtn.classList.toggle('active', isVoiceEnabled);
+          voiceBtn.innerHTML = `<span>🔊 Voz IA: ${isVoiceEnabled ? 'ON' : 'OFF'}</span>`;
+          if (!isVoiceEnabled && 'speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+          }
+        });
+
+        // CJD Disease simulation toggle
+        const cjdBtn = document.getElementById('btn-cjd');
+        cjdBtn.addEventListener('click', () => {
+          isCjdActive = !isCjdActive;
+          cjdBtn.classList.toggle('active', isCjdActive);
+          cjdBtn.innerHTML = isCjdActive ? '<span>☣️ DCJ Ativa (Propagando)</span>' : '<span>🧪 Modo Fisiológico Saudável</span>';
+          if (isCjdActive) {
+            selectRegion(ANATOMICAL_REGIONS[8], false); // Focus on Pulvinar Thalamus
+          }
+        });
+
+        // Fullscreen toggle
+        document.getElementById('btn-fullscreen').addEventListener('click', () => {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen().catch(() => {});
+          }
+        });
+
+        // Narrate Card button
+        document.getElementById('btn-narrate-card').addEventListener('click', () => {
+          speakText(activeRegion.audioScript);
+        });
+      }
+
+      // 13. MULTI-SCALE ZOOM PROGRESSIVE OPACITY & LOD GOVERNOR
+      function updateMultiScaleZoom() {
+        const dist = camera.position.distanceTo(controls.target);
+
+        // Update telemetry readouts
+        document.getElementById('hud-cam-dist').textContent = `Distância: ${dist.toFixed(1)} mm`;
+
+        let tierName = "MACRO";
+        let tierScale = "10^-1 m";
+        let desc = "Córtex anatômico opaco exibindo Lobos cerebrais, fólias do cerebelo e tronco encefálico.";
+        let barWidth = "95%";
+
+        if (dist > 120) {
+          tierName = "MACRO";
+          tierScale = "10^-1 m";
+          desc = "Córtex anatômico opaco exibindo os lobos cerebrais MNI152.";
+          barWidth = "90%";
+          if (brainMesh) {
+            brainMesh.material.opacity = 1.0;
+            brainMesh.visible = true;
+          }
+          markersGroup.visible = true;
+          connectomeGroup.visible = false;
+        } else if (dist >= 45) {
+          tierName = "MESO";
+          tierScale = "10^-3 m";
+          desc = "Córtex semitransparente (Efeito Raio-X): revelando Núcleos da Base, Tálamo, Hipocampo e Ventrículos.";
+          barWidth = "55%";
+          // Smooth progressive transparency between 45 and 120
+          const t = (dist - 45) / (120 - 45);
+          if (brainMesh) {
+            brainMesh.material.opacity = 0.18 + t * 0.75;
+            brainMesh.visible = true;
+          }
+          markersGroup.visible = true;
+          connectomeGroup.visible = false;
+        } else {
+          tierName = "MICRO";
+          tierScale = "10^-5 m";
+          desc = "Mergulho Microscópico no Conectoma de 500 Neurônios 3D, sinapses ativas e banho de líquor!";
+          barWidth = "20%";
+          if (brainMesh) {
+            brainMesh.material.opacity = 0.03;
+            brainMesh.visible = dist > 15;
+          }
+          markersGroup.visible = false;
+          connectomeGroup.visible = true;
+        }
+
+        document.getElementById('hud-tier-name').textContent = tierName;
+        document.getElementById('metric-scale').textContent = `${tierName} (${dist.toFixed(1)} mm)`;
+        document.getElementById('hud-scale-desc').textContent = desc;
+        document.getElementById('hud-scale-bar').style.width = barWidth;
+
+        // Animate Ventricles Pulsation
+        const vMesh = subcorticalGroup.getObjectByName("lateral_ventricles");
+        if (vMesh) {
+          const pulse = 1.0 + Math.sin(physTime * 2.0 * Math.PI * 1.1) * 0.035;
+          vMesh.scale.set(10 * pulse, 10 * pulse, 10 * pulse);
+        }
+      }
+
+      // 14. ANIMATION & PHYSIOLOGY / PATHOLOGY TICK
+      function animate() {
+        requestAnimationFrame(animate);
+
+        const dt = 0.016;
+        physTime += dt;
+
+        controls.update();
+        updateMultiScaleZoom();
+
+        // Animate Synaptic Vesicles exocytosis
+        for (let i = 0; i < synapticVesicles.length; i++) {
+          const v = synapticVesicles[i];
+          const t = (physTime * v.speed + v.phase) % 1.0;
+          v.mesh.position.x = v.basePos.x + t * 0.8;
+          v.mesh.position.y = v.basePos.y + Math.sin(t * Math.PI * 2) * 0.2;
+        }
+
+        // Animate Interstitial CSF fluid circulation
+        for (let k = 0; k < csfMolecules.length; k++) {
+          const mol = csfMolecules[k];
+          mol.mesh.position.add(mol.vel);
+          if (mol.mesh.position.length() > 25) {
+            mol.mesh.position.set((Math.random()-0.5)*20, (Math.random()-0.5)*20, (Math.random()-0.5)*20);
+          }
+        }
+
+        // CJD Disease cascade simulation
+        if (isCjdActive) {
+          cjdDays += dt * 8.0;
+          prpScValue = Math.min(10.0, prpScValue + dt * 0.45);
+          vacuolesValue = Math.min(85.0, vacuolesValue + dt * 3.5);
+          tauValue = Math.min(18500, tauValue + dt * 450);
+          p1433Value = Math.min(8.5, p1433Value + dt * 0.25);
+
+          document.getElementById('metric-prpc').textContent = `${Math.max(0, 100 - prpScValue * 10).toFixed(0)}%`;
+          document.getElementById('metric-prpsc').textContent = prpScValue.toFixed(2);
+          document.getElementById('metric-vacuoles').textContent = `${vacuolesValue.toFixed(1)}%`;
+          document.getElementById('metric-tau').textContent = `${tauValue.toFixed(0)} pg/mL`;
+          document.getElementById('metric-1433').textContent = `${p1433Value.toFixed(2)} ng/mL`;
+
+          if (prpScValue > 0.8) {
+            const rt = document.getElementById('metric-rtquic');
+            rt.textContent = "POSITIVO (Príons Detectados)";
+            rt.className = "metric-val warn";
+          }
+
+          // Infect CSF molecules turning them red
+          if (csfMolecules.length > 0) {
+            const infectedCount = Math.floor((prpScValue / 10.0) * csfMolecules.length);
+            for (let m = 0; m < infectedCount; m++) {
+              csfMolecules[m].mesh.material.color.setHex(0xf43f5e);
+            }
+          }
+        }
+
+        renderer.render(scene, camera);
+      }
+
+      function onResize() {
+        if (!renderer || !camera) return;
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      }
+
+      window.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>

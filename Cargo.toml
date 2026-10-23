@@ -7,6 +7,7 @@ members = [
     "rust/mozok-search",
     "rust/mozok-physiology",
     "rust/mozok-pathology",
+    "rust/mozok-godot",
     "tests",
 ]
 default-members = [
@@ -22,7 +23,7 @@ default-members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["Pedro Luís <pedro@mozok.org>", "MOZOK Open Source Contributors"]
 license = "Apache-2.0"

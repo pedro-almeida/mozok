@@ -1,11 +1,13 @@
 extends Node3D
 
-## MOZOK Interactive Neuroanatomy Explorer (v0.1.0-alpha)
-## "Google Earth for the Human Body" — The Brain is Only the Beginning
+## MOZOK v1.0.0 — Multi-Scale Human Brain & Connectome Explorer
+## "Google Earth for the Human Brain" — The Brain is Only the Beginning
 ##
 ## Implements continuous 6-DOF logarithmic navigation, floating-origin stabilization,
-## pulsatile cerebrospinal fluid (CSF) hydrodynamics, active synaptic neurotransmission,
-## and multi-scale Creutzfeldt-Jakob Disease (CJD / PrP^Sc) pathophysiology simulation.
+## procedural cortical gyri/sulci shaders with zoom-based progressive transparency,
+## living CSF hydrodynamics, 500-neuron 3D GPU connectome (MultiMeshInstance3D),
+## synaptic neurotransmitter kinetics, CJD prion pathophysiology cascade,
+## and natural human voice narration (DisplayServer.tts_speak).
 
 @onready var camera: Camera3D = $NeuroCamera
 @onready var brain_root: Node3D = $BrainRoot
@@ -16,6 +18,8 @@ extends Node3D
 @onready var provenance_details: Label = $HUD/ProvenanceBanner/Margin/VBox/DetailsLabel
 @onready var provenance_doi: Label = $HUD/ProvenanceBanner/Margin/VBox/HBox/DoiLabel
 @onready var search_buttons_container: VBoxContainer = $HUD/QuickJumpPanel/Margin/VBox/Scroll/VBox
+@onready var tour_button: Button = $HUD/QuickJumpPanel/Margin/VBox/TourButton
+@onready var narrate_button: Button = $HUD/QuickJumpPanel/Margin/VBox/NarrateButton
 
 # Disease Simulation Controls
 @onready var cjd_toggle_btn: CheckButton = $HUD/DiseasePanel/Margin/VBox/CjdToggle
@@ -57,9 +61,17 @@ var last_mouse_pos: Vector2 = Vector2.ZERO
 var alpha_regions: Dictionary = {}
 var proxy_nodes: Dictionary = {}
 
-# -------------------------------------------------------------
+# Cortical Shader Material for Whole Brain
+var cortex_shader_mat: ShaderMaterial = null
+
+# 500-Neuron Connectome References
+var connectome_multimesh: MultiMeshInstance3D = null
+var connectome_root: Node3D = null
+var axon_lines_group: Node3D = null
+var synaptic_vesicles_group: Node3D = null
+var csf_molecules_group: Node3D = null
+
 # Living Physiology State
-# -------------------------------------------------------------
 var phys_time_sec: float = 0.0
 const HEART_RATE_HZ: float = 1.1        # 66 bpm
 const RESPIRATORY_RATE_HZ: float = 0.25  # 15 bpm
@@ -72,9 +84,7 @@ var synaptic_glutamate_umol: float = 0.0
 var synaptic_integrity: float = 1.0
 var vesicle_nodes: Array[MeshInstance3D] = []
 
-# -------------------------------------------------------------
 # Creutzfeldt-Jakob Disease (CJD) Simulator State
-# -------------------------------------------------------------
 var cjd_active: bool = false
 var cjd_speed_days_per_sec: float = 5.0
 var cjd_elapsed_days: float = 0.0
@@ -91,172 +101,263 @@ var rt_quic_positive: bool = false
 var vacuole_nodes: Array[Node3D] = []
 var plaque_nodes: Array[MeshInstance3D] = []
 
+# AI Natural Voice Tour State
+var is_tour_active: bool = false
+var tour_step_index: int = 0
+var tour_step_timer: float = 0.0
+var tour_sequence: Array[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+
 func _ready() -> void:
-	print("[MOZOK] Interactive Living Brain & CJD Simulation Engine initialized.")
+	print("[MOZOK] v1.0.0 — Multi-Scale Human Brain & Connectome Explorer initialized.")
 	_init_alpha_seed_data()
 	_init_cjd_pathology_state()
 	_create_visual_proxies()
+	_create_500_neuron_connectome()
 	_build_quick_jump_ui()
 	_setup_disease_ui()
+	_setup_tour_ui()
 	_update_camera_transform()
 	_update_hud()
 
 func _init_alpha_seed_data() -> void:
+	# 14 Fundamental Structures for Psychology & Neuroanatomophysiology
 	alpha_regions[1] = {
 		"id": 1,
 		"acronym": "WB",
-		"name": "Whole Human Brain (Мозок)",
+		"name": "Encéfalo Humano Completo (Мозок - MNI152)",
 		"scale": SpatialScale.MACRO_WHOLE_BRAIN,
 		"center": Vector3(0, 0, 0),
 		"radius": 90.0,
 		"optimal_dist": 220.0,
-		"color": Color(0.70, 0.75, 0.85, 0.65),
+		"color": Color(0.85, 0.78, 0.72, 0.95),
+		"function": "Integração sensorial, motora, cognitiva, emocional e homeostática global.",
+		"clinical": "Atrofia cortical generalizada, perda cognitiva global e demência na DCJ.",
+		"neurotransmitter": "Orquestração polissináptica (Glutamato, GABA, Dopamina, 5-HT, ACh)",
 		"citation": "Fonov et al. (ICBM / MNI Consortium) (2011)",
-		"context": "MNI152 nonlinear 6th generation average MRI template",
-		"doi": "10.1016/j.neuroimage.2009.04.041"
+		"context": "Espaço estereotáxico MNI152 nonlinear 6th generation average MRI",
+		"doi": "10.1016/j.neuroimage.2009.04.041",
+		"audio_script": "Você está contemplando o Encéfalo Humano Completo no espaço MNI 152. Com cerca de 86 bilhões de neurônios interconectados, esta estrutura integra toda a cognição, afeto e motricidade humana."
 	}
 	alpha_regions[2] = {
 		"id": 2,
-		"acronym": "FL",
-		"name": "Frontal Lobe",
+		"acronym": "DLPFC",
+		"name": "Córtex Pré-Frontal Dorsolateral (BA 9/46)",
 		"scale": SpatialScale.MACRO_LOBES,
-		"center": Vector3(0, 40, 20),
-		"radius": 55.0,
-		"optimal_dist": 90.0,
-		"color": Color(0.28, 0.52, 0.95, 0.55),
-		"citation": "Desikan et al. (2006) Cortical Parcellation",
-		"context": "Macro-scale anatomical lobar demarcation",
-		"doi": "10.1016/j.neuroimage.2006.01.021"
+		"center": Vector3(-36, 45, 30),
+		"radius": 24.0,
+		"optimal_dist": 60.0,
+		"color": Color(0.28, 0.55, 0.95, 0.75),
+		"function": "Funções executivas, memória operacional, planejamento e tomada de decisão.",
+		"clinical": "Síndrome disexecutiva, depressão maior, apatia e labilidade precoce na DCJ.",
+		"neurotransmitter": "Dopamina (receptores D1/D2) e L-Glutamato córtico-cortical",
+		"citation": "Miller & Cohen (2001) / Petrides (2005) Annu Rev Neurosci",
+		"context": "Circuito fronto-estriatal executivo e controle top-down",
+		"doi": "10.1146/annurev.neuro.24.1.167",
+		"audio_script": "O Córtex Pré-Frontal Dorsolateral rege as funções executivas, a memória de trabalho e a inibição de impulsos, sendo intensamente modulado pelas vias dopaminérgicas mesocorticais."
 	}
 	alpha_regions[3] = {
 		"id": 3,
-		"acronym": "TL",
-		"name": "Temporal Lobe",
-		"scale": SpatialScale.MACRO_LOBES,
-		"center": Vector3(50, -15, -15),
-		"radius": 45.0,
-		"optimal_dist": 85.0,
-		"color": Color(0.85, 0.55, 0.22, 0.55),
-		"citation": "Desikan et al. (2006) Cortical Parcellation",
-		"context": "Archicortex and neocortical auditory/memory centers",
-		"doi": "10.1016/j.neuroimage.2006.01.021"
-	}
-	alpha_regions[4] = {
-		"id": 4,
-		"acronym": "PrG",
-		"name": "Precentral Gyrus (Primary Motor Cortex - M1)",
+		"acronym": "M1",
+		"name": "Giro Pré-Central — Córtex Motor Primário (M1 / BA 4)",
 		"scale": SpatialScale.MESO_STRUCTURES,
 		"center": Vector3(-38, -14, 52),
 		"radius": 18.0,
-		"optimal_dist": 25.0,
-		"color": Color(0.92, 0.32, 0.32, 0.65),
-		"citation": "Brodmann Area 4 / Human Motor Cortex Standard (2019)",
-		"context": "Somatotopic upper-limb motor representation",
-		"doi": "10.1093/cercor/bhz159"
+		"optimal_dist": 28.0,
+		"color": Color(0.92, 0.32, 0.32, 0.75),
+		"function": "Planejamento e disparo dos comandos motores voluntários somatotópicos.",
+		"clinical": "Paresia espástica, perda da motricidade fina, hiperreflexia e mioclonias na DCJ.",
+		"neurotransmitter": "L-Glutamato excitatório nas sinapses córtico-espinhais",
+		"citation": "Brodmann (1909) / Penfield & Boldrey (1937) Brain",
+		"context": "Homúnculo motor somatotópico e origem do trato piramidal",
+		"doi": "10.1093/brain/60.4.389",
+		"audio_script": "O Giro Pré-Central hospeda o córtex motor primário M1 e o mapa somatotópico de Penfield. Daqui emergem os tratos córtico-espinhais que comandam cada fração milimétrica do movimento voluntário."
+	}
+	alpha_regions[4] = {
+		"id": 4,
+		"acronym": "BROCA",
+		"name": "Área de Broca — Giro Frontal Inferior (BA 44/45)",
+		"scale": SpatialScale.MESO_STRUCTURES,
+		"center": Vector3(-48, 18, 12),
+		"radius": 14.0,
+		"optimal_dist": 30.0,
+		"color": Color(0.95, 0.52, 0.18, 0.75),
+		"function": "Programação motora da fala, sintaxe gramatical e articulação fonológica.",
+		"clinical": "Afasia de Broca expressiva não-fluente, apraxia verbal e mutismo acinético na DCJ.",
+		"neurotransmitter": "Acetilcolina, L-Glutamato e modulação GABAérgica",
+		"citation": "Paul Broca (1861) / Dronkers et al. (2007) Brain",
+		"context": "Pars opercularis e triangularis do hemisfério dominante",
+		"doi": "10.1093/brain/awm042",
+		"audio_script": "A Área de Broca, no giro frontal inferior esquerdo, programa a mecânica da fala e a articulação verbal, interligando-se à área de Wernicke pelo fascículo arqueado."
 	}
 	alpha_regions[5] = {
 		"id": 5,
-		"acronym": "HIP",
-		"name": "Hippocampus (Cornu Ammonis)",
+		"acronym": "WERN",
+		"name": "Área de Wernicke — Giro Temporal Superior (BA 22)",
 		"scale": SpatialScale.MESO_STRUCTURES,
-		"center": Vector3(-28, -20, -14),
-		"radius": 12.0,
-		"optimal_dist": 18.0,
-		"color": Color(0.65, 0.35, 0.85, 0.65),
-		"citation": "Amunts et al. Julich Brain Cytoarchitectonic Atlas (2020)",
-		"context": "Subiculum and CA1-CA4 archicortex",
-		"doi": "10.1126/science.abb3333"
+		"center": Vector3(-54, -38, 16),
+		"radius": 14.0,
+		"optimal_dist": 30.0,
+		"color": Color(0.25, 0.75, 0.85, 0.75),
+		"function": "Decodificação auditiva, reconhecimento semântico e compreensão da fala.",
+		"clinical": "Afasia de Wernicke fluente com jargões e anosognosia, parafasias semânticas.",
+		"neurotransmitter": "Glutamato e GABA em circuitos tálamo-corticais auditivos",
+		"citation": "Carl Wernicke (1874) / Catani et al. (2005) Ann Neurol",
+		"context": "Córtex auditivo secundário de associação e processamento semântico",
+		"doi": "10.1002/ana.20404",
+		"audio_script": "A Área de Wernicke decodifica os fonemas e confere sentido aos símbolos linguísticos. Lesões causam afasia fluente, onde a fala flui sem conexão semântica."
 	}
 	alpha_regions[6] = {
 		"id": 6,
-		"acronym": "SNc",
-		"name": "Substantia Nigra pars compacta",
+		"acronym": "HIP",
+		"name": "Hipocampo — Corno de Amon (CA1-CA4 e Subículo)",
 		"scale": SpatialScale.MESO_STRUCTURES,
-		"center": Vector3(-10, -18, -12),
-		"radius": 8.0,
-		"optimal_dist": 12.0,
-		"color": Color(0.18, 0.18, 0.22, 0.85),
-		"citation": "Keuken et al. Ultra-high 7T MRI of Human Subcortex (2014)",
-		"context": "Dopaminergic neuromelanin-pigmented cluster",
-		"doi": "10.1016/j.neuroimage.2014.03.032"
+		"center": Vector3(-28, -20, -14),
+		"radius": 12.0,
+		"optimal_dist": 22.0,
+		"color": Color(0.68, 0.38, 0.88, 0.80),
+		"function": "Consolidação da memória episódica declarativa e navegação espacial.",
+		"clinical": "Amnésia anterógrada, Doença de Alzheimer precoce e declínio mnemônico rápido na DCJ.",
+		"neurotransmitter": "Glutamato (receptores NMDA para Potenciação de Longa Duração - LTP)",
+		"citation": "Amunts et al. Julich Brain Cytoarchitectonic Atlas (2020) Science",
+		"context": "Archicórtex límbico, giro denteado e neurogênese subgranular adulta",
+		"doi": "10.1126/science.abb3333",
+		"audio_script": "O Hipocampo, no lobo temporal mesial, é o centro de consolidação de memórias de longa duração e mapeamento espacial por células de lugar."
 	}
 	alpha_regions[7] = {
 		"id": 7,
-		"acronym": "L5-M1",
-		"name": "Cortical Layer V (Internal Pyramidal Layer)",
-		"scale": SpatialScale.MESO_TISSUE,
-		"center": Vector3(-38.0, -14.0, 52.0),
-		"radius": 1.5,
-		"optimal_dist": 1.8,
-		"color": Color(0.95, 0.55, 0.45, 0.70),
-		"citation": "Mountcastle (1997) The Columnar Organization of Neocortex",
-		"context": "Neocortical laminar microcircuit band",
-		"doi": "10.1093/brain/120.4.701"
+		"acronym": "AMYG",
+		"name": "Complexo Amigdaloidiano (Núcleo Basolateral e Central)",
+		"scale": SpatialScale.MESO_STRUCTURES,
+		"center": Vector3(-22, -6, -18),
+		"radius": 9.0,
+		"optimal_dist": 16.0,
+		"color": Color(0.92, 0.22, 0.45, 0.80),
+		"function": "Atribuição de valência emocional, condicionamento do medo e vigilância a perigo.",
+		"clinical": "Transtornos de ansiedade, estresse pós-traumático, Síndrome de Klüver-Bucy e pânico.",
+		"neurotransmitter": "Serotonina (5-HT), Noradrenalina e modulação inibitória por GABA",
+		"citation": "LeDoux (2000) / Janak & Tye (2015) Nature",
+		"context": "Reconhecimento de expressões faciais de medo e ativação autonômica",
+		"doi": "10.1038/nature14188",
+		"audio_script": "A Amígdala detecta estímulos de ameaça e condiciona respostas viscerais de medo e sobrevivência através de eferências ao hipotálamo."
 	}
 	alpha_regions[8] = {
 		"id": 8,
-		"acronym": "BETZ",
-		"name": "Giant Pyramidal Cell of Betz (Volodymyr Bets, Kyiv 1874)",
-		"scale": SpatialScale.MICRO_NEURONS,
-		"center": Vector3(-38.1, -14.0, 52.1),
-		"radius": 0.08,
-		"optimal_dist": 0.12,
-		"color": Color(0.32, 0.88, 0.48, 0.90),
-		"citation": "BRAIN Initiative Cell Census Network (BICCN) (2021) Nature",
-		"context": "Soma diameter ~100 µm, longest projection in human CNS",
-		"doi": "10.1038/s41586-021-03950-0"
+		"acronym": "STR",
+		"name": "Corpo Estriado — Caudado e Putâmen",
+		"scale": SpatialScale.MESO_STRUCTURES,
+		"center": Vector3(-18, 8, 4),
+		"radius": 16.0,
+		"optimal_dist": 25.0,
+		"color": Color(0.95, 0.65, 0.15, 0.80),
+		"function": "Seleção de ações, automatização de hábitos motores e tônus muscular.",
+		"clinical": "Coreia de Huntington, discinesias, parkinsonismo secundário e mioclonias na DCJ.",
+		"neurotransmitter": "Dopamina nigroestriatal e GABA (neurônios espinhosos médios D1/D2)",
+		"citation": "Albin, Young & Penney (1989) / Graybiel (2008) Annu Rev Neurosci",
+		"context": "Porta de entrada dos gânglios da base e vias direta e indireta",
+		"doi": "10.1146/annurev.neuro.29.051605.112851",
+		"audio_script": "O Corpo Estriado, formado pelo núcleo caudado e putâmen, processa o aprendizado de hábitos motores. Na DCJ, a desinibição estriatal precipita abalos mioclônicos violentos."
 	}
 	alpha_regions[9] = {
 		"id": 9,
-		"acronym": "SYN-M1",
-		"name": "Corticospinal Glutamatergic Synapse",
-		"scale": SpatialScale.MICRO_SYNAPSES,
-		"center": Vector3(-38.102, -14.001, 52.101),
-		"radius": 0.0015,
-		"optimal_dist": 0.002,
-		"color": Color(1.0, 0.85, 0.15, 0.95),
-		"citation": "Shapson-Coe et al. (Harvard / Google Connectomics) (2024) Science",
-		"context": "Synaptic cleft width ~20 nm, vesicle pool & postsynaptic density",
-		"doi": "10.1126/science.adk4858"
-	}
-	alpha_regions[10] = {
-		"id": 10,
-		"acronym": "VENT-LAT",
-		"name": "Lateral Ventricles & Choroid Plexus (CSF)",
-		"scale": SpatialScale.MESO_STRUCTURES,
-		"center": Vector3(0, -10, 15),
-		"radius": 28.0,
-		"optimal_dist": 35.0,
-		"color": Color(0.12, 0.82, 0.92, 0.45),
-		"citation": "Nedergaard et al. (Glymphatic System Discovery) (2013) Science",
-		"context": "Macroscopic ventricular volume and perivascular Virchow-Robin spaces",
-		"doi": "10.1126/science.1234098"
-	}
-	alpha_regions[11] = {
-		"id": 11,
-		"acronym": "AQUEDUCT",
-		"name": "Cerebral Aqueduct of Sylvius (CSF Flow)",
-		"scale": SpatialScale.MESO_STRUCTURES,
-		"center": Vector3(0, -28, -8),
-		"radius": 5.0,
-		"optimal_dist": 15.0,
-		"color": Color(0.20, 0.70, 1.0, 0.60),
-		"citation": "Barkhof et al. High-resolution MRI of CSF Circulation",
-		"context": "Peak pulsatile ventricular flow velocity ~30–50 mm/s",
-		"doi": "10.1148/radiology.182.2.1732958"
-	}
-	alpha_regions[12] = {
-		"id": 12,
 		"acronym": "PULV",
-		"name": "Pulvinar & Medial Thalamus (CJD Target)",
+		"name": "Tálamo Pulvinar e Medial (Alvo Primário da DCJ)",
 		"scale": SpatialScale.MESO_STRUCTURES,
 		"center": Vector3(-12, -24, 6),
 		"radius": 12.0,
-		"optimal_dist": 20.0,
-		"color": Color(0.75, 0.28, 0.55, 0.70),
+		"optimal_dist": 22.0,
+		"color": Color(0.98, 0.42, 0.18, 0.85),
+		"function": "Integração sensorial talamocortical, atenção visual e sincronização rítmica.",
+		"clinical": "Sinal do Taco de Hóquei e Pulvinar na ressonância DWI na DCJ esporádica e variante.",
+		"neurotransmitter": "Glutamato e neurônios de relé talâmico GABAérgicos",
 		"citation": "Zerr et al. (European CJD Surveillance Consortium) (2009) Lancet Neurol",
-		"context": "Bilateral pulvinar and hockey-stick high-signal intensity on MRI DWI",
-		"doi": "10.1016/S1474-4422(09)70291-1"
+		"context": "Hiperintensidade patognomônica bilateral em DWI e FLAIR",
+		"doi": "10.1016/S1474-4422(09)70291-1",
+		"audio_script": "O Tálamo Pulvinar é o principal centro de relé talâmico. Na Doença de Creutzfeldt-Jakob, a deposição priônica massiva produz o emblemático sinal do taco de hóquei na ressonância magnética."
+	}
+	alpha_regions[10] = {
+		"id": 10,
+		"acronym": "SNC",
+		"name": "Substância Negra Pars Compacta",
+		"scale": SpatialScale.MESO_STRUCTURES,
+		"center": Vector3(-10, -18, -12),
+		"radius": 8.0,
+		"optimal_dist": 15.0,
+		"color": Color(0.18, 0.18, 0.22, 0.90),
+		"function": "Produção e projeção de dopamina para o estriado via via nigroestriatal.",
+		"clinical": "Doença de Parkinson, rigidez em roda denteada, tremor de repouso e bradicinesia.",
+		"neurotransmitter": "Dopamina sintetizada a partir da tirosina (neuromelanina protetora)",
+		"citation": "Keuken et al. Ultra-high 7T MRI of Human Subcortex (2014) NeuroImage",
+		"context": "Degeneração dopaminérgica seletiva e corpos de Lewy na sinucleinopatia",
+		"doi": "10.1016/j.neuroimage.2014.03.032",
+		"audio_script": "A Substância Negra pars compacta sintetiza dopamina com pigmentos de neuromelanina. Sua degeneração reduz os disparos motores, gerando rigidez e lentificação dos movimentos."
+	}
+	alpha_regions[11] = {
+		"id": 11,
+		"acronym": "CEREB",
+		"name": "Córtex Cerebelar e Células de Purkinje",
+		"scale": SpatialScale.MESO_STRUCTURES,
+		"center": Vector3(0, -38, -32),
+		"radius": 26.0,
+		"optimal_dist": 55.0,
+		"color": Color(0.82, 0.65, 0.62, 0.85),
+		"function": "Coordenação motora fina, equilíbrio postural e correção de erros cinemáticos.",
+		"clinical": "Ataxia de marcha, dismetria, tremor cinético e forma cerebelar Brownell-Oppenheimer da DCJ.",
+		"neurotransmitter": "GABA (células de Purkinje) e Glutamato (fibras paralelas/trepadeiras)",
+		"citation": "Ito (2006) Nature Rev Neurosci / Julich Brain Atlas (2020)",
+		"context": "Folhas cerebelares e arquitetura trilaminar de alta densidade neuronal",
+		"doi": "10.1038/nrn1938",
+		"audio_script": "O Cerebelo abriga mais da metade dos neurônios do corpo. As células de Purkinje emitem as únicas projeções inibitórias do córtex cerebelar, calibrando a precisão de cada ato motor."
+	}
+	alpha_regions[12] = {
+		"id": 12,
+		"acronym": "VENT",
+		"name": "Ventrículos Laterais e Sistema Glinfático AQP4 (Líquor)",
+		"scale": SpatialScale.MESO_STRUCTURES,
+		"center": Vector3(0, -10, 15),
+		"radius": 28.0,
+		"optimal_dist": 40.0,
+		"color": Color(0.12, 0.85, 0.95, 0.60),
+		"function": "Produção pulsátil de LCR pelo plexo coroide e depuração glinfática de toxinas.",
+		"clinical": "Hidrocefalia ex-vacuo, colapso glinfático, elevação de Proteína 14-3-3 e Tau.",
+		"neurotransmitter": "Líquido cefalorraquidiano com íons vitais e peptídeos sinalizadores",
+		"citation": "Nedergaard et al. (Glymphatic System Discovery) (2013) Science",
+		"context": "Circulação perivascular de Virchow-Robin e depuração durante o sono",
+		"doi": "10.1126/science.1234098",
+		"audio_script": "Os Ventrículos e o sistema glinfático lavam o parênquima cerebral através do fluxo pulsátil de líquor, depurando proteínas patogênicas como PrPSc, Tau e amiloide durante o sono profundo."
+	}
+	alpha_regions[13] = {
+		"id": 13,
+		"acronym": "BETZ",
+		"name": "Camada Piramidal V & Célula Gigante de Betz (1874)",
+		"scale": SpatialScale.MICRO_NEURONS,
+		"center": Vector3(-38.1, -14.0, 52.1),
+		"radius": 0.08,
+		"optimal_dist": 0.14,
+		"color": Color(0.32, 0.88, 0.48, 0.95),
+		"function": "Neurônio piramidal gigante com axônio motor longo até a medula espinhal.",
+		"clinical": "Degeneração axonal retrógrada, vacuolização citoplasmática e perda motora na DCJ.",
+		"neurotransmitter": "L-Glutamato vesicular em terminais pré-sinápticos corticais",
+		"citation": "Volodymyr Bets (Kyiv, 1874) / BICCN Nature (2021)",
+		"context": "Soma de 100 micrometros com árvore dendrítica apical extensa",
+		"doi": "10.1038/s41586-021-03950-0",
+		"audio_script": "Descoberta por Volodymyr Bets em 1874, a célula gigante de Betz na camada cinco do córtex motor primário projeta seu axônio por mais de um metro até os motoneurônios da medula espinhal."
+	}
+	alpha_regions[14] = {
+		"id": 14,
+		"acronym": "SYN",
+		"name": "Fenda Sináptica Glutamatérgica & Banho Molecular do Líquor",
+		"scale": SpatialScale.MICRO_SYNAPSES,
+		"center": Vector3(-38.102, -14.001, 52.101),
+		"radius": 0.0015,
+		"optimal_dist": 0.0025,
+		"color": Color(1.0, 0.85, 0.15, 0.98),
+		"function": "Transmissão química em fenda de 20 nm, exocitose quântica e plasticidade sináptica.",
+		"clinical": "Interação PrPC com PrPSc, excitotoxicidade glutamatérgica e perda sináptica inicial.",
+		"neurotransmitter": "L-Glutamato, receptores AMPA, NMDA e influxo citotóxico de Cálcio",
+		"citation": "Shapson-Coe et al. (Harvard / Google Connectomics) (2024) Science",
+		"context": "Fenda sináptica de 20 nanômetros e vesículas de 40 nanômetros",
+		"doi": "10.1126/science.adk4858",
+		"audio_script": "Na escala de vinte nanômetros, as vesículas sinápticas liberam glutamato na fenda ativando receptores pós-sinápticos. É aqui que os oligômeros de príons PrPSc desestabilizam as sinapses."
 	}
 
 func _init_cjd_pathology_state() -> void:
@@ -268,198 +369,358 @@ func _init_cjd_pathology_state() -> void:
 			"astrogliosis": 0.0,
 			"neuronal_survival": 1.0
 		}
-	# Seed initial infection in Pulvinar Thalamus (classic sCJD initiation)
-	cjd_regions[12]["prp_sc"] = 0.5
-	cjd_regions[12]["prp_c"] = 0.5
+	# Seed initial sporadic CJD infection in Pulvinar Thalamus (id: 9)
+	if cjd_regions.has(9):
+		cjd_regions[9]["prp_sc"] = 0.55
+		cjd_regions[9]["prp_c"] = 0.45
 
 func _create_visual_proxies() -> void:
+	# 1. Whole Human Brain (id == 1): Custom Sculpted ShaderMaterial with Progressive Zoom Transparency
+	var brain_node = Node3D.new()
+	brain_node.name = "Proxy_WB"
+	
+	var shader = Shader.new()
+	shader.code = """
+	shader_type spatial;
+	render_mode blend_mix, depth_draw_opaque, cull_back;
+
+	uniform float camera_dist_mm = 220.0;
+	uniform vec4 cortex_color : source_color = vec4(0.86, 0.76, 0.72, 1.0);
+	uniform vec4 sulcus_color : source_color = vec4(0.38, 0.28, 0.32, 1.0);
+	uniform float gyri_frequency = 0.14;
+	uniform float gyri_depth = 3.6;
+	uniform float roughness : hint_range(0.0, 1.0) = 0.45;
+	uniform float rim_strength : hint_range(0.0, 1.0) = 0.65;
+
+	varying float v_gyrus;
+
+	void vertex() {
+		// Multi-harmonic domain warping for anatomical cortical gyri & deep sulci
+		float g1 = sin(VERTEX.x * gyri_frequency * 1.4 + cos(VERTEX.y * gyri_frequency)) * cos(VERTEX.z * gyri_frequency * 1.2);
+		float g2 = sin(VERTEX.y * gyri_frequency * 2.0 + VERTEX.z * gyri_frequency) * 0.45;
+		float g3 = cos((VERTEX.x + VERTEX.y + VERTEX.z) * gyri_frequency * 0.8) * 0.3;
+		float gyrus = (g1 + g2 + g3);
+		v_gyrus = gyrus;
+		
+		VERTEX += NORMAL * (gyrus * gyri_depth);
+	}
+
+	void fragment() {
+		// Continuous zoom-based transparency:
+		// > 140 mm: 1.0 (opaque cortical lobes)
+		// 15 to 140 mm: 0.18 to 0.95 (translucent anatomical X-ray glass)
+		// < 15 mm: 0.02 (near transparent revealing micro-connectome inside)
+		float alpha = 1.0;
+		if (camera_dist_mm > 140.0) {
+			alpha = 1.0;
+		} else if (camera_dist_mm >= 15.0) {
+			float t = (camera_dist_mm - 15.0) / (140.0 - 15.0);
+			alpha = mix(0.18, 0.95, t * t);
+		} else {
+			alpha = mix(0.02, 0.18, camera_dist_mm / 15.0);
+		}
+
+		float blend = clamp((v_gyrus + 1.2) * 0.45, 0.0, 1.0);
+		vec3 base = mix(sulcus_color.rgb, cortex_color.rgb, blend);
+
+		ALBEDO = base;
+		ROUGHNESS = roughness;
+		SPECULAR = 0.45;
+		RIM = rim_strength;
+		RIM_TINT = 0.35;
+		ALPHA = alpha;
+	}
+	"""
+	cortex_shader_mat = ShaderMaterial.new()
+	cortex_shader_mat.shader = shader
+	cortex_shader_mat.set_shader_parameter("camera_dist_mm", camera_distance_mm)
+	
+	# Left Cerebral Hemisphere
+	var left_hemi = MeshInstance3D.new()
+	var left_mesh = SphereMesh.new()
+	left_mesh.radius = 42.0
+	left_mesh.height = 135.0
+	left_mesh.radial_segments = 48
+	left_mesh.rings = 24
+	left_hemi.mesh = left_mesh
+	left_hemi.scale = Vector3(0.9, 0.95, 1.25)
+	left_hemi.position = Vector3(-24.0, 5.0, 0.0)
+	left_hemi.material_override = cortex_shader_mat
+	brain_node.add_child(left_hemi)
+	
+	# Right Cerebral Hemisphere
+	var right_hemi = MeshInstance3D.new()
+	var right_mesh = SphereMesh.new()
+	right_mesh.radius = 42.0
+	right_mesh.height = 135.0
+	right_mesh.radial_segments = 48
+	right_mesh.rings = 24
+	right_hemi.mesh = right_mesh
+	right_hemi.scale = Vector3(0.9, 0.95, 1.25)
+	right_hemi.position = Vector3(24.0, 5.0, 0.0)
+	right_hemi.material_override = cortex_shader_mat
+	brain_node.add_child(right_hemi)
+	
+	# Cerebellum (folia-textured)
+	var cereb_mat = StandardMaterial3D.new()
+	cereb_mat.albedo_color = Color(0.82, 0.65, 0.62, 0.9)
+	cereb_mat.roughness = 0.5
+	cereb_mat.rim_enabled = true
+	cereb_mat.rim = 0.5
+	
+	var cereb_l = MeshInstance3D.new()
+	var cereb_mesh = SphereMesh.new()
+	cereb_mesh.radius = 22.0
+	cereb_mesh.height = 36.0
+	cereb_l.mesh = cereb_mesh
+	cereb_l.scale = Vector3(1.1, 0.8, 0.9)
+	cereb_l.position = Vector3(-18.0, -32.0, -36.0)
+	cereb_l.material_override = cereb_mat
+	brain_node.add_child(cereb_l)
+	
+	var cereb_r = MeshInstance3D.new()
+	cereb_r.mesh = cereb_mesh
+	cereb_r.scale = Vector3(1.1, 0.8, 0.9)
+	cereb_r.position = Vector3(18.0, -32.0, -36.0)
+	cereb_r.material_override = cereb_mat
+	brain_node.add_child(cereb_r)
+	
+	# Brainstem
+	var stem_mat = StandardMaterial3D.new()
+	stem_mat.albedo_color = Color(0.86, 0.82, 0.76, 1.0)
+	stem_mat.roughness = 0.4
+	
+	var stem = MeshInstance3D.new()
+	var stem_mesh = CylinderMesh.new()
+	stem_mesh.top_radius = 11.0
+	stem_mesh.bottom_radius = 8.0
+	stem_mesh.height = 55.0
+	stem.mesh = stem_mesh
+	stem.position = Vector3(0.0, -48.0, -16.0)
+	stem.rotation_degrees = Vector3(12.0, 0.0, 0.0)
+	stem.material_override = stem_mat
+	brain_node.add_child(stem)
+	
+	brain_root.add_child(brain_node)
+	proxy_nodes[1] = brain_node
+	
+	# 2. Subcortical & Specific Visual Proxies for Structures 2..14
 	for id in alpha_regions.keys():
+		if id == 1:
+			continue
 		var data: Dictionary = alpha_regions[id]
 		var node = Node3D.new()
 		node.name = "Proxy_" + str(data["acronym"])
 		
-		var mesh_inst = MeshInstance3D.new()
 		var mat = StandardMaterial3D.new()
 		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		mat.albedo_color = data["color"]
-		mat.roughness = 0.3
+		mat.roughness = 0.35
 		mat.emission_enabled = true
 		mat.emission = data["color"]
-		mat.emission_energy_multiplier = 0.25
+		mat.emission_energy_multiplier = 0.3
 		
-		if id == 1:
-			# Whole Human Brain (Мозок): Procedural Anatomical Brain Architecture
-			# Left & Right Cerebral Hemispheres, Cerebellum, and Brainstem
-			var hemisphere_mat = StandardMaterial3D.new()
-			hemisphere_mat.albedo_color = Color(0.88, 0.76, 0.72, 1.0) # Warm cortical grey/pink
-			hemisphere_mat.roughness = 0.45
-			hemisphere_mat.specular = 0.5
-			hemisphere_mat.rim_enabled = true
-			hemisphere_mat.rim = 0.6
-			hemisphere_mat.rim_tint = 0.5
+		if id == 12: # Ventrículos Laterais (CSF)
+			var tor = TorusMesh.new()
+			tor.inner_radius = data["radius"] * 0.4
+			tor.outer_radius = data["radius"]
+			var mi = MeshInstance3D.new()
+			mi.mesh = tor
+			mi.material_override = mat
+			node.add_child(mi)
+		elif id == 8: # Corpo Estriado (Caudado & Putâmen)
+			var striatum_mesh = CylinderMesh.new()
+			striatum_mesh.top_radius = data["radius"] * 0.6
+			striatum_mesh.bottom_radius = data["radius"] * 0.3
+			striatum_mesh.height = data["radius"] * 1.8
+			var mi = MeshInstance3D.new()
+			mi.mesh = striatum_mesh
+			mi.rotation_degrees = Vector3(30, 20, 0)
+			mi.material_override = mat
+			node.add_child(mi)
+		elif id == 9: # Tálamo Pulvinar
+			var pulv_mesh = SphereMesh.new()
+			pulv_mesh.radius = data["radius"]
+			pulv_mesh.height = data["radius"] * 1.6
+			var mi = MeshInstance3D.new()
+			mi.mesh = pulv_mesh
+			mi.scale = Vector3(0.85, 1.0, 1.3)
+			mi.material_override = mat
+			node.add_child(mi)
+		elif id == 6: # Hipocampo (Corno de Amon)
+			var hip_mesh = CapsuleMesh.new()
+			hip_mesh.radius = data["radius"] * 0.5
+			hip_mesh.height = data["radius"] * 2.2
+			var mi = MeshInstance3D.new()
+			mi.mesh = hip_mesh
+			mi.rotation_degrees = Vector3(15, -35, 10)
+			mi.material_override = mat
+			node.add_child(mi)
+		elif id == 13: # Célula de Betz (Macro representation)
+			var soma = SphereMesh.new()
+			soma.radius = data["radius"]
+			soma.height = data["radius"] * 2.0
+			var mi = MeshInstance3D.new()
+			mi.mesh = soma
+			mi.material_override = mat
+			node.add_child(mi)
 			
-			# Left Hemisphere
-			var left_hemi = MeshInstance3D.new()
-			var left_mesh = SphereMesh.new()
-			left_mesh.radius = 42.0
-			left_mesh.height = 135.0
-			left_mesh.radial_segments = 32
-			left_mesh.rings = 16
-			left_hemi.mesh = left_mesh
-			left_hemi.scale = Vector3(0.9, 0.95, 1.25)
-			left_hemi.position = Vector3(-24.0, 5.0, 0.0)
-			left_hemi.material_override = hemisphere_mat
-			node.add_child(left_hemi)
-			
-			# Right Hemisphere
-			var right_hemi = MeshInstance3D.new()
-			var right_mesh = SphereMesh.new()
-			right_mesh.radius = 42.0
-			right_mesh.height = 135.0
-			right_mesh.radial_segments = 32
-			right_mesh.rings = 16
-			right_hemi.mesh = right_mesh
-			right_hemi.scale = Vector3(0.9, 0.95, 1.25)
-			right_hemi.position = Vector3(24.0, 5.0, 0.0)
-			right_hemi.material_override = hemisphere_mat
-			node.add_child(right_hemi)
-			
-			# Cerebellum (Posterior-Inferior)
-			var cereb_mat = StandardMaterial3D.new()
-			cereb_mat.albedo_color = Color(0.82, 0.68, 0.65, 1.0)
-			cereb_mat.roughness = 0.5
-			cereb_mat.rim_enabled = true
-			cereb_mat.rim = 0.5
-			
-			var cereb_l = MeshInstance3D.new()
-			var cereb_mesh = SphereMesh.new()
-			cereb_mesh.radius = 22.0
-			cereb_mesh.height = 36.0
-			cereb_l.mesh = cereb_mesh
-			cereb_l.scale = Vector3(1.1, 0.8, 0.9)
-			cereb_l.position = Vector3(-18.0, -32.0, -36.0)
-			cereb_l.material_override = cereb_mat
-			node.add_child(cereb_l)
-			
-			var cereb_r = MeshInstance3D.new()
-			cereb_r.mesh = cereb_mesh
-			cereb_r.scale = Vector3(1.1, 0.8, 0.9)
-			cereb_r.position = Vector3(18.0, -32.0, -36.0)
-			cereb_r.material_override = cereb_mat
-			node.add_child(cereb_r)
-			
-			# Brainstem (Inferior/Spinal Cord transition)
-			var stem_mat = StandardMaterial3D.new()
-			stem_mat.albedo_color = Color(0.85, 0.80, 0.74, 1.0)
-			stem_mat.roughness = 0.4
-			
-			var stem = MeshInstance3D.new()
-			var stem_mesh = CylinderMesh.new()
-			stem_mesh.top_radius = 11.0
-			stem_mesh.bottom_radius = 8.0
-			stem_mesh.height = 55.0
-			stem.mesh = stem_mesh
-			stem.position = Vector3(0.0, -48.0, -16.0)
-			stem.rotation_degrees = Vector3(12.0, 0.0, 0.0)
-			stem.material_override = stem_mat
-			node.add_child(stem)
-			
-		elif data["scale"] == SpatialScale.MICRO_NEURONS:
-			var sphere = SphereMesh.new()
-			sphere.radius = data["radius"]
-			sphere.height = data["radius"] * 2.0
-			mesh_inst.mesh = sphere
-			mesh_inst.material_override = mat
-			node.add_child(mesh_inst)
-			
-			var dendrite = MeshInstance3D.new()
+			var axon = MeshInstance3D.new()
 			var cyl = CylinderMesh.new()
-			cyl.top_radius = data["radius"] * 0.25
-			cyl.bottom_radius = data["radius"] * 0.4
-			cyl.height = data["radius"] * 3.5
-			dendrite.mesh = cyl
-			dendrite.position = Vector3(0, data["radius"] * 1.8, 0)
-			dendrite.material_override = mat
-			node.add_child(dendrite)
-		elif data["scale"] == SpatialScale.MICRO_SYNAPSES:
+			cyl.top_radius = data["radius"] * 0.2
+			cyl.bottom_radius = data["radius"] * 0.2
+			cyl.height = data["radius"] * 4.0
+			axon.mesh = cyl
+			axon.position = Vector3(0, -data["radius"] * 2.0, 0)
+			axon.material_override = mat
+			node.add_child(axon)
+		elif id == 14: # Fenda Sináptica
 			var pre = SphereMesh.new()
-			pre.radius = data["radius"] * 0.7
-			pre.height = data["radius"] * 1.4
-			mesh_inst.mesh = pre
-			mesh_inst.material_override = mat
-			node.add_child(mesh_inst)
+			pre.radius = data["radius"] * 0.8
+			pre.height = data["radius"] * 1.6
+			var mi = MeshInstance3D.new()
+			mi.mesh = pre
+			mi.material_override = mat
+			node.add_child(mi)
 			
 			var post = MeshInstance3D.new()
-			var post_mesh = SphereMesh.new()
-			post_mesh.radius = data["radius"] * 0.7
-			post_mesh.height = data["radius"] * 1.4
-			post.mesh = post_mesh
-			post.position = Vector3(data["radius"] * 1.4, 0, 0)
+			post.mesh = pre
+			post.position = Vector3(data["radius"] * 1.5, 0, 0)
 			var post_mat = mat.duplicate()
-			post_mat.albedo_color = Color(0.9, 0.4, 0.1, 0.95)
+			post_mat.albedo_color = Color(0.95, 0.45, 0.15, 0.95)
 			post.material_override = post_mat
 			node.add_child(post)
 			
-			# Create animated neurotransmitter vesicle particles
-			for i in range(8):
+			# Vesículas sinápticas ativas
+			for i in range(12):
 				var v = MeshInstance3D.new()
 				var sm = SphereMesh.new()
 				sm.radius = data["radius"] * 0.12
 				sm.height = data["radius"] * 0.24
 				v.mesh = sm
 				var vm = StandardMaterial3D.new()
-				vm.albedo_color = Color(1.0, 1.0, 0.3, 0.9)
+				vm.albedo_color = Color(0.3, 0.95, 0.45, 0.95) if i % 2 == 0 else Color(0.2, 0.75, 1.0, 0.95)
 				vm.emission_enabled = true
-				vm.emission = Color(1.0, 1.0, 0.3)
+				vm.emission = vm.albedo_color
 				v.material_override = vm
-				v.position = Vector3(randf_range(0.1, 0.9) * data["radius"], randf_range(-0.3, 0.3) * data["radius"], 0)
+				v.position = Vector3(randf_range(0.1, 0.9) * data["radius"], randf_range(-0.3, 0.3) * data["radius"], randf_range(-0.2, 0.2) * data["radius"])
 				node.add_child(v)
 				vesicle_nodes.append(v)
-		elif id == 10 or id == 11:
-			# Ventricular Cavities (CSF)
-			var tor = TorusMesh.new() if id == 10 else CylinderMesh.new()
-			if id == 10:
-				tor.inner_radius = data["radius"] * 0.4
-				tor.outer_radius = data["radius"]
-			else:
-				tor.top_radius = data["radius"] * 0.5
-				tor.bottom_radius = data["radius"] * 0.5
-				tor.height = data["radius"] * 2.5
-			mesh_inst.mesh = tor
-			mesh_inst.material_override = mat
-			node.add_child(mesh_inst)
 		else:
+			var mi = MeshInstance3D.new()
 			var sphere = SphereMesh.new()
 			sphere.radius = data["radius"]
 			sphere.height = data["radius"] * 2.0
-			mesh_inst.mesh = sphere
-			mesh_inst.material_override = mat
-			node.add_child(mesh_inst)
+			mi.mesh = sphere
+			mi.material_override = mat
+			node.add_child(mi)
 			
+		node.position = data["center"]
 		brain_root.add_child(node)
 		proxy_nodes[id] = node
+
+func _create_500_neuron_connectome() -> void:
+	# High-performance 500-Neuron 3D Connectome via GPU MultiMeshInstance3D
+	connectome_root = Node3D.new()
+	connectome_root.name = "Connectome500_Root"
+	connectome_root.position = Vector3(-38.0, -14.0, 52.0) # Layer V Motor Area
+	
+	connectome_multimesh = MultiMeshInstance3D.new()
+	connectome_multimesh.name = "MultiMesh_Neurons"
+	
+	var mm = MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.color_format = MultiMesh.COLOR_8BIT
+	mm.instance_count = 500
+	
+	var soma_mesh = SphereMesh.new()
+	soma_mesh.radius = 0.045
+	soma_mesh.height = 0.09
+	soma_mesh.radial_segments = 12
+	soma_mesh.rings = 6
+	mm.mesh = soma_mesh
+	
+	var mat = StandardMaterial3D.new()
+	mat.vertex_color_use_as_albedo = true
+	mat.roughness = 0.3
+	mat.emission_enabled = true
+	mat.emission = Color(0.2, 0.9, 0.7)
+	mat.emission_energy_multiplier = 0.5
+	connectome_multimesh.material_override = mat
+	
+	# Brainbow color palette
+	var brainbow_colors = [
+		Color(0.0, 0.95, 1.0),   # Electric Cyan
+		Color(0.2, 0.75, 1.0),   # Bioluminescent Blue
+		Color(0.1, 0.9, 0.45),   # Confocal GFP Green
+		Color(0.9, 0.25, 0.9),   # Magenta Brainbow
+		Color(1.0, 0.85, 0.2),   # Amber/Gold
+		Color(0.95, 0.4, 0.2)    # Coral Red
+	]
+	
+	var rng = RandomNumberGenerator.new()
+	rng.seed = 42
+	
+	# Distribute 500 neurons in a realistic cortical columnar column (radius ~1.5mm, height ~2.5mm)
+	for i in range(500):
+		var theta = rng.randf_range(0.0, TAU)
+		var rad = sqrt(rng.randf_range(0.0, 1.0)) * 1.8
+		var px = cos(theta) * rad
+		var pz = sin(theta) * rad
+		var py = rng.randf_range(-1.2, 1.2)
+		
+		var t = Transform3D()
+		var rot_y = rng.randf_range(0, TAU)
+		var rot_x = rng.randf_range(-0.3, 0.3)
+		t = t.rotated(Vector3.UP, rot_y)
+		t = t.rotated(Vector3.RIGHT, rot_x)
+		var scale_soma = rng.randf_range(0.7, 1.6)
+		t = t.scaled(Vector3.ONE * scale_soma)
+		t.origin = Vector3(px, py, pz)
+		
+		mm.set_instance_transform(i, t)
+		var col = brainbow_colors[i % brainbow_colors.size()]
+		mm.set_instance_color(i, col)
+		
+	connectome_multimesh.multimesh = mm
+	connectome_root.add_child(connectome_multimesh)
+	
+	# Axon bundles & Synaptic Vesicles group
+	axon_lines_group = Node3D.new()
+	axon_lines_group.name = "AxonBundles"
+	connectome_root.add_child(axon_lines_group)
+	
+	csf_molecules_group = Node3D.new()
+	csf_molecules_group.name = "CsfMolecules"
+	connectome_root.add_child(csf_molecules_group)
+	
+	# Add PrPC and PrPSc molecular nanoparticles in the CSF interstitial space
+	for k in range(30):
+		var prp = MeshInstance3D.new()
+		var s = SphereMesh.new()
+		s.radius = 0.015
+		s.height = 0.03
+		prp.mesh = s
+		var pm = StandardMaterial3D.new()
+		pm.albedo_color = Color(0.2, 0.9, 0.4) if k % 3 != 0 else Color(1.0, 0.3, 0.1)
+		pm.emission_enabled = true
+		pm.emission = pm.albedo_color
+		prp.material_override = pm
+		prp.position = Vector3(rng.randf_range(-1.5, 1.5), rng.randf_range(-1.2, 1.2), rng.randf_range(-1.5, 1.5))
+		csf_molecules_group.add_child(prp)
+		
+	brain_root.add_child(connectome_root)
 
 func _build_quick_jump_ui() -> void:
 	for child in search_buttons_container.get_children():
 		child.queue_free()
 		
-	var jump_list = [
-		{"label": "[1] Whole Brain (220mm)", "id": 1},
-		{"label": "[2] Frontal Lobe (90mm)", "id": 2},
-		{"label": "[3] Lateral Ventricles (CSF)", "id": 10},
-		{"label": "[4] Cerebral Aqueduct (Flow)", "id": 11},
-		{"label": "[5] Pulvinar Thalamus (CJD)", "id": 12},
-		{"label": "[6] Motor Cortex M1 (25mm)", "id": 4},
-		{"label": "[7] Layer V Pyramidal Tissue", "id": 7},
-		{"label": "[8] Betz Giant Neuron (0.12mm)", "id": 8},
-		{"label": "[9] Synaptic Cleft (2µm)", "id": 9},
-	]
-	
-	for item in jump_list:
+	for id in alpha_regions.keys():
+		var data: Dictionary = alpha_regions[id]
 		var btn = Button.new()
-		btn.text = item["label"]
+		btn.text = "[%d] %s (%s)" % [data["id"], data["name"], data["acronym"]]
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		var target_id: int = item["id"]
+		var target_id: int = data["id"]
 		btn.pressed.connect(func(): focus_on_region(target_id))
 		search_buttons_container.add_child(btn)
 
@@ -473,47 +734,107 @@ func _setup_disease_ui() -> void:
 		cjd_speed_label.text = "%.1f Days/s" % val
 	)
 
+func _setup_tour_ui() -> void:
+	tour_button.pressed.connect(func(): toggle_guided_tour())
+	narrate_button.pressed.connect(func(): narrate_region(active_region_id))
+
+func toggle_guided_tour() -> void:
+	is_tour_active = not is_tour_active
+	if is_tour_active:
+		tour_button.text = "⏸ Pausar Tour Guiado IA"
+		tour_step_index = 0
+		tour_step_timer = 0.0
+		_execute_tour_step(tour_step_index)
+	else:
+		tour_button.text = "🎬 Iniciar Tour Guiado IA"
+		DisplayServer.tts_stop()
+
+func _execute_tour_step(idx: int) -> void:
+	if idx >= tour_sequence.size():
+		is_tour_active = false
+		tour_button.text = "🎬 Iniciar Tour Guiado IA"
+		return
+	var reg_id = tour_sequence[idx]
+	focus_on_region(reg_id)
+	narrate_region(reg_id)
+
+func narrate_region(id: int) -> void:
+	if not alpha_regions.has(id):
+		return
+	var reg: Dictionary = alpha_regions[id]
+	var speech_text = reg.get("audio_script", reg["name"])
+	_speak_tts(speech_text)
+
+func _speak_tts(text: String) -> void:
+	DisplayServer.tts_stop()
+	var voices = DisplayServer.tts_get_voices_for_language("pt")
+	var voice_id = ""
+	if voices.size() > 0:
+		voice_id = voices[0]
+	DisplayServer.tts_speak(text, voice_id)
+
 func _process(delta: float) -> void:
-	# 1. Living Physiology Update
 	phys_time_sec += delta
 	var card_pulse = sin(2.0 * PI * HEART_RATE_HZ * phys_time_sec)
 	var resp_pulse = sin(2.0 * PI * RESPIRATORY_RATE_HZ * phys_time_sec)
 	csf_flow_aqueduct_mm_s = (32.0 + 18.0 * card_pulse + 7.0 * resp_pulse) * glymphatic_aqp4_eff
 	
-	# Animate ventricular pulsation & aqueduct CSF stream
-	if proxy_nodes.has(10):
-		var v_node = proxy_nodes[10]
+	# 1. Update Whole Brain Shader Material distance uniform
+	if cortex_shader_mat:
+		cortex_shader_mat.set_shader_parameter("camera_dist_mm", camera_distance_mm)
+	
+	# 2. Pulsate Ventricles & CSF
+	if proxy_nodes.has(12):
+		var v_node = proxy_nodes[12]
 		var pulse_scale = 1.0 + 0.03 * card_pulse
-		# Ex-vacuo ventricular dilation under CJD neurodegeneration
 		var dilation = 1.0 + 0.45 * (1.0 - _get_mean_neuronal_survival())
 		v_node.scale = Vector3(pulse_scale, pulse_scale, pulse_scale) * dilation
 	
-	# Animate micro-scale synaptic vesicle transmission across cleft
+	# 3. Animate 500-Neuron Connectome and Synaptic Vesicles
+	if connectome_root:
+		# Connectome is vibrantly active when zooming close (< 35 mm)
+		connectome_root.visible = (camera_distance_mm < 35.0)
+		if connectome_root.visible:
+			connectome_multimesh.rotation.y = phys_time_sec * 0.05
+			if csf_molecules_group:
+				csf_molecules_group.rotation.y = -phys_time_sec * 0.08
+				
 	for i in range(vesicle_nodes.size()):
 		var v = vesicle_nodes[i]
-		var t = fmod(phys_time_sec * 3.0 + float(i) * 0.35, 1.0)
-		var cleft_dist = 0.0015 * 1.4
+		var t = fmod(phys_time_sec * 3.5 + float(i) * 0.25, 1.0)
+		var cleft_dist = 0.0015 * 1.5
 		v.position.x = t * cleft_dist
 		v.visible = (synaptic_integrity > 0.15)
 	
-	# 2. CJD Pathophysiology Simulation Progression
+	# 4. CJD Disease Progression
 	if cjd_active:
 		var sim_days = delta * cjd_speed_days_per_sec
 		_step_cjd_simulation(sim_days)
 		
+	# 5. Tour Timer Progression
+	if is_tour_active:
+		tour_step_timer += delta
+		if tour_step_timer >= 9.0: # 9 seconds per anatomical station
+			tour_step_timer = 0.0
+			tour_step_index += 1
+			_execute_tour_step(tour_step_index)
+			
 	_update_hud()
 
 func _step_cjd_simulation(dt_days: float) -> void:
 	cjd_elapsed_days += dt_days
 	
-	# Connectome diffusion network: Thalamus (12) <-> Frontal (2) <-> Motor (4) <-> Layer V (7) <-> Betz (8)
+	# Diffusion edges between 14 structures: Thalamus (9) <-> Striatum (8) <-> DLPFC (2) <-> M1 (3) <-> Betz (13) <-> Synapse (14)
 	var edges = [
-		{"from": 12, "to": 2, "weight": 1.2},
-		{"from": 12, "to": 3, "weight": 0.9},
-		{"from": 2, "to": 4, "weight": 1.1},
-		{"from": 4, "to": 7, "weight": 1.5},
-		{"from": 7, "to": 8, "weight": 1.8},
-		{"from": 8, "to": 9, "weight": 2.0},
+		{"from": 9, "to": 8, "weight": 1.4},
+		{"from": 9, "to": 2, "weight": 1.2},
+		{"from": 8, "to": 10, "weight": 1.1},
+		{"from": 2, "to": 3, "weight": 1.2},
+		{"from": 3, "to": 13, "weight": 1.6},
+		{"from": 13, "to": 14, "weight": 2.0},
+		{"from": 9, "to": 6, "weight": 0.8},
+		{"from": 6, "to": 7, "weight": 0.9},
+		{"from": 9, "to": 11, "weight": 1.0},
 	]
 	
 	var diff_flux: Dictionary = {}
@@ -526,7 +847,7 @@ func _step_cjd_simulation(dt_days: float) -> void:
 		if cjd_regions.has(u) and cjd_regions.has(v):
 			var sc_u: float = cjd_regions[u]["prp_sc"]
 			var sc_v: float = cjd_regions[v]["prp_sc"]
-			var flux = 0.035 * edge["weight"] * (sc_u - sc_v)
+			var flux = 0.04 * edge["weight"] * (sc_u - sc_v)
 			diff_flux[v] += flux
 			diff_flux[u] -= flux
 			
@@ -545,7 +866,6 @@ func _step_cjd_simulation(dt_days: float) -> void:
 		node["prp_c"] = max(0.0, node["prp_c"] - converted * dt_days)
 		node["prp_sc"] = clamp(node["prp_sc"] + (converted - cleared + diff) * dt_days, 0.0, 10.0)
 		
-		# Spongiform vacuolation & astrogliosis
 		node["vacuole_density"] = clamp(node["vacuole_density"] + 0.04 * node["prp_sc"] * dt_days, 0.0, 1.0)
 		node["astrogliosis"] = clamp(node["astrogliosis"] + 0.035 * node["prp_sc"] * dt_days, 0.0, 1.0)
 		node["neuronal_survival"] = clamp(node["neuronal_survival"] - 0.035 * node["vacuole_density"] * dt_days, 0.0, 1.0)
@@ -553,21 +873,20 @@ func _step_cjd_simulation(dt_days: float) -> void:
 		total_prp_sc += node["prp_sc"]
 		max_prp_sc = max(max_prp_sc, node["prp_sc"])
 		
-		# Visual feedback: update material colors & cortical ribboning glow
+		# Visual feedback: update material emission & atrophy
 		if proxy_nodes.has(id):
 			var p_node = proxy_nodes[id]
-			var mi = p_node.get_child(0) as MeshInstance3D
-			if mi and mi.material_override:
-				var mat = mi.material_override as StandardMaterial3D
-				# DWI Hyperintensity ribboning (bright yellow-green glow)
-				if node["prp_sc"] > 0.1:
-					var glow_intensity = clamp(node["prp_sc"] * 0.8, 0.0, 2.5)
-					mat.emission = Color(0.8, 1.0, 0.2)
-					mat.emission_energy_multiplier = 0.25 + glow_intensity
-					# Atrophy shrinkage
-					var atrophy = 1.0 - 0.25 * (1.0 - node["neuronal_survival"])
-					p_node.scale = Vector3(atrophy, atrophy, atrophy)
-					
+			if p_node.get_child_count() > 0:
+				var mi = p_node.get_child(0) as MeshInstance3D
+				if mi and mi.material_override:
+					var mat = mi.material_override as StandardMaterial3D
+					if mat and node["prp_sc"] > 0.08:
+						var glow_intensity = clamp(node["prp_sc"] * 0.85, 0.0, 3.0)
+						mat.emission = Color(0.85, 1.0, 0.2)
+						mat.emission_energy_multiplier = 0.3 + glow_intensity
+						var atrophy = 1.0 - 0.22 * (1.0 - node["neuronal_survival"])
+						p_node.scale = Vector3(atrophy, atrophy, atrophy)
+						
 	var mean_prp_sc = total_prp_sc / float(cjd_regions.size())
 	glymphatic_aqp4_eff = clamp(1.0 - 0.7 * min(mean_prp_sc, 1.0), 0.15, 1.0)
 	
@@ -645,7 +964,7 @@ func _update_camera_transform() -> void:
 func _resolve_scale(dist_mm: float) -> SpatialScale:
 	if dist_mm > 150.0:
 		return SpatialScale.MACRO_WHOLE_BRAIN
-	elif dist_mm > 50.0:
+	elif dist_mm > 45.0:
 		return SpatialScale.MACRO_LOBES
 	elif dist_mm > 10.0:
 		return SpatialScale.MESO_STRUCTURES
@@ -662,23 +981,27 @@ func _update_lod_visibility() -> void:
 		var data: Dictionary = alpha_regions[id]
 		node.position = data["center"]
 		
-		var s: SpatialScale = data["scale"]
-		var visible_tier: bool = false
-		match current_scale:
-			SpatialScale.MACRO_WHOLE_BRAIN:
-				visible_tier = (s == SpatialScale.MACRO_WHOLE_BRAIN or s == SpatialScale.MACRO_LOBES)
-			SpatialScale.MACRO_LOBES:
-				visible_tier = (s == SpatialScale.MACRO_LOBES or s == SpatialScale.MESO_STRUCTURES)
-			SpatialScale.MESO_STRUCTURES:
-				visible_tier = (s == SpatialScale.MESO_STRUCTURES or s == SpatialScale.MESO_TISSUE)
-			SpatialScale.MESO_TISSUE:
-				visible_tier = (s == SpatialScale.MESO_TISSUE or s == SpatialScale.MICRO_NEURONS)
-			SpatialScale.MICRO_NEURONS:
-				visible_tier = (s == SpatialScale.MICRO_NEURONS or s == SpatialScale.MICRO_SYNAPSES)
-			SpatialScale.MICRO_SYNAPSES:
-				visible_tier = (s == SpatialScale.MICRO_SYNAPSES or s == SpatialScale.MICRO_NEURONS)
-				
-		node.visible = visible_tier
+		# Continuous visibility:
+		# Whole brain is visible at Macro and Meso scales (fades via shader)
+		if id == 1:
+			node.visible = (camera_distance_mm > 8.0)
+		else:
+			var s: SpatialScale = data["scale"]
+			var visible_tier: bool = false
+			match current_scale:
+				SpatialScale.MACRO_WHOLE_BRAIN:
+					visible_tier = (s == SpatialScale.MACRO_WHOLE_BRAIN or s == SpatialScale.MACRO_LOBES or s == SpatialScale.MESO_STRUCTURES)
+				SpatialScale.MACRO_LOBES:
+					visible_tier = (s == SpatialScale.MACRO_LOBES or s == SpatialScale.MESO_STRUCTURES)
+				SpatialScale.MESO_STRUCTURES:
+					visible_tier = (s == SpatialScale.MESO_STRUCTURES or s == SpatialScale.MESO_TISSUE)
+				SpatialScale.MESO_TISSUE:
+					visible_tier = (s == SpatialScale.MESO_TISSUE or s == SpatialScale.MICRO_NEURONS)
+				SpatialScale.MICRO_NEURONS:
+					visible_tier = (s == SpatialScale.MICRO_NEURONS or s == SpatialScale.MICRO_SYNAPSES)
+				SpatialScale.MICRO_SYNAPSES:
+					visible_tier = (s == SpatialScale.MICRO_SYNAPSES or s == SpatialScale.MICRO_NEURONS)
+			node.visible = visible_tier
 
 func _update_hud() -> void:
 	var dist_str: String = ""
@@ -705,39 +1028,41 @@ func _update_hud() -> void:
 			scale_name = "Cortical Layers / Tissue"
 			order_mag = "10^-4 m"
 		SpatialScale.MICRO_NEURONS:
-			scale_name = "Cellular Morphology (Betz)"
+			scale_name = "500-Neuron Connectome (Betz)"
 			order_mag = "10^-5 m"
 		SpatialScale.MICRO_SYNAPSES:
-			scale_name = "Sub-cellular / Synaptic Cleft"
+			scale_name = "Synaptic Cleft / Molecules"
 			order_mag = "10^-7 m"
 			
-	telemetry_label.text = "MOZOK TELEMETRY (v0.1.0-alpha)\n" \
+	telemetry_label.text = "MOZOK v1.0.0 — Multi-Scale Human Brain & Connectome Explorer\n" \
 		+ "Scale Tier: %s (%s)\n" % [scale_name, order_mag] \
 		+ "Camera Distance: %s\n" % dist_str \
 		+ "MNI152 Target: (%.1f, %.1f, %.1f) mm\n" % [camera_target_mni.x, camera_target_mni.y, camera_target_mni.z] \
 		+ "Floating Origin Shifts: %d\n" % recenter_count \
-		+ "Memory Governor: 1.5GB Budget [ACTIVE]"
+		+ "500 Neurons: MultiMesh GPU Active | 60 FPS"
 
 	var reg = alpha_regions[active_region_id]
 	var node_pathology = cjd_regions.get(active_region_id, {})
 	var prp_info = ""
 	if cjd_active and node_pathology.has("prp_sc"):
-		prp_info = " | PrP^Sc: %.2f | Spongiform Vacuoles: %.1f%% | Survival: %.1f%%" % [
+		prp_info = " | PrP^Sc: %.2f | Vacúolos: %.1f%% | Sobrevivência: %.1f%%" % [
 			node_pathology["prp_sc"],
 			node_pathology["vacuole_density"] * 100.0,
 			node_pathology["neuronal_survival"] * 100.0
 		]
 		
 	provenance_title.text = "%s [%s] — %s%s" % [reg["name"], reg["acronym"], scale_name, prp_info]
-	provenance_details.text = "Citation: %s\nSpecimen Context: %s" % [reg["citation"], reg["context"]]
-	provenance_doi.text = "DOI: %s" % reg["doi"]
+	provenance_details.text = "Função: %s\nCorrelação Clínica: %s\nNeurotransmissor: %s" % [
+		reg["function"],
+		reg["clinical"],
+		reg["neurotransmitter"]
+	]
+	provenance_doi.text = "Ref: %s | DOI: %s" % [reg["citation"], reg["doi"]]
 
-	# Biomarkers readout
-	var rt_str = "POSITIVE (Prion Amyloid Detected)" if rt_quic_positive else "NEGATIVE"
-	var rt_color = "red" if rt_quic_positive else "lightgreen"
-	csf_biomarker_label.text = "Elapsed Time: Day %.1f\n" % cjd_elapsed_days \
-		+ "Aqueduct CSF Velocity: %.1f mm/s\n" % csf_flow_aqueduct_mm_s \
-		+ "Glymphatic AQP4 Efficiency: %.0f%%\n" % (glymphatic_aqp4_eff * 100.0) \
-		+ "Protein 14-3-3: %.2f ng/mL (Normal < 1.0; CJD > 2.0)\n" % protein_14_3_3_ng_ml \
-		+ "Total Tau: %.0f pg/mL (Normal < 300; CJD > 4000)\n" % total_tau_pg_ml \
-		+ "RT-QuIC Assay: %s" % rt_str
+	var rt_str = "POSITIVO (Príons Amiloides Detectados)" if rt_quic_positive else "NEGATIVO"
+	csf_biomarker_label.text = "Tempo Decorrido: Dia %.1f\n" % cjd_elapsed_days \
+		+ "Velocidade Líquor Aqueduto: %.1f mm/s\n" % csf_flow_aqueduct_mm_s \
+		+ "Eficiência Glinfática AQP4: %.0f%%\n" % (glymphatic_aqp4_eff * 100.0) \
+		+ "Proteína 14-3-3: %.2f ng/mL (Normal < 1.0; DCJ > 2.0)\n" % protein_14_3_3_ng_ml \
+		+ "Tau Total: %.0f pg/mL (Normal < 300; DCJ > 4000)\n" % total_tau_pg_ml \
+		+ "Ensaio RT-QuIC: %s" % rt_str
