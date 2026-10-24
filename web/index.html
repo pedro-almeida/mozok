@@ -492,17 +492,35 @@
     </div>
 
     <div class="top-controls">
-      <button id="btn-dive" class="btn-action active" title="Mergulhar no Tecido Neural">
-        <span>🔬 Mergulhar no Tecido Neural</span>
+      <!-- Seletor de 5 Idiomas -->
+      <div class="lang-selector-container" style="display: flex; align-items: center; background: rgba(15, 23, 42, 0.88); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 10px; padding: 2px 6px;">
+        <select id="select-language" style="background: transparent; color: #f1f5f9; border: none; font-size: 12px; font-weight: 700; cursor: pointer; outline: none; padding: 6px 4px;">
+          <option value="pt-BR" style="background: #0f172a;">🇧🇷 PT-BR</option>
+          <option value="en-GB" style="background: #0f172a;">🇬🇧 EN-GB</option>
+          <option value="it-IT" style="background: #0f172a;">🇮🇹 IT</option>
+          <option value="uk-UA" style="background: #0f172a;">🇺🇦 УКР</option>
+          <option value="es-ES" style="background: #0f172a;">🇪🇸 ES</option>
+        </select>
+      </div>
+
+      <!-- Botão Retornar à Visão Inicial Macro do SNC -->
+      <button id="btn-home-view" class="btn-action" title="Retornar à Visão Geral do Sistema Nervoso Central (Escape/Home)" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5); color: #10b981;">
+        <span id="btn-home-text">🏠 Voltar à Visão Inicial (SNC)</span>
       </button>
+
+      <!-- Botão Mergulho nos Neurônios da Camada V -->
+      <button id="btn-dive" class="btn-action" title="Mergulhar nos 500 Neurônios da Camada V">
+        <span id="btn-dive-text">🔬 Mergulhar nos Neurônios (Camada V)</span>
+      </button>
+
       <button id="btn-tour" class="btn-action">
-        <span>🎬 Tour Guiado IA</span>
+        <span id="btn-tour-text">🎬 Tour Guiado IA</span>
       </button>
       <button id="btn-voice" class="btn-action active">
-        <span>🔊 Voz IA: ON</span>
+        <span id="btn-voice-text">🔊 Voz IA: ON</span>
       </button>
       <button id="btn-fullscreen" class="btn-action" title="Tela Cheia">
-        <span>⛶ Tela Cheia</span>
+        <span>⛶</span>
       </button>
     </div>
   </header>
@@ -510,7 +528,7 @@
   <!-- COMPACT BIOMARKERS AND METRICS BAR -->
   <div class="metrics-bar">
     <div class="metric-item">
-      <span class="metric-label">Escala:</span>
+      <span class="metric-label" id="label-scale">Escala:</span>
       <span id="metric-scale" class="metric-val">MACRO (28 mm)</span>
     </div>
     <div class="metric-item">
@@ -522,7 +540,7 @@
       <span id="metric-prpsc" class="metric-val">0.00</span>
     </div>
     <div class="metric-item">
-      <span class="metric-label">Vacúolos:</span>
+      <span class="metric-label" id="label-vacuoles">Vacúolos:</span>
       <span id="metric-vacuoles" class="metric-val">0.0%</span>
     </div>
     <div class="metric-item">
@@ -534,7 +552,7 @@
       <span id="metric-1433" class="metric-val">0.40 ng/mL</span>
     </div>
     <div class="metric-item">
-      <span class="metric-label">Líquor Aqueduto:</span>
+      <span class="metric-label" id="label-csf">Líquor Aqueduto:</span>
       <span id="metric-csf" class="metric-val">32.4 mm/s</span>
     </div>
     <div class="metric-item">
@@ -547,7 +565,7 @@
   <aside class="sidebar-left">
     <div class="sidebar-header">
       <div class="sidebar-title">
-        <span>ESTUDO DO SNC COMPLETO</span>
+        <span id="sidebar-cns-title">ESTUDO DO SNC COMPLETO</span>
         <span style="font-size: 11px; color: var(--text-muted);" id="region-count-badge">22 Estruturas</span>
       </div>
       <input type="text" id="search-input" class="search-box" placeholder="Buscar região, sulco ou função...">
@@ -559,7 +577,7 @@
   <div class="hud-right">
     <div class="hud-card">
       <div class="hud-card-title">
-        <span>RESOLUÇÃO ESPACIAL</span>
+        <span id="hud-res-title">RESOLUÇÃO ESPACIAL</span>
         <span id="hud-tier-name">MACRO</span>
       </div>
       <div style="font-size: 12px; color: #cbd5e1; font-family: 'JetBrains Mono', monospace;" id="hud-cam-dist">
@@ -575,11 +593,11 @@
 
     <div class="hud-card">
       <div class="hud-card-title">
-        <span>MICRO-CONECTOMA SLIDE 4</span>
+        <span id="hud-micro-title">MICRO-CONECTOMA CAMADA V</span>
         <span style="color: var(--accent-emerald);">500 NEURÔNIOS</span>
       </div>
-      <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">
-        Aproxime o zoom (< 12 mm) ou clique em <strong>"Mergulhar no Tecido Neural"</strong> para entrar no conectoma de 500 neurônios reais, DAPI, Nissl, mielina e vesículas ativas!
+      <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;" id="hud-micro-desc">
+        Aproxime o zoom ou clique em <strong>"Mergulhar nos Neurônios"</strong> para entrar no conectoma de 500 neurônios da Camada V, SSS âmbar, mielina e nódulos de Ranvier azul-elétrico!
       </div>
     </div>
   </div>
@@ -607,8 +625,11 @@
       </div>
     </div>
     <div class="card-actions">
+      <button id="btn-card-dive" class="btn-action" style="background: rgba(0, 242, 254, 0.15); border-color: var(--accent-cyan);" title="Mergulhar nos Neurônios desta Região">
+        <span id="btn-card-dive-text">🔬 Mergulhar na Camada V</span>
+      </button>
       <button id="btn-narrate-card" class="btn-action active">
-        <span>🔊 Narrar com Libras</span>
+        <span id="btn-narrate-text">🔊 Narrar com Libras</span>
       </button>
     </div>
   </footer>
@@ -619,6 +640,7 @@
   <script src="js/swc-neurons-data.js"></script>
   <script src="js/scientific-atlas-meshes.js"></script>
   <script src="js/brain-mesh-data.js"></script>
+  <script src="js/mozok-i18n.js"></script>
   <script src="js/brain-3d.js"></script>
   <script src="js/protein-3d.js"></script>
 
@@ -643,10 +665,10 @@
 
   <!-- APPLICATION INTEGRATION RUNTIME SCRIPT -->
   <script>
-    // [PT-BR]: Inicialização e Orquestração do MOZOK v2.0 com Transplante Direto do Slide 4.
-    // [EN-US]: Initialization and Orchestration of MOZOK v2.0 with Direct Slide 4 Engine Transplant.
-    // [AI-CTX]: @llm-context: Connects CNSAnatomy3D (No Saturns), PrionNeuropilSimulator3D (Slide 4), PathologyEngine, and MozokAINarrator.
-    //           @llm-invariant: 60 FPS animation loop, raycasting marker selection, clean background #020617 on dive.
+    // [PT-BR]: Inicialização e Orquestração do MOZOK v2.0 com Transplante Direto do Slide 4, suporte a 5 Idiomas e Navegação Reversível.
+    // [EN-GB]: Initialisation and Orchestration of MOZOK v2.0 with Direct Slide 4 Engine Transplant, 5-Language support and Reversible Navigation.
+    // [AI-CTX]: @llm-context: Connects CNSAnatomy3D (No Saturns), PrionNeuropilSimulator3D (500 Layer V neurons), PathologyEngine, MozokAINarrator, and MozokI18n.
+    //           @llm-invariant: 60 FPS animation loop, raycasting marker selection, clean background #020617 on dive, MNI152 +X left hemisphere orientation.
     (function () {
       'use strict';
 
@@ -660,9 +682,12 @@
       let tourTimer = null;
       let physTime = 0;
       let isMicroViewActive = false;
+      let currentLang = 'pt-BR';
+      let flyAnimId = null;
 
-      // [PT-BR]: Inicialização do visualizador Macro/Meso.
-      // [EN-US]: Initialization of Macro/Meso viewer.
+      // [PT-BR]: Inicialização do visualizador Macro/Meso com enquadramento integral do SNC e Medula Espinhal.
+      // [EN-GB]: Initialisation of Macro/Meso viewer framing the entire CNS and Spinal Cord.
+      // [AI-CTX]: @llm-context: Sets camera target to (0, -25, 0) and position to (65, 35, 220) to frame telencephalon down to cauda equina.
       function init() {
         const canvas = document.getElementById('webgl-canvas');
         const width = window.innerWidth;
@@ -681,36 +706,36 @@
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0x020617);
 
-        camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 500);
-        camera.position.set(0, 4.0, 28.0);
+        camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 700);
+        camera.position.set(65, 35, 220);
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
         controls.minDistance = 8.0;
-        controls.maxDistance = 65.0;
-        controls.target.set(0, -1.5, 0);
+        controls.maxDistance = 450.0;
+        controls.target.set(0, -25, 0);
 
         // Iluminação anatômica trifásica
         const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.7);
         scene.add(ambientLight);
 
         const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
-        keyLight.position.set(16, 24, 20);
+        keyLight.position.set(24, 32, 28);
         scene.add(keyLight);
 
-        const fillLight = new THREE.DirectionalLight(0x38bdf8, 0.8);
-        fillLight.position.set(-18, 6, -16);
+        const fillLight = new THREE.DirectionalLight(0x38bdf8, 0.85);
+        fillLight.position.set(-28, 12, -20);
         scene.add(fillLight);
 
-        const bottomLight = new THREE.DirectionalLight(0x10b981, 0.4);
-        bottomLight.position.set(0, -25, 10);
+        const bottomLight = new THREE.DirectionalLight(0x10b981, 0.55);
+        bottomLight.position.set(0, -120, 20);
         scene.add(bottomLight);
 
-        // 1. Constrói a Macroanatomia Completa do SNC sem Saturnos
+        // 1. Constrói a Macroanatomia Completa do SNC sem Saturnos e com escala MNI unificada
         cnsAnatomy = new window.CNSAnatomy3D(scene);
 
-        // 2. Constrói o Microcosmo Slide 4 através de PrionNeuropilSimulator3D
+        // 2. Constrói o Microcosmo Slide 4 através de PrionNeuropilSimulator3D (500 Neurônios da Camada V)
         const microContainer = document.getElementById('canvas-protein-3d');
         if (microContainer && typeof window.PrionNeuropilSimulator3D !== 'undefined') {
           window.proteinSim = new window.PrionNeuropilSimulator3D('canvas-protein-3d', null);
@@ -725,27 +750,48 @@
 
         window.addEventListener('resize', onResize);
 
-        activeRegion = window.CNS_REGIONS_REGISTRY[0];
+        activeRegion = cnsAnatomy.getRegions()[0];
+
+        // Expõe funções de navegação global
+        window.mozokReturnToMacro = returnToMacroHome;
+        window.mozokSelectRegionById = (id, triggerSpeech) => {
+          const regions = cnsAnatomy.getRegions();
+          const target = regions.find(r => r.id === id);
+          if (target) selectRegion(target, triggerSpeech);
+        };
 
         // Inicia o Loop de Renderização a 60 FPS
         animate();
       }
 
-      // [PT-BR]: Constrói a lista interativa de regiões no painel lateral esquerdo.
-      // [EN-US]: Builds interactive regions list in left sidebar.
+      // [PT-BR]: Constrói a lista interativa de regiões no painel lateral esquerdo com nomes no idioma ativo.
+      // [EN-GB]: Builds interactive regions list in left sidebar with names in active language.
+      // [AI-CTX]: @llm-a11y: Fully accessible list with click handlers and real-time search filtering.
       function buildRegionListUI() {
         const container = document.getElementById('regions-container');
+        if (!container) return;
         container.innerHTML = '';
         const regions = cnsAnatomy.getRegions();
 
         regions.forEach((reg) => {
+          let regName = reg.name;
+          let regCat = reg.category;
+
+          if (window.MOZOK_I18N && typeof window.MOZOK_I18N.getStructure === 'function') {
+            const loc = window.MOZOK_I18N.getStructure(reg.id, currentLang);
+            if (loc) {
+              regName = loc.name;
+              regCat = loc.category;
+            }
+          }
+
           const item = document.createElement('div');
-          item.className = 'region-item' + (reg.id === 1 ? ' active' : '');
+          item.className = 'region-item' + (reg.id === (activeRegion ? activeRegion.id : 1) ? ' active' : '');
           item.id = `region-item-${reg.id}`;
           item.innerHTML = `
             <div class="region-info">
-              <span class="region-name">${reg.name}</span>
-              <span class="region-tier">${reg.category} • ${reg.code}</span>
+              <span class="region-name">${regName}</span>
+              <span class="region-tier">${regCat} • ${reg.code}</span>
             </div>
             <span class="region-badge">${reg.id}</span>
           `;
@@ -757,23 +803,30 @@
 
         // Campo de busca em tempo real
         const searchInput = document.getElementById('search-input');
-        searchInput.addEventListener('input', (e) => {
-          const q = e.target.value.toLowerCase();
-          regions.forEach((reg) => {
-            const el = document.getElementById(`region-item-${reg.id}`);
-            if (el) {
-              const match = reg.name.toLowerCase().includes(q) ||
-                            reg.functionText.toLowerCase().includes(q) ||
-                            reg.category.toLowerCase().includes(q) ||
-                            reg.code.toLowerCase().includes(q);
-              el.style.display = match ? 'flex' : 'none';
-            }
+        if (searchInput) {
+          searchInput.addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            regions.forEach((reg) => {
+              const el = document.getElementById(`region-item-${reg.id}`);
+              if (el) {
+                let loc = reg;
+                if (window.MOZOK_I18N && typeof window.MOZOK_I18N.getStructure === 'function') {
+                  loc = { ...reg, ...(window.MOZOK_I18N.getStructure(reg.id, currentLang) || {}) };
+                }
+                const match = loc.name.toLowerCase().includes(q) ||
+                              loc.functionText.toLowerCase().includes(q) ||
+                              loc.category.toLowerCase().includes(q) ||
+                              loc.code.toLowerCase().includes(q);
+                el.style.display = match ? 'flex' : 'none';
+              }
+            });
           });
-        });
+        }
       }
 
-      // [PT-BR]: Seleciona uma região do SNC, ilumina a própria malha 3D e aciona a narração/VLibras.
-      // [EN-US]: Selects a CNS region, highlights the 3D mesh surface, and triggers narration/VLibras.
+      // [PT-BR]: Seleciona uma região do SNC, orienta a câmera pelo lado correto (Hemisfério Esquerdo para Broca/Wernicke/M1) e narra.
+      // [EN-GB]: Selects a CNS region, orientates camera from correct side (Left Hemisphere for Broca/Wernicke/M1), and narrates.
+      // [AI-CTX]: @llm-neuroscience: Validated MNI152 coordinates. Lateral structures in +X position camera from lateral/anterior left.
       function selectRegion(reg, triggerSpeech) {
         activeRegion = reg;
 
@@ -785,17 +838,32 @@
           activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
-        // Atualiza Bottom Banner
-        document.getElementById('card-title').textContent = `${reg.name} [${reg.code}]`;
-        document.getElementById('card-badge').textContent = reg.category;
-        document.getElementById('card-details').textContent = reg.functionText;
-        document.getElementById('card-neurotrans').textContent = `Neurotransmissor: ${reg.neurotransmitter}`;
-        document.getElementById('card-clinical').textContent = `Correlação: ${reg.clinicalText}`;
-        const doiLink = document.getElementById('card-doi');
-        doiLink.textContent = `DOI: ${reg.doi}`;
-        doiLink.href = `https://doi.org/${reg.doi}`;
+        let regData = reg;
+        if (window.MOZOK_I18N && typeof window.MOZOK_I18N.getStructure === 'function') {
+          const loc = window.MOZOK_I18N.getStructure(reg.id, currentLang);
+          if (loc) {
+            regData = { ...reg, ...loc };
+          }
+        }
 
-        // Ilumina a própria malha anatômica via shader bioluminescente (Sem Saturnos!)
+        // Atualiza Bottom Banner
+        const cardTitle = document.getElementById('card-title');
+        if (cardTitle) cardTitle.textContent = `${regData.name} [${regData.code}]`;
+        const cardBadge = document.getElementById('card-badge');
+        if (cardBadge) cardBadge.textContent = regData.category;
+        const cardDetails = document.getElementById('card-details');
+        if (cardDetails) cardDetails.textContent = regData.functionText;
+        const cardNeurotrans = document.getElementById('card-neurotrans');
+        if (cardNeurotrans) cardNeurotrans.textContent = `Neurotransmissor: ${regData.neurotransmitter}`;
+        const cardClinical = document.getElementById('card-clinical');
+        if (cardClinical) cardClinical.textContent = `Correlação: ${regData.clinicalText}`;
+        const doiLink = document.getElementById('card-doi');
+        if (doiLink) {
+          doiLink.textContent = `DOI: ${regData.doi}`;
+          doiLink.href = `https://doi.org/${regData.doi}`;
+        }
+
+        // Ilumina a própria malha anatômica via shader bioluminescente
         cnsAnatomy.highlightRegion(reg);
 
         // Se for estrutura subcortical (Tálamo, Hipocampo, etc.), ativa transparência cortical sutil
@@ -806,30 +874,52 @@
           cnsAnatomy.setAnatomyOpacity(1.0, 1.0);
         }
 
-        // Transição suave de câmera
+        // Transição suave de câmera com posicionamento lateral do Hemisfério Esquerdo anatômico (+X)
         const targetPos = new THREE.Vector3(reg.center[0], reg.center[1], reg.center[2]);
-        smoothFlyCamera(targetPos, reg.optimalDist);
+        if (reg.id === 1) {
+          smoothFlyCameraTo(new THREE.Vector3(0, -25, 0), new THREE.Vector3(65, 35, 220), 0.9);
+        } else if (reg.center[0] > 15.0) {
+          // Hemisfério Cerebral Esquerdo Anatômico (+X): Broca, Wernicke, M1, S1, A1, Ínsula
+          // Posiciona a câmera do lado esquerdo (+X) e ligeiramente anterior (+Z) para visualização límpida
+          const offset = new THREE.Vector3(reg.optimalDist * 0.85, reg.optimalDist * 0.22, reg.optimalDist * 0.52);
+          smoothFlyCamera(targetPos, reg.optimalDist, offset);
+        } else if (reg.center[0] < -15.0) {
+          // Hemisfério Direito Anatômico (-X)
+          const offset = new THREE.Vector3(-reg.optimalDist * 0.85, reg.optimalDist * 0.22, reg.optimalDist * 0.52);
+          smoothFlyCamera(targetPos, reg.optimalDist, offset);
+        } else {
+          // Estrutura central / linha média / tronco / medula
+          smoothFlyCamera(targetPos, reg.optimalDist);
+        }
 
-        // Narração neural com tradução simultânea em Libras
+        // Narração neural com tradução simultânea em Libras no idioma selecionado
         if (triggerSpeech && window.MozokAINarrator) {
-          window.MozokAINarrator.speak(reg.audioScript);
+          window.MozokAINarrator.speak(regData.audioScript, currentLang);
         }
       }
 
-      // [PT-BR]: Voo suave e cinemático de câmera com interpolação easing cúbica.
-      // [EN-US]: Smooth cinematic camera flight with cubic easing interpolation.
-      function smoothFlyCamera(targetLookAt, targetDist) {
+      // [PT-BR]: Voo cinemático com suporte a offset de ângulo anatômico personalizado.
+      // [EN-GB]: Cinematic camera flight with support for custom anatomical viewing offset.
+      // [AI-CTX]: @llm-invariant: Cancels prior animation frames to prevent camera fighting.
+      function smoothFlyCamera(targetLookAt, targetDist, customOffset, duration = 0.9) {
         if (isMicroViewActive) {
           toggleMicroView(false);
         }
 
+        if (flyAnimId) cancelAnimationFrame(flyAnimId);
+
         const startTarget = controls.target.clone();
         const startPos = camera.position.clone();
-        const dir = startPos.clone().sub(startTarget).normalize();
-        const endPos = targetLookAt.clone().add(dir.multiplyScalar(targetDist));
+        let endPos;
+
+        if (customOffset) {
+          endPos = targetLookAt.clone().add(customOffset);
+        } else {
+          const dir = startPos.clone().sub(startTarget).normalize();
+          endPos = targetLookAt.clone().add(dir.multiplyScalar(targetDist));
+        }
 
         let t = 0;
-        const duration = 1.0;
         const startTime = performance.now();
 
         function step() {
@@ -842,29 +932,85 @@
           controls.update();
 
           if (t < 1.0) {
-            requestAnimationFrame(step);
+            flyAnimId = requestAnimationFrame(step);
+          } else {
+            flyAnimId = null;
           }
         }
-        requestAnimationFrame(step);
+        flyAnimId = requestAnimationFrame(step);
       }
 
-      // [PT-BR]: Alternância limpa e completa entre o modo Macro do SNC e o Microcosmo Slide 4 (Ocultando totalmente a malha macro).
-      // [EN-US]: Clean and complete toggle between Macro CNS and Slide 4 Microcosm (Fully hiding macro mesh).
+      // [PT-BR]: Voo direto para coordenadas alvo absolutas (usado no botão Retornar à Visão Inicial).
+      // [EN-GB]: Direct flight to absolute target coordinates (used by Home button).
+      // [AI-CTX]: @llm-invariant: Target (0, -25, 0) and position (65, 35, 220).
+      function smoothFlyCameraTo(targetLookAt, targetCameraPos, duration = 0.9) {
+        if (isMicroViewActive) {
+          toggleMicroView(false);
+        }
+
+        if (flyAnimId) cancelAnimationFrame(flyAnimId);
+
+        const startTarget = controls.target.clone();
+        const startPos = camera.position.clone();
+
+        let t = 0;
+        const startTime = performance.now();
+
+        function step() {
+          const now = performance.now();
+          t = Math.min(1.0, (now - startTime) / (duration * 1000));
+          const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+          controls.target.lerpVectors(startTarget, targetLookAt, ease);
+          camera.position.lerpVectors(startPos, targetCameraPos, ease);
+          controls.update();
+
+          if (t < 1.0) {
+            flyAnimId = requestAnimationFrame(step);
+          } else {
+            flyAnimId = null;
+          }
+        }
+        flyAnimId = requestAnimationFrame(step);
+      }
+
+      // [PT-BR]: Retorna à visão macro inicial do SNC (Home / Escape).
+      // [EN-GB]: Returns to initial CNS macro view (Home / Escape).
+      // [AI-CTX]: @llm-invariant: Restores full CNS visibility, unhides macro mesh, selects structure 1, and flies home in 0.9s.
+      function returnToMacroHome() {
+        if (isMicroViewActive) {
+          toggleMicroView(false);
+        }
+        if (cnsAnatomy) {
+          cnsAnatomy.setVisible(true);
+          cnsAnatomy.setAnatomyOpacity(1.0, 1.0);
+        }
+        const regions = cnsAnatomy ? cnsAnatomy.getRegions() : [];
+        if (regions.length > 0) {
+          selectRegion(regions[0], false);
+        }
+        smoothFlyCameraTo(new THREE.Vector3(0, -25, 0), new THREE.Vector3(65, 35, 220), 0.9);
+      }
+
+      // [PT-BR]: Alternância limpa e completa entre o modo Macro do SNC e o Microcosmo Slide 4 (500 Neurônios da Camada V).
+      // [EN-GB]: Clean and complete toggle between Macro CNS and Slide 4 Microcosm (500 Layer V Neurons).
       function toggleMicroView(activateMicro) {
         isMicroViewActive = activateMicro !== undefined ? activateMicro : !isMicroViewActive;
         const microContainer = document.getElementById('container-protein-3d');
         const diveBtn = document.getElementById('btn-dive');
 
         if (isMicroViewActive) {
-          // Oculta completamente a cena Macro do SNC para não bloquear o fundo
+          // Oculta completamente a cena Macro do SNC
           cnsAnatomy.setVisible(false);
           microContainer.style.display = 'block';
-          diveBtn.classList.add('active');
-          diveBtn.innerHTML = '<span>🔭 Retornar ao SNC Macro</span>';
+          if (diveBtn) {
+            diveBtn.classList.add('active');
+            diveBtn.innerHTML = '<span>🔭 Retornar ao SNC Macro</span>';
+          }
 
           document.getElementById('hud-tier-name').textContent = 'MICRO';
           document.getElementById('metric-scale').textContent = 'MICRO (500 Neurônios)';
-          document.getElementById('hud-scale-desc').textContent = 'Mergulho no Conectoma de 500 Neurônios do Slide 4: DAPI, Mielina e Sinapses!';
+          document.getElementById('hud-scale-desc').textContent = 'Mergulho no Conectoma de 500 Neurônios da Camada V: SSS Âmbar, Mielina e Nódulos de Ranvier!';
           document.getElementById('hud-scale-bar').style.width = '15%';
 
           if (window.proteinSim && typeof window.proteinSim.onResize === 'function') {
@@ -873,9 +1019,12 @@
         } else {
           // Restaura a macroanatomia do SNC
           cnsAnatomy.setVisible(true);
+          cnsAnatomy.setAnatomyOpacity(1.0, 1.0);
           microContainer.style.display = 'none';
-          diveBtn.classList.remove('active');
-          diveBtn.innerHTML = '<span>🔬 Mergulhar no Tecido Neural</span>';
+          if (diveBtn) {
+            diveBtn.classList.remove('active');
+            diveBtn.innerHTML = '<span>🔬 Mergulhar nos Neurônios (Camada V)</span>';
+          }
 
           document.getElementById('hud-tier-name').textContent = 'MACRO';
           document.getElementById('metric-scale').textContent = 'MACRO (28 mm)';
@@ -885,7 +1034,7 @@
       }
 
       // [PT-BR]: Governador de Escala e Nível de Detalhe (LOD) multiescala contínuo.
-      // [EN-US]: Multi-scale continuous LOD and spatial resolution governor.
+      // [EN-GB]: Multi-scale continuous LOD and spatial resolution governor.
       function updateMultiScaleZoom() {
         if (isMicroViewActive) return;
 
@@ -896,19 +1045,19 @@
         let desc = "Todo o SNC anatômico visível: Encéfalo MNI152, Tronco, Cerebelo e Medula Espinhal.";
         let barWidth = "85%";
 
-        if (dist > 22.0) {
+        if (dist > 140.0) {
           tierName = "MACRO";
           desc = "Macroanatomia completa do SNC: Telencéfalo MNI152 com sulcos, Tronco e Medula Espinhal.";
           barWidth = "85%";
           cnsAnatomy.setAnatomyOpacity(1.0, 1.0);
-        } else if (dist >= 12.0) {
+        } else if (dist >= 35.0) {
           tierName = "MESO";
           desc = "Córtex semitransparente revelando Núcleos da Base, Tálamo Pulvinar, Hipocampo, Tronco e Medula.";
           barWidth = "50%";
-          const t = (dist - 12.0) / (22.0 - 12.0);
+          const t = (dist - 35.0) / (140.0 - 35.0);
           cnsAnatomy.setAnatomyOpacity(0.20 + t * 0.80, 1.0);
-        } else {
-          // Gatilho suave de mergulho no microcosmo
+        } else if (dist < 22.0) {
+          // Mergulho no microcosmo
           toggleMicroView(true);
           return;
         }
@@ -919,59 +1068,162 @@
         document.getElementById('hud-scale-bar').style.width = barWidth;
       }
 
-      // [PT-BR]: Configuração de botões da barra superior e interatividade.
-      // [EN-US]: Top bar buttons setup and interactivity.
+      // [PT-BR]: Aplica traduções da interface, HUD, botões e dados em 5 línguas.
+      // [EN-GB]: Applies UI, HUD, button and dataset translations across 5 languages.
+      // [AI-CTX]: @llm-a11y: Multi-language reactivity using window.MOZOK_I18N.
+      function applyLanguage(lang) {
+        currentLang = lang || 'pt-BR';
+        if (!window.MOZOK_I18N) return;
+
+        window.MOZOK_I18N.setLanguage(currentLang);
+        if (window.MozokAINarrator) window.MozokAINarrator.setLanguage(currentLang);
+        if (pathologyEngine) pathologyEngine.setLanguage(currentLang);
+
+        const t = (k) => window.MOZOK_I18N.t(k, currentLang);
+
+        const btnHomeText = document.getElementById('btn-home-text');
+        if (btnHomeText) btnHomeText.textContent = `🏠 ${t('btnHome') || 'Voltar à Visão Inicial (SNC)'}`;
+
+        const btnDiveText = document.getElementById('btn-dive-text');
+        if (btnDiveText) btnDiveText.textContent = `🔬 ${t('btnDive') || 'Mergulhar nos Neurônios (Camada V)'}`;
+
+        const btnCardDiveText = document.getElementById('btn-card-dive-text');
+        if (btnCardDiveText) btnCardDiveText.textContent = `🔬 ${t('btnDive') || 'Mergulhar na Camada V'}`;
+
+        const btnTourText = document.getElementById('btn-tour-text');
+        if (btnTourText) btnTourText.textContent = `🎬 ${t('btnTour') || 'Tour Guiado IA'}`;
+
+        const btnNarrateText = document.getElementById('btn-narrate-text');
+        if (btnNarrateText) btnNarrateText.textContent = `🔊 ${t('btnNarrate') || 'Narrar com Libras'}`;
+
+        const sidebarTitle = document.getElementById('sidebar-cns-title');
+        if (sidebarTitle) sidebarTitle.textContent = (t('cnsComplete') || 'ESTUDO DO SNC COMPLETO').toUpperCase();
+
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) searchInput.placeholder = t('searchPlaceholder') || 'Buscar região, sulco ou função...';
+
+        const hudRes = document.getElementById('hud-res-title');
+        if (hudRes) hudRes.textContent = t('spatialRes') || 'RESOLUÇÃO ESPACIAL';
+
+        const hudMicro = document.getElementById('hud-micro-title');
+        if (hudMicro) hudMicro.textContent = t('microConnectome') || 'MICRO-CONECTOMA CAMADA V';
+
+        const hudMicroDesc = document.getElementById('hud-micro-desc');
+        if (hudMicroDesc) hudMicroDesc.innerHTML = t('connectome500Desc') || 'Aproxime o zoom ou clique em "Mergulhar nos Neurônios" para entrar no conectoma de 500 neurônios da Camada V!';
+
+        // Recontrói a lista lateral traduzida
+        buildRegionListUI();
+
+        // Atualiza card da região ativa
+        if (activeRegion) {
+          selectRegion(activeRegion, false);
+        }
+      }
+
+      // [PT-BR]: Configuração de botões da barra superior, teclas de atalho e interatividade.
+      // [EN-GB]: Top bar buttons setup, keyboard shortcuts and interactivity.
       function setupEventListeners() {
-        // Botão "Mergulhar no Tecido Neural"
-        document.getElementById('btn-dive').addEventListener('click', () => {
-          toggleMicroView();
+        // Seletor de Idioma
+        const selectLang = document.getElementById('select-language');
+        if (selectLang) {
+          selectLang.addEventListener('change', (e) => {
+            applyLanguage(e.target.value);
+          });
+        }
+
+        // Botão Home View
+        const btnHome = document.getElementById('btn-home-view');
+        if (btnHome) {
+          btnHome.addEventListener('click', returnToMacroHome);
+        }
+
+        // Teclas Escape e Home para retorno imediato à visão inicial do SNC
+        window.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' || e.key === 'Home') {
+            returnToMacroHome();
+          }
         });
 
+        // Botão Mergulho nos Neurônios
+        const btnDive = document.getElementById('btn-dive');
+        if (btnDive) {
+          btnDive.addEventListener('click', () => {
+            toggleMicroView();
+          });
+        }
+
+        const btnCardDive = document.getElementById('btn-card-dive');
+        if (btnCardDive) {
+          btnCardDive.addEventListener('click', () => {
+            toggleMicroView(true);
+          });
+        }
+
         // Botão Tour Guiado
-        document.getElementById('btn-tour').addEventListener('click', toggleGuidedTour);
+        const btnTour = document.getElementById('btn-tour');
+        if (btnTour) {
+          btnTour.addEventListener('click', toggleGuidedTour);
+        }
 
         // Botão Voz IA
         const voiceBtn = document.getElementById('btn-voice');
-        voiceBtn.addEventListener('click', () => {
-          const isEnabled = window.MozokAINarrator ? window.MozokAINarrator.toggleVoice() : false;
-          voiceBtn.classList.toggle('active', isEnabled);
-          voiceBtn.innerHTML = `<span>🔊 Voz IA: ${isEnabled ? 'ON' : 'OFF'}</span>`;
-        });
+        if (voiceBtn) {
+          voiceBtn.addEventListener('click', () => {
+            const isEnabled = window.MozokAINarrator ? window.MozokAINarrator.toggleVoice() : false;
+            voiceBtn.classList.toggle('active', isEnabled);
+            voiceBtn.innerHTML = `<span>🔊 Voz IA: ${isEnabled ? 'ON' : 'OFF'}</span>`;
+          });
+        }
 
         // Botão Tela Cheia
-        document.getElementById('btn-fullscreen').addEventListener('click', () => {
-          if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(() => {});
-          } else {
-            document.exitFullscreen().catch(() => {});
-          }
-        });
+        const btnFs = document.getElementById('btn-fullscreen');
+        if (btnFs) {
+          btnFs.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+              document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+              document.exitFullscreen().catch(() => {});
+            }
+          });
+        }
 
         // Botão Narrar Card inferior com Libras
-        document.getElementById('btn-narrate-card').addEventListener('click', () => {
-          if (activeRegion && window.MozokAINarrator) {
-            window.MozokAINarrator.speak(activeRegion.audioScript);
-          }
-        });
+        const btnNarrate = document.getElementById('btn-narrate-card');
+        if (btnNarrate) {
+          btnNarrate.addEventListener('click', () => {
+            if (activeRegion && window.MozokAINarrator) {
+              let script = activeRegion.audioScript;
+              if (window.MOZOK_I18N && typeof window.MOZOK_I18N.getStructure === 'function') {
+                const loc = window.MOZOK_I18N.getStructure(activeRegion.id, currentLang);
+                if (loc && loc.audioScript) script = loc.audioScript;
+              }
+              window.MozokAINarrator.speak(script, currentLang);
+            }
+          });
+        }
       }
 
       // [PT-BR]: Tour Guiado Automático pelas estruturas magnas do SNC.
-      // [EN-US]: Automatic Guided Tour across major CNS structures.
+      // [EN-GB]: Automatic Guided Tour across major CNS structures.
       function toggleGuidedTour() {
         isTourActive = !isTourActive;
         const btn = document.getElementById('btn-tour');
         const banner = document.getElementById('tour-banner');
 
         if (isTourActive) {
-          btn.classList.add('active');
-          btn.innerHTML = '<span>⏸ Pausar Tour</span>';
-          banner.style.display = 'flex';
+          if (btn) {
+            btn.classList.add('active');
+            btn.innerHTML = '<span>⏸ Pausar Tour</span>';
+          }
+          if (banner) banner.style.display = 'flex';
           tourIndex = 0;
           runNextTourStep();
         } else {
-          btn.classList.remove('active');
-          btn.innerHTML = '<span>🎬 Tour Guiado IA</span>';
-          banner.style.display = 'none';
+          if (btn) {
+            btn.classList.remove('active');
+            btn.innerHTML = '<span>🎬 Tour Guiado IA</span>';
+          }
+          if (banner) banner.style.display = 'none';
           if (tourTimer) clearTimeout(tourTimer);
           if (window.MozokAINarrator) window.MozokAINarrator.stop();
         }
@@ -987,14 +1239,15 @@
 
         const reg = regions[tourIndex];
         selectRegion(reg, true);
-        document.getElementById('tour-banner-text').textContent = reg.name;
+        const bannerText = document.getElementById('tour-banner-text');
+        if (bannerText) bannerText.textContent = reg.name;
 
         tourIndex++;
         tourTimer = setTimeout(runNextTourStep, 9500);
       }
 
       // [PT-BR]: Loop de Animação e Atualização Contínua a 60 FPS (GTX 1650).
-      // [EN-US]: Animation Loop and Continuous Update at 60 FPS (GTX 1650).
+      // [EN-GB]: Animation Loop and Continuous Update at 60 FPS (GTX 1650).
       function animate() {
         requestAnimationFrame(animate);
 
@@ -1010,7 +1263,7 @@
       }
 
       // [PT-BR]: Redimensionamento responsivo do viewport.
-      // [EN-US]: Responsive viewport resize.
+      // [EN-GB]: Responsive viewport resize.
       function onResize() {
         if (!renderer || !camera) return;
         const w = window.innerWidth;

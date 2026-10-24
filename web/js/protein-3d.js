@@ -225,6 +225,7 @@
       this.buildActionPotentialPulses();
       this.buildSpongiformVacuoles();
       this.buildCSFBiomarkers();
+      this.buildBokehParticles();
       this.buildGuidedTourBanner();
       this.rebuildPopulation(this.totalPrions, 0.0);
       this.bindInteraction();
@@ -250,8 +251,8 @@
 
     initScene() {
       this.scene = new THREE.Scene();
-      this.scene.background = new THREE.Color(0x02050c);
-      this.scene.fog = new THREE.FogExp2(0x02050c, 0.0065);
+      this.scene.background = new THREE.Color(0x020b14);
+      this.scene.fog = new THREE.FogExp2(0x020b14, 0.0055);
 
       this.camera = new THREE.PerspectiveCamera(50, this.width / this.height, 0.2, 420);
       this.camera.position.set(0, 9, 48);
@@ -532,12 +533,12 @@
     }
 
     /**
-     * // [PT-BR]: Camada Hero: 32 neurônios piramidais e multipolares esculpidos no volume central com malhas detalhadas e bainhas cilíndricas.
-     * // [EN-US]: Hero Layer: 32 multipolar/pyramidal sculpted neurons in the central volume with detailed meshes and cylindrical sheaths.
-     * // [AI-CTX]: @llm-context Hero layer (32 neurons) with individual soma groups, Ranvier rings, and true cylindrical myelin.
+     * // [PT-BR]: Camada Hero: 36 neurônios piramidais da Camada V fotorrealistas (estilo microscopia âmbar-dourada, SSS, núcleo âmbar escuro + nucléolo dourado, dendritos de 5ª ordem e nódulos de Ranvier azul-elétrico).
+     * // [EN-GB]: Hero Layer: 36 photorealistic Layer V pyramidal neurons (amber-gold microscopy aesthetic, SSS, dark amber nucleus + gold nucleolus, 5th-order dendrites, and electric-blue Nodes of Ranvier).
+     * // [AI-CTX]: @llm-context Hero layer (36 neurons) reproducing Layer V Betz/pyramidal confocal microscopy with 5th-order Rall dendritic branching and saltatory conduction.
      */
     buildAnatomicalMultipolarNeurons() {
-      const heroCount = 32;
+      const heroCount = 36;
 
       const tubePositions = [];
       const tubeNormals = [];
@@ -547,50 +548,78 @@
       const fineArborPositions = [];
       const fineArborColors = [];
 
-      const ranvierRingGeo = new THREE.TorusGeometry(0.34, 0.048, 8, 16);
+      // Anéis e Sprites aditivos dos Nódulos de Ranvier com Brilho Azul-Elétrico Intenso (#00f2fe)
+      const ranvierRingGeo = new THREE.TorusGeometry(0.36, 0.054, 8, 16);
       const ranvierRingMat = new THREE.MeshStandardMaterial({
         color: 0x00f2fe,
         emissive: 0x00f2fe,
-        emissiveIntensity: 1.35,
-        roughness: 0.1
+        emissiveIntensity: 1.85,
+        roughness: 0.08,
+        metalness: 0.1
       });
+
+      const ranvierSpriteMat = new THREE.SpriteMaterial({
+        map: this.glowTexture,
+        color: 0x00f2fe,
+        transparent: true,
+        opacity: 0.75,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+
+      // Paleta Âmbar Bioluminescente Fotorrealista (Microscopia 3D)
+      const amberBase = new THREE.Color(0xd97706);
+      const amberGlow = new THREE.Color(0xfbbf24);
+      const amberFresnel = new THREE.Color(0xfef3c7);
 
       for (let n = 0; n < heroCount; n++) {
         const angle = (n / heroCount) * Math.PI * 2;
-        const radius = 6.2 + (n % 5) * 4.6; // 6.2 a 24.6
-        const elev = ((n % 6) - 2.5) * 3.2;
+        const radius = 6.0 + (n % 6) * 3.8;
+        const elev = ((n % 7) - 3) * 2.8;
         const center = new THREE.Vector3(
           Math.cos(angle) * radius * 1.15,
           elev,
           Math.sin(angle) * radius
         );
 
-        const color = this.brainbowPalette[n % this.brainbowPalette.length].clone();
+        // Variação orgânica de matiz âmbar-dourado por neurônio
+        const color = amberBase.clone().lerp(amberGlow, (n % 4) * 0.22);
         const somaGroup = new THREE.Group();
         somaGroup.position.copy(center);
 
+        // Direção axonal descendente (polo inferior) com curvatura orgânica
         const axonDir = new THREE.Vector3(
-          Math.cos((n + 1) / heroCount * Math.PI * 2) - Math.cos((n / heroCount) * Math.PI * 2),
-          -0.35,
-          Math.sin((n + 1) / heroCount * Math.PI * 2) - Math.sin((n / heroCount) * Math.PI * 2)
+          (Math.random() - 0.5) * 0.4,
+          -0.92,
+          (Math.random() - 0.5) * 0.4
         ).normalize();
 
+        // 7 a 9 Troncos Dendríticos Primários: 1 Apical Ascendente + 6 a 8 Basais Radiais
         const dendriteDirs = [];
-        const dendriteCount = 6;
-        for (let d = 0; d < dendriteCount; d++) {
-          const dTheta = (d / dendriteCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
-          const dPhi = Math.PI * 0.35 + (d % 2) * 0.45;
+        // Grande dendrito apical ascendente (polo superior)
+        const apicalDir = new THREE.Vector3(
+          (Math.random() - 0.5) * 0.25,
+          0.96,
+          (Math.random() - 0.5) * 0.25
+        ).normalize();
+        dendriteDirs.push(apicalDir);
+
+        // 7 dendritos basais radiais espalhados na base do soma piramidal
+        const basalCount = 7;
+        for (let d = 0; d < basalCount; d++) {
+          const dTheta = (d / basalCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+          const dElevation = -0.25 - Math.random() * 0.35;
           const dir = new THREE.Vector3(
-            Math.sin(dPhi) * Math.cos(dTheta),
-            Math.cos(dPhi),
-            Math.sin(dPhi) * Math.sin(dTheta)
+            Math.cos(dTheta),
+            dElevation,
+            Math.sin(dTheta)
           ).normalize();
           dendriteDirs.push(dir);
         }
 
-        // 1. Soma Esculpido em Alta Resolução (SphereGeometry 36x28) com Meniscos
-        const somaBaseRadius = 2.25;
-        const somaGeo = new THREE.SphereGeometry(somaBaseRadius, 36, 28);
+        // 1. Soma Piramidal Esculpido em Alta Resolução com Fusão Suave e Textura Rugosa (3D Simplex/Sine Noise)
+        const somaBaseRadius = 2.45;
+        const somaGeo = new THREE.SphereGeometry(somaBaseRadius, 38, 30);
         const posAttr = somaGeo.attributes.position;
         const vertex = new THREE.Vector3();
 
@@ -599,29 +628,42 @@
           const u = vertex.clone().normalize();
           let protrusion = 0;
 
+          // Cone de Implantação Axonal (Axon Hillock) afilando no polo inferior
           const dotAxon = Math.max(0, u.dot(axonDir));
-          protrusion += Math.pow(dotAxon, 3.0) * 0.7;
+          protrusion += Math.pow(dotAxon, 3.2) * 1.05;
 
-          for (let d = 0; d < dendriteDirs.length; d++) {
+          // Tronco apical ascendente
+          const dotApical = Math.max(0, u.dot(apicalDir));
+          protrusion += Math.pow(dotApical, 2.8) * 0.85;
+
+          // Troncos basais radiais
+          for (let d = 1; d < dendriteDirs.length; d++) {
             const dotDend = Math.max(0, u.dot(dendriteDirs[d]));
-            protrusion += Math.pow(dotDend, 3.0) * 0.6;
+            protrusion += Math.pow(dotDend, 2.6) * 0.55;
           }
 
-          vertex.addScaledVector(u, protrusion);
+          // Textura rugosa de membrana celular orgânica por ruído 3D senoidal composto
+          const membraneNoise = (
+            Math.sin(vertex.x * 5.5 + vertex.y * 4.2) * 0.08 +
+            Math.cos(vertex.y * 7.0 + vertex.z * 5.0) * 0.06 +
+            Math.sin(vertex.z * 11.0 + vertex.x * 9.0) * 0.04
+          );
+
+          vertex.addScaledVector(u, protrusion + membraneNoise);
           posAttr.setXYZ(i, vertex.x, vertex.y, vertex.z);
         }
         somaGeo.computeVertexNormals();
 
-        // Material com Shader Fresnel de Borda Injetado
+        // Material Fotorrealista Âmbar-Dourado com Subsurface Scattering (SSS) e Borda Fresnel
         const somaMat = new THREE.MeshPhysicalMaterial({
           color: color,
-          emissive: color,
-          emissiveIntensity: 0.52,
-          roughness: 0.16,
-          metalness: 0.05,
+          emissive: 0xb45309,
+          emissiveIntensity: 0.55,
+          roughness: 0.18,
+          metalness: 0.04,
           transparent: true,
-          opacity: 0.78,
-          transmission: 0.38
+          opacity: 0.86,
+          transmission: 0.32
         });
         somaMat.onBeforeCompile = (shader) => {
           shader.fragmentShader = shader.fragmentShader.replace(
@@ -632,7 +674,11 @@
             vec3 fNorm = normalize(vNormal);
             vec3 fVDir = normalize(-vViewPosition);
             float fresnel = pow(clamp(1.0 - abs(dot(fNorm, fVDir)), 0.0, 1.0), 2.2);
-            gl_FragColor.rgb += gl_FragColor.rgb * fresnel * 0.85 + vec3(0.08, 0.22, 0.35) * fresnel;
+            // SSS Âmbar-Dourado interno
+            vec3 sssAmber = vec3(0.98, 0.75, 0.14) * fresnel * 0.85;
+            // Borda fina Fresnel suave
+            vec3 edgeHighlight = vec3(1.0, 0.95, 0.78) * pow(fresnel, 3.2) * 0.75;
+            gl_FragColor.rgb += sssAmber + edgeHighlight;
             #endif
             `
           );
@@ -641,47 +687,48 @@
         const somaMesh = new THREE.Mesh(somaGeo, somaMat);
         somaGroup.add(somaMesh);
 
-        // Halo Bioluminescente Suave
+        // Halo Bioluminescente Dourado
         const spriteMat = new THREE.SpriteMaterial({
           map: this.glowTexture,
-          color: color,
+          color: amberGlow,
           transparent: true,
-          opacity: 0.45,
+          opacity: 0.42,
           blending: THREE.AdditiveBlending,
           depthWrite: false
         });
         const sprite = new THREE.Sprite(spriteMat);
-        sprite.scale.setScalar(somaBaseRadius * 4.6);
+        sprite.scale.setScalar(somaBaseRadius * 4.8);
         somaGroup.add(sprite);
 
-        // 2. Núcleo DAPI + Nucléolo Dourado
-        const nucleusRadius = somaBaseRadius * 0.5;
-        const nucleusGeo = new THREE.SphereGeometry(nucleusRadius, 24, 20);
+        // 2. Núcleo Esférico Âmbar-Escuro Profundo (#451a03 / #78350f) + Nucléolo Brilhante (#fde047)
+        const nucleusRadius = somaBaseRadius * 0.48;
+        const nucleusGeo = new THREE.SphereGeometry(nucleusRadius, 26, 22);
         const nucleusMat = new THREE.MeshStandardMaterial({
-          color: 0x4338ca,
-          emissive: 0x312e81,
-          emissiveIntensity: 0.85,
-          roughness: 0.28
+          color: 0x451a03,
+          emissive: 0x78350f,
+          emissiveIntensity: 0.92,
+          roughness: 0.22,
+          metalness: 0.05
         });
         const nucleusMesh = new THREE.Mesh(nucleusGeo, nucleusMat);
         somaGroup.add(nucleusMesh);
 
-        const nucleolusGeo = new THREE.SphereGeometry(nucleusRadius * 0.38, 14, 14);
-        const nucleolusMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
+        const nucleolusGeo = new THREE.SphereGeometry(nucleusRadius * 0.34, 16, 16);
+        const nucleolusMat = new THREE.MeshBasicMaterial({ color: 0xfde047 });
         const nucleolusMesh = new THREE.Mesh(nucleolusGeo, nucleolusMat);
-        nucleolusMesh.position.set(nucleusRadius * 0.22, nucleusRadius * 0.18, nucleusRadius * 0.2);
+        nucleolusMesh.position.set(nucleusRadius * 0.20, nucleusRadius * 0.16, nucleusRadius * 0.22);
         somaGroup.add(nucleolusMesh);
 
-        // 20 Organelas Citoplasmáticas Internas: 10 Mitocôndrias + 10 Corpúsculos de Nissl
+        // Organelas Citoplasmáticas Internas (Corpúsculos de Nissl e Mitocôndrias)
         const mitoGeo = new THREE.SphereGeometry(0.12, 8, 8);
         mitoGeo.scale(0.85, 1.8, 0.85);
         const mitoMat = new THREE.MeshStandardMaterial({
-          color: 0xf97316,
-          emissive: 0xea580c,
-          emissiveIntensity: 0.8,
+          color: 0xf59e0b,
+          emissive: 0xd97706,
+          emissiveIntensity: 0.75,
           roughness: 0.25
         });
-        for (let m = 0; m < 10; m++) {
+        for (let m = 0; m < 8; m++) {
           const mMesh = new THREE.Mesh(mitoGeo, mitoMat);
           const dist = nucleusRadius * 1.25 + Math.random() * (somaBaseRadius - nucleusRadius * 1.35);
           const theta = Math.random() * Math.PI * 2;
@@ -689,22 +736,6 @@
           mMesh.position.set(dist * Math.sin(phi) * Math.cos(theta), dist * Math.sin(phi) * Math.sin(theta), dist * Math.cos(phi));
           mMesh.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
           somaGroup.add(mMesh);
-        }
-
-        const nisslGeo = new THREE.SphereGeometry(0.11, 8, 8);
-        const nisslMat = new THREE.MeshStandardMaterial({
-          color: 0x38bdf8,
-          emissive: 0x0284c7,
-          emissiveIntensity: 0.75,
-          roughness: 0.3
-        });
-        for (let k = 0; k < 10; k++) {
-          const nMesh = new THREE.Mesh(nisslGeo, nisslMat);
-          const dist = nucleusRadius * 1.25 + Math.random() * (somaBaseRadius - nucleusRadius * 1.35);
-          const theta = Math.random() * Math.PI * 2;
-          const phi = Math.acos(2 * Math.random() - 1);
-          nMesh.position.set(dist * Math.sin(phi) * Math.cos(theta), dist * Math.sin(phi) * Math.sin(theta), dist * Math.cos(phi));
-          somaGroup.add(nMesh);
         }
 
         this.connectomeGroup.add(somaGroup);
@@ -725,54 +756,74 @@
         };
         this.neurons.push(neuronRecord);
 
-        // 3. Axônio Longo com Bainhas Cilíndricas Anatômicas e Nódulos de Ranvier
-        const axonLen = 13.5;
-        const axonP0 = center.clone().addScaledVector(axonDir, somaBaseRadius * 0.35);
+        // 3. Axônio Longo com Cone de Implantação, Bainhas de Mielina Orgânicas Texturizadas e Nódulos de Ranvier
+        const axonLen = 14.5;
+        const axonP0 = center.clone().addScaledVector(axonDir, somaBaseRadius * 0.45);
         const axonMid1 = axonP0.clone().addScaledVector(axonDir, axonLen * 0.35).add(new THREE.Vector3(
-          (Math.random() - 0.5) * 1.8,
-          (Math.random() - 0.5) * 1.8,
-          (Math.random() - 0.5) * 1.8
+          (Math.random() - 0.5) * 1.5,
+          (Math.random() - 0.5) * 1.5,
+          (Math.random() - 0.5) * 1.5
         ));
-        const axonMid2 = axonP0.clone().addScaledVector(axonDir, axonLen * 0.7).add(new THREE.Vector3(
-          (Math.random() - 0.5) * 1.8,
-          (Math.random() - 0.5) * 1.8,
-          (Math.random() - 0.5) * 1.8
+        const axonMid2 = axonP0.clone().addScaledVector(axonDir, axonLen * 0.70).add(new THREE.Vector3(
+          (Math.random() - 0.5) * 1.5,
+          (Math.random() - 0.5) * 1.5,
+          (Math.random() - 0.5) * 1.5
         ));
         const axonP3 = axonP0.clone().addScaledVector(axonDir, axonLen);
 
         const axonCurve = new THREE.CatmullRomCurve3([axonP0, axonMid1, axonMid2, axonP3]);
-        const axonPts = axonCurve.getPoints(18);
+        const axonPts = axonCurve.getPoints(20);
 
         this.synapseLinks.push({ pts: axonPts, colorA: color, colorB: color });
 
+        // Tubo axonal central afilado do cone de implantação
         this.appendTaperedTube(
-          axonCurve, 18, 8, 0.24, 0.11, color,
+          axonCurve, 20, 8, 0.28, 0.12, color,
           tubePositions, tubeNormals, tubeColors, tubeIndices,
           true
         );
 
-        // 6 Bainhas de Mielina Cilíndricas Anatômicas Reais (Zero ovais/balões)
+        // 6 Bainhas de Mielina Orgânicas Texturizadas: r(u) = r_ax * (1 + 0.55 * sin^0.35(pi*u))
         const myelinCount = 6;
         const internodeLen = axonLen / myelinCount;
-        const axonR = 0.22;
-        const cylMyelinGeo = new THREE.CylinderGeometry(axonR * 1.18, axonR * 1.18, internodeLen * 0.82, 12, 1, false);
+        const axonR = 0.24;
 
         for (let m = 0; m < myelinCount; m++) {
           const tCenter = (m + 0.5) / myelinCount;
           const pos = axonCurve.getPointAt(tCenter);
           const tangent = axonCurve.getTangentAt(tCenter).normalize();
 
+          // Malha capsular orgânica texturizada com bordas arredondadas (Zero balão e Zero lata)
+          const sheathHeight = internodeLen * 0.82;
+          const sheathSegments = 10;
+          const sheathRadSegments = 12;
+          const sheathGeo = new THREE.CylinderGeometry(axonR * 1.25, axonR * 1.25, sheathHeight, sheathRadSegments, sheathSegments, true);
+          const sPos = sheathGeo.attributes.position;
+          const sVertex = new THREE.Vector3();
+
+          for (let si = 0; si < sPos.count; si++) {
+            sVertex.fromBufferAttribute(sPos, si);
+            const uLen = (sVertex.y / sheathHeight) + 0.5; // 0.0 a 1.0 ao longo do internodo
+            const profile = 1.0 + 0.48 * Math.pow(Math.sin(Math.PI * Math.max(0.01, Math.min(0.99, uLen))), 0.35);
+            const noiseSh = 1.0 + 0.04 * Math.sin(sVertex.x * 12.0 + sVertex.z * 12.0);
+            sVertex.x *= profile * noiseSh;
+            sVertex.z *= profile * noiseSh;
+            sPos.setXYZ(si, sVertex.x, sVertex.y, sVertex.z);
+          }
+          sheathGeo.computeVertexNormals();
+
           const matMyelin = new THREE.MeshStandardMaterial({
-            color: 0xe0f2fe,
-            emissive: 0x0284c7,
-            emissiveIntensity: 0.38,
-            roughness: 0.18,
-            metalness: 0.1,
+            color: 0xfef3c7,
+            emissive: 0xd97706,
+            emissiveIntensity: 0.32,
+            roughness: 0.24,
+            metalness: 0.06,
             transparent: true,
-            opacity: 0.86
+            opacity: 0.88,
+            side: THREE.DoubleSide
           });
 
-          const mMesh = new THREE.Mesh(cylMyelinGeo, matMyelin);
+          const mMesh = new THREE.Mesh(sheathGeo, matMyelin);
           mMesh.position.copy(pos);
           mMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent);
 
@@ -780,14 +831,21 @@
           neuronRecord.myelinMeshes.push(mMesh);
           this.myelinSheaths.push({ mesh: mMesh, baseScale: mMesh.scale.clone(), neuronId: n });
 
+          // Nódulos de Ranvier com Brilho Azul-Elétrico Intenso (#00f2fe) e Sprite Pulsante
           if (m < myelinCount - 1) {
             const tNode = (m + 1.0) / myelinCount;
             const nodePos = axonCurve.getPointAt(tNode);
             const nodeTangent = axonCurve.getTangentAt(tNode).normalize();
+
             const rRing = new THREE.Mesh(ranvierRingGeo, ranvierRingMat);
             rRing.position.copy(nodePos);
             rRing.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), nodeTangent);
             this.connectomeGroup.add(rRing);
+
+            const rSprite = new THREE.Sprite(ranvierSpriteMat);
+            rSprite.position.copy(nodePos);
+            rSprite.scale.setScalar(1.25);
+            this.connectomeGroup.add(rSprite);
           }
         }
 
@@ -817,15 +875,17 @@
           this.connectomeGroup.add(bMesh);
         }
 
-        // 4. Coroa Dendrítica com 5 Pontos de Controle e Juntas Soldadas
+        // 4. Árvore Dendrítica Tortuosa com Bifurcações em Y até 5ª Ordem (Lei de Rall)
         const growDendriteTree = (startPt, startDir, length, rStart, order, maxOrder) => {
           const isPrimary = (order === 1);
-          const rEnd = rStart * 0.52;
+          // Lei de Rall: rEnd = rStart * 0.63
+          const rEnd = rStart * 0.63;
 
           const segLen = length * 0.25;
-          const dev1 = new THREE.Vector3((Math.random() - 0.5) * 0.45, (Math.random() - 0.5) * 0.45, (Math.random() - 0.5) * 0.45);
-          const dev2 = new THREE.Vector3((Math.random() - 0.5) * 0.52, (Math.random() - 0.5) * 0.52, (Math.random() - 0.5) * 0.52);
-          const dev3 = new THREE.Vector3((Math.random() - 0.5) * 0.52, (Math.random() - 0.5) * 0.52, (Math.random() - 0.5) * 0.52);
+          // Perturbação 3D orgânica para tortuosidade viva
+          const dev1 = new THREE.Vector3((Math.random() - 0.5) * 0.55, (Math.random() - 0.5) * 0.55, (Math.random() - 0.5) * 0.55);
+          const dev2 = new THREE.Vector3((Math.random() - 0.5) * 0.62, (Math.random() - 0.5) * 0.62, (Math.random() - 0.5) * 0.62);
+          const dev3 = new THREE.Vector3((Math.random() - 0.5) * 0.62, (Math.random() - 0.5) * 0.62, (Math.random() - 0.5) * 0.62);
 
           const p1 = startPt.clone().addScaledVector(startDir, segLen).add(dev1);
           const dir1 = p1.clone().sub(startPt).normalize();
@@ -837,9 +897,9 @@
 
           const curve = new THREE.CatmullRomCurve3([startPt, p1, p2, p3, p4]);
 
-          if (order <= 4) {
-            const tubSegs = isPrimary ? 14 : 9;
-            const radSegs = isPrimary ? 12 : 7;
+          if (order <= 5) {
+            const tubSegs = isPrimary ? 16 : 8;
+            const radSegs = isPrimary ? 12 : 6;
             this.appendTaperedTube(
               curve, tubSegs, radSegs, rStart, rEnd, color,
               tubePositions, tubeNormals, tubeColors, tubeIndices,
@@ -858,7 +918,7 @@
 
             if (order >= 3) {
               fineArborPositions.push(a.x, a.y, a.z, b.x, b.y, b.z);
-              const bright = 0.88;
+              const bright = 0.90;
               fineArborColors.push(
                 color.r * bright, color.g * bright, color.b * bright,
                 color.r * bright * 0.8, color.g * bright * 0.8, color.b * bright * 0.8
@@ -908,18 +968,19 @@
                 Math.random() - 0.5
               ).normalize();
               const nextDir = dir3.clone().addScaledVector(ortho, spread).normalize();
-              // Iniciar ligeiramente recuado dentro do final do ramo pai com sobreposição de raio
               const childStart = p4.clone().addScaledVector(dir3, -rEnd * 0.85);
               growDendriteTree(childStart, nextDir, length * 0.72, rChildStart, order + 1, maxOrder);
             }
           }
         };
 
+        // Disparo das árvores dendríticas a partir do soma
         dendriteDirs.forEach((dir, dIdx) => {
-          const origin = center.clone().addScaledVector(dir, somaBaseRadius * 0.35);
-          const len = 6.2 + (dIdx % 2) * 1.6;
-          const r0 = 0.48;
-          growDendriteTree(origin, dir, len, r0, 1, 3);
+          const origin = center.clone().addScaledVector(dir, somaBaseRadius * 0.42);
+          const isApical = (dIdx === 0);
+          const len = isApical ? 10.5 : (6.5 + (dIdx % 2) * 1.5);
+          const r0 = isApical ? 0.52 : 0.42;
+          growDendriteTree(origin, dir, len, r0, 1, 5);
         });
       }
 
@@ -932,10 +993,10 @@
 
       this.dendriteTubeMat = new THREE.MeshStandardMaterial({
         vertexColors: true,
-        roughness: 0.26,
-        metalness: 0.12,
-        emissive: new THREE.Color(0x0a1526),
-        emissiveIntensity: 0.45
+        roughness: 0.24,
+        metalness: 0.10,
+        emissive: new THREE.Color(0x78350f),
+        emissiveIntensity: 0.38
       });
       this.dendriteTubeMat.onBeforeCompile = (shader) => {
         shader.fragmentShader = shader.fragmentShader.replace(
@@ -946,7 +1007,7 @@
           vec3 fNorm = normalize(vNormal);
           vec3 fVDir = normalize(-vViewPosition);
           float fresnel = pow(clamp(1.0 - abs(dot(fNorm, fVDir)), 0.0, 1.0), 2.2);
-          gl_FragColor.rgb += gl_FragColor.rgb * fresnel * 0.75;
+          gl_FragColor.rgb += gl_FragColor.rgb * fresnel * 0.75 + vec3(0.98, 0.75, 0.14) * fresnel * 0.35;
           #endif
           `
         );
@@ -955,18 +1016,18 @@
       this.dendriteTubeMesh = new THREE.Mesh(mergedTubeGeo, this.dendriteTubeMat);
       this.connectomeGroup.add(this.dendriteTubeMesh);
 
-      // Pontes Sinápticas Inter-Neuronais Curvas
+      // Pontes Sinápticas e Entrelaçamento Físico entre Neurônios Vizinhos
       for (let i = 0; i < this.neurons.length; i++) {
         for (let j = i + 1; j < this.neurons.length; j++) {
           const dist = this.neurons[i].center.distanceTo(this.neurons[j].center);
-          if (dist < 26.0 && Math.random() < 0.65) {
+          if (dist < 28.0 && Math.random() < 0.70) {
             const pA = this.neurons[i].center;
             const pB = this.neurons[j].center;
-            const mid1 = pA.clone().lerp(pB, 0.33).add(new THREE.Vector3((Math.random() - 0.5) * 3.2, (Math.random() - 0.5) * 3.2, (Math.random() - 0.5) * 3.2));
-            const mid2 = pA.clone().lerp(pB, 0.66).add(new THREE.Vector3((Math.random() - 0.5) * 3.2, (Math.random() - 0.5) * 3.2, (Math.random() - 0.5) * 3.2));
+            const mid1 = pA.clone().lerp(pB, 0.33).add(new THREE.Vector3((Math.random() - 0.5) * 3.5, (Math.random() - 0.5) * 3.5, (Math.random() - 0.5) * 3.5));
+            const mid2 = pA.clone().lerp(pB, 0.66).add(new THREE.Vector3((Math.random() - 0.5) * 3.5, (Math.random() - 0.5) * 3.5, (Math.random() - 0.5) * 3.5));
 
             const bridgeCurve = new THREE.CatmullRomCurve3([pA, mid1, mid2, pB]);
-            const sampledPts = bridgeCurve.getPoints(14);
+            const sampledPts = bridgeCurve.getPoints(16);
             const cA = this.neurons[i].color;
             const cB = this.neurons[j].color;
 
@@ -1270,28 +1331,28 @@
     }
 
     /**
-     * // [PT-BR]: Conectoma Denso: 468 Neurônios Completos Ramificados em 5 Grupos de InstancedMesh por Arquétipo (Totalizando 500 neurônios reais!).
-     * // [EN-US]: Dense Connectome: 468 Complete Branched Neurons across 5 Archetype InstancedMeshes (Totaling exactly 500 real neurons!).
-     * // [AI-CTX]: @llm-context Zero balloon meshes, zero floating spheres; 5 full-mesh InstancedMeshes with Brainbow colors and complete morphology.
+     * // [PT-BR]: Conectoma Denso: 464 Neurônios de Fundo Completos Ramificados em 5 Grupos de InstancedMesh por Arquétipo (Totalizando exatamente 500 neurônios reais com os 36 heróis!).
+     * // [EN-GB]: Dense Connectome: 464 Complete Branched Background Neurons across 5 Archetype InstancedMeshes (Totaling exactly 500 real neurons with the 36 heroes!).
+     * // [AI-CTX]: @llm-context Zero balloon meshes, zero floating spheres; 5 full-mesh InstancedMeshes in bioluminescent cyan and soft amber.
      */
     buildDenseMacroConnectome() {
-      const macroCount = 468;
-      const totalNeuronsTarget = 32 + macroCount; // Exatamente 500 neurônios reais e completos!
+      const macroCount = 464;
+      const totalNeuronsTarget = 36 + macroCount; // Exatamente 500 neurônios reais e completos!
 
       // 1. Gerar os 5 arquétipos morfológicos completos
       const archetypes = [0, 1, 2, 3, 4].map(idx => this.buildCompleteNeuronArchetypeGeometry(idx * 2.3, idx));
 
       // 2. Dividir os 468 neurônios uniformemente entre os 5 arquétipos
       const archetypeMeshes = [];
-      const archetypeGroupCounts = [94, 94, 94, 93, 93]; // 94+94+94+93+93 = 468
+      const archetypeGroupCounts = [93, 93, 93, 93, 92]; // 93+93+93+93+92 = 464
 
       const baseNeuronMat = new THREE.MeshStandardMaterial({
         roughness: 0.28,
         metalness: 0.12,
         transparent: true,
         opacity: 0.84,
-        emissive: new THREE.Color(0x0a1526),
-        emissiveIntensity: 0.45
+        emissive: new THREE.Color(0x0284c7),
+        emissiveIntensity: 0.35
       });
 
       for (let a = 0; a < 5; a++) {
@@ -1308,6 +1369,15 @@
       const linePositions = [];
       const lineColors = [];
 
+      // Paleta Bioluminescente de Fundo: Azul-Ciano Profundo (#0369a1, #0284c7, #38bdf8) e Âmbar Suave (#d97706, #f59e0b)
+      const bgPalette = [
+        new THREE.Color(0x0369a1),
+        new THREE.Color(0x0284c7),
+        new THREE.Color(0x38bdf8),
+        new THREE.Color(0xd97706),
+        new THREE.Color(0xf59e0b)
+      ];
+
       const swcAvailable = typeof window !== 'undefined' && Array.isArray(window.SWC_NEURONS_DATA) && window.SWC_NEURONS_DATA.length > 0;
       let globalIndex = 0;
 
@@ -1316,7 +1386,7 @@
         const instMesh = archetypeMeshes[a];
 
         for (let k = 0; k < groupCount; k++) {
-          const neuronId = 32 + globalIndex;
+          const neuronId = 36 + globalIndex;
           const angle = (globalIndex / macroCount) * Math.PI * 2 * 7.0 + 0.45;
           const radius = 18.0 + (globalIndex % 14) * 3.6;
           const elev = ((globalIndex % 11) - 5) * 4.2;
@@ -1327,7 +1397,7 @@
             Math.sin(angle) * radius
           );
 
-          const color = this.brainbowPalette[(globalIndex + 3) % this.brainbowPalette.length];
+          const color = bgPalette[(globalIndex + a) % bgPalette.length];
           const sScale = 0.72 + (globalIndex % 5) * 0.12;
 
           // Rotação orgânica e posicionamento 3D do neurônio completo
@@ -1912,6 +1982,88 @@
       }
     }
 
+    /**
+     * // [PT-BR]: Partículas Bokeh de fluidos extracelulares (1.200 vesículas e neurotransmissores coloidais em ouro #fde047 e ciano #38bdf8).
+     * // [EN-GB]: Extracellular Bokeh Particles (1,200 vesicles and colloidal neurotransmitters in gold #fde047 and cyan #38bdf8).
+     * // [AI-CTX]: @llm-context Microscopic floating colloids undergoing Brownian motion in interstitial cerebrospinal fluid.
+     */
+    buildBokehParticles() {
+      const count = 1200;
+      const positions = new Float32Array(count * 3);
+      const colors = new Float32Array(count * 3);
+      const velocities = [];
+
+      const colGold = new THREE.Color(0xfde047);
+      const colCyan = new THREE.Color(0x38bdf8);
+
+      for (let i = 0; i < count; i++) {
+        const r = 4.0 + Math.random() * 45.0;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+
+        positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.75;
+        positions[i * 3 + 2] = r * Math.cos(phi);
+
+        const isGold = Math.random() < 0.55;
+        const c = isGold ? colGold : colCyan;
+        const alpha = 0.35 + Math.random() * 0.55;
+        colors[i * 3] = c.r * alpha;
+        colors[i * 3 + 1] = c.g * alpha;
+        colors[i * 3 + 2] = c.b * alpha;
+
+        velocities.push(new THREE.Vector3(
+          (Math.random() - 0.5) * 0.28,
+          (Math.random() - 0.5) * 0.28,
+          (Math.random() - 0.5) * 0.28
+        ));
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+      this.bokehMat = new THREE.PointsMaterial({
+        size: 0.62,
+        map: this.glowTexture,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.82,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+
+      this.bokehPoints = new THREE.Points(geo, this.bokehMat);
+      this.effectsGroup.add(this.bokehPoints);
+      this.bokehVelocities = velocities;
+    }
+
+    updateBokehParticles(dt) {
+      if (!this.bokehPoints || !this.bokehVelocities) return;
+      const pos = this.bokehPoints.geometry.attributes.position.array;
+      const bounds = 46.0;
+
+      for (let i = 0; i < this.bokehVelocities.length; i++) {
+        const v = this.bokehVelocities[i];
+        v.x += (Math.random() - 0.5) * 0.06;
+        v.y += (Math.random() - 0.5) * 0.06;
+        v.z += (Math.random() - 0.5) * 0.06;
+        v.clampLength(0.04, 0.35);
+
+        pos[i * 3] += v.x * dt * 3.5;
+        pos[i * 3 + 1] += v.y * dt * 3.5;
+        pos[i * 3 + 2] += v.z * dt * 3.5;
+
+        if (pos[i * 3] > bounds) pos[i * 3] = -bounds;
+        if (pos[i * 3] < -bounds) pos[i * 3] = bounds;
+        if (pos[i * 3 + 1] > bounds * 0.8) pos[i * 3 + 1] = -bounds * 0.8;
+        if (pos[i * 3 + 1] < -bounds * 0.8) pos[i * 3 + 1] = bounds * 0.8;
+        if (pos[i * 3 + 2] > bounds) pos[i * 3 + 2] = -bounds;
+        if (pos[i * 3 + 2] < -bounds) pos[i * 3 + 2] = bounds;
+      }
+      this.bokehPoints.geometry.attributes.position.needsUpdate = true;
+    }
+
     spawnCollisionShockwave(position, colorHex) {
       if (this.shockwaves.length > 35) return;
       const mat = this.matShockwave.clone();
@@ -2446,6 +2598,13 @@
 
       if (hudUm) hudUm.textContent = barUm + ' µm';
 
+      if (dist > 38.0) {
+        if (typeof window.mozokReturnToMacro === 'function') {
+          window.mozokReturnToMacro();
+          return;
+        }
+      }
+
       if (dist > 36) {
         if (scaleBadge) {
           scaleBadge.textContent = 'ESCALA MESO (' + approxFieldUm + ' µm): 500 NEURÔNIOS, MIELINA & TEIA CORTICAL';
@@ -2711,6 +2870,16 @@
         }
       });
 
+      // Listener de scroll do mouse para deszoom reversível Macro <-> Micro sem travamento
+      this.renderer.domElement.addEventListener('wheel', (e) => {
+        if (e.deltaY > 0 && this.camera && this.controls) {
+          const d = this.camera.position.distanceTo(this.controls.target);
+          if (d > 37.0 && typeof window.mozokReturnToMacro === 'function') {
+            window.mozokReturnToMacro();
+          }
+        }
+      }, { passive: true });
+
       window.addEventListener('resize', () => this.onResize());
     }
 
@@ -2731,9 +2900,10 @@
 
       const isRunning = this.engine ? this.engine.isRunning : false;
 
-      // 1. Atualizar física molecular priônica e neurotransmissores
+      // 1. Atualizar física molecular priônica, neurotransmissores e partículas Bokeh
       this.updatePrionPhysics(dt, isRunning);
       this.updateNeurotransmitters(dt, isRunning);
+      this.updateBokehParticles(dt);
 
       if (this.guidedTourActive) {
         this.updateGuidedPresentation(dt);

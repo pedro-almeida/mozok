@@ -12,12 +12,14 @@
   // [AI-CTX]: @llm-neuroscience: Speaks neurological descriptions and relays text to Libras 3D avatar.
   class MozokAINarrator {
     constructor() {
-      // [PT-BR]: Estado de ativação de voz, legendas e VLibras.
-      // [EN-US]: State of voice synthesis, subtitles, and VLibras activation.
-      // [AI-CTX]: @llm-invariant: Default voice on, subtitles on.
+      // [PT-BR]: Estado de ativação de voz, legendas, VLibras e idioma ativo (5 idiomas suportados).
+      // [EN-GB]: State of voice synthesis, subtitles, VLibras activation, and active language (5 supported languages).
+      // [AI-CTX]: @llm-invariant: Default voice on, subtitles on, initial language pt-BR.
       this.isVoiceEnabled = true;
       this.isVLibrasActive = false;
+      this.currentLang = 'pt-BR';
       this.currentVoice = null;
+      this.voicesByLang = {};
       this.subtitleEl = null;
       this.subtitleTimeout = null;
 
@@ -26,48 +28,53 @@
       this.detectVLibras();
     }
 
-    // [PT-BR]: Inicializa e seleciona a melhor voz natural disponível no sistema em Português do Brasil.
-    // [EN-US]: Initializes and selects the best natural Brazilian Portuguese voice available.
-    // [AI-CTX]: @llm-context: Prioritizes Microsoft Natural or Google pt-BR neural voices.
+    // [PT-BR]: Inicializa e seleciona as melhores vozes para os 5 idiomas suportados (pt-BR, en-GB, it-IT, uk-UA, es-ES).
+    // [EN-GB]: Initialises and selects the best natural voices for the 5 supported languages (pt-BR, en-GB, it-IT, uk-UA, es-ES).
+    // [AI-CTX]: @llm-context: Multi-language voice selection with graceful fallback.
     initVoices() {
       if (!('speechSynthesis' in window)) {
         console.warn('[MozokAINarrator] Web Speech API não suportada neste navegador.');
         return;
       }
 
-      const pickBestVoice = () => {
+      const pickVoices = () => {
         const voices = window.speechSynthesis.getVoices();
         if (!voices || voices.length === 0) return;
 
-        // [PT-BR]: Lista de prioridade de vozes neurais brasileiras.
-        // [EN-US]: Priority list of Brazilian neural Portuguese voices.
-        // [AI-CTX]: @llm-invariant: Match exact name first, then pt-BR natural, then any pt-BR.
-        const priorityNames = [
-          'Microsoft Francisca Online (Natural) - Portuguese (Brazil)',
-          'Microsoft Antonio Online (Natural) - Portuguese (Brazil)',
-          'Google português do Brasil',
-          'Francisca',
-          'Antonio',
-          'Luciana',
-          'Felipe'
-        ];
-
-        for (const name of priorityNames) {
-          const match = voices.find(v => v.name.includes(name) || (v.lang === 'pt-BR' && v.name.toLowerCase().includes(name.toLowerCase())));
+        const langTargets = ['pt-BR', 'en-GB', 'it-IT', 'uk-UA', 'es-ES'];
+        langTargets.forEach(target => {
+          const prefix = target.split('-')[0].toLowerCase();
+          // Prioriza vozes com o código exato ou que comecem com o prefixo
+          let match = voices.find(v => v.lang.toLowerCase() === target.toLowerCase()) ||
+                      voices.find(v => v.lang.toLowerCase().replace('_', '-').startsWith(target.toLowerCase())) ||
+                      voices.find(v => v.lang.toLowerCase().startsWith(prefix));
           if (match) {
-            this.currentVoice = match;
-            break;
+            this.voicesByLang[target] = match;
           }
-        }
+        });
 
-        if (!this.currentVoice) {
-          this.currentVoice = voices.find(v => v.lang === 'pt-BR' || v.lang.startsWith('pt')) || null;
-        }
+        // Configura voz atual
+        this.currentVoice = this.voicesByLang[this.currentLang] || voices[0] || null;
       };
 
-      pickBestVoice();
+      pickVoices();
       if (window.speechSynthesis.onvoiceschanged !== undefined) {
-        window.speechSynthesis.onvoiceschanged = pickBestVoice;
+        window.speechSynthesis.onvoiceschanged = pickVoices;
+      }
+    }
+
+    // [PT-BR]: Altera o idioma da síntese de voz (pt-BR, en-GB, it-IT, uk-UA, es-ES).
+    // [EN-GB]: Changes speech synthesis language (pt-BR, en-GB, it-IT, uk-UA, es-ES).
+    // [AI-CTX]: @llm-invariant: Dynamically updates active voice.
+    setLanguage(langCode) {
+      if (!langCode) return;
+      this.currentLang = langCode;
+      if (this.voicesByLang[langCode]) {
+        this.currentVoice = this.voicesByLang[langCode];
+      } else if ('speechSynthesis' in window) {
+        const voices = window.speechSynthesis.getVoices();
+        const prefix = langCode.split('-')[0].toLowerCase();
+        this.currentVoice = voices.find(v => v.lang.toLowerCase().startsWith(prefix)) || null;
       }
     }
 
@@ -180,9 +187,10 @@
     }
 
     // [PT-BR]: Sintetiza e fala um texto, ativando simultaneamente o VLibras e as legendas.
-    // [EN-US]: Synthesizes and speaks text, concurrently triggering VLibras and subtitles.
-    // [AI-CTX]: @llm-neuroscience: Speaks clinical and anatomical data to student/doctor.
-    speak(text) {
+    // [PT-BR]: Sintetiza e fala um texto no idioma selecionado, ativando simultaneamente o VLibras e as legendas.
+    // [EN-GB]: Synthesises and speaks text in selected language, concurrently triggering VLibras and subtitles.
+    // [AI-CTX]: @llm-neuroscience: Speaks clinical and anatomical data in 5 supported languages (pt-BR, en-GB, it-IT, uk-UA, es-ES).
+    speak(text, langCode) {
       if (!text) return;
       this.syncSpeechWithVLibras(text);
 
@@ -192,13 +200,15 @@
 
       window.speechSynthesis.cancel();
 
+      const targetLang = langCode || this.currentLang || 'pt-BR';
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'pt-BR';
-      utterance.rate = 1.04;
+      utterance.lang = targetLang;
+      utterance.rate = 1.02;
       utterance.pitch = 1.0;
 
-      if (this.currentVoice) {
-        utterance.voice = this.currentVoice;
+      const voice = this.voicesByLang[targetLang] || this.currentVoice;
+      if (voice) {
+        utterance.voice = voice;
       }
 
       utterance.onend = () => {

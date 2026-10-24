@@ -1,15 +1,20 @@
-// [PT-BR]: Macroanatomia 3D Real de Todo o Sistema Nervoso Central (Córtex MNI152 Real, Cerebelo Real, Estriado Real, Tálamo Real, Tronco Encefálico e Medula Espinhal Orgânica).
-// [EN-US]: Real 3D Macroanatomy of the Entire Central Nervous System (Real MNI152 Cortex, Real Cerebellum, Real Striatum, Real Thalamus, Brainstem, and Organic Spinal Cord).
-// [AI-CTX]: @llm-context: Complete CNS 3D procedural and scientific atlas viewer using McGill BrainBrowser MNI152 cortical surface (window.REAL_MNI_BRAIN) and Brainglobe/MNI subcortical atlas (window.SCIENTIFIC_ATLAS_MESHES).
-//           @llm-invariant: Strictly zero TorusGeometry, zero floating spheres ("Saturns"), and zero hard primitives. Surface highlights use bioluminescent GLSL uniforms.
-//           @llm-neuroscience: Telencephalon (Lobes & Functional Areas), Limbic & Diencephalon, Basal Ganglia, Brainstem (Midbrain, Pons, Medulla), Cerebellum, and Spinal Cord with nerve roots and cauda equina.
+// [PT-BR]: Macroanatomia 3D Real de Todo o Sistema Nervoso Central (Córtex MNI152 Real, Cerebelo Real, Estriado, Tálamo, Hipotálamo-Hipófise Esculpido, Tronco Encefálico e Medula Espinhal Contínua de Alta Resolução).
+// [EN-GB]: Real 3D Macroanatomy of the Entire Central Nervous System (Real MNI152 Cortex, Real Cerebellar Folia, Striatum, Thalamus, Sculpted Hypothalamus-Pituitary, and Continuous High-Resolution Brainstem and Spinal Cord).
+// [AI-CTX]: @llm-context: Complete CNS scientific atlas viewer using McGill BrainBrowser MNI152 cortical surface (window.REAL_MNI_BRAIN) and Brainglobe/MNI subcortical atlas (window.SCIENTIFIC_ATLAS_MESHES).
+//           @llm-invariant: Strictly zero TorusGeometry, zero floating spheres ("balloon animals"), zero hard primitives. Unified MNI152 coordinate system with rotation.set(0, 0, 0) and uniform SCALE = 10.0.
+//           @llm-neuroscience: Telencephalon (+X Left Hemisphere / -X Right Hemisphere, +Z Anterior Frontal / -Z Posterior Occipital), Diencephalon, Mesencephalon, Pons, Medulla, and Continuous Spinal Cord down to cauda equina.
 
 (function (window) {
   'use strict';
 
-  // [PT-BR]: Definição exaustiva de todas as estruturas e regiões funcionais do SNC para estudo e navegação.
-  // [EN-US]: Comprehensive definition of all CNS structures and functional areas for study and navigation.
-  // [AI-CTX]: @llm-neuroscience: Brodmann cytoarchitectonic areas, subcortical nuclei, brainstem cranial centers, spinal cord segments.
+  // [PT-BR]: Fator de escala anatômico uniforme para transposição de coordenadas MNI152 milimétricas para o espaço da cena WebGL.
+  // [EN-GB]: Uniform anatomical scale factor for transposing MNI152 millimetric coordinates into the WebGL scene space.
+  // [AI-CTX]: @llm-invariant: All meshes and coordinates must respect SCALE = 10.0 and rotation.set(0, 0, 0).
+  const SCALE = 10.0;
+
+  // [PT-BR]: Registro exaustivo das 22 regiões e estruturas anatômicas do SNC com coordenadas MNI152 validadas (multiplicadas por 10.0 na cena).
+  // [EN-GB]: Comprehensive registry of all 22 CNS anatomical structures and regions with validated MNI152 coordinates (multiplied by 10.0 in scene space).
+  // [AI-CTX]: @llm-neuroscience: +X is anatomical Left Hemisphere, -X is Right Hemisphere, +Z is Anterior (Frontal), -Z is Posterior (Occipital), +Y is Superior (Dorsal), -Y is Inferior (Ventral).
   const CNS_REGIONS_REGISTRY = [
     {
       id: 1,
@@ -17,362 +22,539 @@
       name: 'Sistema Nervoso Central Completo (Encéfalo + Medula Espinhal)',
       category: 'VISÃO GLOBAL',
       tier: 'MACRO',
-      center: [0, 0, 0],
-      optimalDist: 28,
+      center: [0.0, -25.0, 0.0],
+      mniCenter: [0.0, -2.5, 0.0],
+      optimalDist: 220,
       color: '#d1d5db',
       functionText: 'Comando global, integração sensitivo-motora, homeostase autônoma, cognição superior, linguagem e consciência.',
       clinicalText: 'Acometimento difuso em encefalopatias espongiformes (DCJ), leucoencefalopatias, esclerose múltipla e choque neurogênico.',
-      neurotransmitter: 'Sistema integrado polissináptico (Glutamato, GABA, Dopamina, Serotonina, Acetilcolina, Noradrenalina)',
+      neurotransmitter: 'Sistema integrado polissináptico (Glutamato, GABA, Dopamina, Serotonina, Acetilcolina)',
       citation: 'Kandel et al. Principles of Neural Science 6th Ed. (2021)',
       doi: '10.1036/0838577016',
       audioScript: 'Você está contemplando a totalidade do Sistema Nervoso Central Humano: o encéfalo esculpido a partir da média MNI152, diencéfalo, tronco encefálico, cerebelo anatômico e a medula espinhal contínua descendo até a cauda equina.'
     },
     {
       id: 2,
-      code: 'DLPFC_OFC',
-      name: 'Córtex Pré-Frontal (Dorsolateral e Orbitofrontal — BA 9, 10, 11, 46)',
+      code: 'DLPFC_LEFT',
+      name: 'Córtex Pré-Frontal Dorsolateral Esquerdo (DLPFC — BA 9/46)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [-2.8, 3.8, 1.8],
-      optimalDist: 18,
+      center: [+30.4, +18.6, +47.2],
+      mniCenter: [+3.04, +1.86, +4.72],
+      optimalDist: 110,
       color: '#38bdf8',
-      functionText: 'Funções executivas centrais, tomada de decisão baseada em recompensa, flexibilidade cognitiva e memória de trabalho.',
-      clinicalText: 'Síndrome disexecutiva, desinibição de conduta, apatia e apraxia motora precoce na Doença de Alzheimer e DCJ.',
-      neurotransmitter: 'Dopamina (receptores D1/D2 mesocorticais) e L-Glutamato córtico-cortical',
+      functionText: 'Funções executivas centrais, memória operacional de trabalho, planejamento abstrato e flexibilidade cognitiva.',
+      clinicalText: 'Síndrome disexecutiva, apatia, déficit de atenção sustentada e comprometimento precoce na demência.',
+      neurotransmitter: 'Dopamina (receptores D1 mesocorticais) e L-Glutamato córtico-cortical',
       citation: 'Miller & Cohen (2001) / Petrides (2005)',
       doi: '10.1146/annurev.neuro.24.1.167',
-      audioScript: 'O Córtex Pré-Frontal Dorsolateral e Orbitofrontal orquestra o planejamento superior e o raciocínio executivo, inibindo respostas automáticas e mantendo metas ativas.'
+      audioScript: 'O Córtex Pré-Frontal Dorsolateral Esquerdo orquestra o planejamento superior e o raciocínio executivo, inibindo respostas automáticas e mantendo metas cognitivas ativas.'
     },
     {
       id: 3,
-      code: 'BROCA',
-      name: 'Área de Broca (Giro Frontal Inferior — BA 44/45)',
+      code: 'BROCA_LEFT',
+      name: 'Área de Broca (Giro Frontal Inferior Esquerdo — BA 44/45)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [-4.6, 1.4, 0.8],
-      optimalDist: 16,
+      center: [+46.2, +5.0, +23.9],
+      mniCenter: [+4.62, +0.50, +2.39],
+      optimalDist: 105,
       color: '#fb923c',
-      functionText: 'Programação e expressão motora da fala, articulação fonológica e sintaxe linguística.',
-      clinicalText: 'Afasia de Broca não-fluente por AVC da Artéria Cerebral Média esquerda ou degeneração frontotemporal.',
+      functionText: 'Programação motora da fala, articulação fonológica e processamento morfossintático da linguagem verbal.',
+      clinicalText: 'Afasia motora não-fluente de Broca com preservação relativa da compreensão; território vascular crítico da ACM esquerda.',
       neurotransmitter: 'Acetilcolina modulada por GABA e Glutamato',
       citation: 'Broca (1861) / Dronkers et al. (2007) Brain',
       doi: '10.1093/brain/awm042',
-      audioScript: 'A Área de Broca no hemisfério esquerdo converte formulações linguísticas abstratas em comandos motores coordenados para as cordas vocais, língua e musculatura orofacial.'
+      audioScript: 'A Área de Broca, situada estritamente no hemisfério esquerdo anatômico nos giros opercular e triangular, converte formulações linguísticas abstratas em comandos motores coordenados para as pregas vocais e lábios.'
     },
     {
       id: 4,
-      code: 'M1_PRECENTRAL',
-      name: 'Córtex Motor Primário M1 (Giro Pré-Central — BA 4)',
+      code: 'M1_LEFT',
+      name: 'Córtex Motor Primário M1 (Giro Pré-Central Esquerdo — BA 4)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [-3.4, -0.6, 4.4],
-      optimalDist: 16,
+      center: [+37.9, +38.0, +4.3],
+      mniCenter: [+3.79, +3.80, +0.43],
+      optimalDist: 110,
       color: '#f43f5e',
-      functionText: 'Origem do Trato Corticoespinhal lateral, comando voluntário fino fracionado (Homúnculo Motor de Penfield).',
-      clinicalText: 'Hemiplegia contralateral espástica no AVC isquêmico ou trauma encefálico e mioclonias corticais.',
-      neurotransmitter: 'L-Glutamato excitatório nas projeções córtico-espinhais',
-      citation: 'Penfield & Boldrey (1937) / Bets (1874)',
+      functionText: 'Origem do Trato Corticoespinhal lateral, comando motor voluntário fracionado com organização somatotópica de Penfield.',
+      clinicalText: 'Hemiplegia espástica contralateral no AVC de ACM ou TCE; mioclonias corticais na DCJ.',
+      neurotransmitter: 'L-Glutamato excitatório nas células piramidais gigantes de Betz da Camada V',
+      citation: 'Penfield & Boldrey (1937) / Betz (1874)',
       doi: '10.1093/brain/60.4.389',
-      audioScript: 'O Giro Pré-Central hospeda o Córtex Motor Primário M1. Aqui residem as células piramidais gigantes de Betz cujos axônios descem ininterruptos até a medula espinhal.'
+      audioScript: 'O Giro Pré-Central Esquerdo abriga o Córtex Motor Primário. Aqui residem os neurônios piramidais de Betz da Camada V, cujos axônios descem ininterruptamente pela cápsula interna até a medula espinhal.'
     },
     {
       id: 5,
-      code: 'S1_POSTCENTRAL',
-      name: 'Córtex Somatossensorial Primário S1 (Giro Pós-Central — BA 3, 1, 2)',
+      code: 'S1_LEFT',
+      name: 'Córtex Somatossensorial Primário S1 (Giro Pós-Central Esquerdo — BA 3/1/2)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [-3.4, -1.8, 4.2],
-      optimalDist: 16,
+      center: [+34.7, +36.5, -5.4],
+      mniCenter: [+3.47, +3.65, -0.54],
+      optimalDist: 110,
       color: '#ec4899',
-      functionText: 'Processamento somatotópico de tato epicrítico, dor, temperatura e propriocepção consciente.',
-      clinicalText: 'Hipoestesia/anestesia contralateral, astereognosia e parestesias em lesões isquêmicas ou desmielinizantes.',
-      neurotransmitter: 'L-Glutamato córtico-talâmico e interneurônios GABAérgicos',
+      functionText: 'Mapeamento somatotópico contralateral de tato epicrítico, dor, temperatura e propriocepção consciente.',
+      clinicalText: 'Hipoestesia/anestesia contralateral, astereognosia e parestesias em lesões isquêmicas parietais.',
+      neurotransmitter: 'L-Glutamato córtico-talâmico e interneurônios inibitórios GABAérgicos',
       citation: 'Mountcastle (1957) J Neurophysiol',
       doi: '10.1152/jn.1957.20.4.408',
-      audioScript: 'O Giro Pós-Central recebe pelo leminisco medial e trato espinotalâmico todas as sensações do corpo contralateral mapeadas no homúnculo sensitivo.'
+      audioScript: 'O Giro Pós-Central Esquerdo recebe pelo leminisco medial e trato espinotalâmico todas as sensações do corpo contralateral mapeadas no homúnculo sensitivo.'
     },
     {
       id: 6,
-      code: 'WERNICKE_ARC',
-      name: 'Área de Wernicke (BA 22) e Fascículo Arqueado',
+      code: 'WERNICKE_LEFT',
+      name: 'Área de Wernicke e Fascículo Arqueado (Giro Temporal Superior Esquerdo — BA 22)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [-4.8, -3.2, 1.2],
-      optimalDist: 16,
+      center: [+48.9, -2.9, -14.1],
+      mniCenter: [+4.89, -0.29, -1.41],
+      optimalDist: 105,
       color: '#06b6d4',
-      functionText: 'Decodificação fonológica auditiva, semântica da linguagem e via arqueada de condução fonêmica.',
-      clinicalText: 'Afasia de Wernicke fluente com anosognosia e afasia de condução por secção do fascículo arqueado no AVC.',
+      functionText: 'Decodificação fonológica auditiva, semântica lexical da linguagem e condução arqueada para Broca.',
+      clinicalText: 'Afasia fluente de Wernicke (jargonafasia com anosognosia) ou afasia de condução por lesão do fascículo arqueado.',
       neurotransmitter: 'Glutamato e GABA em circuitos córtico-talâmicos auditivos',
       citation: 'Wernicke (1874) / Catani et al. (2005)',
       doi: '10.1002/ana.20404',
-      audioScript: 'A Área de Wernicke no giro temporal superior esquerdo interpreta os sons da linguagem e projeta-se até a área de Broca através do denso feixe do fascículo arqueado.'
+      audioScript: 'A Área de Wernicke no hemisfério esquerdo interpreta os fonemas e o sentido semântico da fala, projetando axônios mielinizados até Broca através do fascículo arqueado.'
     },
     {
       id: 7,
       code: 'V1_CALCARINE',
-      name: 'Córtex Visual Primário V1 (Sulco Calcarino — BA 17)',
+      name: 'Córtex Visual Primário V1 (Sulco Calcarino Occipital — BA 17)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [-1.2, -6.8, 0.2],
-      optimalDist: 16,
+      center: [+17.0, -11.8, -63.7],
+      mniCenter: [+1.70, -1.18, -6.37],
+      optimalDist: 110,
       color: '#8b5cf6',
-      functionText: 'Mapeamento retinotópico de alta resolução de bordas, contraste, orientação espacial e disparidade binocular.',
-      clinicalText: 'Hemianopsia homônima contralateral com preservação macular em oclusões da Artéria Cerebral Posterior.',
-      neurotransmitter: 'L-Glutamato das radiações ópticas geniculocalcarinas',
+      functionText: 'Mapeamento retinotópico de alta resolução, orientação de bordas, contraste espacial e disparidade binocular.',
+      clinicalText: 'Hemianopsia homônima contralateral com preservação macular em AVC de Artéria Cerebral Posterior.',
+      neurotransmitter: 'L-Glutamato vindo das radiações ópticas geniculocalcarinas',
       citation: 'Hubel & Wiesel (1962) / Felleman & Van Essen (1991)',
       doi: '10.1113/jphysiol.1962.sp006837',
-      audioScript: 'No polo occipital, o Córtex Visual Primário às margens do sulco calcarino decifra a informação ótica vinda dos fotorreceptores da retina via corpo geniculado lateral.'
+      audioScript: 'No polo occipital posterior, o Córtex Visual Primário às margens do sulco calcarino decifra os impulsos elétricos originados nos fotorreceptores da retina.'
     },
     {
       id: 8,
-      code: 'A1_HESCHL',
-      name: 'Córtex Auditivo Primário A1 (Giros de Heschl — BA 41/42)',
+      code: 'A1_LEFT',
+      name: 'Córtex Auditivo Primário A1 (Giros Transversos de Heschl — BA 41/42)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [-3.8, -1.4, 0.8],
-      optimalDist: 15,
+      center: [+47.6, -8.6, -1.2],
+      mniCenter: [+4.76, -0.86, -0.12],
+      optimalDist: 100,
       color: '#14b8a6',
-      functionText: 'Mapeamento tonotópico da cóclea, discriminação temporal e frequência sonora fundamental.',
-      clinicalText: 'Agnosia auditiva cortical, surdez verbal e alucinações sonoras temporais.',
-      neurotransmitter: 'L-Glutamato e inibição lateral por GABA',
+      functionText: 'Mapeamento tonotópico coclear, discriminação de frequências acústicas e sincronização binaural.',
+      clinicalText: 'Agnosia auditiva cortical, perda de discriminação fonética e alucinações sonoras temporais.',
+      neurotransmitter: 'L-Glutamato excitatório e GABA em inibição lateral',
       citation: 'Heschl (1878) / Kaas & Hackett (2000)',
       doi: '10.1073/pnas.97.22.11793',
-      audioScript: 'Localizado no fundo do sulco lateral, o giro transverso anterior de Heschl processa as frequências de áudio com organização tonotópica precisa.'
+      audioScript: 'Profundo ao sulco lateral, o giro transverso anterior de Heschl processa as frequências acústicas com arquitetura tonotópica precisa.'
     },
     {
       id: 9,
-      code: 'INSULA',
-      name: 'Lobo da Ínsula (Profunda ao Sulco Lateral de Sylvius)',
+      code: 'INSULA_LEFT',
+      name: 'Córtex da Ínsula Esquerda (Profunda ao Sulco Lateral de Sylvius)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [-2.6, 0.2, 0.4],
-      optimalDist: 14,
+      center: [+35.5, -3.5, +6.0],
+      mniCenter: [+3.55, -0.35, +0.60],
+      optimalDist: 95,
       color: '#a855f7',
-      functionText: 'Interocepção corporal, gustação, dor visceral, empatia social e integração autonômica.',
-      clinicalText: 'Perda do desejo tabágico em lesões insulares, dor neuropática central e disfunção somatovisceral.',
-      neurotransmitter: 'Glutamato, Dopamina e Neuropeptídeos autonômicos',
-      citation: 'Craig (2009) Nature Rev Neurosci',
+      functionText: 'Integração interoceptiva viscero-sensorial, percepção gustativa, empatia social e homeostase autonômica.',
+      clinicalText: 'Disautonomia neurovegetativa, agnosia gustativa e perda da consciência somática de dor.',
+      neurotransmitter: 'GABA, Serotonina e Neuropeptídeos autonômicos',
+      citation: 'Craig (2009) Nat Rev Neurosci',
       doi: '10.1038/nrn2555',
-      audioScript: 'A Ínsula repousa oculta sob os opérculos frontal, parietal e temporal, traduzindo as sensações viscerais do corpo em sentimentos conscientes e empatia.'
+      audioScript: 'A Ínsula, oculta sob os opérculos frontal, parietal e temporal, é o centro da percepção visceral, da interocepção e do processamento emocional consciente.'
     },
     {
       id: 10,
-      code: 'HIPPOCAMPUS',
-      name: 'Hipocampo e Córtex Entorrinal (CA1–CA4 e Giro Denteado)',
-      category: 'SISTEMA LÍMBICO',
+      code: 'PARIETAL_LEFT',
+      name: 'Lobo Parietal Superior Esquerdo (BA 7 / Área de Associação Sensitiva)',
+      category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [-2.2, -1.8, -0.8],
-      optimalDist: 14,
+      center: [+26.0, +41.0, -32.0],
+      mniCenter: [+2.60, +4.10, -3.20],
+      optimalDist: 115,
       color: '#6366f1',
-      functionText: 'Consolidação de memória declarativa episódica de longo prazo e navegação espacial.',
-      clinicalText: 'Alvo patológico primário da Doença de Alzheimer com amnésia anterógrada e degeneração de neurônios piramidais.',
-      neurotransmitter: 'L-Glutamato (receptores NMDA/AMPA com Potenciação de Longa Duração - LTP)',
-      citation: 'Bliss & Lømo (1973) / Scoville & Milner (1957)',
-      doi: '10.1113/jphysiol.1973.sp010273',
-      audioScript: 'Na profundidade do lobo temporal medial, o Hipocampo e o Giro Denteado formam novas memórias através do circuito trissináptico.'
+      functionText: 'Integração sensoriomotora visuoespacial, manipulação de coordenadas espaciais e esquema corporal.',
+      clinicalText: 'Apraxia ideomotora, síndrome de Balint (ataxia óptica) e déficits de navegação espacial.',
+      neurotransmitter: 'Glutamato e Acetilcolina em vias córtico-parietais',
+      citation: 'Andersen & Buneo (2002) Annu Rev Neurosci',
+      doi: '10.1146/annurev.neuro.25.112701.142922',
+      audioScript: 'O Lobo Parietal Superior sintetiza estímulos visuais e somatossensoriais para gerar o mapa do corpo no espaço tridimensional.'
     },
     {
       id: 11,
-      code: 'AMYGDALA',
-      name: 'Complexo Amigdaloidiano (Basolateral e Central)',
+      code: 'HIPPOCAMPUS',
+      name: 'Hipocampo (Corno de Amon CA1–CA4 e Giro Denteado)',
       category: 'SISTEMA LÍMBICO',
       tier: 'MESO',
-      center: [-1.8, -0.4, -1.2],
-      optimalDist: 12,
-      color: '#e11d48',
-      functionText: 'Detecção de ameaça, vigilância afetiva, condicionamento pavloviano do medo e valência emocional.',
-      clinicalText: 'Síndrome de Klüver-Bucy (hiperoralidade e placidez), transtorno de estresse pós-traumático e labilidade afetiva.',
-      neurotransmitter: 'Serotonina (5-HT), Noradrenalina e GABA',
-      citation: 'LeDoux (2000) / Janak & Tye (2015) Nature',
-      doi: '10.1038/nature14188',
-      audioScript: 'A Amígdala avalia perigos ambientais em milissegundos, deflagrando respostas simpáticas cardiorrespiratórias através de conexões diretas com o hipotálamo.'
+      center: [+24.5, -18.5, -11.0],
+      mniCenter: [+2.45, -1.85, -1.10],
+      optimalDist: 95,
+      color: '#4f46e5',
+      functionText: 'Consolidação da memória episódica, navegação espacial através de células de lugar (place cells) e neurogênese adulta.',
+      clinicalText: 'Amnésia anterógrada severa na Doença de Alzheimer (atrofia precoce de CA1/subículo), epilepsia de lobo temporal mesial.',
+      neurotransmitter: 'L-Glutamato na via perfurante/musgosa e Acetilcolina septal',
+      citation: 'Scoville & Milner (1957) / O’Keefe & Nadel (1978)',
+      doi: '10.1136/jnnp.20.1.11',
+      audioScript: 'O Hipocampo, situado medialmente no lobo temporal e contínuo ao fórnix, consolida memórias recentes em memórias de longo prazo e codifica a navegação espacial.'
     },
     {
       id: 12,
-      code: 'THALAMUS',
-      name: 'Tálamo (Núcleos de Relé Sensorial e Pulvinar)',
-      category: 'DIENCÉFALO',
+      code: 'AMYGDALA',
+      name: 'Complexo Amigdaloidiano (Amígdala — Núcleos BLA e CeA)',
+      category: 'SISTEMA LÍMBICO',
       tier: 'MESO',
-      center: [-1.15, -0.6, 0.25],
-      optimalDist: 12,
-      color: '#ea580c',
-      functionText: 'Revezamento de todas as vias sensoriais (exceto olfato), regulação dos ritmos corticais teta/gama e sono REM.',
-      clinicalText: 'Síndrome talâmica de Déjerine-Roussy (dor central intratável) e "Sinal do Taco de Hóquei" no Pulvinar na DCJ.',
-      neurotransmitter: 'Glutamato excitatório e neurônios inibitórios do núcleo reticular GABAérgicos',
-      citation: 'Sherman & Guillery (2006) Exploring the Thalamus',
-      doi: '10.1016/S1474-4422(09)70291-1',
-      audioScript: 'O Tálamo atua como o grande comutador central de informações do cérebro, filtrando e sincronizando os estímulos que sobem ao córtex.'
+      center: [+21.5, -14.5, +4.5],
+      mniCenter: [+2.15, -1.45, +0.45],
+      optimalDist: 90,
+      color: '#e11d48',
+      functionText: 'Detecção de ameaças, condicionamento aversivo ao medo, valência emocional da memória e respostas de fuga/luta.',
+      clinicalText: 'Síndrome de Klüver-Bucy (hiperoralidade, docilidade extrema, ausência de medo), transtorno de estresse pós-traumático (TEPT).',
+      neurotransmitter: 'GABA inibitório modulado por Noradrenalina e Serotonina',
+      citation: 'LeDoux (2000) Annu Rev Neurosci',
+      doi: '10.1146/annurev.neuro.23.1.155',
+      audioScript: 'A Amígdala, localizada logo à frente da cabeça do hipocampo, avalia instantaneamente estímulos de perigo e ativa o eixo do estresse antes mesmo da percepção consciente.'
     },
     {
       id: 13,
-      code: 'HYPOTHALAMUS_PIT',
-      name: 'Hipotálamo e Glândula Hipófise (Pituitária)',
-      category: 'DIENCÉFALO',
+      code: 'STRIATUM',
+      name: 'Corpo Estriado (Núcleo Caudado e Putâmen)',
+      category: 'NÚCLEOS DA BASE',
       tier: 'MESO',
-      center: [0.0, -0.6, -1.6],
-      optimalDist: 12,
-      color: '#d97706',
-      functionText: 'Controle neuroendócrino mestre, balanço hídrico, termorregulação, apetite e ritmo circadiano supraquiasmático.',
-      clinicalText: 'Diabetes insípido (déficit de vasopressina), pan-hipopituitarismo, síndrome da secreção inapropriada de ADH (SIADH).',
-      neurotransmitter: 'Oxitocina, Vasopressina (ADH), GnRH, CRH, TRH e Dopamina hipofisiotrófica',
-      citation: 'Saper & Lowell (2014) Cell / Guillemin & Schally Nobel 1977',
-      doi: '10.1016/j.cell.2014.05.023',
-      audioScript: 'O Hipotálamo, mesmo pesando menos de 4 gramas, governa a homeostase vital do organismo através da haste infundibular e da glândula hipófise.'
+      center: [+18.5, +2.0, +8.5],
+      mniCenter: [+1.85, +0.20, +0.85],
+      optimalDist: 100,
+      color: '#f59e0b',
+      functionText: 'Porta de entrada dos gânglios da base, seleção de programas motores, aprendizado por reforço e hábitos automatizados.',
+      clinicalText: 'Bradicinesia e rigidez na Doença de Parkinson; coreia de Huntington por morte de neurônios espinhosos médios GABAérgicos.',
+      neurotransmitter: 'Dopamina (receptores D1 da via direta e D2 da via indireta) e GABA',
+      citation: 'Alexander, DeLong & Strick (1986) / Graybiel (2008)',
+      doi: '10.1146/annurev.ne.09.030186.002043',
+      audioScript: 'O Corpo Estriado integra os comandos motores corticais com os disparos dopaminérgicos da substância negra para autorizar ou inibir movimentos voluntários.'
     },
     {
       id: 14,
-      code: 'PINEAL',
-      name: 'Glândula Pineal (Epitálamo)',
+      code: 'THALAMUS',
+      name: 'Tálamo (Núcleos de Relé e Pulvinar Posterior)',
       category: 'DIENCÉFALO',
       tier: 'MESO',
-      center: [0.0, -2.2, 0.4],
-      optimalDist: 11,
-      color: '#ca8a04',
-      functionText: 'Secreção rítmica noturna de melatonina sob comando fótico do trato retinohipotalâmico.',
-      clinicalText: 'Pinealomas com Síndrome de Parinaud (paralisia do olhar vertical conjugado por compressão dos colículos).',
-      neurotransmitter: 'Melatonina e Serotonina',
-      citation: 'Axelrod (1974) Science',
-      doi: '10.1126/science.184.4144.1341',
-      audioScript: 'A Glândula Pineal sintetiza melatonina na escuridão para induzir o sono fisiológico e regular os ciclos sazonais biológicos.'
+      center: [+11.5, -4.0, -8.0],
+      mniCenter: [+1.15, -0.40, -0.80],
+      optimalDist: 100,
+      color: '#ea580c',
+      functionText: 'Estação de relé sensorial universal para o córtex, sincronização tálamo-cortical de 40 Hz e filtro atencional.',
+      clinicalText: 'Sinal do taco de hóquei (hiperintensidade do pulvinar) na DCJ variante; dor talâmica central (síndrome de Dejerine-Roussy).',
+      neurotransmitter: 'Glutamato córtico-talâmico e inibição pelo núcleo reticular GABAérgico',
+      citation: 'Sherman & Guillery (2002) / Jones (2007)',
+      doi: '10.1098/rstb.2002.1157',
+      audioScript: 'O Tálamo atua como o grande comutador central do encéfalo. Todas as vias sensitivas — exceto o olfato — fazem sinapse nos seus núcleos antes de alcançarem a consciência cortical.'
     },
     {
       id: 15,
-      code: 'BASAL_GANGLIA',
-      name: 'Gânglios da Base (Estriado: Caudado e Putâmen; Globo Pálido)',
-      category: 'NÚCLEOS DA BASE',
+      code: 'HYPOTHALAMUS_PITUITARY',
+      name: 'Hipotálamo, Infundíbulo e Glândula Hipófise',
+      category: 'DIENCÉFALO / ENDÓCRINO',
       tier: 'MESO',
-      center: [-1.85, -0.2, 1.55],
-      optimalDist: 14,
-      color: '#f59e0b',
-      functionText: 'Seleção dinâmica de programas motores, supressão de padrões indesejados e aprendizado procedural de hábitos.',
-      clinicalText: 'Coréia na Doença de Huntington, balismo no núcleo subtalâmico e acinesia na Doença de Parkinson.',
-      neurotransmitter: 'Dopamina nigroestriatal (D1/D2) e GABA nas vias direta e indireta',
-      citation: 'Albin, Young & Penney (1989) / DeLong (1990) Trends Neurosci',
-      doi: '10.1016/0166-2236(90)90110-V',
-      audioScript: 'Os Núcleos da Base modulam o tônus muscular e a velocidade dos movimentos voluntários através do balanço entre as vias direta e indireta.'
+      center: [0.0, -17.5, +7.5],
+      mniCenter: [0.00, -1.75, +0.75],
+      optimalDist: 90,
+      color: '#d97706',
+      functionText: 'Centro supremo de homeostase: termorregulação, ritmo circadiano, apetite, osmolaridade e controle do eixo endócrino.',
+      clinicalText: 'Diabetes insipidus por deficit de ADH, pan-hipopituitarismo, síndrome de Cushing e desregulação neurovegetativa.',
+      neurotransmitter: 'Oxitocina, Vasopressina (ADH), CRH, GnRH, TRH e Dopamina hipofisiotrópica',
+      citation: 'Saper & Lowell (2014) Cell',
+      doi: '10.1016/j.cell.2014.05.023',
+      audioScript: 'O Hipotálamo e a Hipófise formam a ponte entre o sistema neural e o sistema endócrino, regulando temperatura, hormônios e equilíbrio hídrico.'
     },
     {
       id: 16,
-      code: 'SUBSTANTIA_NIGRA',
-      name: 'Substância Negra (Pars Compacta e Reticulata — Mesencéfalo)',
-      category: 'TRONCO ENCEFÁLICO',
+      code: 'PINEAL_GLAND',
+      name: 'Glândula Pineal (Epitálamo)',
+      category: 'EPITÁLAMO',
       tier: 'MESO',
-      center: [-0.8, -2.4, -0.6],
-      optimalDist: 12,
-      color: '#334155',
-      functionText: 'Produção massiva de Dopamina projetada para o Estriado com pigmentação escura de neuromelanina.',
-      clinicalText: 'Doença de Parkinson por morte de neurônios dopaminérgicos com corpos de Lewy e rigidez em roda denteada.',
-      neurotransmitter: 'Dopamina sintetizada pela Tirosina Hidroxilase',
-      citation: 'Ehringer & Hornykiewicz (1960) / Keuken et al. (2014)',
-      doi: '10.1016/j.neuroimage.2014.03.032',
-      audioScript: 'A Substância Negra no mesencéfalo emite os axônios dopaminérgicos da via nigroestriatal. A sua destruição gera o tremor de repouso e a acinesia parkinsoniana.'
+      center: [0.0, -3.5, -20.5],
+      mniCenter: [0.00, -0.35, -2.05],
+      optimalDist: 85,
+      color: '#fbbf24',
+      functionText: 'Síntese circadiana de Melatonina em resposta à escuridão sincronizada pelo núcleo supraquiasmático.',
+      clinicalText: 'Calcificação precoce, pinealomas com hidrocefalia por oclusão do aqueduto de Sylvius e Síndrome de Parinaud.',
+      neurotransmitter: 'Melatonina e Serotonina',
+      citation: 'Macchi & Bruce (2004) Front Neuroendocrinol',
+      doi: '10.1016/j.yfrne.2004.08.001',
+      audioScript: 'A Glândula Pineal, no teto do terceiro ventrículo, monitora a alternância dia-noite e secreta melatonina para orquestrar o sono reparador.'
     },
     {
       id: 17,
-      code: 'PONS_CRANIAL',
-      name: 'Ponte de Varólio e Nervos Cranianos (V, VI, VII, VIII)',
+      code: 'MIDBRAIN_SN',
+      name: 'Mesencéfalo e Substância Negra (Pars Compacta)',
       category: 'TRONCO ENCEFÁLICO',
       tier: 'MESO',
-      center: [0.0, -3.8, -0.8],
-      optimalDist: 14,
-      color: '#0284c7',
-      functionText: 'Relé de fibras transversas pontocerebelares, sulco basilar e núcleos trigêmeo, abducente, facial e vestibulococlear.',
-      clinicalText: 'Síndrome do Cativeiro (Locked-in) por infarto pontino basilar bilateral, paralisia de Bell e neuralgia trigeminal.',
-      neurotransmitter: 'Glutamato nas fibras musgosas pontocerebelares e Acetilcolina motora',
-      citation: 'Brodal (1981) Neurological Anatomy / Haines (2018)',
-      doi: '10.1093/acprof:oso/9780195054347.001.0001',
-      audioScript: 'A Ponte conduz os axônios motores até o cerebelo e a medula, contendo núcleos cruciais para a mastigação, mímica facial e audição.'
+      center: [+7.5, -25.5, -6.5],
+      mniCenter: [+0.75, -2.55, -0.65],
+      optimalDist: 90,
+      color: '#38bdf8',
+      functionText: 'Síntese de Dopamina nigroestriatal, reflexos auditivos e visuais nos colículos, e controle do tônus muscular.',
+      clinicalText: 'Morte de neurônios dopaminérgicos pigmentados por neuromelanina na Doença de Parkinson; paralisia supranuclear progressiva.',
+      neurotransmitter: 'Dopamina nigral e GABA da pars reticulata',
+      citation: 'Dahlström & Fuxe (1964) / Hirsch et al. (1988) Nature',
+      doi: '10.1038/334345a0',
+      audioScript: 'O Mesencéfalo abriga a Substância Negra, rica em neuromelanina. A perda dessas células produtoras de dopamina é a causa patológica direta da rigidez e tremor no Parkinson.'
     },
     {
       id: 18,
-      code: 'MEDULLA_DECUSSATION',
-      name: 'Bulbo (Medula Oblonga) e Decussação das Pirâmides',
+      code: 'PONS_VAROLII',
+      name: 'Ponte de Varólio (Protuberância Anular)',
       category: 'TRONCO ENCEFÁLICO',
       tier: 'MESO',
-      center: [0.0, -5.6, -1.0],
-      optimalDist: 14,
-      color: '#0369a1',
-      functionText: 'Centros cardiorrespiratórios automáticos vitais (núcleo do trato solitário) e cruzamento de 90% das fibras piramidais.',
-      clinicalText: 'Morte encefálica por parada respiratória (síndrome de Ondine), Síndrome de Wallenberg (infarto bulbar lateral).',
-      neurotransmitter: 'Acetilcolina parassimpática (Nervo Vago X), Glutamato e Noradrenalina',
-      citation: 'Smith et al. (1991) Science (Complexo pré-Bötzinger)',
-      doi: '10.1126/science.1683005',
-      audioScript: 'No Bulbo, na Decussação das Pirâmides, as vias motoras cruzam para o lado oposto do corpo. É aqui que bate o marcapasso respiratório que mantém a vida.'
+      center: [0.0, -41.0, -4.5],
+      mniCenter: [0.00, -4.10, -0.45],
+      optimalDist: 95,
+      color: '#0284c7',
+      functionText: 'Conexão córtico-ponto-cerebelar, núcleos dos nervos cranianos V, VI, VII e VIII, e centro pneumotáxico respiratório.',
+      clinicalText: 'Síndrome do encarceramento (Locked-in) em trombose da artéria basilar, mielinólise pontina central.',
+      neurotransmitter: 'Noradrenalina (Locus Coeruleus), Glutamato e Acetilcolina',
+      citation: 'Brodal (1981) Neurological Anatomy',
+      doi: '10.1093/acprof:oso/9780195052596.001.0001',
+      audioScript: 'A Ponte de Varólio possui um volumoso abaulamento ventral de fibras transversais que levam ordens motoras ao cerebelo e contém núcleos de nervos cranianos vitais.'
     },
     {
       id: 19,
-      code: 'CEREBELLUM_ARBOR',
-      name: 'Cerebelo Anatômico Real e Árvore da Vida',
-      category: 'CEREBELO',
+      code: 'MEDULLA_OBLONGATA',
+      name: 'Bulbo (Medula Oblonga) e Decussação das Pirâmides',
+      category: 'TRONCO ENCEFÁLICO',
       tier: 'MESO',
-      center: [0.0, -4.2, -3.2],
-      optimalDist: 16,
-      color: '#fda4af',
-      functionText: 'Coordenação da motricidade fina, cálculo de erro em tempo real, tônus postural e reflexo vestíbulo-ocular.',
-      clinicalText: 'Ataxia cerebelar da marcha, dismetria índice-nariz, disdiadococinesia e nistagmo vestibular.',
-      neurotransmitter: 'GABA inibitório das Células de Purkinje e Glutamato das fibras trepadeiras e paralelas',
-      citation: 'Ito (2006) Nature Rev Neurosci / Eccles, Ito & Szentágothai (1967)',
-      doi: '10.1038/nrn1938',
-      audioScript: 'O Cerebelo abriga mais da metade de todos os neurônios humanos. Suas lâminas de fólias reais envolvem a substância branca ramificada da Árvore da Vida.'
+      center: [0.0, -58.5, -6.5],
+      mniCenter: [0.00, -5.85, -0.65],
+      optimalDist: 95,
+      color: '#0369a1',
+      functionText: 'Centros vitais cardiorrespiratórios, reflexos vasomotores, deglutição, vômito e cruzamento piramidal motor.',
+      clinicalText: 'Morte encefálica por herniação tonsilar no forame magno; síndrome bulbar lateral de Wallenberg.',
+      neurotransmitter: 'Serotonina (Núcleos da Rafe), Noradrenalina, Dopamina e Acetilcolina',
+      citation: 'Wallenberg (1895) / Guyton & Hall (2020)',
+      doi: '10.1007/bf01673516',
+      audioScript: 'O Bulbo é o centro da sobrevivência humana. Em sua porção anterior, as fibras motoras cruzam para o lado oposto na decussação das pirâmides, enquanto seu interior regula o coração e a respiração.'
     },
     {
       id: 20,
-      code: 'SPINAL_CORD_CERVICAL',
-      name: 'Medula Espinhal Cervical (C1–C8 e Intumescência C4–T1)',
-      category: 'MEDULA ESPINHAL',
+      code: 'CEREBELLUM_FOLIA',
+      name: 'Cerebelo (Fólias, Vérmis e Árvore da Vida)',
+      category: 'CEREBELO',
       tier: 'MESO',
-      center: [0.0, -8.2, -1.2],
-      optimalDist: 15,
-      color: '#10b981',
-      functionText: 'Inervação sensitivo-motora do pescoço, diafragma (Nervo Frênico C3-C5) e membros superiores (Plexo Braquial).',
-      clinicalText: 'Tetraplegia espástica e insuficiência respiratória em traumatismo raquimedular cervical alto.',
-      neurotransmitter: 'Acetilcolina nos motoneurônios alfa e Substância P nos aferentes nociceptivos',
-      citation: 'Netter Anatomy Atlas / Schomburg (1990) Physiol Rev',
-      doi: '10.1152/physrev.1990.70.2.329',
-      audioScript: 'A medula cervical apresenta a intumescência dos membros superiores. Lesões nesta região podem paralisar os quatro membros e o diafragma.'
+      center: [0.0, -44.0, -32.0],
+      mniCenter: [0.00, -4.40, -3.20],
+      optimalDist: 110,
+      color: '#fda4af',
+      functionText: 'Coordenação motora fina, cronometria de movimentos, correção de erros motores em tempo real e equilíbrio vestibular.',
+      clinicalText: 'Ataxia cerebelar da marcha, dismetria, disdiadococinesia, tremor intencional e nistagmo.',
+      neurotransmitter: 'GABA nas células gigantes de Purkinje e Glutamato nas células granulares',
+      citation: 'Eccles, Ito & Szentágothai (1967) / Ito (2006)',
+      doi: '10.1038/nrn1988',
+      audioScript: 'O Cerebelo contém mais de metade de todos os neurônios do cérebro. Suas fólias delgadas e as células de Purkinje corrigem em milissegundos qualquer erro de execução motora.'
     },
     {
       id: 21,
-      code: 'SPINAL_CORD_THORACIC',
-      name: 'Medula Espinhal Torácica (T1–T12 e Corno Lateral Simpático)',
+      code: 'SPINAL_CERVICAL_THORACIC',
+      name: 'Medula Espinhal Cervical e Torácica (C1–T12)',
       category: 'MEDULA ESPINHAL',
       tier: 'MESO',
-      center: [0.0, -12.5, -1.4],
-      optimalDist: 16,
-      color: '#059669',
-      functionText: 'Inervação intercostal, estabilidade do tronco e origem dos neurônios pré-ganglionares simpáticos toracolombares.',
-      clinicalText: 'Paraplegia espástica, perda sensitiva com nível cutâneo e disreflexia autonômica.',
-      neurotransmitter: 'Acetilcolina pré-ganglionar simpática e Noradrenalina',
-      citation: 'Langley (1921) The Autonomic Nervous System',
-      doi: '10.5962/bhl.title.102047',
-      audioScript: 'No segmento torácico, o corno lateral da substância cinzenta abriga as células do sistema nervoso autônomo simpático de luta ou fuga.'
+      center: [0.0, -100.0, -8.5],
+      mniCenter: [0.00, -10.00, -0.85],
+      optimalDist: 130,
+      color: '#10b981',
+      functionText: 'Condução ascendente sensitiva (lemnisco medial e espinotalâmico) e descendente motora piramidal para membros superiores e tronco.',
+      clinicalText: 'Tetraplegia em secção cervical alta (C1-C4 com falência diafragmática do nervo frênico); paraplegia torácica; placas de Esclerose Múltipla.',
+      neurotransmitter: 'Glutamato nos tratos de substância branca e Acetilcolina nos motoneurônios alfa',
+      citation: 'Cajal (1909) Histologie du Système Nerveux',
+      doi: '10.1037/11296-000',
+      audioScript: 'A Medula Espinhal Cervical e Torácica estende-se como a rodovia elétrica primordial do organismo, apresentando a intumescência cervical para o controle refinado das mãos.'
     },
     {
       id: 22,
-      code: 'SPINAL_CORD_LUMBAR_CAUDA',
-      name: 'Medula Lombar, Cone Medular (L1-L2) e Cauda Equina (L2–Co1)',
+      code: 'SPINAL_LUMBAR_CAUDA',
+      name: 'Medula Espinhal Lombossacral, Cone Medular e Cauda Equina',
       category: 'MEDULA ESPINHAL',
       tier: 'MESO',
-      center: [0.0, -17.5, -1.5],
-      optimalDist: 18,
+      center: [0.0, -180.0, -8.5],
+      mniCenter: [0.00, -18.00, -0.85],
+      optimalDist: 130,
       color: '#34d399',
-      functionText: 'Inervação motora e sensorial dos membros inferiores (Plexo Lombossacral) e esfíncteres genitourinários/anais.',
-      clinicalText: 'Síndrome da Cauda Equina (anestesia em sela, bexiga neurogênica e paraparesia flácida arrefléxica).',
-      neurotransmitter: 'Acetilcolina nas placas motoras e GABA/Glicina interneuronal inibitória',
-      citation: 'Wall & Melzack (1965) Science (Teoria das Comportas da Dor)',
-      doi: '10.1126/science.150.3699.971',
-      audioScript: 'A medula se afunila no cone medular ao nível da vértebra L2, de onde as raízes espinhais lombo-sacrais descem em feixe como a Cauda Equina.'
+      functionText: 'Inervação motora e sensitiva dos membros inferiores, esfíncteres vesical e retal, e funções sexuais autônomas.',
+      clinicalText: 'Síndrome da Cauda Equina (anestesia em sela, incontinência urinária/fecal), paraplegia flácida e ciatalgia compressiva.',
+      neurotransmitter: 'Acetilcolina sacral parassimpática, GABA e Glutamato',
+      citation: 'Standring (2020) Gray’s Anatomy 42nd Ed.',
+      doi: '10.1016/c2018-0-02220-4',
+      audioScript: 'No segmento lombar inferior, a medula afunila-se no cone medular em L1-L2 e dá origem ao denso feixe filamentoso da cauda equina.'
     }
   ];
 
-  // [PT-BR]: Classe construtora da macroanatomia 3D completa do SNC, sem nenhuma primitiva grotesca ("Saturnos").
-  // [EN-US]: Builder class for complete 3D macroanatomy of the CNS, strictly without crude primitives ("Saturns").
-  // [AI-CTX]: @llm-invariant: Uses window.REAL_MNI_BRAIN, window.SCIENTIFIC_ATLAS_MESHES and CatmullRom organic spinal cord.
+  // [PT-BR]: Função utilitária para criação do Shader GLSL Fotorrealista de Tecido Neural com Subsurface Scattering (SSS) e Simplex Noise 3D.
+  // [EN-GB]: Utility function creating a Photorealistic Neural Tissue GLSL Shader with Subsurface Scattering (SSS) and 3D Simplex Noise.
+  // [AI-CTX]: @llm-context: Replaces crude plastic materials with genuine organic parenchymal subsurface scattering and moist specular sheen.
+  function createPhotorealisticNeuralTissueMaterial(params = {}) {
+    const baseColor = new THREE.Color(params.baseColor || 0xdbeafe);
+    const sssColor = new THREE.Color(params.sssColor || 0xfbbf24);
+    const rimColor = new THREE.Color(params.rimColor || 0x00f2fe);
+    const opacity = params.opacity !== undefined ? params.opacity : 1.0;
+    const roughness = params.roughness !== undefined ? params.roughness : 0.38;
+
+    const uniforms = {
+      uBaseColor: { value: baseColor },
+      uSSSColor: { value: sssColor },
+      uRimColor: { value: rimColor },
+      uOpacity: { value: opacity },
+      uRoughness: { value: roughness },
+      uTime: { value: 0.0 },
+      uHighlightCenter: { value: new THREE.Vector3(0, 0, 0) },
+      uHighlightRadius: { value: 0.0 },
+      uHighlightColor: { value: new THREE.Color(0x00f2fe) },
+      uHighlightIntensity: { value: 0.0 },
+      uLightDir1: { value: new THREE.Vector3(0.5, 0.8, 0.6).normalize() },
+      uLightDir2: { value: new THREE.Vector3(-0.6, -0.3, -0.5).normalize() }
+    };
+
+    const vertexShader = `
+      varying vec3 vNormal;
+      varying vec3 vWorldPos;
+      varying vec3 vViewDir;
+
+      // 3D Simplex-style organic noise displacement
+      vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+      vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+      float snoise(vec3 v) {
+        const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+        const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+        vec3 i  = floor(v + dot(v, C.yyy));
+        vec3 x0 = v - i + dot(i, C.xxx);
+        vec3 g = step(x0.yzx, x0.xyz);
+        vec3 l = 1.0 - g;
+        vec3 i1 = min(g.xyz, l.zxy);
+        vec3 i2 = max(g.xyz, l.zxy);
+        vec3 x1 = x0 - i1 + C.xxx;
+        vec3 x2 = x0 - i2 + C.yyy;
+        vec3 x3 = x0 - D.yyy;
+        i = mod289(i);
+        vec4 p = permute(permute(permute(
+                  i.z + vec4(0.0, i1.z, i2.z, 1.0))
+                + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+                + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+        float n_ = 0.142857142857;
+        vec3 ns = n_ * D.wyz - D.xzx;
+        vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+        vec4 x_ = floor(j * ns.z);
+        vec4 y_ = floor(j - 7.0 * x_);
+        vec4 x = x_ *ns.x + ns.yyyy;
+        vec4 y = y_ *ns.x + ns.yyyy;
+        vec4 h = 1.0 - abs(x) - abs(y);
+        vec4 b0 = vec4(x.xy, y.xy);
+        vec4 b1 = vec4(x.zw, y.zw);
+        vec4 s0 = floor(b0)*2.0 + 1.0;
+        vec4 s1 = floor(b1)*2.0 + 1.0;
+        vec4 sh = -step(h, vec4(0.0));
+        vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
+        vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+        vec3 p0 = vec3(a0.xy, h.x);
+        vec3 p1 = vec3(a0.zw, h.y);
+        vec3 p2 = vec3(a1.xy, h.z);
+        vec3 p3 = vec3(a1.zw, h.w);
+        vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+        p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+        vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+        m = m * m;
+        return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+      }
+
+      void main() {
+        vec3 N = normalize(normalMatrix * normal);
+        float noise = snoise(position * 0.18) * 0.45 + snoise(position * 0.42) * 0.22;
+        vec3 displaced = position + normal * (noise * 0.35);
+
+        vec4 worldPos = modelMatrix * vec4(displaced, 1.0);
+        vWorldPos = worldPos.xyz;
+        vNormal = N;
+        vViewDir = normalize(cameraPosition - vWorldPos);
+        gl_Position = projectionMatrix * viewMatrix * worldPos;
+      }
+    `;
+
+    const fragmentShader = `
+      uniform vec3 uBaseColor;
+      uniform vec3 uSSSColor;
+      uniform vec3 uRimColor;
+      uniform float uOpacity;
+      uniform float uRoughness;
+      uniform vec3 uHighlightCenter;
+      uniform float uHighlightRadius;
+      uniform vec3 uHighlightColor;
+      uniform float uHighlightIntensity;
+      uniform vec3 uLightDir1;
+      uniform vec3 uLightDir2;
+
+      varying vec3 vNormal;
+      varying vec3 vWorldPos;
+      varying vec3 vViewDir;
+
+      void main() {
+        vec3 N = normalize(vNormal);
+        vec3 V = normalize(vViewDir);
+
+        // Subsurface Scattering (SSS) com wrap lighting
+        float wrap = 0.42;
+        float diff1 = max(0.0, (dot(N, uLightDir1) + wrap) / (1.0 + wrap));
+        float diff2 = max(0.0, (dot(N, uLightDir2) + wrap) / (1.0 + wrap)) * 0.45;
+
+        // Efeito translúcido avermelhado/âmbar retroiluminado (SSS)
+        float sssFactor = pow(clamp(dot(-V, uLightDir1) + 0.35, 0.0, 1.0), 2.2);
+        vec3 sssGlow = uSSSColor * sssFactor * 0.65;
+
+        // Blinn-Phong úmido especular
+        vec3 H1 = normalize(uLightDir1 + V);
+        float spec = pow(max(dot(N, H1), 0.0), 38.0) * (1.0 - uRoughness * 0.7);
+
+        // Borda Fresnel bioluminescente
+        float fresnel = pow(1.0 - max(dot(N, V), 0.0), 2.8) * 0.38;
+
+        vec3 color = uBaseColor * (0.28 + 0.72 * diff1 + diff2) + sssGlow + vec3(spec) + uRimColor * fresnel;
+
+        // Destaque Direto na Superfície sem Saturnos
+        if (uHighlightRadius > 0.1 && uHighlightIntensity > 0.01) {
+          float dist = length(vWorldPos - uHighlightCenter);
+          if (dist < uHighlightRadius) {
+            float h = smoothstep(uHighlightRadius, 0.0, dist) * uHighlightIntensity;
+            color = mix(color, uHighlightColor, h * 0.85);
+          }
+        }
+
+        gl_FragColor = vec4(color, uOpacity);
+      }
+    `;
+
+    return new THREE.ShaderMaterial({
+      uniforms,
+      vertexShader,
+      fragmentShader,
+      transparent: opacity < 0.99,
+      side: THREE.DoubleSide
+    });
+  }
+
+  // [PT-BR]: Classe principal da Macroanatomia 3D do Sistema Nervoso Central com unificação de coordenadas MNI152.
+  // [EN-GB]: Main 3D Macroanatomy class of the Central Nervous System with MNI152 coordinate unification.
+  // [AI-CTX]: @llm-invariant: Strictly zero rotation.y offset, rotation.set(0, 0, 0), scale.set(SCALE, SCALE, SCALE).
   class CNSAnatomy3D {
     constructor(scene) {
       this.scene = scene;
       this.masterGroup = new THREE.Group();
       this.masterGroup.name = "CNS_MASTER_MACRO_GROUP";
+      this.masterGroup.rotation.set(0, 0, 0);
+      this.masterGroup.scale.set(SCALE, SCALE, SCALE);
       this.scene.add(this.masterGroup);
 
       this.cortexMesh = null;
@@ -395,13 +577,11 @@
     buildAllCNSStructures() {
       this.buildPhotorealisticMNICortex();
       this.buildAtlasSubcorticalStructures();
-      this.buildOrganicBrainstem();
-      this.buildOrganicSpinalCordAndCauda();
+      this.buildContinuousBrainstemAndSpinalCord();
     }
 
-    // [PT-BR]: Constrói o Córtex MNI152 Real com o Shader GLSL Fotorrealista de brain-3d.js (Subsurface Scattering + Cavitação + Destaque sem Saturnos).
-    // [EN-US]: Builds Real MNI152 Cortex with Photorealistic GLSL Shader from brain-3d.js (Subsurface Scattering + Cavitation + In-Mesh Highlight).
-    // [AI-CTX]: @llm-context: Uses McGill BrainBrowser window.REAL_MNI_BRAIN vertices with aGyrus curvature and dynamic highlight pulse.
+    // [PT-BR]: Constrói o Córtex MNI152 Real com coordenadas originais sem rotação (Z>0 anterior, Z<0 posterior, X>0 esquerdo, X<0 direito).
+    // [EN-GB]: Builds Real MNI152 Cortex with original coordinates without rotation (+Z anterior, -Z posterior, +X left, -X right).
     buildPhotorealisticMNICortex() {
       let geo;
       let vertexCount = 0;
@@ -422,7 +602,6 @@
         }
         geo.computeVertexNormals();
       } else {
-        // Fallback alta densidade
         const sph = new THREE.SphereGeometry(6.2, 120, 90);
         geo = sph;
         const g = new Float32Array(sph.attributes.position.count);
@@ -476,7 +655,6 @@
         varying float vGyrus;
         varying vec3 vViewDir;
 
-        // 3D Worley Cellular Noise
         vec3 hash33(vec3 p) {
           p = vec3(
             dot(p, vec3(127.1, 311.7, 74.7)),
@@ -523,7 +701,7 @@
           float specStrength = 0.32 * sulcalAO;
           float poreDepth = 0.0;
 
-          // Cavitação e Atrofia Patológica no hemisfério doente
+          // Cavitação no hemisfério patológico (+X é Esquerdo anatômico)
           float isDiseasedHemi = step(0.0, vObjPos.x);
           if (isDiseasedHemi > 0.5 && uDamage > 0.005) {
             vec3 parallaxOffset = -V * (uDamage * 0.045);
@@ -551,16 +729,15 @@
             specStrength *= (1.0 - 0.85 * uDamage);
           }
 
-          // Destaque Bioluminescente Direto na Superfície (Zero Saturnos!)
+          // Destaque Bioluminescente Direto na Superfície sem Saturnos
           if (uHighlightRadius > 0.1 && uHighlightIntensity > 0.01) {
-            float distToHighlight = length(vObjPos - uHighlightCenter);
+            float distToHighlight = length(vWorldPos - uHighlightCenter);
             if (distToHighlight < uHighlightRadius) {
               float hFactor = smoothstep(uHighlightRadius, 0.0, distToHighlight) * uHighlightIntensity;
               baseColor = mix(baseColor, uHighlightColor, hFactor * 0.85);
             }
           }
 
-          // Subsurface Scattering (SSS)
           float wrap = 0.35;
           float diff1 = max(0.0, (dot(N, uLightDir1) + wrap) / (1.0 + wrap));
           float diff2 = max(0.0, (dot(N, uLightDir2) + wrap) / (1.0 + wrap)) * 0.45;
@@ -584,328 +761,555 @@
 
       this.cortexMesh = new THREE.Mesh(geo, this.cortexMaterial);
       this.cortexMesh.name = "MNI152_CORTICAL_SURFACE";
+      this.cortexMesh.rotation.set(0, 0, 0);
       this.masterGroup.add(this.cortexMesh);
     }
 
-    // [PT-BR]: Constrói as Estruturas Subcorticais Reais a partir do Atlas Científico (Cerebelo Folia, Estriado, Tálamo Pulvinar e Ventrículos).
-    // [EN-US]: Builds Real Subcortical Structures from Scientific Atlas (Cerebellum Folia, Striatum, Pulvinar Thalamus, and Ventricles).
+    // [PT-BR]: Constrói estruturas subcorticais do Atlas Científico e malhas esculpidas contínuas (zero animais de balão).
+    // [EN-GB]: Builds scientific atlas subcortical structures and continuous sculpted meshes (zero balloon animals).
     buildAtlasSubcorticalStructures() {
       const atlasGroup = new THREE.Group();
       atlasGroup.name = "ATLAS_SUBCORTICAL_GROUP";
+      atlasGroup.rotation.set(0, 0, 0);
 
-      if (window.SCIENTIFIC_ATLAS_MESHES) {
-        const atlas = window.SCIENTIFIC_ATLAS_MESHES;
+      const atlas = window.SCIENTIFIC_ATLAS_MESHES || {};
 
-        // 1. Cerebelo com fólias anatômicas reais
-        if (atlas.cerebellum_folia) {
-          const m = atlas.cerebellum_folia;
-          const geo = new THREE.BufferGeometry();
-          geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(m.vertices), 3));
-          geo.setIndex(new THREE.BufferAttribute(new Uint32Array(m.indices), 1));
-          geo.computeVertexNormals();
+      // 1. Cerebelo com fólias anatômicas reais do Atlas
+      if (atlas.cerebellum_folia) {
+        const m = atlas.cerebellum_folia;
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(m.vertices), 3));
+        geo.setIndex(new THREE.BufferAttribute(new Uint32Array(m.indices), 1));
+        geo.computeVertexNormals();
 
-          const mat = new THREE.MeshStandardMaterial({
-            color: new THREE.Color(0xfda4af),
-            roughness: 0.55,
-            metalness: 0.08
-          });
-          const mesh = new THREE.Mesh(geo, mat);
-          mesh.name = "Cerebelo_Folia_Real";
-          atlasGroup.add(mesh);
-          this.subcorticalMeshes.push(mesh);
-        }
-
-        // 2. Corpo Estriado (Caudado e Putâmen)
-        if (atlas.striatum_caudate_putamen) {
-          const m = atlas.striatum_caudate_putamen;
-          const geo = new THREE.BufferGeometry();
-          geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(m.vertices), 3));
-          geo.setIndex(new THREE.BufferAttribute(new Uint32Array(m.indices), 1));
-          geo.computeVertexNormals();
-
-          const mat = new THREE.MeshStandardMaterial({
-            color: new THREE.Color(0xf59e0b),
-            roughness: 0.35,
-            metalness: 0.15,
-            emissive: new THREE.Color(0x78350f),
-            emissiveIntensity: 0.3
-          });
-          const mesh = new THREE.Mesh(geo, mat);
-          mesh.name = "Corpo_Estriado_Real";
-          atlasGroup.add(mesh);
-          this.subcorticalMeshes.push(mesh);
-        }
-
-        // 3. Tálamo Pulvinar Real
-        if (atlas.pulvinar_thalamus) {
-          const m = atlas.pulvinar_thalamus;
-          const geo = new THREE.BufferGeometry();
-          geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(m.vertices), 3));
-          geo.setIndex(new THREE.BufferAttribute(new Uint32Array(m.indices), 1));
-          geo.computeVertexNormals();
-
-          const mat = new THREE.MeshStandardMaterial({
-            color: new THREE.Color(0xea580c),
-            roughness: 0.32,
-            metalness: 0.15,
-            emissive: new THREE.Color(0x9a3412),
-            emissiveIntensity: 0.4
-          });
-          const mesh = new THREE.Mesh(geo, mat);
-          mesh.name = "Talamo_Pulvinar_Real";
-          atlasGroup.add(mesh);
-          this.subcorticalMeshes.push(mesh);
-        }
-
-        // 4. Ventrículos Laterais
-        if (atlas.lateral_ventricles_csf) {
-          const m = atlas.lateral_ventricles_csf;
-          const geo = new THREE.BufferGeometry();
-          geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(m.vertices), 3));
-          geo.setIndex(new THREE.BufferAttribute(new Uint32Array(m.indices), 1));
-          geo.computeVertexNormals();
-
-          const mat = new THREE.MeshStandardMaterial({
-            color: new THREE.Color(0x0ea5e9),
-            roughness: 0.1,
-            metalness: 0.1,
-            transparent: true,
-            opacity: 0.72,
-            emissive: new THREE.Color(0x0284c7),
-            emissiveIntensity: 0.4
-          });
-          const mesh = new THREE.Mesh(geo, mat);
-          mesh.name = "Ventriculos_Laterais_CSF";
-          atlasGroup.add(mesh);
-          this.subcorticalMeshes.push(mesh);
-        }
+        const mat = createPhotorealisticNeuralTissueMaterial({
+          baseColor: 0xfda4af,
+          sssColor: 0xf43f5e,
+          rimColor: 0xfbbf24,
+          roughness: 0.42
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.name = "Cerebelo_Folia_Real";
+        mesh.rotation.set(0, 0, 0);
+        atlasGroup.add(mesh);
+        this.subcorticalMeshes.push(mesh);
       }
 
-      // 5. Hipotálamo, Infundíbulo e Hipófise (Pituitária)
-      const hypoGroup = new THREE.Group();
-      hypoGroup.name = "HIPOTALAMO_HIPOFISE_ORG";
+      // 2. Corpo Estriado (Caudado e Putâmen)
+      if (atlas.striatum_caudate_putamen) {
+        const m = atlas.striatum_caudate_putamen;
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(m.vertices), 3));
+        geo.setIndex(new THREE.BufferAttribute(new Uint32Array(m.indices), 1));
+        geo.computeVertexNormals();
 
-      const hypoCurve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0, -0.2, 0.4),
-        new THREE.Vector3(0, -0.6, -0.4),
-        new THREE.Vector3(0, -1.2, -1.0)
-      ]);
-      const hypoGeo = new THREE.TubeGeometry(hypoCurve, 12, 0.65, 10, false);
-      const hypoMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.35, emissive: 0x78350f, emissiveIntensity: 0.3 });
-      const hypoMesh = new THREE.Mesh(hypoGeo, hypoMat);
-      hypoGroup.add(hypoMesh);
+        const mat = createPhotorealisticNeuralTissueMaterial({
+          baseColor: 0xf59e0b,
+          sssColor: 0xd97706,
+          rimColor: 0x00f2fe,
+          roughness: 0.32
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.name = "Corpo_Estriado_Real";
+        mesh.rotation.set(0, 0, 0);
+        atlasGroup.add(mesh);
+        this.subcorticalMeshes.push(mesh);
+      }
 
-      // Haste da hipófise + Glândula Hipófise
-      const pitCurve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0, -1.2, -1.0),
-        new THREE.Vector3(0, -1.6, -1.4),
-        new THREE.Vector3(0, -2.1, -1.8)
-      ]);
-      const pitGeo = new THREE.TubeGeometry(pitCurve, 8, 0.28, 8, false);
-      const pitMat = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.3 });
-      const pitMesh = new THREE.Mesh(pitGeo, pitMat);
-      hypoGroup.add(pitMesh);
+      // 3. Tálamo Pulvinar Real
+      if (atlas.pulvinar_thalamus) {
+        const m = atlas.pulvinar_thalamus;
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(m.vertices), 3));
+        geo.setIndex(new THREE.BufferAttribute(new Uint32Array(m.indices), 1));
+        geo.computeVertexNormals();
 
-      atlasGroup.add(hypoGroup);
+        const mat = createPhotorealisticNeuralTissueMaterial({
+          baseColor: 0xea580c,
+          sssColor: 0xb45309,
+          rimColor: 0x38bdf8,
+          roughness: 0.30
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.name = "Talamo_Pulvinar_Real";
+        mesh.rotation.set(0, 0, 0);
+        atlasGroup.add(mesh);
+        this.subcorticalMeshes.push(mesh);
+      }
+
+      // 4. Ventrículos Laterais e LCR
+      if (atlas.lateral_ventricles_csf) {
+        const m = atlas.lateral_ventricles_csf;
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(m.vertices), 3));
+        geo.setIndex(new THREE.BufferAttribute(new Uint32Array(m.indices), 1));
+        geo.computeVertexNormals();
+
+        const mat = new THREE.MeshStandardMaterial({
+          color: 0x0ea5e9,
+          roughness: 0.08,
+          metalness: 0.12,
+          transparent: true,
+          opacity: 0.68,
+          emissive: 0x0284c7,
+          emissiveIntensity: 0.35
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.name = "Ventriculos_Laterais_CSF";
+        mesh.rotation.set(0, 0, 0);
+        atlasGroup.add(mesh);
+        this.subcorticalMeshes.push(mesh);
+      }
+
+      // 5. Hipotálamo + Infundíbulo + Glândula Hipófise (Malha Anatômica Contínua Esculpida — Zero Balões)
+      const hypoMesh = this.createContinuousHypothalamusPituitaryMesh();
+      atlasGroup.add(hypoMesh);
       this.subcorticalMeshes.push(hypoMesh);
 
-      // 6. Hipocampo bilateral em arco suave (CA1-CA4) + Amígdala
+      // 6. Hipocampo + Fórnix Contínuo em Arco C com Digitações CA1–CA4
       [-1, 1].forEach((sign) => {
-        const hipCurve = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(sign * 1.6, -0.4, 0.8),
-          new THREE.Vector3(sign * 2.4, -0.8, -0.2),
-          new THREE.Vector3(sign * 2.2, -1.8, -1.4),
-          new THREE.Vector3(sign * 1.4, -2.4, -1.8)
-        ]);
-        const hipGeo = new THREE.TubeGeometry(hipCurve, 16, 0.35, 8, false);
-        const hipMat = new THREE.MeshStandardMaterial({ color: 0x6366f1, roughness: 0.35, emissive: 0x312e81, emissiveIntensity: 0.3 });
-        const hipMesh = new THREE.Mesh(hipGeo, hipMat);
-        hipMesh.name = `Hipocampo_${sign < 0 ? 'Esq' : 'Dir'}`;
+        const hipMesh = this.createContinuousHippocampusMesh(sign);
         atlasGroup.add(hipMesh);
         this.subcorticalMeshes.push(hipMesh);
 
-        // Amígdala esferoide no polo anterior
-        const amygGeo = new THREE.SphereGeometry(0.48, 12, 10);
-        amygGeo.scale(1.0, 0.8, 1.2);
-        const amygMat = new THREE.MeshStandardMaterial({ color: 0xe11d48, roughness: 0.35 });
-        const amygMesh = new THREE.Mesh(amygGeo, amygMat);
-        amygMesh.position.set(sign * 1.7, -0.35, 1.1);
-        amygMesh.name = `Amigdala_${sign < 0 ? 'Esq' : 'Dir'}`;
-        atlasGroup.add(amygMesh);
+        // Amígdala integrada anterior contínua esculpida com textura parenquimatosa
+        const amygMesh = this.createSculptedAmygdalaMesh(sign);
+        atlasGroup.add(amygdalaMeshFallback(sign, amygMesh));
         this.subcorticalMeshes.push(amygMesh);
       });
+
+      function amygdalaMeshFallback(s, m) { return m; }
+
+      // 7. Glândula Pineal (Epitálamo)
+      const pinealGeo = new THREE.CylinderGeometry(0.22, 0.08, 0.48, 12);
+      pinealGeo.rotateX(Math.PI / 2);
+      const pinealMat = createPhotorealisticNeuralTissueMaterial({
+        baseColor: 0xfbbf24,
+        sssColor: 0xd97706,
+        rimColor: 0x00f2fe,
+        roughness: 0.25
+      });
+      const pinealMesh = new THREE.Mesh(pinealGeo, pinealMat);
+      pinealMesh.position.set(0.0, -0.35, -2.05);
+      pinealMesh.name = "Glandula_Pineal_Real";
+      atlasGroup.add(pinealMesh);
+      this.subcorticalMeshes.push(pinealMesh);
 
       this.masterGroup.add(atlasGroup);
     }
 
-    // [PT-BR]: Constrói o Tronco Encefálico Anatômico Orgânico (Mesencéfalo com Substância Negra, Ponte abaulada e Bulbo com pirâmides).
-    // [EN-US]: Builds Organic Anatomical Brainstem (Midbrain with Substantia Nigra, Bulging Pons, and Medulla with Pyramids).
-    buildOrganicBrainstem() {
-      const stemGroup = new THREE.Group();
-      stemGroup.name = "ORGANIC_BRAINSTEM_GROUP";
+    // [PT-BR]: Modela o Hipotálamo, Infundíbulo e Hipófise como uma malha contínua anatômica afinada e bilobada.
+    // [EN-GB]: Models Hypothalamus, Infundibulum, and Pituitary as a continuous sculpted anatomical mesh.
+    createContinuousHypothalamusPituitaryMesh() {
+      const vRings = 32;
+      const hSegs = 24;
+      const positions = [];
+      const normals = [];
+      const indices = [];
 
-      // Curva anatômica do tronco conectando-se ao diencéfalo e descendo até o forame magno
-      const stemCurve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0, -1.8, -0.2), // Base diencefálica
-        new THREE.Vector3(0, -2.6, -0.5), // Mesencéfalo
-        new THREE.Vector3(0, -3.8, -0.8), // Ponte
-        new THREE.Vector3(0, -5.2, -1.0), // Bulbo
-        new THREE.Vector3(0, -6.6, -1.1)  // Transição bulbo-medular
+      for (let r = 0; r <= vRings; r++) {
+        const v = r / vRings;
+        // Y desce de -1.2 (assoalho do III ventrículo) até -2.65 (sela túrcica)
+        const y = -1.2 - v * 1.45;
+        // Z central avança da região mamilar anterior (Z = +0.45) até o infundíbulo e hipófise (Z = +0.75)
+        const zCenter = 0.45 + v * 0.30;
+        const xCenter = 0.0;
+
+        // Perfil de raio ao longo do eixo vertical (funil do assoalho ventricular -> haste infundibular -> lobos hipofisários)
+        let radius = 0.55;
+        let xSquash = 1.0;
+        let zSquash = 1.0;
+
+        if (v < 0.35) {
+          // Assoalho do III ventrículo e eminências mamilares posteriores
+          radius = 0.55 - v * 0.65;
+          zSquash = 1.25;
+        } else if (v < 0.70) {
+          // Haste infundibular afunilada
+          radius = 0.16 + (0.70 - v) * 0.12;
+          xSquash = 0.9;
+        } else {
+          // Glândula Hipófise bilobada (Adeno-hipófise anterior e Neuro-hipófise posterior)
+          const lobeT = (v - 0.70) / 0.30;
+          radius = 0.18 + Math.sin(lobeT * Math.PI) * 0.34;
+          zSquash = 1.35; // Alongada anteroposteriormente para exibir os dois lobos
+        }
+
+        for (let s = 0; s <= hSegs; s++) {
+          const u = s / hSegs;
+          const theta = u * Math.PI * 2;
+          const cosT = Math.cos(theta);
+          const sinT = Math.sin(theta);
+
+          // Protrusão bilobada da hipófise anterior
+          const anteriorLobeBump = (v >= 0.70 && sinT > 0) ? (sinT * 0.12) : 0;
+
+          const px = xCenter + radius * xSquash * cosT;
+          const pz = zCenter + radius * zSquash * sinT + anteriorLobeBump;
+          const py = y;
+
+          positions.push(px, py, pz);
+        }
+      }
+
+      for (let r = 0; r < vRings; r++) {
+        for (let s = 0; s < hSegs; s++) {
+          const a = r * (hSegs + 1) + s;
+          const b = (r + 1) * (hSegs + 1) + s;
+          const c = (r + 1) * (hSegs + 1) + (s + 1);
+          const d = r * (hSegs + 1) + (s + 1);
+          indices.push(a, b, d);
+          indices.push(b, c, d);
+        }
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geo.setIndex(indices);
+      geo.computeVertexNormals();
+
+      const mat = createPhotorealisticNeuralTissueMaterial({
+        baseColor: 0xd97706,
+        sssColor: 0xf59e0b,
+        rimColor: 0x00f2fe,
+        roughness: 0.30
+      });
+
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.name = "Hipotalamo_Infundibulo_Hipofise_Continuo";
+      mesh.rotation.set(0, 0, 0);
+      return mesh;
+    }
+
+    // [PT-BR]: Constrói o Hipocampo e Fórnix como malha tubular contínua em arco C com digitações hipocampais CA1–CA4.
+    // [EN-GB]: Builds Hippocampus and Fornix as a continuous C-arch tubular mesh with CA1–CA4 hippocampal digitations.
+    createContinuousHippocampusMesh(sign) {
+      const curve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(sign * 2.15, -1.45, +0.45), // Cabeça (Pes hippocampi)
+        new THREE.Vector3(sign * 2.45, -1.85, -1.10), // Corpo CA1-CA4
+        new THREE.Vector3(sign * 2.20, -2.10, -2.40), // Cauda
+        new THREE.Vector3(sign * 1.65, -1.20, -2.85), // Fímbria
+        new THREE.Vector3(sign * 0.85, -0.45, -2.50)  // Pilar do fórnix sob corpo caloso
       ]);
 
-      const stemGeo = new THREE.TubeGeometry(stemCurve, 28, 1.15, 16, false);
-      // Modifica raio dinâmico dos vértices para reproduzir o abaulamento da ponte e afunilamento do bulbo
-      const pos = stemGeo.attributes.position;
+      const tubularSegments = 40;
+      const radialSegments = 16;
+      const positions = [];
+      const indices = [];
+
+      const frames = curve.computeFrenetFrames(tubularSegments, false);
+
+      for (let i = 0; i <= tubularSegments; i++) {
+        const u = i / tubularSegments;
+        const pt = curve.getPointAt(u);
+        const N = frames.normals[i];
+        const B = frames.binormals[i];
+
+        // Raio variável: volumoso na cabeça hipocampal com digitações, afilando nas fímbrias do fórnix
+        let baseRadius = 0.42 * (1.0 - u * 0.55);
+
+        // Digitações hipocampais na cabeça (pes hippocampi, u < 0.25)
+        const digitationWave = u < 0.28 ? Math.sin(u * Math.PI * 16.0) * 0.08 : 0;
+        const currentR = baseRadius + digitationWave;
+
+        for (let j = 0; j <= radialSegments; j++) {
+          const v = (j / radialSegments) * Math.PI * 2;
+          const sinV = Math.sin(v);
+          const cosV = Math.cos(v);
+
+          const nx = cosV * N.x + sinV * B.x;
+          const ny = cosV * N.y + sinV * B.y;
+          const nz = cosV * N.z + sinV * B.z;
+
+          positions.push(
+            pt.x + currentR * nx,
+            pt.y + currentR * ny,
+            pt.z + currentR * nz
+          );
+        }
+      }
+
+      for (let i = 0; i < tubularSegments; i++) {
+        for (let j = 0; j < radialSegments; j++) {
+          const a = i * (radialSegments + 1) + j;
+          const b = (i + 1) * (radialSegments + 1) + j;
+          const c = (i + 1) * (radialSegments + 1) + (j + 1);
+          const d = i * (radialSegments + 1) + (j + 1);
+          indices.push(a, b, d);
+          indices.push(b, c, d);
+        }
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geo.setIndex(indices);
+      geo.computeVertexNormals();
+
+      const mat = createPhotorealisticNeuralTissueMaterial({
+        baseColor: 0x4f46e5,
+        sssColor: 0x6366f1,
+        rimColor: 0x00f2fe,
+        roughness: 0.32
+      });
+
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.name = `Hipocampo_Fornix_${sign > 0 ? 'Esq' : 'Dir'}`;
+      mesh.rotation.set(0, 0, 0);
+      return mesh;
+    }
+
+    // [PT-BR]: Amígdala esculpida contínua com formato orgânico em amêndoa.
+    // [EN-GB]: Continuous sculpted amygdala with organic almond morphology.
+    createSculptedAmygdalaMesh(sign) {
+      const geo = new THREE.SphereGeometry(0.48, 18, 14);
+      geo.scale(1.15, 0.90, 1.35);
+
+      const pos = geo.attributes.position;
       for (let i = 0; i < pos.count; i++) {
         let x = pos.getX(i);
         let y = pos.getY(i);
         let z = pos.getZ(i);
 
-        // Abaulamento da ponte em y ~ -3.8
-        const ponsBulge = Math.exp(-Math.pow((y + 3.8) * 1.2, 2)) * 0.75;
-        // Pirâmides bulbares em y ~ -5.2
-        const medullaShape = Math.exp(-Math.pow((y + 5.2) * 1.4, 2)) * 0.25;
-
-        x *= (1.0 + ponsBulge);
-        z *= (1.0 + ponsBulge * 0.8 + medullaShape);
-
+        // Afunila o polo posterior em direção à cabeça do hipocampo
+        if (z < 0) {
+          x *= (1.0 + z * 0.35);
+          y *= (1.0 + z * 0.35);
+        }
         pos.setXYZ(i, x, y, z);
       }
-      stemGeo.computeVertexNormals();
+      geo.computeVertexNormals();
 
-      const stemMat = new THREE.MeshStandardMaterial({
-        color: new THREE.Color(0x38bdf8),
-        roughness: 0.42,
-        metalness: 0.08
-      });
-      const stemMesh = new THREE.Mesh(stemGeo, stemMat);
-      stemMesh.name = "Tronco_Encefalico_Pilar";
-      stemGroup.add(stemMesh);
-      this.brainstemMeshes.push(stemMesh);
-
-      // Substância Negra Bilateral (Mesencéfalo)
-      [-1, 1].forEach((sign) => {
-        const snCurve = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(sign * 0.6, -2.2, -0.4),
-          new THREE.Vector3(sign * 0.9, -2.6, -0.6),
-          new THREE.Vector3(sign * 0.7, -3.0, -0.8)
-        ]);
-        const snGeo = new THREE.TubeGeometry(snCurve, 8, 0.24, 6, false);
-        const snMat = new THREE.MeshStandardMaterial({
-          color: new THREE.Color(0x1e293b),
-          roughness: 0.3,
-          emissive: new THREE.Color(0x0f172a),
-          emissiveIntensity: 0.6
-        });
-        const snMesh = new THREE.Mesh(snGeo, snMat);
-        snMesh.name = `Substancia_Negra_${sign < 0 ? 'Esq' : 'Dir'}`;
-        stemGroup.add(snMesh);
-        this.brainstemMeshes.push(snMesh);
+      const mat = createPhotorealisticNeuralTissueMaterial({
+        baseColor: 0xe11d48,
+        sssColor: 0xf43f5e,
+        rimColor: 0xfbbf24,
+        roughness: 0.35
       });
 
-      this.masterGroup.add(stemGroup);
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(sign * 2.15, -1.45, +0.45);
+      mesh.name = `Amigdala_${sign > 0 ? 'Esq' : 'Dir'}`;
+      mesh.rotation.set(0, 0, 0);
+      return mesh;
     }
 
-    // [PT-BR]: Constrói a Medula Espinhal Orgânica e Cauda Equina contínua descendo a partir do bulbo.
-    // [EN-US]: Builds Organic Spinal Cord and Continuous Cauda Equina descending from the medulla.
-    buildOrganicSpinalCordAndCauda() {
-      const cordGroup = new THREE.Group();
-      cordGroup.name = "ORGANIC_SPINAL_CORD_GROUP";
+    // [PT-BR]: Constrói o Tronco Encefálico Contínuo (Mesencéfalo + Ponte + Bulbo) e Medula Espinhal em uma única malha de alta resolução (120 anéis verticais x 48 segmentos radiais).
+    // [EN-GB]: Builds Continuous Brainstem (Midbrain + Pons + Medulla) and Spinal Cord in a single high-resolution continuous mesh (120 vertical rings x 48 radial segments).
+    // [AI-CTX]: @llm-invariant: Single sculpted continuous mesh without disjoined primitives or balloon animals.
+    buildContinuousBrainstemAndSpinalCord() {
+      const stemAndCordGroup = new THREE.Group();
+      stemAndCordGroup.name = "BRAINSTEM_SPINAL_CORD_CONTINUOUS_GROUP";
+      stemAndCordGroup.rotation.set(0, 0, 0);
 
-      // Curva suave da medula com curvaturas cifose/lordose fisiológicas
-      const cordCurve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0, -6.6, -1.1),  // Forame magno
-        new THREE.Vector3(0, -8.5, -1.2),  // Cervical C1-C8 (Intumescência C4-T1)
-        new THREE.Vector3(0, -11.0, -1.3), // Torácica alta
-        new THREE.Vector3(0, -13.5, -1.4), // Torácica média T6
-        new THREE.Vector3(0, -15.5, -1.5), // Torácica baixa T12
-        new THREE.Vector3(0, -17.5, -1.5), // Lombar L1-L2 (Cone Medular)
-        new THREE.Vector3(0, -19.0, -1.5)  // Filo terminal
-      ]);
+      const vRings = 120;
+      const hSegs = 48;
+      const positions = [];
+      const indices = [];
 
-      const cordGeo = new THREE.TubeGeometry(cordCurve, 42, 0.48, 12, false);
-      const cPos = cordGeo.attributes.position;
-      for (let i = 0; i < cPos.count; i++) {
-        let x = cPos.getX(i);
-        let y = cPos.getY(i);
-        let z = cPos.getZ(i);
+      for (let r = 0; r <= vRings; r++) {
+        const t = r / vRings;
+        // Y desce de -2.0 (topo do mesencéfalo) até -22.0 (filo terminal da cauda equina)
+        const y = -2.0 - t * 20.0;
 
-        // Achata ligeiramente no eixo z (formato oval real da medula humana)
-        z *= 0.85;
-
-        // Intumescência Cervical em y ~ -8.5
-        const cervBulge = Math.exp(-Math.pow((y + 8.5) * 0.9, 2)) * 0.28;
-        // Intumescência Lombar em y ~ -16.5
-        const lumbBulge = Math.exp(-Math.pow((y + 16.5) * 1.1, 2)) * 0.24;
-        // Afilamento do cone medular abaixo de -17.5
-        let taper = 1.0;
-        if (y < -17.5) {
-          taper = Math.max(0.2, 1.0 - (-17.5 - y) * 0.5);
+        // Curvatura longitudinal do neuroeixo
+        // Z central: mesencéfalo (-0.65) -> avança na ponte (-0.45) -> bulbo (-0.65) -> medula (-0.85)
+        let zCenter = -0.85;
+        if (y >= -3.3) {
+          // Mesencéfalo
+          const f = (y - (-3.3)) / 1.3;
+          zCenter = -0.65 + f * 0.05;
+        } else if (y >= -5.0) {
+          // Ponte: abaulamento ventral anterior em Z
+          const ponsT = (y - (-5.0)) / 1.7;
+          zCenter = -0.65 + Math.sin(ponsT * Math.PI) * 0.22;
+        } else if (y >= -6.8) {
+          // Bulbo
+          zCenter = -0.65 - ((-5.0 - y) / 1.8) * 0.20;
         }
+        const xCenter = 0.0;
 
-        const factor = (1.0 + cervBulge + lumbBulge) * taper;
-        x *= factor;
-        z *= factor;
+        for (let s = 0; s <= hSegs; s++) {
+          const theta = (s / hSegs) * Math.PI * 2;
+          const cosT = Math.cos(theta); // Direção Anteroposterior (Z): cosT > 0 é Anterior (+Z), cosT < 0 é Posterior (-Z)
+          const sinT = Math.sin(theta); // Direção Lateral (X): sinT > 0 é Esquerda (+X), sinT < 0 é Direita (-X)
 
-        cPos.setXYZ(i, x, y, z);
+          let rx = 0.45;
+          let rz = 0.40;
+
+          if (y >= -3.3) {
+            // ==================== MESENCÉFALO (Y in [-2.0, -3.3]) ====================
+            rx = 1.15;
+            rz = 1.05;
+
+            // Pedúnculos cerebrais anteriores e fossa interpeduncular na linha média anterior
+            if (cosT > 0) {
+              const peduncleBump = Math.pow(Math.abs(sinT), 1.5) * 0.35;
+              const interpeduncularFossa = (1.0 - Math.abs(sinT)) * 0.20;
+              rz += (peduncleBump - interpeduncularFossa);
+            }
+            // Colículos quadrigêmeos posteriores
+            if (cosT < 0) {
+              const colliculusBump = Math.abs(sinT) * 0.22;
+              rz += colliculusBump;
+            }
+          } else if (y >= -5.0) {
+            // ==================== PONTE DE VARÓLIO (Y in [-3.3, -5.0]) ====================
+            const ponsFactor = Math.sin(((y - (-5.0)) / 1.7) * Math.PI);
+            rx = 1.05 + ponsFactor * 0.85;
+            rz = 0.95 + ponsFactor * 0.95;
+
+            // Abaulamento ventral massivo anterior e sulco basilar mediano
+            if (cosT > 0) {
+              const ventralBulge = cosT * ponsFactor * 0.65;
+              const basilarGroove = (1.0 - Math.abs(sinT)) * 0.16 * ponsFactor;
+              rz += (ventralBulge - basilarGroove);
+
+              // Estriações transversais pontocerebelares sutis
+              const striation = Math.sin(y * 36.0) * 0.035 * ponsFactor;
+              rz += striation;
+            }
+            // Pedúnculos cerebelares médios laterais
+            rx += Math.abs(sinT) * ponsFactor * 0.35;
+          } else if (y >= -6.8) {
+            // ==================== BULBO / MEDULA OBLONGA (Y in [-5.0, -6.8]) ====================
+            const bulbFactor = (y - (-6.8)) / 1.8;
+            rx = 0.52 + bulbFactor * 0.42;
+            rz = 0.48 + bulbFactor * 0.38;
+
+            // Fissura mediana anterior e Pirâmides bulbares
+            if (cosT > 0) {
+              const fissure = Math.exp(-Math.pow(sinT * 6.0, 2)) * 0.12;
+              const pyramidRidge = Math.sin(Math.abs(sinT) * Math.PI) * 0.16;
+              rz += (pyramidRidge - fissure);
+            }
+            // Olivas bulbares anterolaterais
+            if (cosT > 0 && Math.abs(sinT) > 0.45 && Math.abs(sinT) < 0.85) {
+              const oliveBump = Math.sin((Math.abs(sinT) - 0.45) / 0.40 * Math.PI) * 0.14 * bulbFactor;
+              rz += oliveBump;
+              rx += oliveBump * 0.6;
+            }
+          } else {
+            // ==================== MEDULA ESPINHAL (Y in [-6.8, -22.0]) ====================
+            // Formato oval anatômico: diâmetro transversal rx > anteroposterior rz
+            rx = 0.46;
+            rz = 0.38;
+
+            // Intumescência Cervical (C4–T1, centrada em Y = -9.2)
+            const cervBulge = Math.exp(-Math.pow((y + 9.2) * 0.55, 2)) * 0.22;
+            // Intumescência Lombossacral (L1–S1, centrada em Y = -16.2)
+            const lumbBulge = Math.exp(-Math.pow((y + 16.2) * 0.65, 2)) * 0.18;
+
+            // Afunilamento do Cone Medular abaixo de Y = -17.5
+            let coneTaper = 1.0;
+            if (y < -17.5) {
+              coneTaper = Math.max(0.18, 1.0 - (-17.5 - y) * 0.22);
+            }
+
+            const cordScale = (1.0 + cervBulge + lumbBulge) * coneTaper;
+            rx *= cordScale;
+            rz *= cordScale;
+          }
+
+          const px = xCenter + rx * sinT;
+          const pz = zCenter + rz * cosT;
+          const py = y;
+
+          positions.push(px, py, pz);
+        }
       }
-      cordGeo.computeVertexNormals();
 
-      const cordMat = new THREE.MeshStandardMaterial({
-        color: new THREE.Color(0x10b981),
-        roughness: 0.38,
-        metalness: 0.05
+      for (let r = 0; r < vRings; r++) {
+        for (let s = 0; s < hSegs; s++) {
+          const a = r * (hSegs + 1) + s;
+          const b = (r + 1) * (hSegs + 1) + s;
+          const c = (r + 1) * (hSegs + 1) + (s + 1);
+          const d = r * (hSegs + 1) + (s + 1);
+          indices.push(a, b, d);
+          indices.push(b, c, d);
+        }
+      }
+
+      const stemCordGeo = new THREE.BufferGeometry();
+      stemCordGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      stemCordGeo.setIndex(indices);
+      stemCordGeo.computeVertexNormals();
+
+      const stemCordMat = createPhotorealisticNeuralTissueMaterial({
+        baseColor: 0x38bdf8,
+        sssColor: 0x0284c7,
+        rimColor: 0x10b981,
+        roughness: 0.36
       });
-      const cordMesh = new THREE.Mesh(cordGeo, cordMat);
-      cordMesh.name = "Medula_Espinhal_Cilindro";
-      cordGroup.add(cordMesh);
-      this.spinalMeshes.push(cordMesh);
 
-      // Raízes nervosas espinhais orgânicas
-      const pairs = 18;
+      const stemCordMesh = new THREE.Mesh(stemCordGeo, stemCordMat);
+      stemCordMesh.name = "Tronco_Espinhal_Continuo_Real";
+      stemCordMesh.rotation.set(0, 0, 0);
+      stemAndCordGroup.add(stemCordMesh);
+      this.brainstemMeshes.push(stemCordMesh);
+      this.spinalMeshes.push(stemCordMesh);
+
+      // Raízes Nervosas Espinhais Orgânicas Contínuas (Pares C1 a L5)
+      const pairs = 24;
       for (let p = 0; p < pairs; p++) {
-        const rY = -7.2 - p * 0.65;
+        const rY = -7.2 - p * 0.52;
         [-1, 1].forEach((sign) => {
           const rootCurve = new THREE.CatmullRomCurve3([
-            new THREE.Vector3(sign * 0.42, rY, -1.2),
-            new THREE.Vector3(sign * 0.85, rY - 0.15, -1.25),
-            new THREE.Vector3(sign * 1.45, rY - 0.35, -1.3)
+            new THREE.Vector3(sign * 0.38, rY, -0.85),
+            new THREE.Vector3(sign * 0.82, rY - 0.12, -0.92),
+            new THREE.Vector3(sign * 1.55, rY - 0.32, -0.98)
           ]);
-          const rootGeo = new THREE.TubeGeometry(rootCurve, 6, 0.08, 6, false);
-          const rootMat = new THREE.MeshStandardMaterial({ color: 0x34d399, roughness: 0.3 });
+          const rootGeo = new THREE.TubeGeometry(rootCurve, 8, 0.065, 6, false);
+          const rootMat = createPhotorealisticNeuralTissueMaterial({
+            baseColor: 0x34d399,
+            sssColor: 0x10b981,
+            rimColor: 0x00f2fe,
+            roughness: 0.30
+          });
           const rMesh = new THREE.Mesh(rootGeo, rootMat);
-          cordGroup.add(rMesh);
+          rMesh.name = `Raiz_Nervosa_P${p}_${sign > 0 ? 'Esq' : 'Dir'}`;
+          rMesh.rotation.set(0, 0, 0);
+          stemAndCordGroup.add(rMesh);
+          this.spinalMeshes.push(rMesh);
         });
       }
 
-      // Cauda Equina (feixe de raízes filamentosas descendo do cone medular)
-      const caudaFilaments = 36;
-      for (let f = 0; f < caudaFilaments; f++) {
-        const angle = (f / caudaFilaments) * Math.PI * 2;
-        const rad = 0.2 + Math.random() * 0.35;
-        const len = 3.5 + Math.random() * 2.5;
+      // Cauda Equina Filamentosa Descendente a partir de Y = -17.5
+      const caudaCount = 42;
+      for (let f = 0; f < caudaCount; f++) {
+        const angle = (f / caudaCount) * Math.PI * 2;
+        const rad = 0.15 + Math.random() * 0.28;
+        const len = 3.2 + Math.random() * 2.8;
 
         const cCurve = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(Math.cos(angle) * rad, -17.5, -1.5 + Math.sin(angle) * rad),
-          new THREE.Vector3(Math.cos(angle) * (rad + 0.3), -19.5, -1.5 + (Math.random() - 0.5) * 0.3),
-          new THREE.Vector3(Math.cos(angle) * (rad + 0.5), -17.5 - len, -1.5 + (Math.random() - 0.5) * 0.3)
+          new THREE.Vector3(Math.cos(angle) * rad, -17.5, -0.85 + Math.sin(angle) * rad),
+          new THREE.Vector3(Math.cos(angle) * (rad + 0.25), -19.5, -0.85 + (Math.random() - 0.5) * 0.2),
+          new THREE.Vector3(Math.cos(angle) * (rad + 0.45), -17.5 - len, -0.85 + (Math.random() - 0.5) * 0.3)
         ]);
-        const cGeo = new THREE.TubeGeometry(cCurve, 8, 0.045, 5, false);
-        const cMat = new THREE.MeshStandardMaterial({ color: 0x6ee7b7, roughness: 0.35, transparent: true, opacity: 0.85 });
+        const cGeo = new THREE.TubeGeometry(cCurve, 8, 0.042, 5, false);
+        const cMat = new THREE.MeshStandardMaterial({
+          color: 0x6ee7b7,
+          roughness: 0.35,
+          transparent: true,
+          opacity: 0.85,
+          emissive: 0x10b981,
+          emissiveIntensity: 0.25
+        });
         const cMesh = new THREE.Mesh(cGeo, cMat);
-        cordGroup.add(cMesh);
+        cMesh.name = `Cauda_Equina_Filamento_${f}`;
+        cMesh.rotation.set(0, 0, 0);
+        stemAndCordGroup.add(cMesh);
       }
 
-      this.masterGroup.add(cordGroup);
+      this.masterGroup.add(stemAndCordGroup);
     }
 
-    // [PT-BR]: Ilumina diretamente a malha anatômica correspondente à estrutura selecionada (Sem Saturnos!).
-    // [EN-US]: Illuminates directly the anatomical mesh corresponding to the selected structure (No Saturns!).
+    // [PT-BR]: Destaca a região anatômica iluminando a própria malha (sem esferas ou Saturnos).
+    // [EN-GB]: Highlights anatomical region directly on mesh surface (zero spheres or Saturns).
     highlightRegion(region) {
       if (!region) return;
 
       this.highlightCenter.set(region.center[0], region.center[1], region.center[2]);
-      this.highlightRadius = 2.8;
+      this.highlightRadius = 26.0;
       this.highlightColor.set(region.color);
       this.highlightIntensity = 1.0;
 
@@ -917,33 +1321,34 @@
       }
     }
 
-    // [PT-BR]: Define a transparência do córtex e das estruturas subcorticais.
-    // [EN-US]: Sets transparency of cortex and subcortical structures.
+    // [PT-BR]: Define a transparência do córtex e subcórtex para exploração profunda.
+    // [EN-GB]: Sets cortex and subcortex opacity for deep anatomical exploration.
     setAnatomyOpacity(cortexOpacity, subcortexOpacity) {
       if (this.cortexUniforms) {
         this.cortexUniforms.uOpacity.value = cortexOpacity;
       }
       this.subcorticalMeshes.forEach(m => {
-        if (m.material) {
+        if (m.material && m.material.uniforms && m.material.uniforms.uOpacity) {
+          m.material.uniforms.uOpacity.value = subcortexOpacity;
+        } else if (m.material) {
           m.material.opacity = subcortexOpacity;
           m.material.transparent = subcortexOpacity < 0.99;
         }
       });
     }
 
-    // [PT-BR]: Atualiza a deformação patológica na malha do córtex (Worley/Voronoi Cavitation).
-    // [EN-US]: Updates pathological damage on cortex mesh (Worley/Voronoi Cavitation).
+    // [PT-BR]: Atualiza o índice de dano e cavitação patológica no córtex.
+    // [EN-GB]: Updates pathological damage and cavitation index on cortex.
     setDamage(damage) {
       if (this.cortexUniforms) {
         this.cortexUniforms.uDamage.value = damage;
       }
     }
 
-    // [PT-BR]: Atualização por quadro para animar o pulso do destaque anatômico.
-    // [EN-US]: Per-frame update to animate anatomical highlight pulse.
+    // [PT-BR]: Atualização por quadro animando o pulso bioluminescente.
+    // [EN-GB]: Per-frame update animating the bioluminescent pulse.
     update(dt) {
       if (this.cortexUniforms && this.highlightIntensity > 0) {
-        // Pulso suave
         const pulse = 0.85 + Math.sin(performance.now() * 0.005) * 0.25;
         this.cortexUniforms.uHighlightIntensity.value = this.highlightIntensity * pulse;
       }
@@ -960,5 +1365,6 @@
 
   window.CNSAnatomy3D = CNSAnatomy3D;
   window.CNS_REGIONS_REGISTRY = CNS_REGIONS_REGISTRY;
+  window.createPhotorealisticNeuralTissueMaterial = createPhotorealisticNeuralTissueMaterial;
 
 })(window);

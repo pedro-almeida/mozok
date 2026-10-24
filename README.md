@@ -1,115 +1,217 @@
-# MOZOK (МОЗОК) v1.0.0
-
-> **Open-Source Interactive Multi-Scale Atlas of the Human Brain & Connectome**  
-> *"A Google Earth for the Human Brain — 500 Neurons, Synaptic Kinetics, CSF & Prion Pathophysiology"*
+# MOZOK (МОЗОК) v2.0 — Atlas e Simulador Multiescala do Sistema Nervoso Central
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.0.0%20Official-success.svg)](Cargo.toml)
-[![Rust](https://img.shields.io/badge/Rust-2021%20Edition-orange.svg)](https://www.rust-lang.org)
-[![Engine](https://img.shields.io/badge/Godot-4.x-478cbf.svg)](https://godotengine.org)
+[![Version](https://img.shields.io/badge/Version-2.0.0%20Scientific-success.svg)](web/index.html)
 [![WebGL2](https://img.shields.io/badge/WebGL2-Three.js%20Studio-brightgreen.svg)](web/index.html)
-[![Manifesto](https://img.shields.io/badge/Manifesto-Read%20Here-green.svg)](MANIFESTO.md)
+[![A11y](https://img.shields.io/badge/Accessibility-WCAG%20AAA%20%2B%20VLibras-purple.svg)](https://vlibras.gov.br)
+[![Coordinates](https://img.shields.io/badge/Coordinates-MNI152%20Validated-orange.svg)](web/js/cns-anatomy-3d.js)
 
 ---
 
-## 1. O que é o MOZOK v1.0.0?
-
-O **MOZOK** (Ucraniano: *Мозок* — "Cérebro") é uma plataforma aberta de exploração neuroanatômica e fisiológica multi-escala contínua. Apelidado de **"Google Earth do Cérebro Humano"**, o MOZOK permite transitar de forma fluida e sem cortes entre múltiplos níveis de organização biológica:
-
-$$\text{Córtex MNI152 (Macro)} \longrightarrow \text{Núcleos Subcorticais (Meso)} \longrightarrow \text{Conectoma 500 Neurônios (Micro)} \longrightarrow \text{Fenda Sináptica (Nano)}$$
-
-Desenvolvido para o ensino de excelência em **Neurociências, Psicologia, Neuroanatomofisiologia e Medicina**, o sistema conta com suporte nativo duplo:
-1. **MOZOK WebGL2 Studio (`web/index.html`):** Aplicação 3D moderna, 100% offline, acelerada por hardware na GPU NVIDIA GTX 1650 a 60 FPS, com narração inteligente por voz humana natural em português (`pt-BR`).
-2. **Motor Nativo Godot 4 + Rust (`scenes/main.tscn` / `mozok-godot`):** Shaders corticais proceduralmente esculpidos com transparência progressiva por zoom e `MultiMeshInstance3D` na GPU.
+### 🌐 Idiomas / Languages / Lingue / Мови / Idiomas
+* [🇧🇷 Português Brasileiro](#-português-brasileiro)
+* [🇬🇧 British English](#-british-english)
+* [🇮🇹 Italiano](#-italiano)
+* [🇺🇦 Українська (Кирилиця)](#-українська-кирилиця)
+* [🇪🇸 Español](#-español)
 
 ---
 
-## 2. As 14 Estruturas Neuroanatômicas Fundamentais
+## 🇧🇷 Português Brasileiro
 
-O atlas cobre as 14 regiões essenciais da neurociência contemporânea, cada uma com sua respectiva função fisiológica, correlação clínica/psicopatológica, neurotransmissor e DOI científico:
+### 1. Visão Geral do Projeto
+O **MOZOK v2.0** (Ucraniano: *Мозок* — "Cérebro") é um atlas tridimensional de alta precisão e simulador fisiopatológico multiescala do **Sistema Nervoso Central Humano Completo** (Encéfalo, Diencéfalo, Tronco Encefálico e Medula Espinhal com cauda equina). Funciona como um *"Google Earth neuroanatômico"*, permitindo navegar de forma contínua e reversível entre a macroanatomia cortical e a microscopia profunda da Camada V.
 
-| # | Estrutura | Sigla | Escala | Função Principal | Correlação Clínica & Psicopatológica | Neurotransmissor | DOI |
-| :-: | :--- | :---: | :---: | :--- | :--- | :--- | :--- |
-| **1** | **Encéfalo Humano Completo** | `WB` | Macro | Integração sensorial, motora, cognitiva e homeostática global | Atrofia cortical generalizada, demência na DCJ | Polissináptico integrado | `10.1016/j.neuroimage.2009.04.041` |
-| **2** | **Córtex Pré-Frontal Dorsolateral** | `DLPFC` | Meso | Funções executivas, memória operacional e controle inibitório | Síndrome disexecutiva, depressão maior, apatia | Dopamina (D1/D2) & Glutamato | `10.1146/annurev.neuro.24.1.167` |
-| **3** | **Giro Pré-Central (Córtex Motor M1)** | `M1` | Meso | Motricidade voluntária somatotópica (Homúnculo de Penfield) | Paresia espástica, perda de motricidade fina, mioclonias | L-Glutamato excitatório | `10.1093/cercor/bhz159` |
-| **4** | **Área de Broca (Giro Frontal Inferior)** | `BROCA` | Meso | Planejamento motor da fala, articulação e sintaxe | Afasia de Broca motora não-fluente, apraxia verbal | Acetilcolina & GABA | `10.1093/brain/awm042` |
-| **5** | **Área de Wernicke (Giro Temporal Superior)** | `WERN` | Meso | Compreensão fonológica e semântica da linguagem | Afasia de Wernicke fluente com parafasias, anosognosia | Glutamato & GABA | `10.1002/ana.20404` |
-| **6** | **Hipocampo (Corno de Amon CA1-CA4)** | `HIP` | Meso | Consolidação da memória declarativa e navegação espacial | Amnésia anterógrada, Doença de Alzheimer precoce | L-Glutamato (LTP via NMDA) | `10.1126/science.abb3333` |
-| **7** | **Complexo Amigdaloidiano** | `AMYG` | Meso | Valência emocional, vigilância e condicionamento do medo | Transtornos de ansiedade, PTSD, Síndrome de Klüver-Bucy | Serotonina (5-HT) & GABA | `10.1038/nature14188` |
-| **8** | **Corpo Estriado (Caudado & Putâmen)** | `STR` | Meso | Hábitos motores, seleção de ações e modulação do tônus | Coreia de Huntington, discinesias, mioclonias na DCJ | Dopamina & GABA (D1/D2) | `10.1146/annurev.neuro.29.051605.112851` |
-| **9** | **Tálamo Pulvinar e Medial** | `PULV` | Meso | Revezamento sensorial multimodal e atenção visual seletiva | Sinal do Taco de Hóquei e Pulvinar na RM DWI na DCJ | Glutamato & GABA | `10.1016/S1474-4422(09)70291-1` |
-| **10** | **Substância Negra Pars Compacta** | `SNC` | Meso | Síntese de dopamina com pigmento protetor de neuromelanina | Doença de Parkinson, rigidez em roda denteada, hipocinesia | Dopamina nigroestriatal | `10.1016/j.neuroimage.2014.03.032` |
-| **11** | **Córtex Cerebelar & Células de Purkinje** | `CEREB` | Meso | Coordenação motora fina, equilíbrio e correção de erros | Ataxia cerebelar de marcha, dismetria, tremor cinético | GABA & Glutamato | `10.1038/nrn1938` |
-| **12** | **Ventrículos Laterais & Sistema Glinfático** | `VENT` | Meso | Produção pulsátil de LCR (500 mL/dia) e depuração via AQP4 | Hidrocefalia ex-vacuo, colapso glinfático, pico de Tau | Líquor com eletrólitos e glicose | `10.1126/science.1234098` |
-| **13** | **Camada Piramidal V & Célula de Betz** | `BETZ` | Micro | Neurônio motor piramidal gigante descoberto em Kyiv (1874) | Degeneração axonal, ELA, atrofia citoplasmática rápida | L-Glutamato vesicular | `10.1038/s41586-021-03950-0` |
-| **14** | **Fenda Sináptica & Banho de Líquor** | `SYN` | Nano | Transmissão quântica em fenda de 20 nm com vesículas ativas | Excitotoxicidade, ataque priônico PrPSc e perda sináptica | L-Glutamato & GABA (NMDA/AMPA) | `10.1126/science.adk4858` |
+### 2. Arquitetura Multiescala Contínua
+* **Macro (280–140 mm):** Córtex cerebral MNI152 com giros e sulcos anatômicos, cerebelo foliado e medula espinhal contínua estendendo-se até o cone medular e cauda equina.
+* **Meso (140–35 mm):** Transparência progressiva cortical por shader revelando as 22 estruturas subcorticais esculpidas: Tálamo Pulvinar, Hipocampo em arco C com fórnix, Complexo Amigdalino, Corpo Estriado, Hipotálamo contínuo com infundíbulo e hipófise bilobada, e Tronco Encefálico unificado (Mesencéfalo, Ponte e Bulbo com pirâmides e olivas).
+* **Micro (35–5 mm):** Conectoma denso de **500 Neurônios da Camada V**: 36 neurônios piramidais em primeiro plano com estética de microscopia âmbar-dourada, núcleo âmbar escuro, nucléolo dourado, ramificações de 5ª ordem (Lei de Rall), bainhas de mielina orgânicas texturizadas e nódulos de Ranvier em azul-elétrico intenso com saltos de potenciais de ação em tempo real.
+* **Nano (< 5 mm):** Fendas sinápticas com exocitose vesicular quântica de neurotransmissores e banho hidrodinâmico de líquor (LCR) com 1.200 partículas Bokeh flutuantes.
+
+### 3. Validação Científica MNI152 e Orientação Anatômica
+O sistema unifica rigorosamente o referencial estereotáxico MNI152 (`SCALE = 10.0`, sem giros arbitrários `rotation.y = -Math.PI / 2`):
+* **Eixo `+Z`:** Anterior (Polo Frontal / Rosto);
+* **Eixo `-Z`:** Posterior (Polo Occipital e Cerebelo);
+* **Eixo `+Y`:** Superior / Dorsal;
+* **Eixo `-Y`:** Inferior / Ventral;
+* **Eixo `+X`:** **Hemisfério Cerebral Esquerdo Anatômico** (onde se localizam a Área de Broca `[+4.62, +0.50, +2.39]`, Área de Wernicke `[+4.89, -0.29, -1.41]`, Córtex Motor Primário M1 `[+3.79, +3.80, +0.43]`, Córtex Somatossensorial S1 `[+3.47, +3.65, -0.54]`, Córtex Auditivo A1 `[+4.76, -0.86, -0.12]` e Ínsula `[+3.55, -0.35, +0.60]`);
+* **Eixo `-X`:** **Hemisfério Cerebral Direito Anatômico**.
+Ao selecionar estruturas do hemisfério esquerdo, a câmera se posiciona lateral e anteriormente para visualização anatômica direta e desobstruída.
+
+### 4. Simulador de 5 Patologias do SNC
+Inclui controle em tempo real com botões de **`▶ Iniciar Simulação`**, **`⏸ Pausar`** e **`↺ Reiniciar SNC`**:
+1. **Fisiologia Normal (SNC Hígido):** Ritmo gama de 40 Hz, condução saltatória perfeita, homeostase glutamatérgica e gabaérgica.
+2. **Doença de Alzheimer (DA):** Atrofia seletiva córtico-hipocampal, placas senis de beta-amiloide Aβ42, emaranhados neurofibrilares de proteína Tau hiperfosforilada e colapso colinérgico.
+3. **Doença de Parkinson (DP):** Degeneração dos neurônios dopaminérgicos da Substância Negra Pars Compacta e privação do corpo estriado com tremor de repouso em 4–6 Hz.
+4. **AVC Isquêmico da Artéria Cerebral Média:** Infarto vascular na Área de Broca e M1 esquerdo, despolarização anóxica, excitotoxicidade maciça por glutamato e edema citotóxico.
+5. **Esclerose Múltipla (EM):** Ataque autoimune desmielinizante nos tratos da medula espinhal e ponte com bloqueio da condução saltatória nos nódulos de Ranvier.
+6. **Doença de Creutzfeldt-Jakob (DCJ — Príons):** Degeneração espongiforme fulminante, conversão autocatalítica PrPC $\to$ PrPSc, sinal talâmico do taco de hóquei e RT-QuIC positivo.
+
+### 5. Navegação Reversível e Acessibilidade Total
+* **Botão `🏠 Voltar à Visão Inicial (SNC)`:** Retorno suave em 0.9s à visão global do encéfalo e medula espinhal (`controls.target = (0, -25, 0)`, `camera.position = (65, 35, 220)`), acionado também pelas teclas `Escape` e `Home`.
+* **Zoom Reversível com Mouse:** Scroll para trás (`dist > 38`) retorna automaticamente do microcosmo para o macro sem travar a câmera.
+* **Acessibilidade WCAG AAA & VLibras:** Integração com o widget oficial do VLibras (`vlibras-plugin.js`), sincronizando cada fala da IA com legendas de alto contraste e tradução simultânea em Língua Brasileira de Sinais.
 
 ---
 
-## 3. Tecnologias & Arquitetura de Ponta
+## 🇬🇧 British English
 
-* **Multi-Escala Sem Costuras ("Seamless Google Earth"):** A câmera 6-DOF calcula dinamicamente a distância anatômica (`camera_distance_mm`). Ao afastar-se (`> 140 mm`), o córtex anatômico MNI152 é 100% opaco; ao aproximar-se (`15 mm a 140 mm`), o córtex adquire transparência de raio-X revelando os núcleos internos; ao penetrar abaixo de `15 mm`, o **Micro-Conectoma de 500 Neurônios** se materializa em alta fidelidade.
-* **Conectoma de 500 Neurônios 3D na GPU:** Renderizado através de instâncias de alta performance (`MultiMeshInstance3D` no Godot e `THREE.InstancedMesh` no WebGL2), com axônios mielinizados, nódulos de Ranvier, espinhas dendríticas e feixes de condução saltatória.
-* **Sinapses Vivas & Banho de Líquor:** Vesículas de Glutamato (verde esmeralda `#4ade80`) e GABA (azul elétrico `#38bdf8`) em trânsito contínuo pela fenda sináptica de 20 nm, além de pulsos hidrodinâmicos do LCR pelo Aqueduto de Sylvius (32 mm/s).
-* **Simulador de Encefalopatia Priônica (Doença de Creutzfeldt-Jakob - DCJ):** Modela a cascata autocatalítica $\text{PrP}^\text{C} + \text{PrP}^\text{Sc} \to 2\text{PrP}^\text{Sc}$, a formação de vacúolos espongiformes no neuropilo, astrogliose reativa, atrofia de tecido e o surge dos biomarcadores no líquor (Proteína 14-3-3 > 2.0 ng/mL, Tau Total > 4000 pg/mL e ensaio RT-QuIC positivo).
-* **Narração Inteligente por Voz Natural IA:** Tour guiado em 4 atos com síntese de voz nativa em português (`DisplayServer.tts_speak` no Godot e `SpeechSynthesisUtterance` no navegador).
+### 1. Project Overview
+**MOZOK v2.0** (Ukrainian: *Мозок* — "Brain") is an open-access, high-precision three-dimensional atlas and multiscale pathophysiological simulator of the **Complete Human Central Nervous System** (Brain, Diencephalon, Brainstem, and Spinal Cord with cauda equina). Operating as a *"neuroanatomical Google Earth"*, it provides fluid and reversible navigation between macroscopic cortical topology and deep Layer V cellular microscopy.
+
+### 2. Continuous Multiscale Architecture
+* **Macro Scale (280–140 mm):** MNI152 cerebral cortex with sculpted sulci and gyri, foliated cerebellum, and continuous spinal cord descending to the conus medullaris and cauda equina.
+* **Meso Scale (140–35 mm):** Real-time cortical shader transparency revealing 22 subcortical structures: Pulvinar Thalamus, C-curved Hippocampus with fornix, Amygdaloid Complex, Corpus Striatum, continuous Hypothalamus with infundibular stalk and bilobed pituitary gland, and unified Brainstem (Midbrain, Pons, and Medulla Oblongata with pyramids and olives).
+* **Micro Scale (35–5 mm):** Dense connectome of **500 Layer V Neurons**: 36 hero pyramidal neurons with amber-gold confocal microscopy aesthetic, dark amber nucleus, bright gold nucleolus, 5th-order dendritic branching (Rall's Law), textured organic myelin sheaths, and electric-blue Nodes of Ranvier with real-time saltatory action potential propagation.
+* **Nano Scale (< 5 mm):** Synaptic clefts featuring quantal neurotransmitter exocytosis and cerebrospinal fluid (CSF) hydrodynamics with 1,200 Brownian bokeh microparticles.
+
+### 3. Validated MNI152 Stereotaxic Coordinate Frame
+The framework strictly adheres to the standard MNI152 coordinate system (`SCALE = 10.0`, eliminating arbitrary `rotation.y = -Math.PI / 2` rotations):
+* **`+Z` Axis:** Anterior (Frontal pole / Face);
+* **`-Z` Axis:** Posterior (Occipital pole and Cerebellum);
+* **`+Y` Axis:** Superior / Dorsal;
+* **`-Y` Axis:** Inferior / Ventral;
+* **`+X` Axis:** **Anatomical Left Cerebral Hemisphere** (housing Broca's Area `[+4.62, +0.50, +2.39]`, Wernicke's Area `[+4.89, -0.29, -1.41]`, Primary Motor Cortex M1 `[+3.79, +3.80, +0.43]`, Primary Somatosensory Cortex S1 `[+3.47, +3.65, -0.54]`, Primary Auditory Cortex A1 `[+4.76, -0.86, -0.12]`, and Insula `[+3.55, -0.35, +0.60]`);
+* **`-X` Axis:** **Anatomical Right Cerebral Hemisphere**.
+Selecting left hemisphere structures automatically orientates the camera from the lateral-anterior left aspect for unobstructed anatomical inspection.
+
+### 4. Five-Disorder CNS Pathology Simulator
+Equipped with top-bar controls (**`▶ Start Simulation`**, **`⏸ Pause`**, and **`↺ Reset CNS`**):
+1. **Healthy Physiology:** 40 Hz gamma oscillations, robust saltatory conduction, balanced glutamatergic and GABAergic neurotransmission.
+2. **Alzheimer's Disease:** Cortico-hippocampal atrophy, extracellular amyloid-beta Aβ42 senile plaques, hyperphosphorylated Tau neurofibrillary tangles, and cholinergic collapse.
+3. **Parkinson's Disease:** Degeneration of pigmented dopaminergic neurons in the Substantia Nigra Pars Compacta with striatal dopamine denervation and 4–6 Hz rest tremor.
+4. **Middle Cerebral Artery Ischaemic Stroke:** Thromboembolic infarction of Broca's area and left M1, anoxic depolarization, massive glutamate excitotoxicity, and cytotoxic oedema.
+5. **Multiple Sclerosis:** Autoimmune inflammatory demyelination across spinal cord and brainstem tracts, impairing saltatory conduction across Nodes of Ranvier.
+6. **Creutzfeldt-Jakob Disease (CJD — Prions):** Fulminant spongiform encephalopathy, autocatalytic PrPC $\to$ PrPSc conversion, pulvinar hockey-stick sign, and positive RT-QuIC.
+
+### 5. Reversible Navigation & Accessibility
+* **`🏠 Return to Home View (CNS)` Button:** Smooth 0.9s camera flight restoring full CNS view (`controls.target = (0, -25, 0)`, `camera.position = (65, 35, 220)`), also triggered via `Escape` or `Home` keys.
+* **Reversible Scroll Zoom:** Scrolling backwards (`dist > 38`) smoothly transitions from micro to macro scale without camera locking.
+* **WCAG AAA Compliance:** Integrated with AI speech synthesis and synchronous Brazilian Sign Language (VLibras) translation.
 
 ---
 
-## 4. Como Executar
+## 🇮🇹 Italiano
 
-### Inicialização Automática com Aceleração de GPU (Recomendado)
-Dê um duplo-clique no arquivo `run.bat` na raiz do projeto:
-```cmd
-run.bat
+### 1. Visione Generale del Progetto
+**MOZOK v2.0** (Ucraino: *Мозок* — "Cervello") è un atlante tridimensionale interattivo e simulatore fisiopatologico multiscala del **Sistema Nervoso Centrale Umano Completo** (Cervello, Diencefalo, Tronco Encefalico e Midollo Spinale con cauda equina). Concepito come un *"Google Earth neuroanatomico"*, consente una navigazione fluida e reversibile dalla macrostruttura corticale alla microscopia cellulare dello Strato V.
+
+### 2. Architettura Multiscala Continua
+* **Macro (280–140 mm):** Corteccia MNI152 con solchi e giri accurati, cervelletto e midollo spinale continuo fino al cono midollare.
+* **Meso (140–35 mm):** Trasparenza corticale progressiva che rivela le 22 strutture sottocorticali: Talamo Pulvinar, Ippocampo a forma di C con fornice, Amigdala, Corpo Striato, Ipotalamo continuo con infundibolo e ipofisi bilobata, e Tronco Encefalico continuo (Mesencefalo, Ponte e Bulbo con piramidi e olive).
+* **Micro (35–5 mm):** Connettoma denso di **500 Neuroni dello Strato V**: 36 neuroni piramidali hero in ambra dorata con diffusione subsuperficiale (SSS), nucleo ambrato scuro, nucleolo brillante, diramazioni di quinto ordine (Legge di Rall), guaine mieliniche organiche e nodi di Ranvier in blu elettrico brillante con potenziali d'azione saltatori in tempo reale.
+* **Nano (< 5 mm):** Fessure sinaptiche con rilascio quantico di neurotrasmettitori e dinamica del liquido cefalorachidiano con 1.200 particelle colloidali fluttuanti.
+
+### 3. Coordinate MNI152 e Orientamento Anatomico
+* **Asse `+Z`:** Anteriore (Polo Frontale / Viso);
+* **Asse `-Z`:** Posteriore (Polo Occipitale e Cervelletto);
+* **Asse `+Y`:** Superiore / Dorsale;
+* **Asse `-Y`:** Inferiore / Ventrale;
+* **Asse `+X`:** **Emisfero Cerebrale Sinistro Anatomico** (Area di Broca `[+4.62, +0.50, +2.39]`, Area di Wernicke `[+4.89, -0.29, -1.41]`, Corteccia Motoria Primaria M1 `[+3.79, +3.80, +0.43]`);
+* **Asse `-X`:** **Emisfero Cerebrale Destro Anatomico**.
+La selezione delle strutture dell'emisfero sinistro orienta automaticamente la telecamera dal lato sinistro e anteriore per una visione chiara e diretta.
+
+### 4. Simulatore di 5 Patologie del SNC
+Pulsanti di controllo rapido: **`▶ Avvia Simulazione`**, **`⏸ Pausa`**, e **`↺ Ripristina SNC`**:
+1. **Fisiologia Normale:** Ritmo gamma a 40 Hz, conduzione saltatoria ottimale, equilibrio glutammatergico e GABAergico.
+2. **Malattia di Alzheimer:** Atrofia ippocampale, placche senili di beta-amiloide, grovigli neurofibrillari di proteina Tau e declino colinergico.
+3. **Morbo di Parkinson:** Degenerazione dei neuroni dopaminergici della Substantia Nigra Pars Compacta e tremore a riposo a 4–6 Hz.
+4. **Ictus Ischemico dell'Arteria Cerebrale Media:** Infarto nell'area di Broca e M1 sinistro con eccitotossicità da glutammato ed edema citotossico.
+5. **Sclerosi Multipla:** Demielinizzazione autoimmune nei tratti del midollo spinale e del tronco encefalico.
+6. **Malattia di Creutzfeldt-Jakob (CJD — Prioni):** Encefalopatia spongiforme a progressione rapida, conversione conformazionale PrPC $\to$ PrPSc e RT-QuIC positivo.
+
+### 5. Navigazione Reversibile e Accessibilità
+* **Pulsante `🏠 Torna alla Vista Iniziale (SNC)`:** Volo di 0,9 secondi che ripristina la visuale completa del SNC (`controls.target = (0, -25, 0)`, `camera.position = (65, 35, 220)`), attivabile anche con i tasti `Escape` e `Home`.
+* **Zoom Reversibile:** Lo zoom all'indietro (`dist > 38`) ritorna automaticamente dal micro al macro senza bloccare la telecamera.
+
+---
+
+## 🇺🇦 Українська (Кирилиця)
+
+### 1. Загальний огляд проєкту
+**МОЗОК v2.0** — відкритий інтерактивний тривимірний атлас високої точності та багатомасштабний фізіологічний симулятор **Повної центральної нервової системи людини** (головний мозок, проміжний мозок, стовбур мозку та спинний мозок із кінським хвостом). Проєкт функціонує як *"нейроанатомічний Google Earth"*, забезпечуючи плавний і зворотний перехід від макроскопічної топографії кори до глибинної мікроскопії V шару кори.
+
+### 2. Безперервна багатомасштабна архітектура
+* **Макрорівень (280–140 мм):** Кора головного мозку MNI152 з анатомічними борознами та звивинами, мозочок і суцільний спинний мозок до мозкового конуса та корінців кінського хвоста.
+* **Мезорівень (140–35 мм):** Прогресивна прозорість кори через шейдери, що відкриває 22 підкіркові структури: таламус із подушкою, С-подібний гіпокамп зі склепінням, мигдалеподібний комплекс, смугасте тіло, гіпоталамус із лійкою та двочастковим гіпофізом, а також стовбур мозку (середній мозок, міст і довгастий мозок із пірамідами й оливами).
+* **Мікрорівень (35–5 мм):** Щільний конектом із **500 нейронів V шару**: 36 головних пірамідних нейронів у бурштиново-золотій естетиці конфокальної мікроскопії, темне бурштинове ядро, яскраве ядерце, розгалуження 5-го порядку (закон Ралла), текстуровані органічні мієлінові оболонки та електрично-сині перехопи Ранв'є із сальтаторним проведенням потенціалів дії в реальному часі.
+* **Нанорівень (< 5 мм):** Синаптичні щілини з квантовим вивільненням нейромедіаторів і гідродинамікою ліквору з 1 200 мікрочастинками Боке.
+
+### 3. Наукова валідація координат MNI152 та орієнтація півкуль
+Система суворо уніфікує стереотаксичну систему MNI152 (`SCALE = 10.0` без довільних поворотів):
+* **Вісь `+Z`:** Передній полюс (лобовий полюс / обличчя);
+* **Вісь `-Z`:** Задній полюс (потиличний полюс і мозочок);
+* **Вісь `+Y`:** Верхній / дорсальний напрямок;
+* **Вісь `-Y`:** Нижній / вентральний напрямок;
+* **Вісь `+X`:** **Анатомічна ліва півкуля головного мозку** (де розташовані зона Брока `[+4.62, +0.50, +2.39]`, зона Верніке `[+4.89, -0.29, -1.41]`, первинна моторна кора M1 `[+3.79, +3.80, +0.43]`, первинна соматосенсорна кора S1 `[+3.47, +3.65, -0.54]`, первинна слухова кора A1 `[+4.76, -0.86, -0.12]` та острівець `[+3.55, -0.35, +0.60]`);
+* **Вісь `-X`:** **Анатомічна права півкуля головного мозку**.
+Під час вибору структур лівої півкулі камера автоматично розташовується з лівого передньо-бокового боку для прямого анатомічного огляду.
+
+### 4. Симулятор 5 патологій ЦНС
+Керування за допомогою кнопок **`▶ Запустити симуляцію`**, **`⏸ Пауза`** та **`↺ Скинути ЦНС`**:
+1. **Нормальна фізіологія:** Гамма-ритм 40 Гц, бездоганне сальтаторне проведення, баланс глутамату та ГАМК.
+2. **Хвороба Альцгеймера:** Селективна атрофія гіпокампа, сенильні бляшки бета-амілоїду, нейрофібрилярні клубки Тау-білка та холінергічний колапс.
+3. **Хвороба Паркінсона:** Загибель дофамінергічних нейронів чорної речовини, дефіцит дофаміну в смугастому тілі та тремор спокою 4–6 Гц.
+4. **Ішемічний інсульт середньої мозкової артерії:** Інфаркт у зоні Брока та моторній корі з масивною глутаматною ексайтотоксичністю та цитотоксичним набряком.
+5. **Розсіяний склероз:** Автоімунна демієлінізація у провідних шляхах спинного мозку та стовбура з блокуванням проведення в перехопах Ранв'є.
+6. **Хвороба Кройтцфельдта — Якоба (ХКЯ — Пріони):** Блискавична спонгіформна дегенерація, автокаталітична конверсія PrPC $\to$ PrPSc, симптом хокейної ключки в таламусі та позитивний тест RT-QuIC.
+
+### 5. Зворотна навігація та доступність
+* **Кнопка `🏠 Повернутися до початкового вигляду (ЦНС)`:** Плавний політ за 0,9 с до загального огляду ЦНС (`controls.target = (0, -25, 0)`, `camera.position = (65, 35, 220)`), що також активується клавішами `Escape` та `Home`.
+* **Зворотне масштабування колесом миші:** Віддалення (`dist > 38`) плавно повертає з мікросвіту до макрорівня без блокування камери.
+* **Синтез мовлення та доступність:** Підтримка озвучення українською мовою та сумісність зі стандартами WCAG AAA.
+
+---
+
+## 🇪🇸 Español
+
+### 1. Visión General del Proyecto
+**MOZOK v2.0** (Ucraniano: *Мозок* — "Cerebro") es un atlas tridimensional interactivo de alta precisión y simulador fisiopatológico multiescala del **Sistema Nervioso Central Humano Completo** (Encéfalo, Diencéfalo, Tronco Encefálico y Médula Espinal con cauda equina). Diseñado como un *"Google Earth neuroanatómico"*, permite navegar de forma continua y reversible entre la macroanatomía cortical y la microscopía celular de la Capa V.
+
+### 2. Arquitectura Multiescala Continua
+* **Macro (280–140 mm):** Corteza cerebral MNI152 con giros y surcos esculpidos, cerebelo y médula espinal continua que desciende hasta el cono medular y la cauda equina.
+* **Meso (140–35 mm):** Transparencia cortical progresiva mediante shader que revela 22 estructuras subcorticales: Tálamo Pulvinar, Hipocampo en arco C con fórnix, Complejo Amigdalino, Cuerpo Estriado, Hipotálamo continuo con infundíbulo e hipófisis bilobulada, y Tronco Encefálico unificado (Mesencéfalo, Puente y Bulbo con pirámides y olivas).
+* **Micro (35–5 mm):** Conectoma denso de **500 Neuronas de la Capa V**: 36 neuronas piramidales principales en ámbar dorado con dispersión subsuperficial (SSS), núcleo ámbar oscuro, nucléolo dorado brillante, ramificación de quinto orden (Ley de Rall), vainas de mielina orgánicas texturizadas y nódulos de Ranvier en azul eléctrico con potenciales de acción saltatorios en tiempo real.
+* **Nano (< 5 mm):** Hendiduras sinápticas con liberación cuántica de neurotransmisores y dinámica del líquido cefalorraquídeo con 1.200 partículas coloidales flotantes.
+
+### 3. Validación Científica MNI152 y Orientación Anatómica
+* **Eje `+Z`:** Anterior (Polo Frontal / Rostro);
+* **Eje `-Z`:** Posterior (Polo Occipital y Cerebelo);
+* **Eje `+Y`:** Superior / Dorsal;
+* **Eje `-Y`:** Inferior / Ventral;
+* **Eje `+X`:** **Hemisferio Cerebral Izquierdo Anatómico** (Área de Broca `[+4.62, +0.50, +2.39]`, Área de Wernicke `[+4.89, -0.29, -1.41]`, Corteza Motora Primaria M1 `[+3.79, +3.80, +0.43]`, Corteza Somatosensorial S1 `[+3.47, +3.65, -0.54]`, Corteza Auditiva A1 `[+4.76, -0.86, -0.12]` e Ínsula `[+3.55, -0.35, +0.60]`);
+* **Eje `-X`:** **Hemisferio Cerebral Derecho Anatómico**.
+Al seleccionar estructuras del hemisferio izquierdo, la cámara se orienta desde la vista lateral y anterior izquierda para una inspección anatómica directa y despejada.
+
+### 4. Simulador de 5 Patologías del SNC
+Control inmediato mediante botones: **`▶ Iniciar Simulación`**, **`⏸ Pausar`** y **`↺ Reiniciar SNC`**:
+1. **Fisiología Normal:** Ritmo gamma de 40 Hz, conducción saltatoria íntegra, equilibrio de glutamato y GABA.
+2. **Enfermedad de Alzheimer:** Atrofia cortico-hipocampal, placas seniles de beta-amiloide Aβ42, ovillos neurofibrilares de proteína Tau y colapso colinérgico.
+3. **Enfermedad de Parkinson:** Muerte de neuronas dopaminérgicas de la Sustancia Negra Pars Compacta y temblor de reposo de 4–6 Hz.
+4. **Ictus Isquémico de la Arteria Cerebral Media:** Infarto en el Área de Broca y M1 izquierdo con excitotoxicidad por glutamato y edema citotóxico.
+5. **Esclerosis Múltiple:** Desmielinización autoinmune en las vías de la médula espinal y el tronco encefálico.
+6. **Enfermedad de Creutzfeldt-Jakob (ECJ — Priones):** Degeneración espongiforme fulminante, conversión PrPC $\to$ PrPSc, signo talámico del palo de hockey y RT-QuIC positivo.
+
+### 5. Navegación Reversible y Accesibilidad Total
+* **Botón `🏠 Voltar à Visão Inicial (SNC)`:** Vuelo suave de 0,9 s que restablece la vista completa del SNC (`controls.target = (0, -25, 0)`, `camera.position = (65, 35, 220)`), también accionable con las teclas `Escape` o `Inicio`.
+* **Desbloqueo del Zoom con Rueda del Ratón:** Al girar la rueda hacia atrás (`dist > 38`), la cámara transiciona suavemente del microcosmo al macrocosmos sin bloquearse.
+* **Accesibilidad WCAG AAA y Síntesis de Voz:** Locución por voz IA sincronizada en los 5 idiomas y subtítulos de alto contraste.
+
+---
+
+## 🚀 Requisitos e Inicialização / How to Run
+
+### Requisitos de Hardware
+* **GPU Recomendada:** NVIDIA GeForce GTX 1650 (ou superior) para 60 FPS estáveis com MSAA e sombras em tempo real.
+* **Navegador:** Google Chrome, Microsoft Edge, Mozilla Firefox ou Safari com suporte a WebGL 2.0.
+
+### Execução Local Rápida
+Abra o terminal e execute um servidor estático local ou abra diretamente o arquivo `web/index.html`:
+```bash
+# Via Python
+python -m http.server 8080 --directory web
+
+# Ou via Node.js / npx
+npx serve web
 ```
-O script configura automaticamente a GPU dedicada (NVIDIA GeForce GTX 1650) no Registro do Windows e inicia o **MOZOK v1.0 WebGL2 Studio** em tela cheia no Chrome ou Edge. Caso o executável `godot` esteja no seu PATH, você poderá abrir também a cena nativa Godot 4.
-
-### Testes da Fundação Rust (100% dos Testes Passando)
-```cmd
-cargo test
-```
-Executa a suíte de testes de precisão espacial, navegação logarítmica, ponto flutuante, ontologias, governança de memória LRU e simulação patológica de príons.
-
----
-
-## 5. Estrutura do Repositório
-
-```text
-C:\mozok\
-├── Cargo.toml                  # Workspace Rust v1.0.0 com 8 crates
-├── run.bat                     # Launcher otimizado para GPU NVIDIA GTX 1650
-├── README.md                   # Documentação oficial v1.0.0
-├── MANIFESTO.md                # Fundamento ético de Immanuel Kant & tributo ucraniano
-├── project.godot               # Configuração do Godot 4
-├── scenes/
-│   └── main.tscn               # Cena principal 3D com HUD e botões de Tour e Narração
-├── scripts/
-│   └── main.gd                 # Controlador GDScript v1.0.0 (Shader, 500 neurônios, TTS)
-├── web/
-│   ├── index.html              # MOZOK v1.0 WebGL2 Studio (Seamless Google Earth)
-│   └── js/
-│       ├── vendor/             # Three.js r128 e OrbitControls
-│       ├── brain-mesh-data.js  # Malha cortical MNI152 (81.924 vértices reais)
-│       ├── scientific-atlas-meshes.js # Núcleos subcorticais reais (estriado, tálamo, ventrículos)
-│       └── swc-neurons-data.js # Morfologia SWC de neurônios reais
-├── rust/                       # Crates puros em Rust
-│   ├── mozok-core/             # Coordenadas 64-bit e escala contínua
-│   ├── mozok-atlas/            # Ontologias anatômicas DAG
-│   ├── mozok-navigation/       # Câmera logarítmica e floating origin
-│   ├── mozok-streaming/        # Cache governado out-of-core
-│   ├── mozok-search/           # Busca invertida de termos anatômicos
-│   ├── mozok-physiology/       # Hidrodinâmica do LCR e fenda sináptica
-│   ├── mozok-pathology/        # Propagação priônica da DCJ
-│   └── mozok-godot/            # GDExtension para integração nativa
-└── tests/
-    └── foundation_tests.rs     # Testes de integração da fundação científica
-```
-
----
-
-## 6. Licença & Compromisso Ético
-
-Distribuído sob a **Apache License, Versão 2.0** ([LICENSE](LICENSE)).  
-Inspirado na Boa Vontade (*Der gute Wille*) e no Imperativo Categórico de Immanuel Kant, e dedicado à coragem científica de Volodymyr Bets (Kyiv, 1874).
+Acesse no navegador: `http://localhost:8080`.

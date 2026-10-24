@@ -149,15 +149,16 @@
       this.currentPathology = PATHOLOGY_CATALOG.NORMAL;
       this.evolutionProgress = 0.0; // 0.0 a 1.0 (gravidade da lesão)
       this.isSimulating = false;
+      this.isPaused = false;
+      this.currentLang = 'pt-BR';
 
       this.setupUI();
     }
 
-    // [PT-BR]: Constrói e injeta o seletor de patologias na barra de navegação superior.
-    // [EN-US]: Builds and injects pathology selector in the top navigation bar.
-    // [AI-CTX]: @llm-a11y: Accessible dropdown and buttons to toggle between 5 diseases and healthy baseline.
+    // [PT-BR]: Constrói e injeta o seletor de patologias e os 3 botões de controle (Iniciar, Pausar, Reiniciar) na barra de navegação superior.
+    // [EN-GB]: Builds and injects pathology selector and the 3 control buttons (Start, Pause, Reset) in the top navigation bar.
+    // [AI-CTX]: @llm-a11y: Accessible dropdown and action buttons to control disease simulation and camera targeting.
     setupUI() {
-      // Injeção seletor de patologia na UI caso contêiner exista
       const topBar = document.querySelector('.top-controls');
       if (!topBar) return;
 
@@ -169,22 +170,23 @@
       container.style.cssText = `
         display: flex;
         align-items: center;
-        gap: 8px;
-        background: rgba(15, 23, 42, 0.9);
+        gap: 6px;
+        background: rgba(15, 23, 42, 0.92);
         border: 1px solid rgba(0, 242, 254, 0.4);
         border-radius: 10px;
-        padding: 4px 10px;
+        padding: 4px 8px;
+        flex-wrap: wrap;
       `;
 
       container.innerHTML = `
-        <span style="font-size: 12px; font-weight: 700; color: #38bdf8;">SIMULADOR DE PATOLOGIAS:</span>
+        <span id="label-pathology-title" style="font-size: 11px; font-weight: 700; color: #38bdf8;">SIMULADOR DE PATOLOGIAS:</span>
         <select id="select-pathology" style="
           background: #0f172a;
           color: #f1f5f9;
           border: 1px solid #38bdf8;
           border-radius: 6px;
-          padding: 6px 10px;
-          font-size: 12px;
+          padding: 5px 8px;
+          font-size: 11px;
           font-weight: 600;
           cursor: pointer;
           outline: none;
@@ -196,35 +198,169 @@
           <option value="MS">🛡️ Esclerose Múltipla (EM)</option>
           <option value="CJD">☣️ Doença de Creutzfeldt-Jakob (DCJ)</option>
         </select>
+        <button id="btn-start-disease" class="btn-action" style="padding: 5px 10px; font-size: 11px; background: rgba(16, 185, 129, 0.25); border-color: #10b981; color: #10b981;" title="Iniciar Simulação e Voar para Foco">
+          <span>▶ Iniciar Simulação</span>
+        </button>
+        <button id="btn-pause-disease" class="btn-action" style="padding: 5px 8px; font-size: 11px;" title="Pausar / Retomar Cascata Patológica">
+          <span>⏸ Pausar</span>
+        </button>
+        <button id="btn-reset-disease" class="btn-action" style="padding: 5px 8px; font-size: 11px; color: #fbbf24; border-color: rgba(251, 191, 36, 0.4);" title="Restaurar 100% Fisiologia Normal">
+          <span>↺ Reiniciar SNC</span>
+        </button>
       `;
 
       topBar.insertBefore(container, topBar.firstChild);
 
       const selectEl = document.getElementById('select-pathology');
       selectEl.addEventListener('change', (e) => {
-        this.setPathology(e.target.value, true);
+        this.setPathology(e.target.value, false);
+      });
+
+      const btnStart = document.getElementById('btn-start-disease');
+      btnStart.addEventListener('click', () => {
+        const val = selectEl.value === 'NORMAL' ? 'ALZHEIMER' : selectEl.value;
+        selectEl.value = val;
+        this.startDiseaseSimulation(val);
+      });
+
+      const btnPause = document.getElementById('btn-pause-disease');
+      btnPause.addEventListener('click', () => {
+        this.pauseDiseaseSimulation();
+      });
+
+      const btnReset = document.getElementById('btn-reset-disease');
+      btnReset.addEventListener('click', () => {
+        this.resetDiseaseSimulation();
       });
     }
 
+    // [PT-BR]: Inicia a simulação temporal da doença com voo automático para a região anatômica primária afetada.
+    // [EN-GB]: Starts disease temporal simulation with automatic camera flight to the primary affected anatomical region.
+    // [AI-CTX]: @llm-neuroscience: Maps primary insult region (Alzheimer -> Hippocampus, Parkinson -> Substantia Nigra, Stroke -> Broca, MS -> Spinal Cord, CJD -> Thalamus Pulvinar).
+    startDiseaseSimulation(pathologyKey) {
+      const pKey = (pathologyKey || 'ALZHEIMER').toUpperCase();
+      this.isSimulating = true;
+      this.isPaused = false;
+
+      // Mapeamento neuroanatômico da estrutura-alvo primária
+      const targetRegionMap = {
+        ALZHEIMER: 11, // Hipocampo (CA1-CA4)
+        PARKINSON: 17, // Substância Negra
+        STROKE: 3,     // Área de Broca (ACM Esquerda)
+        MS: 21,        // Medula Espinhal
+        CJD: 14,       // Tálamo (Pulvinar)
+        NORMAL: 1      // Sistema Nervoso Central Completo
+      };
+
+      const targetId = targetRegionMap[pKey] || 1;
+      if (typeof window.mozokSelectRegionById === 'function') {
+        window.mozokSelectRegionById(targetId, false);
+      }
+
+      this.setPathology(pKey, true);
+
+      const btnPause = document.getElementById('btn-pause-disease');
+      if (btnPause) {
+        btnPause.innerHTML = '<span>⏸ Pausar</span>';
+        btnPause.classList.remove('active');
+      }
+    }
+
+    // [PT-BR]: Pausa ou retoma a progressão da simulação patológica.
+    // [EN-GB]: Pauses or resumes progression of pathological simulation.
+    // [AI-CTX]: @llm-invariant: Toggles pause state and updates UI.
+    pauseDiseaseSimulation() {
+      this.isPaused = !this.isPaused;
+      const btnPause = document.getElementById('btn-pause-disease');
+      if (btnPause) {
+        if (this.isPaused) {
+          btnPause.innerHTML = '<span>▶ Retomar</span>';
+          btnPause.classList.add('active');
+        } else {
+          btnPause.innerHTML = '<span>⏸ Pausar</span>';
+          btnPause.classList.remove('active');
+        }
+      }
+    }
+
+    // [PT-BR]: Restaura 100% da fisiologia normal, zera lesões e retorna à visão macro inicial do SNC.
+    // [EN-GB]: Restores 100% normal physiology, zeroes lesions and returns to initial CNS macro view.
+    // [AI-CTX]: @llm-neuroscience: Resets baseline biomarkers, clears lesions, and returns camera to macro home.
+    resetDiseaseSimulation() {
+      this.isSimulating = false;
+      this.isPaused = false;
+      const selectEl = document.getElementById('select-pathology');
+      if (selectEl) selectEl.value = 'NORMAL';
+
+      this.setPathology('NORMAL', false);
+
+      if (typeof window.mozokReturnToMacro === 'function') {
+        window.mozokReturnToMacro();
+      }
+
+      const btnPause = document.getElementById('btn-pause-disease');
+      if (btnPause) {
+        btnPause.innerHTML = '<span>⏸ Pausar</span>';
+        btnPause.classList.remove('active');
+      }
+    }
+
+    // [PT-BR]: Atualiza todos os textos para o idioma selecionado (5 idiomas suportados).
+    // [EN-GB]: Updates all texts to the selected language (5 supported languages).
+    // [AI-CTX]: @llm-a11y: Multi-language reactivity using window.MOZOK_I18N.
+    setLanguage(langCode) {
+      this.currentLang = langCode || 'pt-BR';
+      if (!window.MOZOK_I18N) return;
+
+      const t = (k) => window.MOZOK_I18N.t(k, this.currentLang);
+
+      const titleEl = document.getElementById('label-pathology-title');
+      if (titleEl) titleEl.textContent = t('btnPathologies') || 'SIMULADOR DE PATOLOGIAS:';
+
+      const btnStart = document.getElementById('btn-start-disease');
+      if (btnStart) btnStart.innerHTML = `<span>▶ ${t('btnStartSim') || 'Iniciar Simulação'}</span>`;
+
+      const btnPause = document.getElementById('btn-pause-disease');
+      if (btnPause) btnPause.innerHTML = `<span>⏸ ${t('btnPause') || 'Pausar'}</span>`;
+
+      const btnReset = document.getElementById('btn-reset-disease');
+      if (btnReset) btnReset.innerHTML = `<span>↺ ${t('btnResetSim') || 'Reiniciar SNC'}</span>`;
+
+      // Atualiza o card ativo
+      if (this.currentPathology && this.currentPathology.id) {
+        this.setPathology(this.currentPathology.id, false);
+      }
+    }
+
     // [PT-BR]: Define a patologia ativa e atualiza simultaneamente a macroanatomia 3D, o zoom microscópico e a telemetria.
-    // [EN-US]: Sets active pathology and simultaneously updates 3D macroanatomy, microscopic zoom, and telemetry.
+    // [EN-GB]: Sets active pathology and simultaneously updates 3D macroanatomy, microscopic zoom, and telemetry.
     // [AI-CTX]: @llm-neuroscience: Triggers auditory narration and synchronizes with VLibras.
     setPathology(pathologyKey, triggerNarration = true) {
-      const p = PATHOLOGY_CATALOG[pathologyKey] || PATHOLOGY_CATALOG.NORMAL;
+      const pKey = (pathologyKey || 'NORMAL').toUpperCase();
+      let p = PATHOLOGY_CATALOG[pKey] || PATHOLOGY_CATALOG.NORMAL;
+
+      // Integração com dicionário i18n caso disponível
+      if (window.MOZOK_I18N && typeof window.MOZOK_I18N.getPathology === 'function') {
+        const localized = window.MOZOK_I18N.getPathology(pKey, this.currentLang);
+        if (localized) {
+          p = { ...p, ...localized };
+        }
+      }
+
       this.currentPathology = p;
-      this.evolutionProgress = pathologyKey === 'NORMAL' ? 0.0 : 0.85;
+      this.evolutionProgress = pKey === 'NORMAL' ? 0.0 : 0.85;
 
       // 1. Atualiza Microcosmo 3D (Neurônios, Mielina, Vesículas e LCR)
       if (this.neuralMicrocosmos && typeof this.neuralMicrocosmos.setPathology === 'function') {
-        this.neuralMicrocosmos.setPathology(pathologyKey);
+        this.neuralMicrocosmos.setPathology(pKey);
       }
       if (window.proteinSim && typeof window.proteinSim.applyPathologyMode === 'function') {
-        window.proteinSim.applyPathologyMode(pathologyKey);
+        window.proteinSim.applyPathologyMode(pKey);
       }
 
       // 1.1 Atualiza dano na macroanatomia (Cavitação Worley cortical)
       if (this.cnsAnatomy && typeof this.cnsAnatomy.setDamage === 'function') {
-        const damageVal = (pathologyKey === 'NORMAL') ? 0.0 : (pathologyKey === 'CJD' ? 1.0 : 0.65);
+        const damageVal = (pKey === 'NORMAL') ? 0.0 : (pKey === 'CJD' ? 1.0 : 0.65);
         this.cnsAnatomy.setDamage(damageVal);
       }
 
@@ -251,7 +387,7 @@
 
       // 4. Narração Neural IA + Tradução VLibras
       if (triggerNarration && window.MozokAINarrator) {
-        window.MozokAINarrator.speak(p.audioScript);
+        window.MozokAINarrator.speak(p.audioScript, this.currentLang);
       }
     }
 
