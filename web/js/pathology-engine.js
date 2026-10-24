@@ -215,8 +215,17 @@
       this.evolutionProgress = pathologyKey === 'NORMAL' ? 0.0 : 0.85;
 
       // 1. Atualiza Microcosmo 3D (Neurônios, Mielina, Vesículas e LCR)
-      if (this.neuralMicrocosmos) {
+      if (this.neuralMicrocosmos && typeof this.neuralMicrocosmos.setPathology === 'function') {
         this.neuralMicrocosmos.setPathology(pathologyKey);
+      }
+      if (window.proteinSim && typeof window.proteinSim.applyPathologyMode === 'function') {
+        window.proteinSim.applyPathologyMode(pathologyKey);
+      }
+
+      // 1.1 Atualiza dano na macroanatomia (Cavitação Worley cortical)
+      if (this.cnsAnatomy && typeof this.cnsAnatomy.setDamage === 'function') {
+        const damageVal = (pathologyKey === 'NORMAL') ? 0.0 : (pathologyKey === 'CJD' ? 1.0 : 0.65);
+        this.cnsAnatomy.setDamage(damageVal);
       }
 
       // 2. Atualiza Telemetria e Biomarcadores na interface
