@@ -1,15 +1,15 @@
-// [PT-BR]: Motor de Narração Neural Natural e Integração com VLibras (Tradução Simultânea em Libras).
-// [EN-US]: Natural Neural AI Voice Narrator Engine and VLibras Integration (Simultaneous Sign Language Translation).
-// [AI-CTX]: @llm-context: Accessibility bridge linking Web Speech API with VLibras widget for WCAG AAA compliance.
-//           @llm-invariant: Dispatches spoken text to VLibras DOM elements or API and controls synchronized subtitles.
+// [PT-BR]: Motor de Narração Neural Natural em 3 Camadas e Integração com VLibras (Tradução Simultânea em Libras).
+// [EN-GB]: 3-Tier Natural Neural AI Voice Narrator Engine and VLibras Integration (Simultaneous Sign Language Translation).
+// [AI-CTX]: @llm-context: Accessibility bridge linking Edge-TTS/Zorya Local, Web Speech API (natural voices), and VLibras for WCAG AAA compliance.
+//           @llm-invariant: 3-tier voice synthesis (Tier 1: Zorya/Svitlo Neural HTTP; Tier 2: Edge/Chrome Natural voices with 140ms respiratory pauses; Tier 3: Subtitles + VLibras).
+//           @llm-neuroscience: Natural human prosody for clinical and anatomical neurobiology explanations.
 //           @llm-a11y: WCAG AAA compliant screen-reader friendly speech and sign language bridge.
 
 (function (window) {
   'use strict';
 
-  // [PT-BR]: Classe controladora da narração de voz e sincronização com VLibras.
-  // [EN-US]: Controller class for speech narration and VLibras synchronization.
-  // [AI-CTX]: @llm-neuroscience: Speaks neurological descriptions and relays text to Libras 3D avatar.
+  // [PT-BR]: Classe controladora da narração neural e sincronização com VLibras.
+  // [EN-GB]: Controller class for neural voice narration and VLibras synchronization.
   class MozokAINarrator {
     constructor() {
       // [PT-BR]: Estado de ativação de voz, legendas, VLibras e idioma ativo (5 idiomas suportados).
@@ -22,15 +22,68 @@
       this.voicesByLang = {};
       this.subtitleEl = null;
       this.subtitleTimeout = null;
+      this.sentenceTimeout = null;
+      this.currentAudio = null;
+
+      // [PT-BR]: Cache em memória de ObjectURLs para síntese neural instantânea (Tier 1).
+      // [EN-GB]: In-memory cache of ObjectURLs for instant neural synthesis (Tier 1).
+      this.audioCache = new Map();
+
+      // [PT-BR]: Endpoints neurais oficiais locais e remotos para síntese de alta fidelidade.
+      // [EN-GB]: Official local and remote neural endpoints for high-fidelity speech synthesis.
+      this.neuralEndpoints = [
+        'http://127.0.0.1:8085/api/v1/voice/tts',
+        'https://svitlo.espectroipe.com.br/api/v1/svitlo/tts/explain'
+      ];
+
+      // [PT-BR]: Vozes neurais oficiais por código de idioma.
+      // [EN-GB]: Official neural voices per language code.
+      this.neuralVoices = {
+        'pt-BR': 'pt-BR-FranciscaNeural',
+        'en-GB': 'en-GB-SoniaNeural',
+        'it-IT': 'it-IT-ElsaNeural',
+        'uk-UA': 'uk-UA-PolinaNeural',
+        'es-ES': 'es-ES-ElviraNeural'
+      };
 
       this.initVoices();
       this.setupSubtitleOverlay();
       this.detectVLibras();
     }
 
-    // [PT-BR]: Inicializa e seleciona as melhores vozes para os 5 idiomas suportados (pt-BR, en-GB, it-IT, uk-UA, es-ES).
-    // [EN-GB]: Initialises and selects the best natural voices for the 5 supported languages (pt-BR, en-GB, it-IT, uk-UA, es-ES).
-    // [AI-CTX]: @llm-context: Multi-language voice selection with graceful fallback.
+    // [PT-BR]: Pontua a qualidade da voz no navegador, priorizando estritamente vozes neurais/online (Francisca, Natural, etc.).
+    // [EN-GB]: Scores browser voice quality, strictly prioritising neural/online natural voices (Francisca, Natural, etc.).
+    // [AI-CTX]: @llm-invariant: Eliminates robotic metallic voices in favor of Microsoft Natural and Google online voices.
+    scoreVoice(v, targetLang) {
+      if (!v || !v.name || !v.lang) return -1;
+      const vName = v.name.toLowerCase();
+      const vLang = v.lang.toLowerCase().replace('_', '-');
+      const target = targetLang.toLowerCase();
+      const prefix = target.split('-')[0];
+
+      let score = 0;
+      if (vLang === target) {
+        score += 40;
+      } else if (vLang.startsWith(prefix)) {
+        score += 20;
+      } else {
+        return -1;
+      }
+
+      // Critérios estritos de naturalidade e prosódia humana
+      if (vName.includes('natural')) score += 60;
+      if (vName.includes('online')) score += 45;
+      if (vName.includes('francisca')) score += 40;
+      if (vName.includes('antonio') || vName.includes('thalita')) score += 35;
+      if (vName.includes('sonia') || vName.includes('elsa') || vName.includes('polina') || vName.includes('elvira')) score += 35;
+      if (vName.includes('google')) score += 30;
+      if (vName.includes('neural')) score += 25;
+
+      return score;
+    }
+
+    // [PT-BR]: Inicializa e seleciona as melhores vozes neurais para os 5 idiomas suportados.
+    // [EN-GB]: Initialises and selects the best natural voices for the 5 supported languages.
     initVoices() {
       if (!('speechSynthesis' in window)) {
         console.warn('[MozokAINarrator] Web Speech API não suportada neste navegador.');
@@ -43,17 +96,22 @@
 
         const langTargets = ['pt-BR', 'en-GB', 'it-IT', 'uk-UA', 'es-ES'];
         langTargets.forEach(target => {
-          const prefix = target.split('-')[0].toLowerCase();
-          // Prioriza vozes com o código exato ou que comecem com o prefixo
-          let match = voices.find(v => v.lang.toLowerCase() === target.toLowerCase()) ||
-                      voices.find(v => v.lang.toLowerCase().replace('_', '-').startsWith(target.toLowerCase())) ||
-                      voices.find(v => v.lang.toLowerCase().startsWith(prefix));
-          if (match) {
-            this.voicesByLang[target] = match;
+          let bestVoice = null;
+          let bestScore = -1;
+
+          voices.forEach(v => {
+            const score = this.scoreVoice(v, target);
+            if (score > bestScore) {
+              bestScore = score;
+              bestVoice = v;
+            }
+          });
+
+          if (bestVoice) {
+            this.voicesByLang[target] = bestVoice;
           }
         });
 
-        // Configura voz atual
         this.currentVoice = this.voicesByLang[this.currentLang] || voices[0] || null;
       };
 
@@ -65,7 +123,6 @@
 
     // [PT-BR]: Altera o idioma da síntese de voz (pt-BR, en-GB, it-IT, uk-UA, es-ES).
     // [EN-GB]: Changes speech synthesis language (pt-BR, en-GB, it-IT, uk-UA, es-ES).
-    // [AI-CTX]: @llm-invariant: Dynamically updates active voice.
     setLanguage(langCode) {
       if (!langCode) return;
       this.currentLang = langCode;
@@ -79,8 +136,7 @@
     }
 
     // [PT-BR]: Configura contêiner de legendas flutuantes sincronizadas na tela para acessibilidade WCAG AAA.
-    // [EN-US]: Configures floating synchronized subtitles overlay on screen for WCAG AAA accessibility.
-    // [AI-CTX]: @llm-a11y: High contrast, large font, aria-live polite subtitle container.
+    // [EN-GB]: Configures floating synchronized subtitles overlay on screen for WCAG AAA accessibility.
     setupSubtitleOverlay() {
       if (document.getElementById('mozok-subtitles-overlay')) {
         this.subtitleEl = document.getElementById('mozok-subtitles-overlay');
@@ -119,8 +175,7 @@
     }
 
     // [PT-BR]: Detecta a presença do plugin oficial VLibras na página.
-    // [EN-US]: Detects presence of official VLibras plugin in the page.
-    // [AI-CTX]: @llm-context: Observes window.VLibras or widget wrapper.
+    // [EN-GB]: Detects presence of official VLibras plugin in the page.
     detectVLibras() {
       const check = () => {
         if (window.VLibras || document.querySelector('[vw]') || document.querySelector('.vw-plugin-wrapper')) {
@@ -133,27 +188,18 @@
     }
 
     // [PT-BR]: Envia texto falado para o componente VLibras executar a tradução em Libras.
-    // [EN-US]: Sends spoken text to the VLibras component to perform sign language translation.
-    // [AI-CTX]: @llm-context: Accesses VLibras widget API or clicks/sets active translation buffer.
+    // [EN-GB]: Sends spoken text to the VLibras component to perform sign language translation.
     syncSpeechWithVLibras(text) {
       if (!text) return;
-
-      // [PT-BR]: Exibe a legenda na tela sincronizada.
-      // [EN-US]: Displays synchronized subtitle on screen.
       this.showSubtitle(text);
 
-      // [PT-BR]: Se o VLibras estiver carregado, interage com a API interna do widget ou força tradução.
-      // [EN-US]: If VLibras is loaded, interacts with the widget internal API or triggers translation.
-      // [AI-CTX]: @llm-invariant: Safe fallback checking multiple hooks exposed by vlibras-plugin.js.
       try {
         if (window.plugin && typeof window.plugin.translate === 'function') {
           window.plugin.translate(text);
         } else if (window.VLibras && window.VLibras.Widget) {
-          // [PT-BR]: Tentativa de disparar pelo widget global
-          // [EN-US]: Attempt to trigger through global widget
           const widgetEl = document.querySelector('[vw-access-button]');
           if (widgetEl && !document.querySelector('.vw-plugin-top-wrapper.active')) {
-            // Se o widget não estiver aberto, abre para traduzir se desejado
+            // Widget ready
           }
         }
       } catch (err) {
@@ -162,8 +208,7 @@
     }
 
     // [PT-BR]: Exibe a legenda sincronizada na tela por tempo proporcional ao comprimento do texto.
-    // [EN-US]: Displays synchronized subtitle on screen for time proportional to text length.
-    // [AI-CTX]: @llm-a11y: Ensures reading time based on ~180 words per minute.
+    // [EN-GB]: Displays synchronized subtitle on screen for time proportional to text length.
     showSubtitle(text) {
       if (!this.subtitleEl) this.setupSubtitleOverlay();
       if (!this.subtitleEl) return;
@@ -174,7 +219,6 @@
 
       if (this.subtitleTimeout) clearTimeout(this.subtitleTimeout);
 
-      // Duração calculada baseada na quantidade de caracteres (mínimo 4s, ~50ms por caractere)
       const durationMs = Math.max(4000, text.length * 65);
       this.subtitleTimeout = setTimeout(() => {
         if (this.subtitleEl) {
@@ -186,49 +230,145 @@
       }, durationMs);
     }
 
-    // [PT-BR]: Sintetiza e fala um texto, ativando simultaneamente o VLibras e as legendas.
-    // [PT-BR]: Sintetiza e fala um texto no idioma selecionado, ativando simultaneamente o VLibras e as legendas.
-    // [EN-GB]: Synthesises and speaks text in selected language, concurrently triggering VLibras and subtitles.
-    // [AI-CTX]: @llm-neuroscience: Speaks clinical and anatomical data in 5 supported languages (pt-BR, en-GB, it-IT, uk-UA, es-ES).
-    speak(text, langCode) {
-      if (!text) return;
-      this.syncSpeechWithVLibras(text);
-
-      if (!this.isVoiceEnabled || !('speechSynthesis' in window)) {
-        return;
+    // [PT-BR]: Camada 1: Tenta sintetizar áudio via Servidor Neural Local (Zorya) ou Edge-TTS HTTP com timeout de 2500ms.
+    // [EN-GB]: Tier 1: Attempts neural audio synthesis via Local Neural Server (Zorya) or Edge-TTS HTTP with 2500ms timeout.
+    // [AI-CTX]: @llm-context: High-fidelity natural speech using official neural voices (Francisca, Sonia, Elsa, Polina, Elvira).
+    async trySynthesizeNeural(text, langCode) {
+      const cacheKey = `${langCode}:${text}`;
+      if (this.audioCache.has(cacheKey)) {
+        return this.audioCache.get(cacheKey);
       }
 
-      window.speechSynthesis.cancel();
+      const voice = this.neuralVoices[langCode] || this.neuralVoices['pt-BR'];
 
-      const targetLang = langCode || this.currentLang || 'pt-BR';
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = targetLang;
-      utterance.rate = 1.02;
-      utterance.pitch = 1.0;
+      for (const endpoint of this.neuralEndpoints) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2500);
 
-      const voice = this.voicesByLang[targetLang] || this.currentVoice;
-      if (voice) {
-        utterance.voice = voice;
+        try {
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, voice, lang: langCode }),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+
+          if (response.ok) {
+            const blob = await response.blob();
+            const objectUrl = URL.createObjectURL(blob);
+            this.audioCache.set(cacheKey, objectUrl);
+            return objectUrl;
+          }
+        } catch (err) {
+          clearTimeout(timeoutId);
+          // Continua para o próximo endpoint ou fallback
+        }
       }
 
-      utterance.onend = () => {
-        // Finalização da fala
-      };
-
-      utterance.onerror = (e) => {
-        console.warn('[MozokAINarrator] Erro na síntese:', e);
-      };
-
-      window.speechSynthesis.speak(utterance);
+      return null;
     }
 
-    // [PT-BR]: Interrompe qualquer narração em andamento.
-    // [EN-US]: Cancels any ongoing speech narration.
-    // [AI-CTX]: @llm-invariant: Stops synthesis and hides current subtitles.
-    stop() {
+    // [PT-BR]: Camada 2: Fallback Web Speech API com segmentação por frases e pausas respiratórias de 140ms.
+    // [EN-GB]: Tier 2: Web Speech API fallback with sentence segmentation and 140ms natural respiratory pauses.
+    speakWebSpeechFallback(text, targetLang) {
+      if (!('speechSynthesis' in window)) return;
+
+      window.speechSynthesis.cancel();
+      if (this.sentenceTimeout) clearTimeout(this.sentenceTimeout);
+
+      // Divide em períodos mantendo a pontuação final (. ? ! ; :)
+      const rawSentences = text.match(/[^.?!;:]+[.?!;:]+/g) || [text];
+      const sentences = rawSentences.map(s => s.trim()).filter(s => s.length > 0);
+
+      let idx = 0;
+      const speakNextSentence = () => {
+        if (!this.isVoiceEnabled || idx >= sentences.length) return;
+        const sentence = sentences[idx];
+        idx++;
+
+        const utterance = new SpeechSynthesisUtterance(sentence);
+        utterance.lang = targetLang;
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+
+        const voice = this.voicesByLang[targetLang] || this.currentVoice;
+        if (voice) {
+          utterance.voice = voice;
+        }
+
+        utterance.onend = () => {
+          // [PT-BR]: Pausa respiratória natural de 140ms entre períodos
+          // [EN-GB]: Natural 140ms respiratory pause between sentences
+          this.sentenceTimeout = setTimeout(() => {
+            speakNextSentence();
+          }, 140);
+        };
+
+        utterance.onerror = (e) => {
+          console.warn('[MozokAINarrator] Erro na oração Web Speech:', e);
+          speakNextSentence();
+        };
+
+        window.speechSynthesis.speak(utterance);
+      };
+
+      speakNextSentence();
+    }
+
+    // [PT-BR]: Sintetiza e fala o texto em 3 camadas determinísticas com sincronização integral de legendas e VLibras.
+    // [EN-GB]: Synthesises and speaks text across 3 deterministic tiers with full subtitles and VLibras synchronization.
+    // [AI-CTX]: @llm-neuroscience: Speaks clinical, neurophysiological, and anatomical data with natural human prosody.
+    async speak(text, langCode) {
+      if (!text) return;
+      const targetLang = langCode || this.currentLang || 'pt-BR';
+
+      // Sincroniza legendas WCAG AAA e avatar VLibras
+      this.syncSpeechWithVLibras(text);
+
+      if (!this.isVoiceEnabled) return;
+
+      this.stopAudioOnly();
+
+      // Camada 1: Servidor Neural Local / Zorya / Edge-TTS HTTP
+      try {
+        const neuralUrl = await this.trySynthesizeNeural(text, targetLang);
+        if (neuralUrl) {
+          const audio = new Audio(neuralUrl);
+          this.currentAudio = audio;
+          audio.playbackRate = 1.0;
+          await audio.play();
+          return;
+        }
+      } catch (err) {
+        console.warn('[MozokAINarrator] Falha no Tier 1 Neural, acionando Tier 2 Web Speech:', err);
+      }
+
+      // Camada 2: Fallback Web Speech API com vozes neurais e pausas de 140ms
+      this.speakWebSpeechFallback(text, targetLang);
+    }
+
+    // [PT-BR]: Interrompe a reprodução de áudio sem apagar as legendas imediatamente.
+    // [EN-GB]: Stops audio playback without clearing subtitles immediately.
+    stopAudioOnly() {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
+      if (this.sentenceTimeout) {
+        clearTimeout(this.sentenceTimeout);
+        this.sentenceTimeout = null;
+      }
+      if (this.currentAudio) {
+        this.currentAudio.pause();
+        this.currentAudio.currentTime = 0;
+        this.currentAudio = null;
+      }
+    }
+
+    // [PT-BR]: Interrompe qualquer narração em andamento e fecha as legendas.
+    // [EN-GB]: Cancels any ongoing speech narration and hides subtitles.
+    stop() {
+      this.stopAudioOnly();
       if (this.subtitleEl) {
         this.subtitleEl.style.opacity = '0';
         this.subtitleEl.style.display = 'none';
@@ -237,8 +377,7 @@
     }
 
     // [PT-BR]: Alterna ativação da voz sintética (ON/OFF).
-    // [EN-US]: Toggles synthetic voice state (ON/OFF).
-    // [AI-CTX]: @llm-a11y: Provides explicit state switch for user preference.
+    // [EN-GB]: Toggles synthetic voice state (ON/OFF).
     toggleVoice(forceState) {
       this.isVoiceEnabled = forceState !== undefined ? forceState : !this.isVoiceEnabled;
       if (!this.isVoiceEnabled) {
@@ -249,7 +388,7 @@
   }
 
   // [PT-BR]: Instanciação do singleton global no namespace window.
-  // [EN-US]: Instantiation of global singleton in the window namespace.
+  // [EN-GB]: Instantiation of global singleton in the window namespace.
   // [AI-CTX]: @llm-invariant: window.MozokAINarrator available across all modules.
   window.MozokAINarrator = new MozokAINarrator();
 

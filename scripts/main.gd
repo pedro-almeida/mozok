@@ -381,20 +381,26 @@ func _create_visual_proxies() -> void:
 	
 	var shader = Shader.new()
 	shader.code = """
+	// [PT-BR]: Shader Cortical MNI152 Translucido de Alta Fidelidade (Padrao Firefly)
+	// [EN-GB]: High-Fidelity Translucent MNI152 Cortical Shader (Firefly Reference Standard)
+	// [AI-CTX]: @llm-neuroscience: Dual-band Fresnel with stereotaxic grid exposing illuminated subcortical nuclei.
 	shader_type spatial;
-	render_mode blend_mix, depth_draw_opaque, cull_back;
+	render_mode blend_mix, depth_draw_always, cull_back;
 
 	uniform float camera_dist_mm = 220.0;
-	uniform vec4 cortex_color : source_color = vec4(0.86, 0.76, 0.72, 1.0);
-	uniform vec4 sulcus_color : source_color = vec4(0.38, 0.28, 0.32, 1.0);
+	uniform vec4 cortex_color : source_color = vec4(0.82, 0.84, 0.88, 1.0);
+	uniform vec4 sulcus_color : source_color = vec4(0.18, 0.20, 0.25, 1.0);
+	uniform vec4 fresnel_outer_color : source_color = vec4(0.576, 0.773, 0.992, 1.0); // #93c5fd
+	uniform vec4 fresnel_inner_color : source_color = vec4(0.0, 0.949, 0.996, 1.0);   // #00f2fe
 	uniform float gyri_frequency = 0.14;
 	uniform float gyri_depth = 3.6;
-	uniform float roughness : hint_range(0.0, 1.0) = 0.45;
-	uniform float rim_strength : hint_range(0.0, 1.0) = 0.65;
+	uniform float roughness : hint_range(0.0, 1.0) = 0.25;
 
 	varying float v_gyrus;
+	varying vec3 v_obj_pos;
 
 	void vertex() {
+		v_obj_pos = VERTEX;
 		// Multi-harmonic domain warping for anatomical cortical gyri & deep sulci
 		float g1 = sin(VERTEX.x * gyri_frequency * 1.4 + cos(VERTEX.y * gyri_frequency)) * cos(VERTEX.z * gyri_frequency * 1.2);
 		float g2 = sin(VERTEX.y * gyri_frequency * 2.0 + VERTEX.z * gyri_frequency) * 0.45;
@@ -406,28 +412,34 @@ func _create_visual_proxies() -> void:
 	}
 
 	void fragment() {
-		// Continuous zoom-based transparency:
-		// > 140 mm: 1.0 (opaque cortical lobes)
-		// 15 to 140 mm: 0.18 to 0.95 (translucent anatomical X-ray glass)
-		// < 15 mm: 0.02 (near transparent revealing micro-connectome inside)
-		float alpha = 1.0;
+		vec3 N = normalize(NORMAL);
+		vec3 V = normalize(VIEW);
+		float NdotV = max(dot(N, V), 0.0);
+		float fresnel_outer = pow(1.0 - NdotV, 2.4);
+		float fresnel_inner = pow(1.0 - NdotV, 4.8);
+
+		float sulcal_ao = clamp((v_gyrus + 1.2) * 0.45, 0.0, 1.0);
+		float grid_line = smoothstep(0.96, 0.99, abs(sin(v_obj_pos.x * 6.0)) + abs(sin(v_obj_pos.y * 6.0)) * 0.5) * 0.14 * sulcal_ao;
+
+		float base_alpha = 0.42;
 		if (camera_dist_mm > 140.0) {
-			alpha = 1.0;
+			base_alpha = 0.42;
 		} else if (camera_dist_mm >= 15.0) {
 			float t = (camera_dist_mm - 15.0) / (140.0 - 15.0);
-			alpha = mix(0.18, 0.95, t * t);
+			base_alpha = mix(0.12, 0.42, t);
 		} else {
-			alpha = mix(0.02, 0.18, camera_dist_mm / 15.0);
+			base_alpha = 0.04;
 		}
 
-		float blend = clamp((v_gyrus + 1.2) * 0.45, 0.0, 1.0);
-		vec3 base = mix(sulcus_color.rgb, cortex_color.rgb, blend);
+		float alpha = clamp(base_alpha * (0.18 + 0.52 * fresnel_outer + 0.15 * (1.0 - sulcal_ao)), 0.08, 0.88);
 
-		ALBEDO = base;
+		vec3 base = mix(sulcus_color.rgb, cortex_color.rgb, sulcal_ao);
+		vec3 fresnel_glow = fresnel_outer * fresnel_outer_color.rgb * 0.8 + fresnel_inner * fresnel_inner_color.rgb * 1.2;
+		vec3 final_rgb = base * 0.35 + fresnel_glow + vec3(0.0, 0.95, 1.0) * grid_line;
+
+		ALBEDO = final_rgb;
 		ROUGHNESS = roughness;
-		SPECULAR = 0.45;
-		RIM = rim_strength;
-		RIM_TINT = 0.35;
+		SPECULAR = 0.5;
 		ALPHA = alpha;
 	}
 	"""
@@ -765,11 +777,29 @@ func narrate_region(id: int) -> void:
 	var speech_text = reg.get("audio_script", reg["name"])
 	_speak_tts(speech_text)
 
+# [PT-BR]: Sintese de voz TTS nativa priorizando vozes neurais / Francisca / Natural.
+# [EN-GB]: Native TTS voice synthesis prioritising neural / Francisca / Natural voices.
+# [AI-CTX]: @llm-context: Queries available system voices prioritizing Natural and Francisca.
 func _speak_tts(text: String) -> void:
 	DisplayServer.tts_stop()
 	var voices = DisplayServer.tts_get_voices_for_language("pt")
 	var voice_id = ""
-	if voices.size() > 0:
+	var best_score = -1
+	for v in voices:
+		var v_name = v.to_lower()
+		var score = 0
+		if "natural" in v_name:
+			score += 50
+		if "francisca" in v_name:
+			score += 40
+		if "neural" in v_name:
+			score += 30
+		if "online" in v_name:
+			score += 20
+		if score > best_score:
+			best_score = score
+			voice_id = v
+	if voice_id == "" and voices.size() > 0:
 		voice_id = voices[0]
 	DisplayServer.tts_speak(text, voice_id)
 

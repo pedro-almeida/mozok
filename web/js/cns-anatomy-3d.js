@@ -605,6 +605,7 @@
       this.buildPhotorealisticMNICortex();
       this.buildAtlasSubcorticalStructures();
       this.buildContinuousBrainstemAndSpinalCord();
+      this.buildThalamocorticalRadiations();
     }
 
     // [PT-BR]: Constrói o Córtex MNI152 Real com coordenadas originais sem rotação (Z>0 anterior, Z<0 posterior, X>0 esquerdo, X<0 direito).
@@ -801,10 +802,29 @@
 
           vec3 H1 = normalize(uLightDir1 + V);
           float spec = pow(max(dot(N, H1), 0.0), specPower) * specStrength * (1.0 - poreDepth);
-          float fresnel = pow(1.0 - max(dot(N, V), 0.0), 3.0) * 0.22 * sulcalAO;
 
-          vec3 finalRGB = baseColor * (0.28 + 0.72 * diff1 + diff2) + vec3(spec + fresnel);
-          gl_FragColor = vec4(finalRGB, uOpacity);
+          // [PT-BR]: Dupla banda Fresnel em azul-gelo (#93c5fd) e ciano bioluminescente (#00f2fe).
+          // [EN-GB]: Dual-band Fresnel in ice-blue (#93c5fd) and bioluminescent cyan (#00f2fe).
+          // [AI-CTX]: @llm-neuroscience: Multi-layered vitreous rim glow revealing subcortical nuclei.
+          float fresnelOuter = pow(1.0 - max(dot(N, V), 0.0), 2.4);
+          float fresnelInner = pow(1.0 - max(dot(N, V), 0.0), 4.8);
+          vec3 fresnelOuterColor = vec3(0.576, 0.773, 0.992); // #93c5fd
+          vec3 fresnelInnerColor = vec3(0.000, 0.949, 0.996); // #00f2fe
+          vec3 fresnelGlow = fresnelOuter * fresnelOuterColor * 0.85 + fresnelInner * fresnelInnerColor * 1.25;
+
+          // [PT-BR]: Malha topográfica sutil de linhas de contorno estereotáxicas MNI152 sobre os giros.
+          // [EN-GB]: Subtle topographic grid of MNI152 stereotaxic contour lines over gyri.
+          // [AI-CTX]: @llm-invariant: Mathematical stereotaxic grid over cortical gyri pattern.
+          float gridLine = smoothstep(0.96, 0.99, abs(sin(vObjPos.x * 6.0)) + abs(sin(vObjPos.y * 6.0)) * 0.5) * 0.14 * sulcalAO;
+          vec3 gridColor = vec3(0.000, 0.949, 0.996); // #00f2fe
+
+          // [PT-BR]: Transparência adaptativa por ângulo de visão com depthWrite: false para visibilidade subcortical.
+          // [EN-GB]: Adaptive view-angle transparency with depthWrite: false for subcortical visibility.
+          // [AI-CTX]: @llm-invariant: Reveals Corpus Callosum, Thalamus, Striatum, Hippocampus, and Ventricles inside.
+          float alpha = clamp(uOpacity * (0.18 + 0.52 * fresnelOuter + 0.15 * (1.0 - sulcalAO)), 0.12, 0.95);
+
+          vec3 finalRGB = baseColor * (0.28 + 0.72 * diff1 + diff2) + vec3(spec) + fresnelGlow + gridLine * gridColor;
+          gl_FragColor = vec4(finalRGB, alpha);
         }
       `;
 
@@ -813,6 +833,7 @@
         vertexShader,
         fragmentShader,
         transparent: true,
+        depthWrite: false,
         side: THREE.DoubleSide
       });
 
@@ -924,10 +945,10 @@
         geo.computeVertexNormals();
 
         const mat = createPhotorealisticNeuralTissueMaterial({
-          baseColor: 0xea580c,
-          sssColor: 0xb45309,
-          rimColor: 0x38bdf8,
-          roughness: 0.30
+          baseColor: 0xf59e0b,
+          sssColor: 0xfbbf24,
+          rimColor: 0x00f2fe,
+          roughness: 0.28
         });
         const mesh = new THREE.Mesh(geo, mat);
         mesh.name = "Talamo_Pulvinar_Real";
@@ -945,13 +966,13 @@
         geo.computeVertexNormals();
 
         const mat = new THREE.MeshStandardMaterial({
-          color: 0x0ea5e9,
+          color: 0x00f2fe,
           roughness: 0.08,
-          metalness: 0.12,
+          metalness: 0.15,
           transparent: true,
-          opacity: 0.68,
-          emissive: 0x0284c7,
-          emissiveIntensity: 0.35
+          opacity: 0.75,
+          emissive: 0x00f2fe,
+          emissiveIntensity: 0.45
         });
         const mesh = new THREE.Mesh(geo, mat);
         mesh.name = "Ventriculos_Laterais_CSF";
@@ -1024,6 +1045,102 @@
       this.masterGroup.add(atlasGroup);
     }
 
+    // [PT-BR]: Feixe de 36 projeções talamocorticais bioluminescentes da Coroa Radiada com disparos sinápticos.
+    // [EN-GB]: Bundle of 36 bioluminescent thalamocortical projections of the Corona Radiata with synaptic firing points.
+    // [AI-CTX]: @llm-context: Adds corona radiata radiation fibers within the translucent cortex standard reference 1.
+    //           @llm-neuroscience: Reciprocal thalamic radiations targeting frontal (DLPFC), motor (M1), parietal (S1), and occipital cortex.
+    buildThalamocorticalRadiations() {
+      const radiationGroup = new THREE.Group();
+      radiationGroup.name = "THALAMOCORTICAL_RADIATIONS_36";
+
+      const fiberMatCyan = new THREE.MeshStandardMaterial({
+        color: 0x38bdf8,
+        roughness: 0.25,
+        emissive: 0x00f2fe,
+        emissiveIntensity: 0.65,
+        transparent: true,
+        opacity: 0.85
+      });
+
+      const fiberMatAmber = new THREE.MeshStandardMaterial({
+        color: 0xfbbf24,
+        roughness: 0.25,
+        emissive: 0xf59e0b,
+        emissiveIntensity: 0.65,
+        transparent: true,
+        opacity: 0.85
+      });
+
+      const synapseGeo = new THREE.SphereGeometry(0.055, 8, 8);
+      const synapseMatCyan = new THREE.MeshBasicMaterial({ color: 0x00f2fe });
+      const synapseMatAmber = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+
+      // 36 Projeções Talamocorticais (18 por hemisfério) irradiando para frontal, motor, parietal e occipital
+      const corticalTargets = [
+        // Frontal & Pré-Frontal (DLPFC / Polo Frontal)
+        new THREE.Vector3(1.2, 1.2, 4.2),
+        new THREE.Vector3(2.5, 1.8, 4.0),
+        new THREE.Vector3(3.2, 2.2, 3.2),
+        new THREE.Vector3(3.8, 1.0, 3.5),
+        // Motor Primário (M1 / Giro Pré-Central)
+        new THREE.Vector3(1.8, 4.0, 1.2),
+        new THREE.Vector3(3.2, 3.8, 0.6),
+        new THREE.Vector3(4.2, 3.2, 0.2),
+        new THREE.Vector3(2.2, 4.4, 0.0),
+        // Parietal & Somatossensorial (S1 / Giro Pós-Central)
+        new THREE.Vector3(2.8, 3.9, -0.8),
+        new THREE.Vector3(4.0, 3.0, -1.2),
+        new THREE.Vector3(2.2, 3.6, -2.0),
+        new THREE.Vector3(3.5, 2.2, -2.5),
+        // Occipital (Córtex Visual Primário V1 / Polo Occipital)
+        new THREE.Vector3(1.2, 0.8, -4.6),
+        new THREE.Vector3(2.2, 1.2, -4.2),
+        new THREE.Vector3(1.6, 2.2, -3.8),
+        // Temporal Superior & Médio
+        new THREE.Vector3(4.2, -0.4, 1.2),
+        new THREE.Vector3(4.5, -0.8, -0.8),
+        new THREE.Vector3(3.8, -1.2, -2.0)
+      ];
+
+      [-1, 1].forEach((hemiSign) => {
+        const thalamusOrigin = new THREE.Vector3(hemiSign * 0.95, -0.75, -0.85);
+
+        corticalTargets.forEach((target, idx) => {
+          const hemiTarget = new THREE.Vector3(target.x * hemiSign, target.y, target.z);
+          // CatmullRomCurve3 de 5 pontos com TubeGeometry delgado radius = 0.028
+          const p0 = thalamusOrigin.clone();
+          const p1 = new THREE.Vector3(
+            hemiSign * (0.95 + 0.45 * Math.sin(idx)),
+            -0.25 + 0.35 * Math.cos(idx * 0.5),
+            -0.65 + 0.25 * Math.sin(idx * 0.7)
+          );
+          const p2 = p0.clone().lerp(hemiTarget, 0.45).add(new THREE.Vector3(hemiSign * 0.35, 0.45, (Math.sin(idx * 2.0) - 0.5) * 0.4));
+          const p3 = p0.clone().lerp(hemiTarget, 0.75).add(new THREE.Vector3(hemiSign * 0.15, 0.25, (Math.cos(idx * 2.0) - 0.5) * 0.3));
+          const p4 = hemiTarget.clone();
+
+          const curve = new THREE.CatmullRomCurve3([p0, p1, p2, p3, p4]);
+          const tubeGeo = new THREE.TubeGeometry(curve, 20, 0.028, 6, false);
+          const mat = (idx % 2 === 0) ? fiberMatCyan : fiberMatAmber;
+          const tubeMesh = new THREE.Mesh(tubeGeo, mat);
+          radiationGroup.add(tubeMesh);
+
+          // Ponto de disparo sináptico luminoso (#38bdf8 e #fbbf24)
+          const synMeshCortical = new THREE.Mesh(synapseGeo, (idx % 2 === 0) ? synapseMatCyan : synapseMatAmber);
+          synMeshCortical.position.copy(p4);
+          radiationGroup.add(synMeshCortical);
+
+          if (idx % 3 === 0) {
+            const synMeshRelay = new THREE.Mesh(synapseGeo, synapseMatAmber);
+            synMeshRelay.position.copy(curve.getPointAt(0.5));
+            radiationGroup.add(synMeshRelay);
+          }
+        });
+      });
+
+      this.masterGroup.add(radiationGroup);
+      this.subcorticalMeshes.push(radiationGroup);
+    }
+
     // [PT-BR]: Constrói o Corpo Caloso como comissura inter-hemisférica em arco contínuo (Rostro, Joelho, Tronco e Esplênio).
     // [EN-GB]: Builds Corpus Callosum as an interhemispheric commissure in a continuous arch (Rostrum, Genu, Body, and Splenium).
     buildCorpusCallosumMesh() {
@@ -1084,10 +1201,10 @@
       geo.computeVertexNormals();
 
       const mat = createPhotorealisticNeuralTissueMaterial({
-        baseColor: 0xe2e8f0,
-        sssColor: 0x93c5fd,
+        baseColor: 0xfbbf24,
+        sssColor: 0xf59e0b,
         rimColor: 0x00f2fe,
-        roughness: 0.28
+        roughness: 0.26
       });
 
       const mesh = new THREE.Mesh(geo, mat);
@@ -1158,40 +1275,163 @@
       return group;
     }
 
-    // [PT-BR]: Sistema Ventricular Completo com LCR (Laterais, III, Aqueduto e IV Ventrículo).
-    // [EN-GB]: Complete Ventricular System with CSF (Lateral, 3rd, Aqueduct, and 4th Ventricles).
+    // [PT-BR]: Sistema Ventricular Completo com LCR (Laterais, III, Aqueduto e IV Ventrículo) Esculpido Organicamente.
+    // [EN-GB]: Complete Ventricular System with CSF (Lateral, 3rd, Aqueduct, and 4th Ventricles) Organically Sculpted.
+    // [AI-CTX]: @llm-context: Eliminates all rigid box and cone primitives in favor of continuous anatomically sculpted ventricular cavities.
+    //           @llm-neuroscience: Features III ventricle sagittal slit with recesses and interthalamic adhesion; IV ventricle rhomboid fossa with Luschka and Magendie apertures.
     buildCompleteVentricularSystemMesh() {
       const group = new THREE.Group();
       group.name = "Sistema_Ventricular_Completo_CSF";
 
       const csfMat = new THREE.MeshStandardMaterial({
-        color: 0x0ea5e9,
-        roughness: 0.08,
-        metalness: 0.15,
+        color: 0x00f2fe,
+        roughness: 0.10,
+        metalness: 0.18,
         transparent: true,
-        opacity: 0.72,
-        emissive: 0x0284c7,
-        emissiveIntensity: 0.45
+        opacity: 0.76,
+        emissive: 0x00f2fe,
+        emissiveIntensity: 0.52
       });
 
-      const iiiGeo = new THREE.BoxGeometry(0.35, 1.8, 2.8);
+      // [PT-BR]: III Ventrículo Orgânico Esculpido (32 x 24 segmentos, anéis elípticos, recessos supra-óptico/infundibular e comissura intertalâmica central)
+      // [EN-GB]: Organic Sculpted 3rd Ventricle (32 x 24 segments, elliptical rings, supraoptic/infundibular recesses, and central interthalamic adhesion)
+      const vRingsIII = 32;
+      const hSegsIII = 24;
+      const iiiPositions = [];
+      const iiiIndices = [];
+
+      for (let r = 0; r <= vRingsIII; r++) {
+        const v = r / vRingsIII;
+        const phi = v * Math.PI;
+        const cosPhi = Math.cos(phi);
+        const sinPhi = Math.sin(phi);
+        const y = -0.85 + cosPhi * 0.82; // y: 0.0 down to -1.70
+
+        const centerZ = -0.72;
+        const lengthZ = 1.30;
+
+        for (let s = 0; s <= hSegsIII; s++) {
+          const u = s / hSegsIII;
+          const theta = u * Math.PI * 2;
+          const cosTheta = Math.cos(theta);
+          const sinTheta = Math.sin(theta);
+
+          let rx = 0.16 * sinPhi;
+          let rz = lengthZ * sinPhi;
+
+          // Recesso supra-óptico (anteroventral) e infundibular
+          let zOffset = 0.0;
+          let yOffset = 0.0;
+          if (cosTheta > 0.35 && v > 0.40 && v < 0.85) {
+            const recessFactor = Math.sin((v - 0.40) / 0.45 * Math.PI);
+            zOffset += 0.32 * recessFactor;
+            yOffset -= 0.14 * recessFactor;
+          }
+
+          // Comissura intertalâmica central (hollow/pinch central)
+          const currZ = centerZ + rz * cosTheta;
+          const distAdhesion = Math.sqrt(Math.pow(y - (-0.85), 2) + Math.pow(currZ - (-0.68), 2));
+          if (distAdhesion < 0.38) {
+            rx *= Math.max(0.20, distAdhesion / 0.38);
+          }
+
+          const px = rx * sinTheta;
+          const py = y + yOffset;
+          const pz = currZ + zOffset;
+          iiiPositions.push(px, py, pz);
+        }
+      }
+
+      for (let r = 0; r < vRingsIII; r++) {
+        for (let s = 0; s < hSegsIII; s++) {
+          const a = r * (hSegsIII + 1) + s;
+          const b = (r + 1) * (hSegsIII + 1) + s;
+          const c = (r + 1) * (hSegsIII + 1) + (s + 1);
+          const d = r * (hSegsIII + 1) + (s + 1);
+          iiiIndices.push(a, b, d);
+          iiiIndices.push(b, c, d);
+        }
+      }
+
+      const iiiGeo = new THREE.BufferGeometry();
+      iiiGeo.setAttribute('position', new THREE.Float32BufferAttribute(iiiPositions, 3));
+      iiiGeo.setIndex(iiiIndices);
+      iiiGeo.computeVertexNormals();
       const iiiMesh = new THREE.Mesh(iiiGeo, csfMat);
-      iiiMesh.position.set(0.0, -0.85, -0.65);
+      iiiMesh.name = "III_Ventriculo_Organico";
       group.add(iiiMesh);
 
+      // Aqueduto Cerebral de Sylvius (conexão contínua entre III e IV)
       const aqCurve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0.0, -1.75, -1.85),
-        new THREE.Vector3(0.0, -2.55, -2.15),
-        new THREE.Vector3(0.0, -3.45, -2.35)
+        new THREE.Vector3(0.0, -1.65, -1.80),
+        new THREE.Vector3(0.0, -2.15, -2.00),
+        new THREE.Vector3(0.0, -2.75, -2.18),
+        new THREE.Vector3(0.0, -3.40, -2.32)
       ]);
-      const aqGeo = new THREE.TubeGeometry(aqCurve, 12, 0.12, 6, false);
+      const aqGeo = new THREE.TubeGeometry(aqCurve, 16, 0.11, 8, false);
       const aqMesh = new THREE.Mesh(aqGeo, csfMat);
+      aqMesh.name = "Aqueduto_Sylvius";
       group.add(aqMesh);
 
-      const ivGeo = new THREE.ConeGeometry(0.85, 1.9, 4, 3);
-      ivGeo.rotateX(Math.PI / 1.15);
+      // [PT-BR]: IV Ventrículo Orgânico Romboide (32 x 24 segmentos, recessos de Luschka e abertura mediana de Magendie)
+      // [EN-GB]: Organic Rhomboid 4th Ventricle (32 x 24 segments, lateral recesses of Luschka and median Magendie aperture)
+      const vRingsIV = 32;
+      const hSegsIV = 24;
+      const ivPositions = [];
+      const ivIndices = [];
+
+      for (let r = 0; r <= vRingsIV; r++) {
+        const v = r / vRingsIV;
+        const phi = v * Math.PI;
+        const cosPhi = Math.cos(phi);
+        const sinPhi = Math.sin(phi);
+        const y = -4.30 + cosPhi * 0.95; // y: -3.35 down to -5.25
+
+        for (let s = 0; s <= hSegsIV; s++) {
+          const u = s / hSegsIV;
+          const theta = u * Math.PI * 2;
+          const cosTheta = Math.cos(theta);
+          const sinTheta = Math.sin(theta);
+
+          let rx = (0.32 + 0.58 * sinPhi);
+          let rz = (0.26 + 0.48 * sinPhi);
+
+          // Recessos laterais de Luschka no plano equatorial dorsal do bulbo/ponte
+          if (v > 0.35 && v < 0.65) {
+            const luschkaFactor = Math.sin((v - 0.35) / 0.30 * Math.PI);
+            rx += Math.abs(sinTheta) * 0.68 * luschkaFactor;
+          }
+
+          // Abertura mediana posterior de Magendie direcionada à cisterna magna
+          let magendieZ = 0.0;
+          if (v > 0.68 && cosTheta < -0.2) {
+            magendieZ = -0.38 * Math.sin((v - 0.68) / 0.32 * Math.PI) * Math.abs(cosTheta);
+          }
+
+          const px = rx * sinTheta;
+          const py = y;
+          const pz = -2.28 + rz * cosTheta + magendieZ;
+          ivPositions.push(px, py, pz);
+        }
+      }
+
+      for (let r = 0; r < vRingsIV; r++) {
+        for (let s = 0; s < hSegsIV; s++) {
+          const a = r * (hSegsIV + 1) + s;
+          const b = (r + 1) * (hSegsIV + 1) + s;
+          const c = (r + 1) * (hSegsIV + 1) + (s + 1);
+          const d = r * (hSegsIV + 1) + (s + 1);
+          ivIndices.push(a, b, d);
+          ivIndices.push(b, c, d);
+        }
+      }
+
+      const ivGeo = new THREE.BufferGeometry();
+      ivGeo.setAttribute('position', new THREE.Float32BufferAttribute(ivPositions, 3));
+      ivGeo.setIndex(ivIndices);
+      ivGeo.computeVertexNormals();
       const ivMesh = new THREE.Mesh(ivGeo, csfMat);
-      ivMesh.position.set(0.0, -4.3, -2.25);
+      ivMesh.name = "IV_Ventriculo_Organico";
       group.add(ivMesh);
 
       return group;

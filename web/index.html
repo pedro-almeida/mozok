@@ -1156,15 +1156,13 @@
         const target = new THREE.Vector3(tier.cameraTarget[0], tier.cameraTarget[1], tier.cameraTarget[2]);
         const pos = new THREE.Vector3(tier.cameraPos[0], tier.cameraPos[1], tier.cameraPos[2]);
 
+        // [PT-BR]: Separação estrita de escalas: nunca sobrepõe o microcosmo neural gigante ao encéfalo inteiro.
+        // [EN-GB]: Strict scale separation: never overlaps giant neural microcosmos over the whole brain.
+        // [AI-CTX]: @llm-invariant: Tiers 1-4 active CNS anatomy only (Tier 1 opacity 0.42); Tiers 5-9 active microcosmos with dark #030914 background.
         if (tier.id >= 5) {
+          if (scene) scene.background.set('#030914');
           if (neuralMicrocosmos) neuralMicrocosmos.setVisible(true);
-          if (cnsAnatomy) {
-            if (tier.id >= 7) cnsAnatomy.setVisible(false);
-            else {
-              cnsAnatomy.setVisible(true);
-              cnsAnatomy.setAnatomyOpacity(0.08, 1.0);
-            }
-          }
+          if (cnsAnatomy) cnsAnatomy.setVisible(false);
           const diveBtn = document.getElementById('btn-dive');
           const btnDiveText = document.getElementById('btn-dive-text');
           if (diveBtn) {
@@ -1172,10 +1170,11 @@
             if (btnDiveText) btnDiveText.textContent = '🔭 Retornar ao SNC Macro';
           }
         } else {
+          if (scene) scene.background.set('#020617');
           if (neuralMicrocosmos) neuralMicrocosmos.setVisible(false);
           if (cnsAnatomy) {
             cnsAnatomy.setVisible(true);
-            if (tier.id === 1) cnsAnatomy.setAnatomyOpacity(1.0, 1.0);
+            if (tier.id === 1) cnsAnatomy.setAnatomyOpacity(0.42, 1.0);
             else cnsAnatomy.setAnatomyOpacity(0.35, 1.0);
           }
           const diveBtn = document.getElementById('btn-dive');
@@ -1386,25 +1385,22 @@
           const chip = document.getElementById(`tier-chip-${matchedTier.id}`);
           if (chip) chip.classList.add('active');
 
+          // [PT-BR]: Separação estrita de escalas durante zoom contínuo do mouse.
+          // [EN-GB]: Strict scale separation during continuous mouse zoom.
+          // [AI-CTX]: @llm-invariant: Tiers 1-4 show CNS Anatomy (Tier 1 opacity 0.42); Tiers 5-9 show Microcosmos with #030914 dark background.
           if (matchedTier.id >= 5) {
+            if (scene) scene.background.set('#030914');
             if (neuralMicrocosmos) neuralMicrocosmos.setVisible(true);
-            if (cnsAnatomy) {
-              if (matchedTier.id >= 7) cnsAnatomy.setVisible(false);
-              else {
-                cnsAnatomy.setVisible(true);
-                const t = (dist - 8.0) / (35.0 - 8.0);
-                cnsAnatomy.setAnatomyOpacity(Math.max(0.05, Math.min(0.35, t * 0.35)), 1.0);
-              }
-            }
+            if (cnsAnatomy) cnsAnatomy.setVisible(false);
           } else {
+            if (scene) scene.background.set('#020617');
             if (neuralMicrocosmos) neuralMicrocosmos.setVisible(false);
             if (cnsAnatomy) {
               cnsAnatomy.setVisible(true);
-              if (dist > 140.0) {
-                cnsAnatomy.setAnatomyOpacity(1.0, 1.0);
-              } else if (dist >= 35.0) {
-                const t = (dist - 35.0) / (140.0 - 35.0);
-                cnsAnatomy.setAnatomyOpacity(0.20 + t * 0.80, 1.0);
+              if (matchedTier.id === 1 || dist > 140.0) {
+                cnsAnatomy.setAnatomyOpacity(0.42, 1.0);
+              } else {
+                cnsAnatomy.setAnatomyOpacity(0.35, 1.0);
               }
             }
           }

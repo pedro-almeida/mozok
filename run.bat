@@ -35,7 +35,10 @@ echo [2/3] Iniciando MOZOK v1.0 WebGL2 Studio em tela cheia...
 set "TARGET_URL=file:///%~dp0web/index.html"
 set "TARGET_URL=%TARGET_URL:\=/%"
 
-set "BROWSER_FLAGS=--enable-gpu-rasterization --enable-zero-copy --ignore-gpu-blocklist --use-gl=desktop --start-fullscreen"
+:: [PT-BR]: Flags de aceleracao GPU com fidelidade cromatica sRGB exata para shaders WebGL2 MNI152
+:: [EN-GB]: GPU acceleration flags with exact sRGB color profile fidelity for MNI152 WebGL2 shaders
+:: [AI-CTX]: @llm-context: Browser launch configuration enforcing dedicated GPU and sRGB color profile
+set "BROWSER_FLAGS=--force-color-profile=srgb --enable-gpu-rasterization --enable-zero-copy --ignore-gpu-blocklist --use-gl=desktop --start-fullscreen"
 
 if defined CHROME_PATH (
     start "" "!CHROME_PATH!" %BROWSER_FLAGS% "%TARGET_URL%"
