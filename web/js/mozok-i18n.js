@@ -1414,16 +1414,38 @@
     getStructure(id) {
       const l = this.currentLang || 'pt-BR';
       const item = this.structures[id];
-      if (!item) return null;
-      return item[l] || item['pt-BR'] || null;
+      if (item && (item[l] || item['pt-BR'])) {
+        return item[l] || item['pt-BR'];
+      }
+      // Fallback para banco de dados unificado
+      if (window.MOZOK_DATABASE && typeof window.MOZOK_DATABASE.getStructureById === 'function') {
+        const s = window.MOZOK_DATABASE.getStructureById(id);
+        if (s) {
+          return {
+            name: s.name,
+            category: s.category,
+            functionText: s.functionText,
+            clinicalText: s.clinicalText,
+            neurotransmitter: s.neurotransmitter,
+            audioScript: s.audioScript
+          };
+        }
+      }
+      return null;
     },
 
     // Obtém patologia traduzida
     getPathology(code) {
       const l = this.currentLang || 'pt-BR';
       const item = this.pathologies[code];
-      if (!item) return null;
-      return item[l] || item['pt-BR'] || null;
+      if (item && (item[l] || item['pt-BR'])) {
+        return item[l] || item['pt-BR'];
+      }
+      if (window.MOZOK_DATABASE && typeof window.MOZOK_DATABASE.getPathologyById === 'function') {
+        const p = window.MOZOK_DATABASE.getPathologyById(code);
+        if (p) return p;
+      }
+      return null;
     },
 
     // Troca de idioma global

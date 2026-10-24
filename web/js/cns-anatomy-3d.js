@@ -564,7 +564,9 @@
       this.subcorticalMeshes = [];
       this.brainstemMeshes = [];
       this.spinalMeshes = [];
-      this.regionsRegistry = CNS_REGIONS_REGISTRY;
+      this.regionsRegistry = (typeof window !== 'undefined' && window.MOZOK_DATABASE && window.MOZOK_DATABASE.structures)
+        ? window.MOZOK_DATABASE.structures
+        : CNS_REGIONS_REGISTRY;
 
       this.highlightCenter = new THREE.Vector3(0, 0, 0);
       this.highlightRadius = 0.0;
@@ -572,6 +574,12 @@
       this.highlightIntensity = 0.0;
 
       this.buildAllCNSStructures();
+
+      if (typeof window.Tractography3D !== 'undefined') {
+        this.tractography = new window.Tractography3D(this.masterGroup);
+      } else {
+        this.tractography = null;
+      }
     }
 
     buildAllCNSStructures() {
@@ -895,7 +903,302 @@
       atlasGroup.add(pinealMesh);
       this.subcorticalMeshes.push(pinealMesh);
 
+      // 8. Corpo Caloso (Comissura Inter-hemisférica com Esplênio, Tronco, Joelho e Rostro)
+      const corpusCallosumMesh = this.buildCorpusCallosumMesh();
+      atlasGroup.add(corpusCallosumMesh);
+      this.subcorticalMeshes.push(corpusCallosumMesh);
+
+      // 9. Globo Pálido Bilateral (Segmentos GPi e GPe)
+      [-1, 1].forEach((sign) => {
+        const gpMesh = this.buildGlobusPallidusMesh(sign);
+        atlasGroup.add(gpMesh);
+        this.subcorticalMeshes.push(gpMesh);
+      });
+
+      // 10. Quiasma Óptico e Tratos Ópticos
+      const chiasmMesh = this.buildOpticChiasmAndTractsMesh();
+      atlasGroup.add(chiasmMesh);
+      this.subcorticalMeshes.push(chiasmMesh);
+
+      // 11. Sistema Ventricular Completo com LCR (Laterais, III, Aqueduto e IV Ventrículo)
+      const ventMesh = this.buildCompleteVentricularSystemMesh();
+      atlasGroup.add(ventMesh);
+      this.subcorticalMeshes.push(ventMesh);
+
+      // 12. Nervos Cranianos I a XII com Raízes Emergentes do Tronco
+      const cranialMesh = this.buildCranialNervesRootsMesh();
+      atlasGroup.add(cranialMesh);
+      this.subcorticalMeshes.push(cranialMesh);
+
       this.masterGroup.add(atlasGroup);
+    }
+
+    // [PT-BR]: Constrói o Corpo Caloso como comissura inter-hemisférica em arco contínuo (Rostro, Joelho, Tronco e Esplênio).
+    // [EN-GB]: Builds Corpus Callosum as an interhemispheric commissure in a continuous arch (Rostrum, Genu, Body, and Splenium).
+    buildCorpusCallosumMesh() {
+      const curve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0.0, -0.6, +1.4), // Rostro
+        new THREE.Vector3(0.0, +0.4, +2.2), // Joelho
+        new THREE.Vector3(0.0, +1.5, +1.0), // Tronco anterior
+        new THREE.Vector3(0.0, +1.9, -0.4), // Tronco médio
+        new THREE.Vector3(0.0, +1.7, -1.8), // Tronco posterior
+        new THREE.Vector3(0.0, +0.7, -2.6)  // Esplênio
+      ]);
+
+      const tubularSegments = 36;
+      const radialSegments = 16;
+      const positions = [];
+      const indices = [];
+
+      const frames = curve.computeFrenetFrames(tubularSegments, false);
+
+      for (let i = 0; i <= tubularSegments; i++) {
+        const u = i / tubularSegments;
+        const pt = curve.getPointAt(u);
+        const N = frames.normals[i];
+
+        let rx = 1.35 + Math.sin(u * Math.PI) * 0.45;
+        let ry = 0.35 + (u > 0.8 || u < 0.2 ? 0.25 : 0.0);
+
+        for (let j = 0; j <= radialSegments; j++) {
+          const v = (j / radialSegments) * Math.PI * 2;
+          const sinV = Math.sin(v);
+          const cosV = Math.cos(v);
+
+          const nx = cosV * rx;
+          const ny = sinV * ry;
+
+          positions.push(
+            pt.x + nx,
+            pt.y + ny * N.y,
+            pt.z + ny * N.z
+          );
+        }
+      }
+
+      for (let i = 0; i < tubularSegments; i++) {
+        for (let j = 0; j < radialSegments; j++) {
+          const a = i * (radialSegments + 1) + j;
+          const b = (i + 1) * (radialSegments + 1) + j;
+          const c = (i + 1) * (radialSegments + 1) + (j + 1);
+          const d = i * (radialSegments + 1) + (j + 1);
+          indices.push(a, b, d);
+          indices.push(b, c, d);
+        }
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geo.setIndex(indices);
+      geo.computeVertexNormals();
+
+      const mat = createPhotorealisticNeuralTissueMaterial({
+        baseColor: 0xe2e8f0,
+        sssColor: 0x93c5fd,
+        rimColor: 0x00f2fe,
+        roughness: 0.28
+      });
+
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.name = "Corpo_Caloso_Real";
+      mesh.rotation.set(0, 0, 0);
+      return mesh;
+    }
+
+    // [PT-BR]: Globo Pálido esculpido (Segmentos GPi e GPe) medial ao Putâmen.
+    // [EN-GB]: Sculpted Globus Pallidus (GPi and GPe) medial to Putamen.
+    buildGlobusPallidusMesh(sign) {
+      const geo = new THREE.ConeGeometry(0.72, 1.45, 14, 4);
+      geo.rotateZ(sign * (Math.PI / 3.2));
+      geo.scale(1.25, 0.85, 1.1);
+
+      const pos = geo.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        let x = pos.getX(i);
+        let y = pos.getY(i);
+        let z = pos.getZ(i);
+        if (x * sign > 0) {
+          y *= 0.85;
+        }
+        pos.setXYZ(i, x, y, z);
+      }
+      geo.computeVertexNormals();
+
+      const mat = createPhotorealisticNeuralTissueMaterial({
+        baseColor: 0xd97706,
+        sssColor: 0xb45309,
+        rimColor: 0x38bdf8,
+        roughness: 0.32
+      });
+
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(sign * 1.42, -0.18, +0.40);
+      mesh.name = `Globo_Palido_${sign > 0 ? 'Esq' : 'Dir'}`;
+      mesh.rotation.set(0, 0, 0);
+      return mesh;
+    }
+
+    // [PT-BR]: Quiasma Óptico em X com nervos ópticos anteriores e tratos ópticos posteriores.
+    // [EN-GB]: X-shaped Optic Chiasm with anterior optic nerves and posterior optic tracts.
+    buildOpticChiasmAndTractsMesh() {
+      const group = new THREE.Group();
+      group.name = "Quiasma_Tratos_Opticos";
+
+      const mat = createPhotorealisticNeuralTissueMaterial({
+        baseColor: 0x38bdf8,
+        sssColor: 0x0284c7,
+        rimColor: 0x10b981,
+        roughness: 0.25
+      });
+
+      [-1, 1].forEach((sign) => {
+        const curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.95, -1.15, +2.6),
+          new THREE.Vector3(sign * 0.35, -1.35, +1.75),
+          new THREE.Vector3(0.0, -1.40, +1.45),
+          new THREE.Vector3(sign * 0.75, -1.65, +0.85),
+          new THREE.Vector3(sign * 1.65, -1.85, -0.65)
+        ]);
+        const geo = new THREE.TubeGeometry(curve, 24, 0.16, 8, false);
+        const mesh = new THREE.Mesh(geo, mat);
+        group.add(mesh);
+      });
+
+      return group;
+    }
+
+    // [PT-BR]: Sistema Ventricular Completo com LCR (Laterais, III, Aqueduto e IV Ventrículo).
+    // [EN-GB]: Complete Ventricular System with CSF (Lateral, 3rd, Aqueduct, and 4th Ventricles).
+    buildCompleteVentricularSystemMesh() {
+      const group = new THREE.Group();
+      group.name = "Sistema_Ventricular_Completo_CSF";
+
+      const csfMat = new THREE.MeshStandardMaterial({
+        color: 0x0ea5e9,
+        roughness: 0.08,
+        metalness: 0.15,
+        transparent: true,
+        opacity: 0.72,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.45
+      });
+
+      const iiiGeo = new THREE.BoxGeometry(0.35, 1.8, 2.8);
+      const iiiMesh = new THREE.Mesh(iiiGeo, csfMat);
+      iiiMesh.position.set(0.0, -0.85, -0.65);
+      group.add(iiiMesh);
+
+      const aqCurve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0.0, -1.75, -1.85),
+        new THREE.Vector3(0.0, -2.55, -2.15),
+        new THREE.Vector3(0.0, -3.45, -2.35)
+      ]);
+      const aqGeo = new THREE.TubeGeometry(aqCurve, 12, 0.12, 6, false);
+      const aqMesh = new THREE.Mesh(aqGeo, csfMat);
+      group.add(aqMesh);
+
+      const ivGeo = new THREE.ConeGeometry(0.85, 1.9, 4, 3);
+      ivGeo.rotateX(Math.PI / 1.15);
+      const ivMesh = new THREE.Mesh(ivGeo, csfMat);
+      ivMesh.position.set(0.0, -4.3, -2.25);
+      group.add(ivMesh);
+
+      return group;
+    }
+
+    // [PT-BR]: Doze Pares de Nervos Cranianos (I a XII) com Raízes Emergentes do Tronco.
+    // [EN-GB]: Twelve Cranial Nerve Pairs (I to XII) with Emergent Brainstem Roots.
+    buildCranialNervesRootsMesh() {
+      const group = new THREE.Group();
+      group.name = "Nervos_Cranianos_I_XII";
+
+      const cnMat = new THREE.MeshStandardMaterial({
+        color: 0x34d399,
+        roughness: 0.32,
+        emissive: 0x10b981,
+        emissiveIntensity: 0.4
+      });
+
+      [-1, 1].forEach((sign) => {
+        const nc1Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.65, -0.95, +1.8),
+          new THREE.Vector3(sign * 0.70, -0.92, +2.8),
+          new THREE.Vector3(sign * 0.72, -0.90, +3.5)
+        ]);
+        group.add(new THREE.Mesh(new THREE.TubeGeometry(nc1Curve, 8, 0.08, 5, false), cnMat));
+
+        const nc3Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.28, -2.6, -0.55),
+          new THREE.Vector3(sign * 0.42, -2.5, +0.45),
+          new THREE.Vector3(sign * 0.65, -2.4, +1.25)
+        ]);
+        group.add(new THREE.Mesh(new THREE.TubeGeometry(nc3Curve, 8, 0.075, 5, false), cnMat));
+
+        const nc4Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.35, -3.1, -1.45),
+          new THREE.Vector3(sign * 1.25, -3.0, -0.85),
+          new THREE.Vector3(sign * 1.05, -2.8, +0.65)
+        ]);
+        group.add(new THREE.Mesh(new THREE.TubeGeometry(nc4Curve, 8, 0.045, 5, false), cnMat));
+
+        const nc5Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 1.65, -4.0, -0.35),
+          new THREE.Vector3(sign * 2.25, -3.8, +0.45),
+          new THREE.Vector3(sign * 2.75, -3.6, +1.15)
+        ]);
+        group.add(new THREE.Mesh(new THREE.TubeGeometry(nc5Curve, 10, 0.16, 6, false), cnMat));
+
+        const nc6Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.35, -5.1, -0.45),
+          new THREE.Vector3(sign * 0.55, -4.9, +0.45),
+          new THREE.Vector3(sign * 0.85, -4.7, +1.15)
+        ]);
+        group.add(new THREE.Mesh(new THREE.TubeGeometry(nc6Curve, 8, 0.065, 5, false), cnMat));
+
+        const nc7Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 1.35, -5.15, -0.65),
+          new THREE.Vector3(sign * 1.85, -5.0, +0.25),
+          new THREE.Vector3(sign * 2.25, -4.8, +0.95)
+        ]);
+        group.add(new THREE.Mesh(new THREE.TubeGeometry(nc7Curve, 8, 0.075, 5, false), cnMat));
+
+        const nc8Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 1.65, -5.25, -0.75),
+          new THREE.Vector3(sign * 2.15, -5.1, +0.15),
+          new THREE.Vector3(sign * 2.55, -4.9, +0.85)
+        ]);
+        group.add(new THREE.Mesh(new THREE.TubeGeometry(nc8Curve, 8, 0.095, 5, false), cnMat));
+
+        const nc9Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.85, -5.6, -0.85),
+          new THREE.Vector3(sign * 1.45, -5.5, -0.25),
+          new THREE.Vector3(sign * 1.95, -5.4, +0.35)
+        ]);
+        group.add(new THREE.Mesh(new THREE.TubeGeometry(nc9Curve, 8, 0.065, 5, false), cnMat));
+
+        const nc10Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.88, -6.1, -0.90),
+          new THREE.Vector3(sign * 1.55, -6.0, -0.30),
+          new THREE.Vector3(sign * 2.05, -5.9, +0.30)
+        ]);
+        group.add(new THREE.Mesh(new THREE.TubeGeometry(nc10Curve, 8, 0.085, 5, false), cnMat));
+
+        const nc11Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.90, -7.5, -0.95),
+          new THREE.Vector3(sign * 1.35, -6.8, -0.55),
+          new THREE.Vector3(sign * 1.85, -6.3, +0.25)
+        ]);
+        group.add(new THREE.Mesh(new THREE.TubeGeometry(nc11Curve, 8, 0.065, 5, false), cnMat));
+
+        const nc12Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.45, -5.9, -0.55),
+          new THREE.Vector3(sign * 0.85, -5.8, +0.15),
+          new THREE.Vector3(sign * 1.25, -5.7, +0.75)
+        ]);
+        group.add(new THREE.Mesh(new THREE.TubeGeometry(nc12Curve, 8, 0.07, 5, false), cnMat));
+      });
+
+      return group;
     }
 
     // [PT-BR]: Modela o Hipotálamo, Infundíbulo e Hipófise como uma malha contínua anatômica afinada e bilobada.
@@ -1345,12 +1648,15 @@
       }
     }
 
-    // [PT-BR]: Atualização por quadro animando o pulso bioluminescente.
-    // [EN-GB]: Per-frame update animating the bioluminescent pulse.
+    // [PT-BR]: Atualização por quadro animando o pulso bioluminescente e tractografia.
+    // [EN-GB]: Per-frame update animating the bioluminescent pulse and tractography.
     update(dt) {
       if (this.cortexUniforms && this.highlightIntensity > 0) {
         const pulse = 0.85 + Math.sin(performance.now() * 0.005) * 0.25;
         this.cortexUniforms.uHighlightIntensity.value = this.highlightIntensity * pulse;
+      }
+      if (this.tractography && typeof this.tractography.update === 'function') {
+        this.tractography.update(dt);
       }
     }
 

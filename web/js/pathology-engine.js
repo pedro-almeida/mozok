@@ -194,8 +194,10 @@
           <option value="NORMAL">🧪 Fisiologia Normal (SNC Hígido)</option>
           <option value="ALZHEIMER">🧠 Doença de Alzheimer (DA)</option>
           <option value="PARKINSON">⚡ Doença de Parkinson (DP)</option>
-          <option value="STROKE">🩸 AVC Isquêmico (ACM Esquerda)</option>
           <option value="MS">🛡️ Esclerose Múltipla (EM)</option>
+          <option value="ALS">🧬 Esclerose Lateral Amiotrófica (ELA)</option>
+          <option value="STROKE">🩸 AVC Isquêmico (ACM Esquerda)</option>
+          <option value="EPILEPSY">⚡ Epilepsia (Crise Paroxística)</option>
           <option value="CJD">☣️ Doença de Creutzfeldt-Jakob (DCJ)</option>
         </select>
         <button id="btn-start-disease" class="btn-action" style="padding: 5px 10px; font-size: 11px; background: rgba(16, 185, 129, 0.25); border-color: #10b981; color: #10b981;" title="Iniciar Simulação e Voar para Foco">
@@ -236,7 +238,6 @@
 
     // [PT-BR]: Inicia a simulação temporal da doença com voo automático para a região anatômica primária afetada.
     // [EN-GB]: Starts disease temporal simulation with automatic camera flight to the primary affected anatomical region.
-    // [AI-CTX]: @llm-neuroscience: Maps primary insult region (Alzheimer -> Hippocampus, Parkinson -> Substantia Nigra, Stroke -> Broca, MS -> Spinal Cord, CJD -> Thalamus Pulvinar).
     startDiseaseSimulation(pathologyKey) {
       const pKey = (pathologyKey || 'ALZHEIMER').toUpperCase();
       this.isSimulating = true;
@@ -245,10 +246,12 @@
       // Mapeamento neuroanatômico da estrutura-alvo primária
       const targetRegionMap = {
         ALZHEIMER: 11, // Hipocampo (CA1-CA4)
-        PARKINSON: 17, // Substância Negra
+        PARKINSON: 20, // Substância Negra (Mesencéfalo)
         STROKE: 3,     // Área de Broca (ACM Esquerda)
-        MS: 21,        // Medula Espinhal
-        CJD: 14,       // Tálamo (Pulvinar)
+        MS: 25,        // Medula Espinhal
+        ALS: 4,        // Córtex Motor M1 (Giro Pré-Central)
+        EPILEPSY: 11,  // Hipocampo / Foco Temporal
+        CJD: 16,       // Tálamo Pulvinar
         NORMAL: 1      // Sistema Nervoso Central Completo
       };
 
@@ -337,7 +340,8 @@
     // [AI-CTX]: @llm-neuroscience: Triggers auditory narration and synchronizes with VLibras.
     setPathology(pathologyKey, triggerNarration = true) {
       const pKey = (pathologyKey || 'NORMAL').toUpperCase();
-      let p = PATHOLOGY_CATALOG[pKey] || PATHOLOGY_CATALOG.NORMAL;
+      const cat = (window.MOZOK_DATABASE && window.MOZOK_DATABASE.pathologies) ? window.MOZOK_DATABASE.pathologies : PATHOLOGY_CATALOG;
+      let p = cat[pKey] || cat.NORMAL || PATHOLOGY_CATALOG.NORMAL;
 
       // Integração com dicionário i18n caso disponível
       if (window.MOZOK_I18N && typeof window.MOZOK_I18N.getPathology === 'function') {
@@ -350,15 +354,20 @@
       this.currentPathology = p;
       this.evolutionProgress = pKey === 'NORMAL' ? 0.0 : 0.85;
 
-      // 1. Atualiza Microcosmo 3D (Neurônios, Mielina, Vesículas e LCR)
-      if (this.neuralMicrocosmos && typeof this.neuralMicrocosmos.setPathology === 'function') {
-        this.neuralMicrocosmos.setPathology(pKey);
+      // 1. Atualiza Microcosmo 3D (Neurônios, Mielina, Glia, Vesículas)
+      if (this.neuralMicrocosmos && typeof this.neuralMicrocosmos.applyPathologyMode === 'function') {
+        this.neuralMicrocosmos.applyPathologyMode(pKey);
       }
       if (window.proteinSim && typeof window.proteinSim.applyPathologyMode === 'function') {
         window.proteinSim.applyPathologyMode(pKey);
       }
 
-      // 1.1 Atualiza dano na macroanatomia (Cavitação Worley cortical)
+      // 1.1 Atualiza impacto nos circuitos de tractografia
+      if (this.cnsAnatomy && this.cnsAnatomy.tractography && typeof this.cnsAnatomy.tractography.setPathologyImpact === 'function') {
+        this.cnsAnatomy.tractography.setPathologyImpact(pKey);
+      }
+
+      // 1.2 Atualiza dano na macroanatomia (Cavitação Worley cortical)
       if (this.cnsAnatomy && typeof this.cnsAnatomy.setDamage === 'function') {
         const damageVal = (pKey === 'NORMAL') ? 0.0 : (pKey === 'CJD' ? 1.0 : 0.65);
         this.cnsAnatomy.setDamage(damageVal);
@@ -370,7 +379,7 @@
       // 3. Atualiza Banner de Informações
       const cardTitle = document.getElementById('card-title');
       if (cardTitle) {
-        cardTitle.textContent = `${p.name} — [Simulação 3D]`;
+        cardTitle.textContent = `${p.name}`;
       }
       const cardDetails = document.getElementById('card-details');
       if (cardDetails) {
