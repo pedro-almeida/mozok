@@ -609,61 +609,122 @@
       this.initSynapticCleftVesicles();
     }
 
+    // [PT-BR]: Constrói o Conectoma Microscópico idêntico à imagem Firefly Layer V (Fundo azul-petróleo #030d18, 16 neurônios vizinhos esculpidos em ciano e âmbar, e 24 sinapses).
+    // [EN-GB]: Builds Microscopic Connectome matching Firefly Layer V (Dark teal background #030d18, 16 sculpted neighbor neurons in cyan and amber, and 24 synapses).
+    // [AI-CTX]: @llm-neuroscience: Layer V pyramidal micro-circuitry with bidirectional chemical synapses (anterograde glutamate/GABA + retrograde 2-AG/NO + EAAT2/GAT-1 reuptake).
     initConnectomeBackground() {
-      const somaCount = 450;
-      const somaGeo = new THREE.ConeGeometry(0.48, 1.25, 8, 3);
-      somaGeo.rotateX(Math.PI);
-      const somaMat = new THREE.MeshStandardMaterial({
-        color: 0xf59e0b,
-        roughness: 0.38,
-        emissive: 0xd97706,
-        emissiveIntensity: 0.25
+      this.neighborNeuronsGroup = new THREE.Group();
+      this.neighborNeuronsGroup.name = "LAYER_V_NEIGHBOR_NEURONS";
+      this.neighborNeurons = [];
+
+      // 16 Neurônios Vizinhos Esculpidos posicionados na mesma distância limpa da imagem de referência
+      const neighborCoords = [
+        [-8.5, 4.2, -6.0], [9.2, 5.0, -5.5], [-7.2, -5.5, -4.5], [8.0, -6.2, -5.0],
+        [-12.0, 1.5, -8.0], [13.0, 2.0, -7.5], [-4.5, 9.5, -7.0], [5.2, 10.0, -6.5],
+        [-11.5, -9.0, -9.0], [11.0, -8.5, -8.5], [-14.5, 8.0, -11.0], [14.0, 7.5, -10.5],
+        [-6.0, -14.0, -8.0], [6.5, -14.5, -7.5], [-16.0, -3.5, -12.0], [16.5, -2.8, -11.5]
+      ];
+
+      const cyanMat = new THREE.MeshPhysicalMaterial({
+        color: 0x0284c7, // Azul-ciano profundo
+        roughness: 0.28,
+        transmission: 0.45,
+        opacity: 0.88,
+        transparent: true,
+        emissive: 0x0369a1,
+        emissiveIntensity: 0.35
       });
-      const instancedSomas = new THREE.InstancedMesh(somaGeo, somaMat, somaCount);
 
-      const dummy = new THREE.Object3D();
-      for (let i = 0; i < somaCount; i++) {
-        dummy.position.set(
-          (Math.random() - 0.5) * 55.0,
-          (Math.random() - 0.5) * 45.0,
-          (Math.random() - 0.5) * 45.0
-        );
-        // Evita colisão direta com o neurônio herói
-        if (dummy.position.length() < 7.0) {
-          dummy.position.setLength(8.0 + Math.random() * 20.0);
-        }
-        dummy.rotation.set((Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.4);
-        const s = 0.5 + Math.random() * 0.8;
-        dummy.scale.set(s, s, s);
-        dummy.updateMatrix();
-        instancedSomas.setMatrixAt(i, dummy.matrix);
-      }
-      instancedSomas.instanceMatrix.needsUpdate = true;
-      this.masterGroup.add(instancedSomas);
+      const amberMat = new THREE.MeshPhysicalMaterial({
+        color: 0xd97706, // Âmbar biológico
+        roughness: 0.32,
+        transmission: 0.50,
+        opacity: 0.88,
+        transparent: true,
+        emissive: 0xb45309,
+        emissiveIntensity: 0.35
+      });
 
-      // Fibras axonais e dendríticas do conectoma em LineSegments (Alta Performance GPU)
-      const linePositions = [];
-      const filamentCount = 1800;
-      for (let f = 0; f < filamentCount; f++) {
-        const x1 = (Math.random() - 0.5) * 60.0;
-        const y1 = (Math.random() - 0.5) * 50.0;
-        const z1 = (Math.random() - 0.5) * 50.0;
+      neighborCoords.forEach((coord, idx) => {
+        const nGroup = new THREE.Group();
+        nGroup.position.set(coord[0], coord[1], coord[2]);
 
-        const x2 = x1 + (Math.random() - 0.5) * 12.0;
-        const y2 = y1 + (Math.random() - 0.5) * 12.0;
-        const z2 = z1 + (Math.random() - 0.5) * 12.0;
+        const mat = (idx % 2 === 0) ? cyanMat.clone() : amberMat.clone();
 
-        linePositions.push(x1, y1, z1, x2, y2, z2);
-      }
-      const lineGeo = new THREE.BufferGeometry();
-      lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
-      const lineMat = new THREE.LineBasicMaterial({
+        // Pericário piramidal
+        const sGeo = new THREE.SphereGeometry(1.15, 18, 14);
+        sGeo.scale(1.0, 1.35, 1.0);
+        const sMesh = new THREE.Mesh(sGeo, mat);
+        nGroup.add(sMesh);
+
+        // Tronco dendrítico apical ascendente
+        const apCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(0, 1.2, 0),
+          new THREE.Vector3((Math.random() - 0.5) * 1.5, 4.5, (Math.random() - 0.5) * 1.5),
+          new THREE.Vector3((Math.random() - 0.5) * 2.5, 7.5, (Math.random() - 0.5) * 2.0)
+        ]);
+        const apGeo = new THREE.TubeGeometry(apCurve, 12, 0.18, 6, false);
+        const apMesh = new THREE.Mesh(apGeo, mat);
+        nGroup.add(apMesh);
+
+        // Axônio descendente
+        const axCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(0, -1.2, 0),
+          new THREE.Vector3((Math.random() - 0.5) * 1.2, -4.5, (Math.random() - 0.5) * 1.0),
+          new THREE.Vector3((Math.random() - 0.5) * 2.0, -8.0, (Math.random() - 0.5) * 1.5)
+        ]);
+        const axGeo = new THREE.TubeGeometry(axCurve, 12, 0.12, 5, false);
+        const axMesh = new THREE.Mesh(axGeo, mat);
+        nGroup.add(axMesh);
+
+        this.neighborNeuronsGroup.add(nGroup);
+        this.neighborNeurons.push({ group: nGroup, pos: new THREE.Vector3(coord[0], coord[1], coord[2]) });
+      });
+
+      this.masterGroup.add(this.neighborNeuronsGroup);
+
+      // 24 Sinapses Químicas Conectando os Neurônios entre si
+      this.synapseCircuitsGroup = new THREE.Group();
+      this.synapseCircuitsGroup.name = "SYNAPSE_CIRCUITS_24";
+      this.synapses = [];
+
+      const synapseMat = new THREE.LineBasicMaterial({
         color: 0x38bdf8,
         transparent: true,
-        opacity: 0.32
+        opacity: 0.35
       });
-      const lines = new THREE.LineSegments(lineGeo, lineMat);
-      this.masterGroup.add(lines);
+
+      for (let s = 0; s < 24; s++) {
+        // Conexão entre o neurônio herói [0, 0, 0] e um vizinho, ou entre vizinhos
+        const startPt = (s < 16)
+          ? new THREE.Vector3((Math.random() - 0.5) * 2.0, (Math.random() - 0.5) * 4.0, (Math.random() - 0.5) * 2.0)
+          : this.neighborNeurons[s % 16].pos.clone().add(new THREE.Vector3(0, (Math.random() - 0.5) * 2.0, 0));
+
+        const targetNeuron = this.neighborNeurons[(s * 3 + 1) % 16];
+        const endPt = targetNeuron.pos.clone().add(new THREE.Vector3((Math.random() - 0.5) * 1.5, (Math.random() - 0.5) * 2.5, 0));
+
+        const midPt = startPt.clone().lerp(endPt, 0.5).add(new THREE.Vector3((Math.random() - 0.5) * 2.5, (Math.random() - 0.5) * 2.5, (Math.random() - 0.5) * 2.0));
+        const curve = new THREE.CatmullRomCurve3([startPt, midPt, endPt]);
+
+        const synGeo = new THREE.TubeGeometry(curve, 16, 0.035, 4, false);
+        const synMesh = new THREE.Mesh(synGeo, new THREE.MeshStandardMaterial({
+          color: (s % 2 === 0) ? 0x0284c7 : 0xf59e0b,
+          roughness: 0.3,
+          transparent: true,
+          opacity: 0.45
+        }));
+        this.synapseCircuitsGroup.add(synMesh);
+
+        // Botão sináptico pós-sináptico
+        const boutonGeo = new THREE.SphereGeometry(0.18, 8, 8);
+        const boutonMesh = new THREE.Mesh(boutonGeo, new THREE.MeshBasicMaterial({ color: 0x00f2fe }));
+        boutonMesh.position.copy(endPt);
+        this.synapseCircuitsGroup.add(boutonMesh);
+
+        this.synapses.push({ curve, startPt, endPt });
+      }
+
+      this.masterGroup.add(this.synapseCircuitsGroup);
     }
 
     initSaltatoryConduction() {
@@ -681,27 +742,42 @@
       this.ranvierHopTimer = 0.0;
     }
 
+    // [PT-BR]: Partículas de Neurotransmissores Bidirecionais nas Sinapses (Anterógrado Glutamato/GABA + Retrógrado 2-AG/NO e Recaptação EAAT2/GAT-1).
+    // [EN-GB]: Bidirectional Synaptic Neurotransmitter Particles (Anterograde Glutamate/GABA + Retrograde 2-AG/NO and EAAT2/GAT-1 reuptake).
     initSynapticCleftVesicles() {
-      // 120 partículas de neurotransmissores (L-Glutamato verde, GABA azul, Dopamina ouro)
-      const vCount = 120;
-      const vGeo = new THREE.SphereGeometry(0.08, 6, 6);
-      const vMat = new THREE.MeshBasicMaterial({ color: 0x4ade80 });
-
       this.synapticVesiclesGroup = new THREE.Group();
+      this.synapticVesiclesGroup.name = "BIDIRECTIONAL_NEUROTRANSMITTERS";
       this.synapticVesicles = [];
 
-      for (let v = 0; v < vCount; v++) {
-        const mesh = new THREE.Mesh(vGeo, vMat.clone());
+      const pGeo = new THREE.SphereGeometry(0.065, 6, 6);
+
+      // 180 partículas transitando pelas 24 sinapses
+      const totalParticles = 180;
+      for (let i = 0; i < totalParticles; i++) {
+        const synapseIdx = i % this.synapses.length;
+        const syn = this.synapses[synapseIdx];
+
+        // 60% anterógrado (Glutamato dourado #fbbf24 ou GABA ciano #00f2fe), 40% retrógrado (2-AG verde-esmeralda #10b981)
+        const isRetrograde = (i % 5 >= 3);
+        let colorHex = 0xfbbf24; // Glutamato padrão
+        if (isRetrograde) {
+          colorHex = 0x10b981; // Retrógrado 2-AG / Óxido Nítrico (NO)
+        } else if (i % 2 === 0) {
+          colorHex = 0x00f2fe; // GABA inibitório ciano
+        }
+
+        const mesh = new THREE.Mesh(pGeo, new THREE.MeshBasicMaterial({ color: colorHex }));
         this.synapticVesiclesGroup.add(mesh);
 
         this.synapticVesicles.push({
           mesh,
-          x: (Math.random() - 0.5) * 1.5,
-          y: -22.0 - Math.random() * 1.8,
-          z: (Math.random() - 0.5) * 1.5,
-          vy: -0.8 - Math.random() * 1.2
+          syn,
+          u: Math.random(),
+          speed: (0.15 + Math.random() * 0.35) * (isRetrograde ? -1.0 : 1.0),
+          isRetrograde
         });
       }
+
       this.masterGroup.add(this.synapticVesiclesGroup);
     }
 
@@ -832,15 +908,18 @@
         }
       }
 
-      // 4. Fluxo Quântico de Vesículas Sinápticas
+      // 4. Fluxo Bidirecional de Neurotransmissores e Recaptação nas 24 Sinapses
       this.synapticVesicles.forEach(v => {
-        v.y += v.vy * dt * 2.5;
-        if (v.y < -25.5) {
-          v.y = -22.0;
-          v.x = (Math.random() - 0.5) * 1.5;
-          v.z = (Math.random() - 0.5) * 1.5;
+        v.u += v.speed * dt;
+        if (v.u > 1.0) {
+          v.u = 0.0;
+        } else if (v.u < 0.0) {
+          v.u = 1.0;
         }
-        v.mesh.position.set(v.x, v.y, v.z);
+        if (v.syn && v.syn.curve) {
+          const pt = v.syn.curve.getPointAt(v.u);
+          v.mesh.position.copy(pt);
+        }
       });
     }
 

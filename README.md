@@ -4,7 +4,7 @@
 [![Version](https://img.shields.io/badge/Version-2.0.0%20Scientific-success.svg)](web/index.html)
 [![WebGL2](https://img.shields.io/badge/WebGL2-Three.js%20Studio-brightgreen.svg)](web/index.html)
 [![A11y](https://img.shields.io/badge/Accessibility-WCAG%20AAA%20%2B%20VLibras-purple.svg)](https://vlibras.gov.br)
-[![Coordinates](https://img.shields.io/badge/Coordinates-MNI152%20Validated-orange.svg)](web/js/cns-anatomy-3d.js)
+[![Coordinates](https://img.shields.io/badge/Coordinates-MNI152%20Canonical%20Validated-orange.svg)](web/js/cns-anatomy-3d.js)
 
 ---
 
@@ -20,182 +20,191 @@
 ## 🇧🇷 Português Brasileiro
 
 ### 1. Visão Geral do Projeto
-O **MOZOK v2.0** (Ucraniano: *Мозок* — "Cérebro") é um atlas tridimensional de alta precisão e simulador fisiopatológico multiescala do **Sistema Nervoso Central Humano Completo** (Encéfalo, Diencéfalo, Tronco Encefálico e Medula Espinhal com cauda equina). Funciona como um *"Google Earth neuroanatômico"*, permitindo navegar de forma contínua e reversível entre a macroanatomia cortical e a microscopia profunda da Camada V.
+O **MOZOK v2.0** (Ucraniano: *Мозок* — "Cérebro") é um atlas tridimensional de alta precisão e simulador fisiopatológico multiescala do **Sistema Nervoso Central Humano Completo** (Encéfalo, Diencéfalo, Tronco Encefálico e Medula Espinhal com cauda equina). Funciona como um *"Google Earth neuroanatômico"*, permitindo navegar de forma contínua e reversível entre a macroanatomia cortical e a microscopia celular profunda da Camada V.
 
-### 2. Arquitetura Multiescala Contínua
-* **Macro (280–140 mm):** Córtex cerebral MNI152 com giros e sulcos anatômicos, cerebelo foliado e medula espinhal contínua estendendo-se até o cone medular e cauda equina.
-* **Meso (140–35 mm):** Transparência progressiva cortical por shader revelando as 22 estruturas subcorticais esculpidas: Tálamo Pulvinar, Hipocampo em arco C com fórnix, Complexo Amigdalino, Corpo Estriado, Hipotálamo contínuo com infundíbulo e hipófise bilobada, e Tronco Encefálico unificado (Mesencéfalo, Ponte e Bulbo com pirâmides e olivas).
-* **Micro (35–5 mm):** Conectoma denso de **500 Neurônios da Camada V**: 36 neurônios piramidais em primeiro plano com estética de microscopia âmbar-dourada, núcleo âmbar escuro, nucléolo dourado, ramificações de 5ª ordem (Lei de Rall), bainhas de mielina orgânicas texturizadas e nódulos de Ranvier em azul-elétrico intenso com saltos de potenciais de ação em tempo real.
-* **Nano (< 5 mm):** Fendas sinápticas com exocitose vesicular quântica de neurotransmissores e banho hidrodinâmico de líquor (LCR) com 1.200 partículas Bokeh flutuantes.
+### 2. Remoção de Artefatos e Escala Canônica MNI152 Unificada (`SCALE = 1.0`)
+* **Eliminação de Vias Fora do Encéfalo:** Remoção integral da dupla multiplicação de escala que gerava tubos gigantes ("espaguetes de bola de ar") voando fora do encéfalo.
+* **Escala Canônica MNI152 Estrita (`SCALE = 1.0`):** Todas as geometrias, peças corticais e subcorticais operam estritamente no volume delimitado por `window.REAL_MNI_BRAIN` (`X ∈ [-5.42, +5.42]`, `Y ∈ [-5.08, +5.08]`, `Z ∈ [-6.90, +6.90]`).
+* **Vias de Substância Branca DTI de Raio Fino:** Fascículo Arqueado (conectando a Área de Wernicke à Área de Broca no hemisfério esquerdo `X > 0`), Trato Corticoespinhal, Radiações Ópticas e demais vias operam com raios finíssimos (`r = 0.04` a `0.08`), visíveis estritamente no espaço intra-encefálico com córtex semitransparente.
+* **Câmera Canônica:** Visão inicial em `camera.position = (0, 3.5, 24.0)` e `target = (0, -2.5, 0)`, enquadrando perfeitamente todo o neuroeixo.
 
-### 3. Validação Científica MNI152 e Orientação Anatômica
-O sistema unifica rigorosamente o referencial estereotáxico MNI152 (`SCALE = 10.0`, sem giros arbitrários `rotation.y = -Math.PI / 2`):
-* **Eixo `+Z`:** Anterior (Polo Frontal / Rosto);
-* **Eixo `-Z`:** Posterior (Polo Occipital e Cerebelo);
-* **Eixo `+Y`:** Superior / Dorsal;
-* **Eixo `-Y`:** Inferior / Ventral;
-* **Eixo `+X`:** **Hemisfério Cerebral Esquerdo Anatômico** (onde se localizam a Área de Broca `[+4.62, +0.50, +2.39]`, Área de Wernicke `[+4.89, -0.29, -1.41]`, Córtex Motor Primário M1 `[+3.79, +3.80, +0.43]`, Córtex Somatossensorial S1 `[+3.47, +3.65, -0.54]`, Córtex Auditivo A1 `[+4.76, -0.86, -0.12]` e Ínsula `[+3.55, -0.35, +0.60]`);
-* **Eixo `-X`:** **Hemisfério Cerebral Direito Anatômico**.
-Ao selecionar estruturas do hemisfério esquerdo, a câmera se posiciona lateral e anteriormente para visualização anatômica direta e desobstruída.
+### 3. Peças Anatômicas Reais e Modo "Isolar Peça 3D"
+* **Extração Direta dos Triângulos MNI152 (`extractCorticalPieceGeometry`):**
+  - Para as áreas corticais (**Área de Broca Esquerda BA 44/45** em `[+4.62, +0.50, +2.39]`, **Área de Wernicke Esquerda BA 22** em `[+4.89, -0.29, -1.41]`, **Córtex Motor Primário M1 Esquerdo** em `[+3.79, +3.80, +0.43]`, **Córtex Pré-Frontal DLPFC** em `[+3.04, +1.86, +4.72]`, **S1**, **V1** e **Ínsula**), o simulador extrai a sub-malha triangular real de McGill/MNI152 preservando integralmente giros, sulcos e relevo com shader GLSL de Subsurface Scattering.
+* **Escultura Anatômica Subcortical Realística (Zero Bolas Lisas):**
+  - **Cerebelo Real com Folia e Árvore da Vida:** Malha de alta resolução (`120 × 80`) com folia cerebelares esculpidas matematicamente ($\Delta r = 0.12 \cos(28y)$), incisura posterior, vérmis mediano e coloração rosada parenquimatosa (`#8c7a74`).
+  - **Hipocampo Real em Arco C:** Estrutura anatômica contínua de 80 segmentos com digitações na cabeça temporal, corpo arqueado e fórnix projetando-se aos corpos mamilares.
+  - **Hipotálamo + Infundíbulo + Hipófise + Quiasma Óptico:** Assoalho e paredes do III ventrículo com corpos mamilares, infundíbulo, hipófise bilobada e quiasma óptico cruzando anteriormente.
+  - **Corpo Estriado e Tálamo Bilateral:** Núcleo caudado em formato C, putâmen com pontes celulares estriatais e aderência intertalâmica com pulvinar.
+  - **Tronco Encefálico Contínuo e Medula Espinhal:** Mesencéfalo, ponte de Varólio com estrias transversais, bulbo com pirâmides e olivas, e medula espinhal unificada.
+* **Modo `🧩 Isolar Peça Real 3D`:** Permite isolar qualquer região selecionada em 360° ou reintegrá-la instantaneamente através do botão `🧠 Ver no SNC Completo`.
 
-### 4. Simulador de 5 Patologias do SNC
-Inclui controle em tempo real com botões de **`▶ Iniciar Simulação`**, **`⏸ Pausar`** e **`↺ Reiniciar SNC`**:
-1. **Fisiologia Normal (SNC Hígido):** Ritmo gama de 40 Hz, condução saltatória perfeita, homeostase glutamatérgica e gabaérgica.
-2. **Doença de Alzheimer (DA):** Atrofia seletiva córtico-hipocampal, placas senis de beta-amiloide Aβ42, emaranhados neurofibrilares de proteína Tau hiperfosforilada e colapso colinérgico.
-3. **Doença de Parkinson (DP):** Degeneração dos neurônios dopaminérgicos da Substância Negra Pars Compacta e privação do corpo estriado com tremor de repouso em 4–6 Hz.
-4. **AVC Isquêmico da Artéria Cerebral Média:** Infarto vascular na Área de Broca e M1 esquerdo, despolarização anóxica, excitotoxicidade maciça por glutamato e edema citotóxico.
-5. **Esclerose Múltipla (EM):** Ataque autoimune desmielinizante nos tratos da medula espinhal e ponte com bloqueio da condução saltatória nos nódulos de Ranvier.
-6. **Doença de Creutzfeldt-Jakob (DCJ — Príons):** Degeneração espongiforme fulminante, conversão autocatalítica PrPC $\to$ PrPSc, sinal talâmico do taco de hóquei e RT-QuIC positivo.
+### 4. Meninges Dissecáveis e Árvore Vascular Cortical
+* **3 Camadas Meníngeas Dissecáveis (`buildMeningesLayers`):**
+  - **Dura-Máter (`offset = +0.22`):** Membrana fibrosa translúcida com a Foice do Cérebro (*Falx Cerebri*), Tentório do Cerebelo e Seio Sagital Superior venoso (`#1d4ed8`).
+  - **Aracnoide-Máter & LCR (`offset = +0.11`):** Trabéculas aracnóideas com fluxo pulsátil de Líquido Cefalorraquidiano.
+  - **Pia-Máter (`offset = +0.015`):** Membrana vascular aderida intimamente ao fundo de cada sulco cortical.
+  - Controle interativo: `🛡️ Meninges: [Ocultar] [Pia-Máter] [Aracnoide + LCR] [Dura-Máter] [Todas]`.
+* **Árvore Vascular Cerebral Colada à Superfície:**
+  - Polígono de Willis na base encefálica (Carótidas Internas, Basilar, Comunicantes).
+  - Artéria Cerebral Média (ACM) com ramos `M4` projetados diretamente nos vértices e sulcos de `REAL_MNI_BRAIN` (`v + normal * 0.035`), irrigando a Área de Broca, M1 e Wernicke.
+  - Artéria Cerebral Anterior (ACA), Posterior (ACP) e seios venosos durais (`#1e40af`).
 
-### 5. Navegação Reversível e Acessibilidade Total
-* **Botão `🏠 Voltar à Visão Inicial (SNC)`:** Retorno suave em 0.9s à visão global do encéfalo e medula espinhal (`controls.target = (0, -25, 0)`, `camera.position = (65, 35, 220)`), acionado também pelas teclas `Escape` e `Home`.
-* **Zoom Reversível com Mouse:** Scroll para trás (`dist > 38`) retorna automaticamente do microcosmo para o macro sem travar a câmera.
-* **Acessibilidade WCAG AAA & VLibras:** Integração com o widget oficial do VLibras (`vlibras-plugin.js`), sincronizando cada fala da IA com legendas de alto contraste e tradução simultânea em Língua Brasileira de Sinais.
+### 5. Raycasting Interativo e Disparo de AVC/Patologias em Tempo Real
+* **Click-to-Trigger Stroke:** Clique em qualquer giro cortical 3D ou selecione uma estrutura anatômica para disparar:
+  - `🩸 Disparar AVC Isquêmico Aqui` | `💥 Disparar AVC Hemorrágico Aqui` | `↺ Restaurar Tecido Saudável`.
+* **Propagação Fisiopatológica GLSL:**
+  - Oclusão vascular visível com trombo intraluminal e cessação de pulso a jusante.
+  - Propagação radial em tempo real do **Núcleo Isquêmico Necrótico (`#111827`)** envolvido pelo halo da **Zona de Penumbra Isquêmica (`#dc2626` / `#f97316`)**.
+  - Correlação clínico-topográfica imediata: na Área de Broca (*Afasia Expressiva e apraxia*), Wernicke (*Afasia Receptiva*), M1 (*Hemiplegia espástica contralateral*), V1 (*Hemianopsia homônima*).
+  - Mergulho celular: visualização em tempo real de falência de ATP, excitotoxicidade por glutamato, influxo de $\text{Ca}^{2+}$ e edema citotóxico.
+
+### 6. Conectoma Microscópico Estilo "Firefly Layer V"
+* Fundo limpo em azul-petróleo escuro (`#030d18`).
+* Neurônio Piramidal Central da Camada V em âmbar translúcido (`#f59e0b` / `#fbbf24`) com núcleo visível por SSS, 8 árvores dendríticas de 5ª ordem, cone axonal e 5 bainhas de mielina com nódulos de Ranvier em azul-elétrico (`#00f2fe`) com condução saltatória.
+* 16 neurônios vizinhos esculpidos em azul-ciano (`#0284c7`) e âmbar (`#d97706`).
+* 24 sinapses químicas funcionais com fluxo bidirecional de neurotransmissores: exocitose anterógrada (Glutamato dourado e GABA ciano) e fluxo retrógrado (2-AG/NO esmeralda com recaptação EAAT2/GAT-1).
+* Retorno suave e desobstruído com botão `🏠 Voltar à Visão Inicial (SNC)` e scroll do mouse.
 
 ---
 
 ## 🇬🇧 British English
 
 ### 1. Project Overview
-**MOZOK v2.0** (Ukrainian: *Мозок* — "Brain") is an open-access, high-precision three-dimensional atlas and multiscale pathophysiological simulator of the **Complete Human Central Nervous System** (Brain, Diencephalon, Brainstem, and Spinal Cord with cauda equina). Operating as a *"neuroanatomical Google Earth"*, it provides fluid and reversible navigation between macroscopic cortical topology and deep Layer V cellular microscopy.
+**MOZOK v2.0** (Ukrainian: *Мозок* — "Brain") is an open-access, high-precision three-dimensional atlas and multiscale pathophysiological simulator of the **Complete Human Central Nervous System** (Brain, Diencephalon, Brainstem, and Spinal Cord with cauda equina). It enables continuous, reversible navigation between macroscopic cortical topology and deep Layer V cellular microscopy.
 
-### 2. Continuous Multiscale Architecture
-* **Macro Scale (280–140 mm):** MNI152 cerebral cortex with sculpted sulci and gyri, foliated cerebellum, and continuous spinal cord descending to the conus medullaris and cauda equina.
-* **Meso Scale (140–35 mm):** Real-time cortical shader transparency revealing 22 subcortical structures: Pulvinar Thalamus, C-curved Hippocampus with fornix, Amygdaloid Complex, Corpus Striatum, continuous Hypothalamus with infundibular stalk and bilobed pituitary gland, and unified Brainstem (Midbrain, Pons, and Medulla Oblongata with pyramids and olives).
-* **Micro Scale (35–5 mm):** Dense connectome of **500 Layer V Neurons**: 36 hero pyramidal neurons with amber-gold confocal microscopy aesthetic, dark amber nucleus, bright gold nucleolus, 5th-order dendritic branching (Rall's Law), textured organic myelin sheaths, and electric-blue Nodes of Ranvier with real-time saltatory action potential propagation.
-* **Nano Scale (< 5 mm):** Synaptic clefts featuring quantal neurotransmitter exocytosis and cerebrospinal fluid (CSF) hydrodynamics with 1,200 Brownian bokeh microparticles.
+### 2. Elimination of Visual Artefacts & Canonical MNI152 Scale (`SCALE = 1.0`)
+* **Removal of Extracranial Tracts:** Completely eliminated double-scale multiplication that caused giant DTI tract tubes to float outside the brain volume.
+* **Strict Canonical MNI152 Scaling (`SCALE = 1.0`):** All cortical and subcortical geometries operate strictly within the `window.REAL_MNI_BRAIN` bounding volume (`X ∈ [-5.42, +5.42]`, `Y ∈ [-5.08, +5.08]`, `Z ∈ [-6.90, +6.90]`).
+* **Fine-Calibre White Matter Tractography:** Arcuate Fasciculus (connecting Wernicke's to Broca's area in the left hemisphere `X > 0`), Corticospinal Tract, Optic Radiations, and Corpus Callosum feature fine radii (`r = 0.04` to `0.08`), visible strictly within the parenchymal volume during cortical semitransparency.
+* **Canonical Camera Framing:** Initial camera at `(0, 3.5, 24.0)` with target `(0, -2.5, 0)` framing the entire neuraxis smoothly.
 
-### 3. Validated MNI152 Stereotaxic Coordinate Frame
-The framework strictly adheres to the standard MNI152 coordinate system (`SCALE = 10.0`, eliminating arbitrary `rotation.y = -Math.PI / 2` rotations):
-* **`+Z` Axis:** Anterior (Frontal pole / Face);
-* **`-Z` Axis:** Posterior (Occipital pole and Cerebellum);
-* **`+Y` Axis:** Superior / Dorsal;
-* **`-Y` Axis:** Inferior / Ventral;
-* **`+X` Axis:** **Anatomical Left Cerebral Hemisphere** (housing Broca's Area `[+4.62, +0.50, +2.39]`, Wernicke's Area `[+4.89, -0.29, -1.41]`, Primary Motor Cortex M1 `[+3.79, +3.80, +0.43]`, Primary Somatosensory Cortex S1 `[+3.47, +3.65, -0.54]`, Primary Auditory Cortex A1 `[+4.76, -0.86, -0.12]`, and Insula `[+3.55, -0.35, +0.60]`);
-* **`-X` Axis:** **Anatomical Right Cerebral Hemisphere**.
-Selecting left hemisphere structures automatically orientates the camera from the lateral-anterior left aspect for unobstructed anatomical inspection.
+### 3. Authentic Anatomical Pieces & "3D Piece Isolation" Mode
+* **Direct Extraction of MNI152 Triangles (`extractCorticalPieceGeometry`):**
+  - For cortical areas (**Left Broca's Area BA 44/45** at `[+4.62, +0.50, +2.39]`, **Left Wernicke's Area BA 22** at `[+4.89, -0.29, -1.41]`, **Left Primary Motor Cortex M1** at `[+3.79, +3.80, +0.43]`, **DLPFC**, **S1**, **V1**, and **Insula**), the simulator extracts the authentic McGill/MNI152 triangular sub-mesh preserving natural gyri, sulci, and relief with GLSL Subsurface Scattering.
+* **Sculpted Subcortical Anatomy (Zero Smooth Spheres):**
+  - **Foliated Cerebellum with Arbor Vitae:** High-resolution mesh (`120 × 80`) featuring mathematical folia ($\Delta r = 0.12 \cos(28y)$), posterior cerebellar notch, median vermis, and pinkish parenchymal tone (`#8c7a74`).
+  - **C-Curved Hippocampus:** Continuous 80-segment anatomical structure with anterior temporal digitations, hippocampal body, and fornix columns converging to mamillary bodies.
+  - **Hypothalamus + Infundibulum + Pituitary + Optic Chiasm:** Third ventricle floor and walls with mamillary bodies, tuber cinereum, bilobed pituitary gland, and anterior optic chiasm.
+  - **Corpus Striatum & Bilateral Thalamus:** C-shaped caudate nucleus, putamen with cellular bridges, interthalamic adhesion, and pulvinar.
+  - **Unified Brainstem and Spinal Cord:** Midbrain, pons with transverse fibres, medulla oblongata with pyramids and olives, and spinal cord.
+* **`🧩 Isolate 3D Anatomical Piece` Mode:** Inspect any isolated anatomical piece in full 360° or restore the integrated view via `🧠 View Full CNS`.
 
-### 4. Five-Disorder CNS Pathology Simulator
-Equipped with top-bar controls (**`▶ Start Simulation`**, **`⏸ Pause`**, and **`↺ Reset CNS`**):
-1. **Healthy Physiology:** 40 Hz gamma oscillations, robust saltatory conduction, balanced glutamatergic and GABAergic neurotransmission.
-2. **Alzheimer's Disease:** Cortico-hippocampal atrophy, extracellular amyloid-beta Aβ42 senile plaques, hyperphosphorylated Tau neurofibrillary tangles, and cholinergic collapse.
-3. **Parkinson's Disease:** Degeneration of pigmented dopaminergic neurons in the Substantia Nigra Pars Compacta with striatal dopamine denervation and 4–6 Hz rest tremor.
-4. **Middle Cerebral Artery Ischaemic Stroke:** Thromboembolic infarction of Broca's area and left M1, anoxic depolarization, massive glutamate excitotoxicity, and cytotoxic oedema.
-5. **Multiple Sclerosis:** Autoimmune inflammatory demyelination across spinal cord and brainstem tracts, impairing saltatory conduction across Nodes of Ranvier.
-6. **Creutzfeldt-Jakob Disease (CJD — Prions):** Fulminant spongiform encephalopathy, autocatalytic PrPC $\to$ PrPSc conversion, pulvinar hockey-stick sign, and positive RT-QuIC.
+### 4. Dissectible Meninges & Cortical Vascular Tree
+* **3 Dissectible Meningeal Layers (`buildMeningesLayers`):**
+  - **Dura Mater (`offset = +0.22`):** Fibrous translucent membrane featuring Falx Cerebri, Tentorium Cerebelli, and Superior Sagittal Sinus (`#1d4ed8`).
+  - **Arachnoid Mater & CSF (`offset = +0.11`):** Arachnoid trabeculae with pulsatile cerebrospinal fluid flow.
+  - **Pia Mater (`offset = +0.015`):** Delicate vascular membrane adhering closely to each sulcus and gyrus.
+  - Dissection UI: `🛡️ Meninges: [Hide] [Pia Mater] [Arachnoid + CSF] [Dura Mater] [All]`.
+* **Cerebral Vasculature Adhering to Gyri:**
+  - Circle of Willis at the base of the brain.
+  - Middle Cerebral Artery (MCA) cortical `M4` branches adhering directly to `REAL_MNI_BRAIN` vertices (`v + normal * 0.035`), perfusing Broca's area, M1, and Wernicke's area.
+  - Anterior Cerebral Artery (ACA), Posterior Cerebral Artery (PCA), and dural sinuses (`#1e40af`).
 
-### 5. Reversible Navigation & Accessibility
-* **`🏠 Return to Home View (CNS)` Button:** Smooth 0.9s camera flight restoring full CNS view (`controls.target = (0, -25, 0)`, `camera.position = (65, 35, 220)`), also triggered via `Escape` or `Home` keys.
-* **Reversible Scroll Zoom:** Scrolling backwards (`dist > 38`) smoothly transitions from micro to macro scale without camera locking.
-* **WCAG AAA Compliance:** Integrated with AI speech synthesis and synchronous Brazilian Sign Language (VLibras) translation.
+### 5. Interactive Raycasting & Real-Time Stroke Triggering
+* **Click-to-Trigger Stroke:** Click any 3D cortical gyrus or select an anatomical region:
+  - `🩸 Trigger Ischaemic Stroke Here` | `💥 Trigger Haemorrhagic Stroke Here` | `↺ Restore Healthy Tissue`.
+* **GLSL Pathological Progression:**
+  - Visible vascular occlusion via intraluminal thrombus and downstream cessation of pulsation.
+  - Dynamic radial expansion of the **Necrotic Ischaemic Core (`#111827`)** bordered by the **Ischaemic Penumbra (`#dc2626` / `#f97316`)**.
+  - Immediate topographic clinical syndrome: Broca's Area (*Expressive Aphasia & apraxia*), Wernicke's (*Receptive Aphasia*), M1 (*Contralateral spastic hemiplegia*), V1 (*Homonymous hemianopia*).
+  - Cellular dive: Real-time visualisation of ATP breakdown, glutamate excitotoxicity, $\text{Ca}^{2+}$ influx, and cytotoxic oedema.
+
+### 6. "Firefly Layer V" Microscopic Connectome
+* Clean dark teal background (`#030d18`).
+* Central Layer V Pyramidal Neuron in translucent amber (`#f59e0b` / `#fbbf24`) with SSS nucleus, 8 5th-order dendritic trees, axon hillock, and 5 myelin sheaths with electric-blue Ranvier nodes (`#00f2fe`) exhibiting saltatory conduction.
+* 16 neighbouring sculpted neurons in deep cyan (`#0284c7`) and amber (`#d97706`).
+* 24 chemical synapses with bidirectional neurotransmitter trafficking: anterograde exocytosis (golden Glutamate and cyan GABA) and retrograde messenger feedback (emerald 2-AG/NO with EAAT2/GAT-1 reuptake).
+* Seamless return via `🏠 Return to Home View (CNS)` button and mouse wheel.
 
 ---
 
 ## 🇮🇹 Italiano
 
 ### 1. Visione Generale del Progetto
-**MOZOK v2.0** (Ucraino: *Мозок* — "Cervello") è un atlante tridimensionale interattivo e simulatore fisiopatologico multiscala del **Sistema Nervoso Centrale Umano Completo** (Cervello, Diencefalo, Tronco Encefalico e Midollo Spinale con cauda equina). Concepito come un *"Google Earth neuroanatomico"*, consente una navigazione fluida e reversibile dalla macrostruttura corticale alla microscopia cellulare dello Strato V.
+**MOZOK v2.0** (Ucraino: *Мозок* — "Cervello") è un atlante tridimensionale interattivo e simulatore fisiopatologico multiscala del **Sistema Nervoso Centrale Umano Completo** (Cervello, Diencefalo, Tronco Encefalico e Midollo Spinale con cauda equina).
 
-### 2. Architettura Multiscala Continua
-* **Macro (280–140 mm):** Corteccia MNI152 con solchi e giri accurati, cervelletto e midollo spinale continuo fino al cono midollare.
-* **Meso (140–35 mm):** Trasparenza corticale progressiva che rivela le 22 strutture sottocorticali: Talamo Pulvinar, Ippocampo a forma di C con fornice, Amigdala, Corpo Striato, Ipotalamo continuo con infundibolo e ipofisi bilobata, e Tronco Encefalico continuo (Mesencefalo, Ponte e Bulbo con piramidi e olive).
-* **Micro (35–5 mm):** Connettoma denso di **500 Neuroni dello Strato V**: 36 neuroni piramidali hero in ambra dorata con diffusione subsuperficiale (SSS), nucleo ambrato scuro, nucleolo brillante, diramazioni di quinto ordine (Legge di Rall), guaine mieliniche organiche e nodi di Ranvier in blu elettrico brillante con potenziali d'azione saltatori in tempo reale.
-* **Nano (< 5 mm):** Fessure sinaptiche con rilascio quantico di neurotrasmettitori e dinamica del liquido cefalorachidiano con 1.200 particelle colloidali fluttuanti.
+### 2. Eliminazione delle Anomalie Visive e Scala Canonica MNI152 (`SCALE = 1.0`)
+* **Rimozione Completa dei Tubi Fuori dal Cervello:** Eliminata la doppia moltiplicazione di scala che proiettava le vie DTI fuori dall'encefalo.
+* **Scala Canonica MNI152 Rigorosa (`SCALE = 1.0`):** Tutte le geometrie operano strettamente entro il volume di `window.REAL_MNI_BRAIN` (`X ∈ [-5.42, +5.42]`, `Y ∈ [-5.08, +5.08]`, `Z ∈ [-6.90, +6.90]`).
+* **Trattografia a Calibro Fine:** Fascicolo Arcuato (connessione da Wernicke a Broca nell'emisfero sinistro `X > 0`), Fascio Corticospinale e radiazioni ottiche con raggio sottile (`r = 0.04` a `0.08`), visibili internamente con corteccia semitrasparente.
+* **Inquadratura Canonica:** Telecamera iniziale in `(0, 3.5, 24.0)` e bersaglio in `(0, -2.5, 0)`.
 
-### 3. Coordinate MNI152 e Orientamento Anatomico
-* **Asse `+Z`:** Anteriore (Polo Frontale / Viso);
-* **Asse `-Z`:** Posteriore (Polo Occipitale e Cervelletto);
-* **Asse `+Y`:** Superiore / Dorsale;
-* **Asse `-Y`:** Inferiore / Ventrale;
-* **Asse `+X`:** **Emisfero Cerebrale Sinistro Anatomico** (Area di Broca `[+4.62, +0.50, +2.39]`, Area di Wernicke `[+4.89, -0.29, -1.41]`, Corteccia Motoria Primaria M1 `[+3.79, +3.80, +0.43]`);
-* **Asse `-X`:** **Emisfero Cerebrale Destro Anatomico**.
-La selezione delle strutture dell'emisfero sinistro orienta automaticamente la telecamera dal lato sinistro e anteriore per una visione chiara e diretta.
+### 3. Pezzi Anatomici Reali e Modalità "Isola Pezzo 3D"
+* **Estrazione Triangolare MNI152 (`extractCorticalPieceGeometry`):** Per l'Area di Broca, Wernicke, M1, DLPFC e V1, il sistema estrae la sottomaglia reale preservando solchi e giri con shader Subsurface Scattering.
+* **Scultura Sottocorticale Realistica:** Cervelletto con folia matematiche ($\Delta r = 0.12 \cos(28y)$), Ippocampo ad arco C con digitazioni e fornice, Ipotalamo continuo con infundibolo e ipofisi, Corpo Striato, Talamo e Tronco Encefalico continuo con midollo spinale.
+* **Modalità `🧩 Isola Pezzo Reale 3D` e `🧠 Vista SNC Completo`:** Ispezione a 360° del singolo distretto anatomico o integrazione nel volume globale.
 
-### 4. Simulatore di 5 Patologie del SNC
-Pulsanti di controllo rapido: **`▶ Avvia Simulazione`**, **`⏸ Pausa`**, e **`↺ Ripristina SNC`**:
-1. **Fisiologia Normale:** Ritmo gamma a 40 Hz, conduzione saltatoria ottimale, equilibrio glutammatergico e GABAergico.
-2. **Malattia di Alzheimer:** Atrofia ippocampale, placche senili di beta-amiloide, grovigli neurofibrillari di proteina Tau e declino colinergico.
-3. **Morbo di Parkinson:** Degenerazione dei neuroni dopaminergici della Substantia Nigra Pars Compacta e tremore a riposo a 4–6 Hz.
-4. **Ictus Ischemico dell'Arteria Cerebrale Media:** Infarto nell'area di Broca e M1 sinistro con eccitotossicità da glutammato ed edema citotossico.
-5. **Sclerosi Multipla:** Demielinizzazione autoimmune nei tratti del midollo spinale e del tronco encefalico.
-6. **Malattia di Creutzfeldt-Jakob (CJD — Prioni):** Encefalopatia spongiforme a progressione rapida, conversione conformazionale PrPC $\to$ PrPSc e RT-QuIC positivo.
+### 4. Meningi Sezionabili e Vascolarizzazione Corticale
+* **3 Strati Meningei (`buildMeningesLayers`):** Dura Madre con Falce Cerebrale e Seno Sagittale Superiore (`#1d4ed8`), Aracnoide con flusso di Liquor, e Pia Madre aderente ai solchi.
+* **Arteria Cerebrale Media (ACM):** Rami `M4` aderenti ai vertici della corteccia che irrorano l'Area di Broca, M1 e Wernicke.
 
-### 5. Navigazione Reversibile e Accessibilità
-* **Pulsante `🏠 Torna alla Vista Iniziale (SNC)`:** Volo di 0,9 secondi che ripristina la visuale completa del SNC (`controls.target = (0, -25, 0)`, `camera.position = (65, 35, 220)`), attivabile anche con i tasti `Escape` e `Home`.
-* **Zoom Reversibile:** Lo zoom all'indietro (`dist > 38`) ritorna automaticamente dal micro al macro senza bloccare la telecamera.
+### 5. Raycasting e Attivazione Ictus in Tempo Reale
+* Clic su qualsiasi giro 3D per attivare: `🩸 Attiva Ictus Ischemico Qui` | `💥 Attiva Ictus Emorragico Qui` | `↺ Ripristina Tessuto Sano`.
+* Propagazione GLSL del **Nucleo Necrotico Ischemico (`#111827`)** e della **Penombra Ischemica (`#dc2626` / `#f97316`)**, con sindromi topografiche corrispondenti (Afasia di Broca, Wernicke, Emiplegia controlaterale).
+
+### 6. Microconnettoma "Firefly Layer V"
+* Sfondo verde petrolio scuro (`#030d18`), neurone piramidale centrale in ambra dorata con nucleo SSS, 16 neuroni vicini, 24 sinapsi con rilascio bidirezionale di neurotrasmettitori (Glutammato, GABA, 2-AG/NO e ricaptazione).
 
 ---
 
 ## 🇺🇦 Українська (Кирилиця)
 
 ### 1. Загальний огляд проєкту
-**МОЗОК v2.0** — відкритий інтерактивний тривимірний атлас високої точності та багатомасштабний фізіологічний симулятор **Повної центральної нервової системи людини** (головний мозок, проміжний мозок, стовбур мозку та спинний мозок із кінським хвостом). Проєкт функціонує як *"нейроанатомічний Google Earth"*, забезпечуючи плавний і зворотний перехід від макроскопічної топографії кори до глибинної мікроскопії V шару кори.
+**МОЗОК v2.0** — відкритий інтерактивний тривимірний атлас високої точності та багатомасштабний фізіологічний симулятор **Повної центральної нервової системи людини** (головний мозок, проміжний мозок, стовбур мозку та спинний мозок із кінським хвостом).
 
-### 2. Безперервна багатомасштабна архітектура
-* **Макрорівень (280–140 мм):** Кора головного мозку MNI152 з анатомічними борознами та звивинами, мозочок і суцільний спинний мозок до мозкового конуса та корінців кінського хвоста.
-* **Мезорівень (140–35 мм):** Прогресивна прозорість кори через шейдери, що відкриває 22 підкіркові структури: таламус із подушкою, С-подібний гіпокамп зі склепінням, мигдалеподібний комплекс, смугасте тіло, гіпоталамус із лійкою та двочастковим гіпофізом, а також стовбур мозку (середній мозок, міст і довгастий мозок із пірамідами й оливами).
-* **Мікрорівень (35–5 мм):** Щільний конектом із **500 нейронів V шару**: 36 головних пірамідних нейронів у бурштиново-золотій естетиці конфокальної мікроскопії, темне бурштинове ядро, яскраве ядерце, розгалуження 5-го порядку (закон Ралла), текстуровані органічні мієлінові оболонки та електрично-сині перехопи Ранв'є із сальтаторним проведенням потенціалів дії в реальному часі.
-* **Нанорівень (< 5 мм):** Синаптичні щілини з квантовим вивільненням нейромедіаторів і гідродинамікою ліквору з 1 200 мікрочастинками Боке.
+### 2. Усунення візуальних артефактів і канонічний масштаб MNI152 (`SCALE = 1.0`)
+* **Повне видалення волокон поза мозком:** Усунуто подвійне масштабування, через яке трактографічні трубки ДТІ літали у повітрі за межами мозку.
+* **Суворий канонічний масштаб MNI152 (`SCALE = 1.0`):** Усі анатомічні структури розташовані в межах координат `window.REAL_MNI_BRAIN` (`X ∈ [-5.42, +5.42]`, `Y ∈ [-5.08, +5.08]`, `Z ∈ [-6.90, +6.90]`).
+* **Тонкокаліберні провідні шляхи білої речовини:** Дугоподібний пучок (що з'єднує зону Верніке із зоною Брока в лівій півкулі `X > 0`), кірково-спинномозковий шлях і зорова променистість з радіусом `r = 0.04` – `0.08`, видимі всередині паренхіми при напівпрозорій корі.
+* **Канонічна камера:** Початкове положення `(0, 3.5, 24.0)` з фокусом на `(0, -2.5, 0)`.
 
-### 3. Наукова валідація координат MNI152 та орієнтація півкуль
-Система суворо уніфікує стереотаксичну систему MNI152 (`SCALE = 10.0` без довільних поворотів):
-* **Вісь `+Z`:** Передній полюс (лобовий полюс / обличчя);
-* **Вісь `-Z`:** Задній полюс (потиличний полюс і мозочок);
-* **Вісь `+Y`:** Верхній / дорсальний напрямок;
-* **Вісь `-Y`:** Нижній / вентральний напрямок;
-* **Вісь `+X`:** **Анатомічна ліва півкуля головного мозку** (де розташовані зона Брока `[+4.62, +0.50, +2.39]`, зона Верніке `[+4.89, -0.29, -1.41]`, первинна моторна кора M1 `[+3.79, +3.80, +0.43]`, первинна соматосенсорна кора S1 `[+3.47, +3.65, -0.54]`, первинна слухова кора A1 `[+4.76, -0.86, -0.12]` та острівець `[+3.55, -0.35, +0.60]`);
-* **Вісь `-X`:** **Анатомічна права півкуля головного мозку**.
-Під час вибору структур лівої півкулі камера автоматично розташовується з лівого передньо-бокового боку для прямого анатомічного огляду.
+### 3. Справжні анатомічні структури та режим "Ізолювати 3D деталь"
+* **Вилучення трикутників MNI152 (`extractCorticalPieceGeometry`):** Для кіркових зон (зона Брока BA 44/45, зона Верніке BA 22, моторна кора M1, DLPFC, V1 тощо) вилучається автентична геометрія зі збереженням борозен і звивин з підповерхневим розсіюванням світла (SSS).
+* **Анатомічна скульптура підкіркових структур (без гладких сфер):** Мозочок з математичними листками ($\Delta r = 0.12 \cos(28y)$), С-подібний гіпокамп із пальцеподібними втисненнями та склепінням, гіпоталамус із лійкою, двочастковим гіпофізом і зоровим перехрестом, смугасте тіло та неперервний стовбур зі спинним мозком.
+* **Режим `🧩 Ізолювати анатомічну деталь 3D`:** Огляд виділеної структури на 360° або повернення до загального вигляду (`🧠 Переглянути всю ЦНС`).
 
-### 4. Симулятор 5 патологій ЦНС
-Керування за допомогою кнопок **`▶ Запустити симуляцію`**, **`⏸ Пауза`** та **`↺ Скинути ЦНС`**:
-1. **Нормальна фізіологія:** Гамма-ритм 40 Гц, бездоганне сальтаторне проведення, баланс глутамату та ГАМК.
-2. **Хвороба Альцгеймера:** Селективна атрофія гіпокампа, сенильні бляшки бета-амілоїду, нейрофібрилярні клубки Тау-білка та холінергічний колапс.
-3. **Хвороба Паркінсона:** Загибель дофамінергічних нейронів чорної речовини, дефіцит дофаміну в смугастому тілі та тремор спокою 4–6 Гц.
-4. **Ішемічний інсульт середньої мозкової артерії:** Інфаркт у зоні Брока та моторній корі з масивною глутаматною ексайтотоксичністю та цитотоксичним набряком.
-5. **Розсіяний склероз:** Автоімунна демієлінізація у провідних шляхах спинного мозку та стовбура з блокуванням проведення в перехопах Ранв'є.
-6. **Хвороба Кройтцфельдта — Якоба (ХКЯ — Пріони):** Блискавична спонгіформна дегенерація, автокаталітична конверсія PrPC $\to$ PrPSc, симптом хокейної ключки в таламусі та позитивний тест RT-QuIC.
+### 4. Оболони мозку та судинне русло кори
+* **3 шари мозкових оболон (`buildMeningesLayers`):** Тверда оболона з серпом великого мозку та верхньою сагітальною пазухою (`#1d4ed8`), павутинна оболона з циркуляцією ліквору та м'яка судинна оболона, що прилягає до борозен.
+* **Середня мозкова артерія (СМА):** Кіркові гілки `M4`, що повторюють рельєф поверхні кори `REAL_MNI_BRAIN` (`v + normal * 0.035`) та живлять зону Брока, M1 і зону Верніке.
 
-### 5. Зворотна навігація та доступність
-* **Кнопка `🏠 Повернутися до початкового вигляду (ЦНС)`:** Плавний політ за 0,9 с до загального огляду ЦНС (`controls.target = (0, -25, 0)`, `camera.position = (65, 35, 220)`), що також активується клавішами `Escape` та `Home`.
-* **Зворотне масштабування колесом миші:** Віддалення (`dist > 38`) плавно повертає з мікросвіту до макрорівня без блокування камери.
-* **Синтез мовлення та доступність:** Підтримка озвучення українською мовою та сумісність зі стандартами WCAG AAA.
+### 5. Інтерактивний інсульт у реальному часі (Click-to-Trigger Stroke)
+* Клікніть на будь-яку звивину кори для виклику: `🩸 Спричинити ішемічний інсульт тут` | `💥 Спричинити геморагічний інсульт тут` | `↺ Відновити здорову тканину`.
+* Шейдерне моделювання некротичного ядра інсульту (`#111827`) та пульсуючої ішемічної напівтіні (пенумбри `#dc2626` / `#f97316`) з відповідною клінічною картиною (моторна афазія Брока, сенсорна афазія Верніке, геміплегія).
+* Клітинний рівень: дефіцит АТФ, глутаматна ексайтотоксичність, надлишок $\text{Ca}^{2+}$ і цитотоксичний набряк.
+
+### 6. Мікроконектом "Firefly Layer V"
+* Темне бірюзове тло (`#030d18`), центральний пірамідний нейрон V шару в бурштиново-золотому кольорі з ядром SSS, 16 модельованих сусідніх нейронів, 24 синапси з двонапрямленим транспортом нейромедіаторів (глутамат, ГАМК, ретроградні 2-AG/NO та зворотне захоплення).
 
 ---
 
 ## 🇪🇸 Español
 
 ### 1. Visión General del Proyecto
-**MOZOK v2.0** (Ucraniano: *Мозок* — "Cerebro") es un atlas tridimensional interactivo de alta precisión y simulador fisiopatológico multiescala del **Sistema Nervioso Central Humano Completo** (Encéfalo, Diencéfalo, Tronco Encefálico y Médula Espinal con cauda equina). Diseñado como un *"Google Earth neuroanatómico"*, permite navegar de forma continua y reversible entre la macroanatomía cortical y la microscopía celular de la Capa V.
+**MOZOK v2.0** (Ucraniano: *Мозок* — "Cerebro") es un atlas tridimensional interactivo de alta precisión y simulador fisiopatológico multiescala del **Sistema Nervioso Central Humano Completo** (Encéfalo, Diencéfalo, Tronco Encefálico y Médula Espinal con cauda equina).
 
-### 2. Arquitectura Multiescala Continua
-* **Macro (280–140 mm):** Corteza cerebral MNI152 con giros y surcos esculpidos, cerebelo y médula espinal continua que desciende hasta el cono medular y la cauda equina.
-* **Meso (140–35 mm):** Transparencia cortical progresiva mediante shader que revela 22 estructuras subcorticales: Tálamo Pulvinar, Hipocampo en arco C con fórnix, Complejo Amigdalino, Cuerpo Estriado, Hipotálamo continuo con infundíbulo e hipófisis bilobulada, y Tronco Encefálico unificado (Mesencéfalo, Puente y Bulbo con pirámides y olivas).
-* **Micro (35–5 mm):** Conectoma denso de **500 Neuronas de la Capa V**: 36 neuronas piramidales principales en ámbar dorado con dispersión subsuperficial (SSS), núcleo ámbar oscuro, nucléolo dorado brillante, ramificación de quinto orden (Ley de Rall), vainas de mielina orgánicas texturizadas y nódulos de Ranvier en azul eléctrico con potenciales de acción saltatorios en tiempo real.
-* **Nano (< 5 mm):** Hendiduras sinápticas con liberación cuántica de neurotransmisores y dinámica del líquido cefalorraquídeo con 1.200 partículas coloidales flotantes.
+### 2. Eliminación de Artefactos y Escala Canónica MNI152 (`SCALE = 1.0`)
+* **Eliminación Total de Tubos Fuera del Encéfalo:** Se corrigió la doble multiplicación de escala que proyectaba vías DTI gigantes fuera del cerebro.
+* **Escala Canónica MNI152 Estricta (`SCALE = 1.0`):** Toda la geometría opera exactamente dentro del volumen delimitado por `window.REAL_MNI_BRAIN` (`X ∈ [-5.42, +5.42]`, `Y ∈ [-5.08, +5.08]`, `Z ∈ [-6.90, +6.90]`).
+* **Vías de Tractografía de Calibre Fino:** Fascículo Arqueado (conectando Wernicke con Broca en el hemisferio izquierdo `X > 0`), Fascículo Corticoespinal y radiaciones ópticas con radio fino (`r = 0.04` a `0.08`), visibles dentro del parénquima con la corteza semitransparente.
+* **Cámara Canónica:** Posición inicial `(0, 3.5, 24.0)` con foco en `(0, -2.5, 0)`.
 
-### 3. Validación Científica MNI152 y Orientación Anatómica
-* **Eje `+Z`:** Anterior (Polo Frontal / Rostro);
-* **Eje `-Z`:** Posterior (Polo Occipital y Cerebelo);
-* **Eje `+Y`:** Superior / Dorsal;
-* **Eje `-Y`:** Inferior / Ventral;
-* **Eje `+X`:** **Hemisferio Cerebral Izquierdo Anatómico** (Área de Broca `[+4.62, +0.50, +2.39]`, Área de Wernicke `[+4.89, -0.29, -1.41]`, Corteza Motora Primaria M1 `[+3.79, +3.80, +0.43]`, Corteza Somatosensorial S1 `[+3.47, +3.65, -0.54]`, Corteza Auditiva A1 `[+4.76, -0.86, -0.12]` e Ínsula `[+3.55, -0.35, +0.60]`);
-* **Eje `-X`:** **Hemisferio Cerebral Derecho Anatómico**.
-Al seleccionar estructuras del hemisferio izquierdo, la cámara se orienta desde la vista lateral y anterior izquierda para una inspección anatómica directa y despejada.
+### 3. Piezas Anatómicas Reales y Modo "Aislar Pieza 3D"
+* **Extracción de Triángulos MNI152 (`extractCorticalPieceGeometry`):** Para el Área de Broca, Wernicke, M1, DLPFC, S1, V1 e Ínsula, se extrae la sub-malla triangular real preservando surcos y giros con sombreador GLSL Subsurface Scattering.
+* **Escultura Subcortical Realista (Cero Esferas Lisas):** Cerebelo con folia matemáticas ($\Delta r = 0.12 \cos(28y)$), Hipocampo en arco C con digitaciones y fórnix, Hipotálamo continuo con infundíbulo e hipófisis bilobulada, Cuerpo Estriado, Tálamo y Tronco Encefálico unificado con médula espinal.
+* **Modo `🧩 Aislar Pieza Real 3D`:** Inspección en 360° de la estructura aislada o reintegración mediante `🧠 Ver SNC Completo`.
 
-### 4. Simulador de 5 Patologías del SNC
-Control inmediato mediante botones: **`▶ Iniciar Simulación`**, **`⏸ Pausar`** y **`↺ Reiniciar SNC`**:
-1. **Fisiología Normal:** Ritmo gamma de 40 Hz, conducción saltatoria íntegra, equilibrio de glutamato y GABA.
-2. **Enfermedad de Alzheimer:** Atrofia cortico-hipocampal, placas seniles de beta-amiloide Aβ42, ovillos neurofibrilares de proteína Tau y colapso colinérgico.
-3. **Enfermedad de Parkinson:** Muerte de neuronas dopaminérgicas de la Sustancia Negra Pars Compacta y temblor de reposo de 4–6 Hz.
-4. **Ictus Isquémico de la Arteria Cerebral Media:** Infarto en el Área de Broca y M1 izquierdo con excitotoxicidad por glutamato y edema citotóxico.
-5. **Esclerosis Múltiple:** Desmielinización autoinmune en las vías de la médula espinal y el tronco encefálico.
-6. **Enfermedad de Creutzfeldt-Jakob (ECJ — Priones):** Degeneración espongiforme fulminante, conversión PrPC $\to$ PrPSc, signo talámico del palo de hockey y RT-QuIC positivo.
+### 4. Meninges Disecables y Árbol Vascular Cortical
+* **3 Capas Meníngeas Disecables (`buildMeningesLayers`):** Duramadre con Hoz del Cerebro y Seno Sagital Superior (`#1d4ed8`), Aracnoides con flujo de LCR y Piamadre adherida a los surcos corticales.
+* **Arteria Cerebral Media (ACM):** Ramas `M4` adheridas a la superficie de `REAL_MNI_BRAIN` (`v + normal * 0.035`) que irrigan el Área de Broca, M1 y Wernicke.
 
-### 5. Navegación Reversible y Accesibilidad Total
-* **Botón `🏠 Voltar à Visão Inicial (SNC)`:** Vuelo suave de 0,9 s que restablece la vista completa del SNC (`controls.target = (0, -25, 0)`, `camera.position = (65, 35, 220)`), también accionable con las teclas `Escape` o `Inicio`.
-* **Desbloqueo del Zoom con Rueda del Ratón:** Al girar la rueda hacia atrás (`dist > 38`), la cámara transiciona suavemente del microcosmo al macrocosmos sin bloquearse.
-* **Accesibilidad WCAG AAA y Síntesis de Voz:** Locución por voz IA sincronizada en los 5 idiomas y subtítulos de alto contraste.
+### 5. Raycasting Interactivo y Simulación de Ictus en Tiempo Real
+* Clic directo en cualquier giro 3D: `🩸 Disparar Ictus Isquémico Aquí` | `💥 Disparar Ictus Hemorrágico Aquí` | `↺ Restaurar Tejido Sano`.
+* Propagación fisiopatológica en GLSL: Núcleo necrótico (`#111827`) y penumbra isquémica (`#dc2626` / `#f97316`) con síndrome clínico topográfico exacto (Afasia de Broca, Wernicke, Hemiplejía espástica contralateral).
+* Inmersión celular: visualización inmediata de fallo de ATP, excitotoxicidad por glutamato, influjo de $\text{Ca}^{2+}$ y edema citotóxico.
+
+### 6. Microconectoma "Firefly Layer V"
+* Fondo limpio azul petróleo oscuro (`#030d18`), neurona piramidal central en ámbar dorado con núcleo SSS, 16 neuronas vecinas modeladas, 24 sinapsis con tráfico bidireccional de neurotransmisores (Glutamato, GABA, 2-AG/NO y recaptación).
 
 ---
 

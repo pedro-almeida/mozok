@@ -427,6 +427,90 @@
       setEl('metric-rtquic', b.rtquic, b.rtquic.includes('POSITIVO'));
     }
 
+    // [PT-BR]: Dispara a simulação de AVC Isquêmico ou Hemorrágico com topografia clínica exata da área clicada.
+    // [EN-GB]: Triggers focal Ischaemic or Haemorrhagic Stroke simulation with exact clinical topography of clicked area.
+    // [AI-CTX]: @llm-neuroscience: Simulates focal MCA/ACA/PCA branch occlusion, necrotic core + ischemic penumbra, and neurological syndrome.
+    triggerFocalStrokeSimulation(coords, isHaemorrhagic = false, regionInfo = null) {
+      if (!coords) return;
+
+      this.isSimulating = true;
+      this.isPaused = false;
+
+      // 1. Aciona a lesão focal no shader do córtex e trombo arterial
+      if (this.cnsAnatomy && typeof this.cnsAnatomy.triggerFocalStroke === 'function') {
+        this.cnsAnatomy.triggerFocalStroke(coords, isHaemorrhagic);
+      }
+
+      // 2. Determina a topografia neurológica clínica
+      let areaName = regionInfo ? (regionInfo.estrutura || regionInfo.name || 'Córtex Cerebral') : 'Córtex Cerebral Esquerdo';
+      let clinicalSyndrome = '';
+      let script = '';
+
+      const x = coords[0], y = coords[1], z = coords[2];
+
+      if (x > 3.0 && z > 1.2) {
+        // Área de Broca (Giro Frontal Inferior Esquerdo BA 44/45)
+        areaName = 'Área de Broca (Giro Frontal Inferior Esquerdo — BA 44/45)';
+        clinicalSyndrome = 'Oclusão do ramo pré-frontal/opercular da ACM Esquerda: Afasia Expressiva de Broca (não-fluente), apraxia orofacial e paresia braquiofacial direita.';
+        script = 'Acidente Vascular Cerebral focal na Área de Broca por oclusão do ramo pré-frontal da Artéria Cerebral Média Esquerda. O paciente apresenta afasia de Broca motora não-fluente, com apraxia da fala e paresia facial direita.';
+      } else if (x > 3.0 && z < -0.5 && y < 1.0) {
+        // Área de Wernicke (Giro Temporal Superior BA 22)
+        areaName = 'Área de Wernicke (Giro Temporal Superior Esquerdo — BA 22)';
+        clinicalSyndrome = 'Oclusão do ramo temporal posterior da ACM Esquerda: Afasia Receptiva de Wernicke (fluente, parafasias verbais, neologismos e anosognosia).';
+        script = 'AVC isquêmico na Área de Wernicke esquerda. Observa-se afasia receptiva fluente com perda severa da compreensão verbal, jargões semânticos e anosognosia.';
+      } else if (y > 2.5 && z > -1.0 && z < 1.5) {
+        // Córtex Motor M1 (Giro Pré-Central)
+        areaName = 'Córtex Motor Primário M1 (Giro Pré-Central Esquerdo)';
+        clinicalSyndrome = 'Oclusão de ramo cortical Rolandico da ACM: Hemiplegia espástica contralateral direta (lado direito) com sinal de Babinski positivo.';
+        script = 'Infarto isquêmico agudo no Córtex Motor Primário Esquerdo. Causa hemiplegia contralateral espástica e hiperreflexia profunda no hemicorpo direito.';
+      } else if (z < -4.5) {
+        // Córtex Visual V1 (Lobo Occipital / Sulco Calcarino)
+        areaName = 'Córtex Visual Primário V1 (Sulco Calcarino Occipital)';
+        clinicalSyndrome = 'Oclusão de ramos calcarinos da Artéria Cerebral Posterior (ACP): Hemianopsia homônima contralateral com preservação macular.';
+        script = 'Isquemia do Córtex Visual Primário V1 por oclusão da Artéria Cerebral Posterior. O paciente evolui com hemianopsia homônima contralateral direita.';
+      } else if (y < -3.5 && z < -1.5) {
+        // Cerebelo
+        areaName = 'Hemisfério Cerebelar / Vérmis';
+        clinicalSyndrome = 'Oclusão da Artéria Cerebelar Posterior Inferior (PICA) ou AICA: Ataxia cerebelar ipsilateral, dismetria, disdiadococinesia e nistagmo.';
+        script = 'Infarto cerebelar agudo por oclusão da PICA. Quadro clínico de ataxia da marcha, dismetria apendicular ipsilateral e nistagmo vestibular.';
+      } else {
+        areaName = `Córtex Cerebral (Coordenadas MNI [${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)}])`;
+        clinicalSyndrome = `Oclusão arterial focal com núcleo isquêmico necrótico irreversível cercado por zona de penumbra recuperável por trombólise imediata.`;
+        script = `Alerta de Acidente Vascular Cerebral agudo disparado na coordenada tridimensional selecionada. Núcleo isquêmico em hipoperfusão crítica.`;
+      }
+
+      // 3. Atualiza UI e Telemetria
+      const cardTitle = document.getElementById('card-title');
+      if (cardTitle) cardTitle.textContent = `🚨 ${isHaemorrhagic ? 'AVC HEMORRÁGICO' : 'AVC ISQUÊMICO AGUDO'}: ${areaName}`;
+
+      const cardDetails = document.getElementById('card-details');
+      if (cardDetails) cardDetails.textContent = clinicalSyndrome;
+
+      const cardBadge = document.getElementById('card-badge');
+      if (cardBadge) cardBadge.textContent = isHaemorrhagic ? 'HEMORRAGIA AGUDA' : 'ISQUEMIA CORE + PENUMBRA';
+
+      // 4. Modela o nível celular (falência de ATP, excitotoxicidade por Glutamato, influxo tóxico de Ca2+)
+      if (this.neuralMicrocosmos && typeof this.neuralMicrocosmos.applyPathologyMode === 'function') {
+        this.neuralMicrocosmos.applyPathologyMode('STROKE');
+      }
+
+      this.updateBiomarkersHUD({
+        prpc: '94%',
+        prpsc: '0.00',
+        vacuoles: isHaemorrhagic ? '28.0%' : '19.5%',
+        tau: '6800 pg/mL',
+        p1433: '1.45 ng/mL',
+        abeta: '1020 pg/mL',
+        csfFlow: '11.2 mm/s',
+        rtquic: 'NEGATIVO (Core Necrótico + Penumbra)'
+      });
+
+      // 5. Narração Neural
+      if (window.MozokAINarrator) {
+        window.MozokAINarrator.speak(script, this.currentLang);
+      }
+    }
+
     // [PT-BR]: Retorna o catálogo completo para navegação e documentação.
     // [EN-US]: Returns complete catalog for navigation and documentation.
     getCatalog() {

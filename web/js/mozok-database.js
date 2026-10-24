@@ -29,10 +29,10 @@
       category: 'VISÃO GLOBAL',
       escala: 'SNC Inteiro (Macro: ~450 mm)',
       tier: 'MACRO',
-      coordenadas: [0.0, -25.0, 0.0],
-      center: [0.0, -25.0, 0.0],
+      coordenadas: [0.00, -2.50, 0.00],
+      center: [0.00, -2.50, 0.00],
       mniCenter: [0.0, -2.5, 0.0],
-      optimalDist: 220,
+      optimalDist: 22.0,
       color: '#d1d5db',
       descricao: 'Eixo neuraxial biológico fundamental que integra o encéfalo anterior, tronco encefálico e medula espinhal até a cauda equina.',
       funcoes: [
@@ -64,10 +64,10 @@
       category: 'TELENCÉFALO',
       escala: 'Giro / Coluna Cortical (Meso: ~110 mm)',
       tier: 'MESO',
-      coordenadas: [+30.4, +18.6, +47.2],
-      center: [+30.4, +18.6, +47.2],
+      coordenadas: [3.04, 1.86, 4.72],
+      center: [3.04, 1.86, 4.72],
       mniCenter: [+3.04, +1.86, +4.72],
-      optimalDist: 110,
+      optimalDist: 11.0,
       color: '#38bdf8',
       descricao: 'Região cortical do giro frontal médio e superior com alta densidade de neurônios piramidais da Camada III e V.',
       funcoes: [
@@ -99,10 +99,10 @@
       category: 'TELENCÉFALO',
       escala: 'Giro Cortical (Meso: ~105 mm)',
       tier: 'MESO',
-      coordenadas: [+46.2, +5.0, +23.9],
-      center: [+46.2, +5.0, +23.9],
+      coordenadas: [4.62, 0.50, 2.39],
+      center: [4.62, 0.50, 2.39],
       mniCenter: [+4.62, +0.50, +2.39],
-      optimalDist: 105,
+      optimalDist: 10.5,
       color: '#fb923c',
       descricao: 'Composta pela pars opercularis (BA 44) e pars triangularis (BA 45) no hemisfério cerebral dominante para linguagem.',
       funcoes: [
@@ -133,10 +133,10 @@
       category: 'TELENCÉFALO',
       escala: 'Giro / Coluna Cortical (Meso: ~110 mm)',
       tier: 'MESO',
-      coordenadas: [+37.9, +38.0, +4.3],
-      center: [+37.9, +38.0, +4.3],
+      coordenadas: [3.79, 3.80, 0.43],
+      center: [3.79, 3.80, 0.43],
       mniCenter: [+3.79, +3.80, +0.43],
-      optimalDist: 110,
+      optimalDist: 11.0,
       color: '#f43f5e',
       descricao: 'Organização somatotópica de Penfield (homúnculo motor); abriga as células piramidais gigantes de Betz na Camada V.',
       funcoes: [
@@ -167,10 +167,10 @@
       category: 'TELENCÉFALO',
       escala: 'Giro Cortical (Meso: ~110 mm)',
       tier: 'MESO',
-      coordenadas: [+34.7, +36.5, -5.4],
-      center: [+34.7, +36.5, -5.4],
+      coordenadas: [3.47, 3.65, -0.54],
+      center: [3.47, 3.65, -0.54],
       mniCenter: [+3.47, +3.65, -0.54],
-      optimalDist: 110,
+      optimalDist: 11.0,
       color: '#ec4899',
       descricao: 'Receptor das radiações tálamo-corticais originadas no núcleo ventral posterolateral (VPL) e posteromedial (VPM).',
       funcoes: [
@@ -201,10 +201,10 @@
       category: 'TELENCÉFALO',
       escala: 'Giro Cortical (Meso: ~105 mm)',
       tier: 'MESO',
-      coordenadas: [+48.9, -2.9, -14.1],
-      center: [+48.9, -2.9, -14.1],
+      coordenadas: [4.89, -0.29, -1.41],
+      center: [4.89, -0.29, -1.41],
       mniCenter: [+4.89, -0.29, -1.41],
-      optimalDist: 105,
+      optimalDist: 10.5,
       color: '#06b6d4',
       descricao: 'Zona perissilviana posterior no hemisfério esquerdo fundamental para decodificação da linguagem auditiva.',
       funcoes: [
@@ -235,10 +235,10 @@
       category: 'TELENCÉFALO',
       escala: 'Giro Cortical (Meso: ~110 mm)',
       tier: 'MESO',
-      coordenadas: [+17.0, -11.8, -63.7],
-      center: [+17.0, -11.8, -63.7],
+      coordenadas: [1.70, -1.18, -6.37],
+      center: [1.70, -1.18, -6.37],
       mniCenter: [+1.70, -1.18, -6.37],
-      optimalDist: 110,
+      optimalDist: 11.0,
       color: '#8b5cf6',
       descricao: 'Localizado nos lábios superior (cúneus) e inferior (giro lingual) do sulco calcarino; linha proeminente de Gennari.',
       funcoes: [
@@ -268,10 +268,10 @@
       category: 'TELENCÉFALO',
       escala: 'Giro Cortical (Meso: ~100 mm)',
       tier: 'MESO',
-      coordenadas: [+47.6, -8.6, -1.2],
-      center: [+47.6, -8.6, -1.2],
+      coordenadas: [4.76, -0.86, -0.12],
+      center: [4.76, -0.86, -0.12],
       mniCenter: [+4.76, -0.86, -0.12],
-      optimalDist: 100,
+      optimalDist: 10.0,
       color: '#14b8a6',
       descricao: 'Profundo ao sulco lateral na face superior do lobo temporal; organização tonotópica iso-frequencial em bandas.',
       funcoes: [
@@ -301,10 +301,10 @@
       category: 'TELENCÉFALO',
       escala: 'Lobo Cortical (Meso: ~95 mm)',
       tier: 'MESO',
-      coordenadas: [+35.5, -3.5, +6.0],
-      center: [+35.5, -3.5, +6.0],
+      coordenadas: [3.55, -0.35, 0.60],
+      center: [3.55, -0.35, 0.60],
       mniCenter: [+3.55, -0.35, +0.60],
-      optimalDist: 95,
+      optimalDist: 9.5,
       color: '#a855f7',
       descricao: 'Oculta sob os opérculos frontal, parietal e temporal; contém giros curtos anteriores e giros longos posteriores.',
       funcoes: [
@@ -336,10 +336,10 @@
       category: 'TELENCÉFALO',
       escala: 'Lobo Cortical (Meso: ~115 mm)',
       tier: 'MESO',
-      coordenadas: [+26.0, +41.0, -32.0],
-      center: [+26.0, +41.0, -32.0],
+      coordenadas: [2.60, 4.10, -3.20],
+      center: [2.60, 4.10, -3.20],
       mniCenter: [+2.60, +4.10, -3.20],
-      optimalDist: 115,
+      optimalDist: 11.5,
       color: '#6366f1',
       descricao: 'Localizado dorsalmente ao sulco intraparietal; polo de convergência de múltiplos mapas espaciais corporais.',
       funcoes: [
@@ -369,10 +369,10 @@
       category: 'SISTEMA LÍMBICO',
       escala: 'Estrutura Subcortical (Meso: ~95 mm)',
       tier: 'MESO',
-      coordenadas: [+24.5, -18.5, -11.0],
-      center: [+24.5, -18.5, -11.0],
+      coordenadas: [2.45, -1.85, -1.10],
+      center: [2.45, -1.85, -1.10],
       mniCenter: [+2.45, -1.85, -1.10],
-      optimalDist: 95,
+      optimalDist: 9.5,
       color: '#4f46e5',
       descricao: 'Estrutura arqueada trilaminar (arquicórtex) no lobo temporal medial conectada ao fórnix; células de lugar (place cells).',
       funcoes: [
@@ -403,10 +403,10 @@
       category: 'SISTEMA LÍMBICO',
       escala: 'Estrutura Subcortical (Meso: ~90 mm)',
       tier: 'MESO',
-      coordenadas: [+21.5, -14.5, +4.5],
-      center: [+21.5, -14.5, +4.5],
+      coordenadas: [2.15, -1.45, 0.45],
+      center: [2.15, -1.45, 0.45],
       mniCenter: [+2.15, -1.45, +0.45],
-      optimalDist: 90,
+      optimalDist: 9.0,
       color: '#e11d48',
       descricao: 'Estrutura ovóide em forma de amêndoa rostral à cauda do hipocampo; núcleo basolateral (BLA) e núcleo central (CeA).',
       funcoes: [
@@ -438,10 +438,10 @@
       category: 'NÚCLEOS DA BASE',
       escala: 'Núcleo Subcortical (Meso: ~100 mm)',
       tier: 'MESO',
-      coordenadas: [+18.5, +2.0, +8.5],
-      center: [+18.5, +2.0, +8.5],
+      coordenadas: [1.85, 0.20, 0.85],
+      center: [1.85, 0.20, 0.85],
       mniCenter: [+1.85, +0.20, +0.85],
-      optimalDist: 100,
+      optimalDist: 10.0,
       color: '#f59e0b',
       descricao: 'Principal núcleo de entrada dos gânglios da base; neurônios espinhosos médios (MSNs) GABAérgicos com receptores D1 e D2.',
       funcoes: [
@@ -472,10 +472,10 @@
       category: 'NÚCLEOS DA BASE',
       escala: 'Núcleo Subcortical (Meso: ~95 mm)',
       tier: 'MESO',
-      coordenadas: [+14.2, -1.8, +4.0],
-      center: [+14.2, -1.8, +4.0],
+      coordenadas: [1.42, -0.18, 0.40],
+      center: [1.42, -0.18, 0.40],
       mniCenter: [+1.42, -0.18, +0.40],
-      optimalDist: 95,
+      optimalDist: 9.5,
       color: '#d97706',
       descricao: 'Núcleo cuneiforme medial ao putâmen, dividido pela lâmina medular medial em GPe (via indireta) e GPi (estação de saída motora).',
       funcoes: [
@@ -506,10 +506,10 @@
       category: 'SUBSTÂNCIA BRANCA',
       escala: 'Comissura Inter-hemisférica (Meso: ~100 mm)',
       tier: 'MESO',
-      coordenadas: [0.0, +12.0, -5.0],
-      center: [0.0, +12.0, -5.0],
+      coordenadas: [0.00, 1.20, -0.50],
+      center: [0.00, 1.20, -0.50],
       mniCenter: [0.00, +1.20, -0.50],
-      optimalDist: 100,
+      optimalDist: 10.0,
       color: '#e2e8f0',
       descricao: 'Maior trato de substância branca do cérebro, contendo mais de 200 milhões de axônios mielinizados cruzando a fissura longitudinal.',
       funcoes: [
@@ -540,10 +540,10 @@
       category: 'DIENCÉFALO',
       escala: 'Estrutura Subcortical (Meso: ~100 mm)',
       tier: 'MESO',
-      coordenadas: [+11.5, -4.0, -8.0],
-      center: [+11.5, -4.0, -8.0],
+      coordenadas: [1.15, -0.40, -0.80],
+      center: [1.15, -0.40, -0.80],
       mniCenter: [+1.15, -0.40, -0.80],
-      optimalDist: 100,
+      optimalDist: 10.0,
       color: '#ea580c',
       descricao: 'Massa ovóide de substância cinzenta diencefálica; comutador sensorial com núcleos específicos (VPL, VPM, CGL, CGM, VL) e associativos (Pulvinar).',
       funcoes: [
@@ -575,10 +575,10 @@
       category: 'DIENCÉFALO / ENDÓCRINO',
       escala: 'Eixo Neuroendócrino (Meso: ~90 mm)',
       tier: 'MESO',
-      coordenadas: [0.0, -17.5, +7.5],
-      center: [0.0, -17.5, +7.5],
+      coordenadas: [0.00, -1.75, 0.75],
+      center: [0.00, -1.75, 0.75],
       mniCenter: [0.00, -1.75, +0.75],
-      optimalDist: 90,
+      optimalDist: 9.0,
       color: '#d97706',
       descricao: 'Estrutura integradora neuroendócrina; núcleos pré-óptico, supraquiasmático, paraventricular, supraóptico, arqueado e mamilares.',
       funcoes: [
@@ -610,10 +610,10 @@
       category: 'VIA VISUAL',
       escala: 'Estrutura Diencefálica Anterior (Meso: ~85 mm)',
       tier: 'MESO',
-      coordenadas: [0.0, -14.0, +14.5],
-      center: [0.0, -14.0, +14.5],
+      coordenadas: [0.00, -1.40, 1.45],
+      center: [0.00, -1.40, 1.45],
       mniCenter: [0.00, -1.40, +1.45],
-      optimalDist: 85,
+      optimalDist: 8.5,
       color: '#38bdf8',
       descricao: 'Cruzamento em X das fibras retinianas nasais na base do cérebro, imediatamente anterior ao infundíbulo e superior à sela túrcica.',
       funcoes: [
@@ -642,10 +642,10 @@
       category: 'SISTEMA LIQUÓRICO',
       escala: 'Cavidades Liquóricas (Meso: ~110 mm)',
       tier: 'MESO',
-      coordenadas: [0.0, -10.0, -4.0],
-      center: [0.0, -10.0, -4.0],
+      coordenadas: [0.00, -1.00, -0.40],
+      center: [0.00, -1.00, -0.40],
       mniCenter: [0.00, -1.00, -0.40],
-      optimalDist: 110,
+      optimalDist: 11.0,
       color: '#0284c7',
       descricao: 'Sistema hidrodinâmico contínuo contendo cerca de 150 mL de Líquido Cefalorraquidiano (LCR) produzido nos plexos coróideos.',
       funcoes: [
@@ -677,10 +677,10 @@
       category: 'TRONCO ENCEFÁLICO',
       escala: 'Tronco Encefálico Superior (Meso: ~90 mm)',
       tier: 'MESO',
-      coordenadas: [+7.5, -25.5, -6.5],
-      center: [+7.5, -25.5, -6.5],
+      coordenadas: [0.75, -2.55, -0.65],
+      center: [0.75, -2.55, -0.65],
       mniCenter: [+0.75, -2.55, -0.65],
-      optimalDist: 90,
+      optimalDist: 9.0,
       color: '#38bdf8',
       descricao: 'Contém a substância negra pigmentada rica em neuromelanina, núcleo rubro, colículos superiores/inferiores e tegmento mesencefálico.',
       funcoes: [
@@ -712,10 +712,10 @@
       category: 'TRONCO ENCEFÁLICO',
       escala: 'Tronco Encefálico Médio (Meso: ~95 mm)',
       tier: 'MESO',
-      coordenadas: [0.0, -41.0, -4.5],
-      center: [0.0, -41.0, -4.5],
+      coordenadas: [0.00, -4.10, -0.45],
+      center: [0.00, -4.10, -0.45],
       mniCenter: [0.00, -4.10, -0.45],
-      optimalDist: 95,
+      optimalDist: 9.5,
       color: '#0284c7',
       descricao: 'Volume abaulado ventral de fibras transversais córtico-ponto-cerebelares; contém núcleos dos nervos cranianos V, VI, VII e VIII.',
       funcoes: [
@@ -746,10 +746,10 @@
       category: 'TRONCO ENCEFÁLICO',
       escala: 'Tronco Encefálico Inferior (Meso: ~95 mm)',
       tier: 'MESO',
-      coordenadas: [0.0, -58.5, -6.5],
-      center: [0.0, -58.5, -6.5],
+      coordenadas: [0.00, -5.85, -0.65],
+      center: [0.00, -5.85, -0.65],
       mniCenter: [0.00, -5.85, -0.65],
-      optimalDist: 95,
+      optimalDist: 9.5,
       color: '#0369a1',
       descricao: 'Transição entre tronco e medula espinhal; apresenta fissura mediana anterior, pirâmides bulbares, olivas inferiores e decussação motora.',
       funcoes: [
@@ -781,10 +781,10 @@
       category: 'NERVOS CRANIANOS',
       escala: 'Pares Cranianos (Meso: ~90 mm)',
       tier: 'MESO',
-      coordenadas: [0.0, -38.0, +8.0],
-      center: [0.0, -38.0, +8.0],
+      coordenadas: [0.00, -3.80, 0.80],
+      center: [0.00, -3.80, 0.80],
       mniCenter: [0.00, -3.80, +0.80],
-      optimalDist: 90,
+      optimalDist: 9.0,
       color: '#34d399',
       descricao: 'Doze pares de nervos que emergem diretamente do encéfalo e tronco encefálico para inervação sensitiva, motora e autônoma da cabeça e vísceras.',
       funcoes: [
@@ -816,10 +816,10 @@
       category: 'CEREBELO',
       escala: 'Estrutura Infratentorial (Meso: ~110 mm)',
       tier: 'MESO',
-      coordenadas: [0.0, -44.0, -32.0],
-      center: [0.0, -44.0, -32.0],
+      coordenadas: [0.00, -4.40, -3.20],
+      center: [0.00, -4.40, -3.20],
       mniCenter: [0.00, -4.40, -3.20],
-      optimalDist: 110,
+      optimalDist: 11.0,
       color: '#fda4af',
       descricao: 'Contém mais de 50 bilhões de neurônios (cerca de 60-80% do encéfalo); córtex em 3 camadas com células gigantes de Purkinje e células granulares densas.',
       funcoes: [
@@ -851,10 +851,10 @@
       category: 'MEDULA ESPINHAL',
       escala: 'Neuroeixo Medular (Meso: ~130 mm)',
       tier: 'MESO',
-      coordenadas: [0.0, -100.0, -8.5],
-      center: [0.0, -100.0, -8.5],
+      coordenadas: [0.00, -10.00, -0.85],
+      center: [0.00, -10.00, -0.85],
       mniCenter: [0.00, -10.00, -0.85],
-      optimalDist: 130,
+      optimalDist: 13.0,
       color: '#10b981',
       descricao: 'Coluna neural cilíndrica contínua protegida no canal vertebral; apresenta a intumescência cervical (C4–T1) com substância cinzenta em H.',
       funcoes: [
@@ -886,10 +886,10 @@
       category: 'MEDULA ESPINHAL',
       escala: 'Terminação Medular (Meso: ~140 mm)',
       tier: 'MESO',
-      coordenadas: [0.0, -175.0, -8.5],
-      center: [0.0, -175.0, -8.5],
+      coordenadas: [0.00, -17.50, -0.85],
+      center: [0.00, -17.50, -0.85],
       mniCenter: [0.00, -17.50, -0.85],
-      optimalDist: 140,
+      optimalDist: 14.0,
       color: '#059669',
       descricao: 'Intumescência lombar (L1–S1) que se afunila no cone medular ao nível vertebral L1/L2, prolongando-se nas raízes nervosas descendentes da cauda equina e filo terminal.',
       funcoes: [
@@ -929,15 +929,15 @@
       funcao: 'Comando voluntário dos movimentos distais dos dedos, mãos e pés',
       doencas: ['AVC Isquêmico de ACM', 'Esclerose Lateral Amiotrófica (ELA)', 'Trauma Raquimedular'],
       roiPath: [
-        [+37.9, +38.0, +4.3],
-        [+20.5, +12.0, +2.5],
-        [+12.0, -12.0, -1.0],
-        [+7.5, -25.5, -6.5],
-        [0.0, -41.0, -4.5],
-        [0.0, -58.5, -6.5],
-        [-3.5, -64.0, -7.5],
-        [-3.5, -100.0, -8.5],
-        [-3.5, -170.0, -8.5]
+        [+3.79, +3.80, +0.43],
+        [+2.05, +1.20, +0.25],
+        [+1.20, -1.20, -0.10],
+        [+0.75, -2.55, -0.65],
+        [0.0, -4.10, -0.45],
+        [0.0, -5.85, -0.65],
+        [-0.35, -6.40, -0.75],
+        [-0.35, -10.00, -0.85],
+        [-0.35, -17.00, -0.85]
       ]
     },
     {
@@ -955,11 +955,11 @@
       funcao: 'Repetição fonológica, sintaxe e integração léxico-articulatória',
       doencas: ['Afasia de Condução', 'Afasia de Broca', 'Afasia de Wernicke'],
       roiPath: [
-        [+48.9, -2.9, -14.1],
-        [+42.0, +18.0, -18.0],
-        [+36.0, +35.0, -10.0],
-        [+40.0, +22.0, +12.0],
-        [+46.2, +5.0, +23.9]
+        [+4.89, -0.29, -1.41],
+        [+4.20, +1.80, -1.80],
+        [+3.60, +3.50, -1.00],
+        [+4.00, +2.20, +1.20],
+        [+4.62, +0.50, +2.39]
       ]
     },
     {
@@ -977,11 +977,11 @@
       funcao: 'Mapeamento retinotópico consciente de alta resolução espacial e cores',
       doencas: ['Hemianopsia Homônima Contralateral', 'Quadrantanopsia Superior (lesão de Meyer)', 'Neurite Óptica'],
       roiPath: [
-        [+14.0, -14.0, +14.5],
-        [+18.5, -8.0, -6.0],
-        [+26.0, -14.0, -18.0],
-        [+22.0, -8.0, -42.0],
-        [+17.0, -11.8, -63.7]
+        [+1.40, -1.40, +1.45],
+        [+1.85, -0.80, -0.60],
+        [+2.60, -1.40, -1.80],
+        [+2.20, -0.80, -4.20],
+        [+1.70, -1.18, -6.37]
       ]
     },
     {
@@ -999,11 +999,11 @@
       funcao: 'Discriminação tonotópica e localização binaural de fontes acústicas',
       doencas: ['Agnosia Auditiva Cortical', 'Zumbido / Tinnitus Central', 'Surdez Central'],
       roiPath: [
-        [+12.0, -48.0, -5.0],
-        [+9.0, -38.0, -3.0],
-        [+6.0, -26.0, -8.0],
-        [+14.0, -12.0, -10.0],
-        [+47.6, -8.6, -1.2]
+        [+1.20, -4.80, -0.50],
+        [+0.90, -3.80, -0.30],
+        [+0.60, -2.60, -0.80],
+        [+1.40, -1.20, -1.00],
+        [+4.76, -0.86, -0.12]
       ]
     },
     {
@@ -1021,14 +1021,14 @@
       funcao: 'Consolidação de novas memórias declarativas e processamento emocional',
       doencas: ['Doença de Alzheimer', 'Síndrome de Korsakoff (necrose mamilar)', 'Amnésia Anterógrada'],
       roiPath: [
-        [+24.5, -18.5, -11.0],
-        [+8.5, -4.5, -25.0],
-        [+2.0, -12.0, +2.0],
-        [+4.0, -8.0, -4.0],
-        [+6.0, +14.0, -10.0],
-        [+12.0, +18.0, +8.0],
-        [+22.0, -12.0, -14.0],
-        [+24.5, -18.5, -11.0]
+        [+2.45, -1.85, -1.10],
+        [+0.85, -0.45, -2.50],
+        [+0.20, -1.20, +0.20],
+        [+0.40, -0.80, -0.40],
+        [+0.60, +1.40, -1.00],
+        [+1.20, +1.80, +0.80],
+        [+2.20, -1.20, -1.40],
+        [+2.45, -1.85, -1.10]
       ]
     },
     {
@@ -1046,10 +1046,10 @@
       funcao: 'Iniciação e fluidez cinética de movimentos voluntários sem rigidez',
       doencas: ['Doença de Parkinson (degeneração >70% dos axônios nigrais)', 'Parkinsonismo Farmacológico'],
       roiPath: [
-        [+7.5, -25.5, -6.5],
-        [+11.0, -14.0, +2.0],
-        [+15.0, -4.0, +6.0],
-        [+18.5, +2.0, +8.5]
+        [+0.75, -2.55, -0.65],
+        [+1.10, -1.40, +0.20],
+        [+1.50, -0.40, +0.60],
+        [+1.85, +0.20, +0.85]
       ]
     },
     {
@@ -1067,10 +1067,10 @@
       funcao: 'Salência motivacional, expectativa de recompensa e aprendizado por reforço',
       doencas: ['Adição a Drogas', 'Sintomas Positivos da Esquizofrenia', 'Depressão / Anedonia'],
       roiPath: [
-        [+2.5, -24.0, -4.0],
-        [+6.0, -16.0, +4.0],
-        [+10.0, -8.0, +12.0],
-        [+12.0, -2.0, +18.0]
+        [+0.25, -2.40, -0.40],
+        [+0.60, -1.60, +0.40],
+        [+1.00, -0.80, +1.20],
+        [+1.20, -0.20, +1.80]
       ]
     },
     {
@@ -1088,10 +1088,10 @@
       funcao: 'Atenção sustentada, flexibilidade cognitiva e memória de trabalho operacional',
       doencas: ['TDAH', 'Sintomas Negativos e Cognitivos da Esquizofrenia', 'Apatia'],
       roiPath: [
-        [+2.5, -24.0, -4.0],
-        [+8.0, -12.0, +8.0],
-        [+18.0, +4.0, +28.0],
-        [+30.4, +18.6, +47.2]
+        [+0.25, -2.40, -0.40],
+        [+0.80, -1.20, +0.80],
+        [+1.80, +0.40, +2.80],
+        [+3.04, +1.86, +4.72]
       ]
     },
     {
@@ -1109,11 +1109,11 @@
       funcao: 'Modulação de humor, ciclo sono-vigília, saciedade e inibição da dor espinhal',
       doencas: ['Depressão Maior', 'Transtorno de Ansiedade Generalizada', 'Transtorno Bipolar', 'Dor Crônica'],
       roiPath: [
-        [0.0, -32.0, -8.0],
-        [+4.0, -18.0, -6.0],
-        [+12.0, -6.0, +2.0],
-        [+20.0, +8.0, +20.0],
-        [+26.0, +24.0, +35.0]
+        [0.0, -3.20, -0.80],
+        [+0.40, -1.80, -0.60],
+        [+1.20, -0.60, +0.20],
+        [+2.00, +0.80, +2.00],
+        [+2.60, +2.40, +3.50]
       ]
     }
   ];
@@ -1383,8 +1383,8 @@
       name: 'SNC Inteiro (Whole CNS)',
       rangeMm: [450, 200],
       cameraDist: 220,
-      cameraTarget: [0, -25, 0],
-      cameraPos: [65, 35, 220],
+      cameraTarget: [0, -2.5, 0],
+      cameraPos: [0, 3.5, 24.0],
       description: 'Visão integral do Sistema Nervoso Central: Encéfalo MNI152, Tronco Encefálico, Cerebelo e Medula Espinhal até a cauda equina.'
     },
     {
@@ -1393,8 +1393,8 @@
       name: 'Encéfalo (Encephalon)',
       rangeMm: [200, 130],
       cameraDist: 150,
-      cameraTarget: [0, 5, 0],
-      cameraPos: [35, 20, 150],
+      cameraTarget: [0, 0.5, 0],
+      cameraPos: [3.5, 2.0, 15.0],
       description: 'Hemisférios cerebrais direito e esquerdo, sulco inter-hemisférico e lobos superficiais.'
     },
     {
@@ -1403,8 +1403,8 @@
       name: 'Lobo Cerebral (Cerebral Lobe)',
       rangeMm: [130, 75],
       cameraDist: 95,
-      cameraTarget: [25, 10, 15],
-      cameraPos: [45, 18, 95],
+      cameraTarget: [2.5, 1.0, 1.5],
+      cameraPos: [4.5, 1.8, 9.5],
       description: 'Lobos Frontal, Parietal, Temporal, Occipital, Límbico e Ínsula com vascularização das artérias cerebrais.'
     },
     {
@@ -1413,8 +1413,8 @@
       name: 'Giro & Sulco Cortical (Gyrus & Sulcus)',
       rangeMm: [75, 35],
       cameraDist: 55,
-      cameraTarget: [37.9, 38.0, 4.3],
-      cameraPos: [42, 40, 55],
+      cameraTarget: [3.79, 3.80, 0.43],
+      cameraPos: [4.2, 4.0, 5.5],
       description: 'Giros e sulcos anatômicos MNI152; transição de transparência cortical revelando estruturas subcorticais.'
     },
     {

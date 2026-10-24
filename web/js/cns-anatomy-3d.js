@@ -10,7 +10,7 @@
   // [PT-BR]: Fator de escala anatômico uniforme para transposição de coordenadas MNI152 milimétricas para o espaço da cena WebGL.
   // [EN-GB]: Uniform anatomical scale factor for transposing MNI152 millimetric coordinates into the WebGL scene space.
   // [AI-CTX]: @llm-invariant: All meshes and coordinates must respect SCALE = 10.0 and rotation.set(0, 0, 0).
-  const SCALE = 10.0;
+  const SCALE = 1.0;
 
   // [PT-BR]: Registro exaustivo das 22 regiões e estruturas anatômicas do SNC com coordenadas MNI152 validadas (multiplicadas por 10.0 na cena).
   // [EN-GB]: Comprehensive registry of all 22 CNS anatomical structures and regions with validated MNI152 coordinates (multiplied by 10.0 in scene space).
@@ -22,9 +22,9 @@
       name: 'Sistema Nervoso Central Completo (Encéfalo + Medula Espinhal)',
       category: 'VISÃO GLOBAL',
       tier: 'MACRO',
-      center: [0.0, -25.0, 0.0],
+      center: [0.00, -2.50, 0.00],
       mniCenter: [0.0, -2.5, 0.0],
-      optimalDist: 220,
+      optimalDist: 22.0,
       color: '#d1d5db',
       functionText: 'Comando global, integração sensitivo-motora, homeostase autônoma, cognição superior, linguagem e consciência.',
       clinicalText: 'Acometimento difuso em encefalopatias espongiformes (DCJ), leucoencefalopatias, esclerose múltipla e choque neurogênico.',
@@ -39,9 +39,9 @@
       name: 'Córtex Pré-Frontal Dorsolateral Esquerdo (DLPFC — BA 9/46)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [+30.4, +18.6, +47.2],
+      center: [3.04, 1.86, 4.72],
       mniCenter: [+3.04, +1.86, +4.72],
-      optimalDist: 110,
+      optimalDist: 11.0,
       color: '#38bdf8',
       functionText: 'Funções executivas centrais, memória operacional de trabalho, planejamento abstrato e flexibilidade cognitiva.',
       clinicalText: 'Síndrome disexecutiva, apatia, déficit de atenção sustentada e comprometimento precoce na demência.',
@@ -56,9 +56,9 @@
       name: 'Área de Broca (Giro Frontal Inferior Esquerdo — BA 44/45)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [+46.2, +5.0, +23.9],
+      center: [4.62, 0.50, 2.39],
       mniCenter: [+4.62, +0.50, +2.39],
-      optimalDist: 105,
+      optimalDist: 10.5,
       color: '#fb923c',
       functionText: 'Programação motora da fala, articulação fonológica e processamento morfossintático da linguagem verbal.',
       clinicalText: 'Afasia motora não-fluente de Broca com preservação relativa da compreensão; território vascular crítico da ACM esquerda.',
@@ -73,9 +73,9 @@
       name: 'Córtex Motor Primário M1 (Giro Pré-Central Esquerdo — BA 4)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [+37.9, +38.0, +4.3],
+      center: [3.79, 3.80, 0.43],
       mniCenter: [+3.79, +3.80, +0.43],
-      optimalDist: 110,
+      optimalDist: 11.0,
       color: '#f43f5e',
       functionText: 'Origem do Trato Corticoespinhal lateral, comando motor voluntário fracionado com organização somatotópica de Penfield.',
       clinicalText: 'Hemiplegia espástica contralateral no AVC de ACM ou TCE; mioclonias corticais na DCJ.',
@@ -90,9 +90,9 @@
       name: 'Córtex Somatossensorial Primário S1 (Giro Pós-Central Esquerdo — BA 3/1/2)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [+34.7, +36.5, -5.4],
+      center: [3.47, 3.65, -0.54],
       mniCenter: [+3.47, +3.65, -0.54],
-      optimalDist: 110,
+      optimalDist: 11.0,
       color: '#ec4899',
       functionText: 'Mapeamento somatotópico contralateral de tato epicrítico, dor, temperatura e propriocepção consciente.',
       clinicalText: 'Hipoestesia/anestesia contralateral, astereognosia e parestesias em lesões isquêmicas parietais.',
@@ -107,9 +107,9 @@
       name: 'Área de Wernicke e Fascículo Arqueado (Giro Temporal Superior Esquerdo — BA 22)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [+48.9, -2.9, -14.1],
+      center: [4.89, -0.29, -1.41],
       mniCenter: [+4.89, -0.29, -1.41],
-      optimalDist: 105,
+      optimalDist: 10.5,
       color: '#06b6d4',
       functionText: 'Decodificação fonológica auditiva, semântica lexical da linguagem e condução arqueada para Broca.',
       clinicalText: 'Afasia fluente de Wernicke (jargonafasia com anosognosia) ou afasia de condução por lesão do fascículo arqueado.',
@@ -124,9 +124,9 @@
       name: 'Córtex Visual Primário V1 (Sulco Calcarino Occipital — BA 17)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [+17.0, -11.8, -63.7],
+      center: [1.70, -1.18, -6.37],
       mniCenter: [+1.70, -1.18, -6.37],
-      optimalDist: 110,
+      optimalDist: 11.0,
       color: '#8b5cf6',
       functionText: 'Mapeamento retinotópico de alta resolução, orientação de bordas, contraste espacial e disparidade binocular.',
       clinicalText: 'Hemianopsia homônima contralateral com preservação macular em AVC de Artéria Cerebral Posterior.',
@@ -141,9 +141,9 @@
       name: 'Córtex Auditivo Primário A1 (Giros Transversos de Heschl — BA 41/42)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [+47.6, -8.6, -1.2],
+      center: [4.76, -0.86, -0.12],
       mniCenter: [+4.76, -0.86, -0.12],
-      optimalDist: 100,
+      optimalDist: 10.0,
       color: '#14b8a6',
       functionText: 'Mapeamento tonotópico coclear, discriminação de frequências acústicas e sincronização binaural.',
       clinicalText: 'Agnosia auditiva cortical, perda de discriminação fonética e alucinações sonoras temporais.',
@@ -158,9 +158,9 @@
       name: 'Córtex da Ínsula Esquerda (Profunda ao Sulco Lateral de Sylvius)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [+35.5, -3.5, +6.0],
+      center: [3.55, -0.35, 0.60],
       mniCenter: [+3.55, -0.35, +0.60],
-      optimalDist: 95,
+      optimalDist: 9.5,
       color: '#a855f7',
       functionText: 'Integração interoceptiva viscero-sensorial, percepção gustativa, empatia social e homeostase autonômica.',
       clinicalText: 'Disautonomia neurovegetativa, agnosia gustativa e perda da consciência somática de dor.',
@@ -175,9 +175,9 @@
       name: 'Lobo Parietal Superior Esquerdo (BA 7 / Área de Associação Sensitiva)',
       category: 'TELENCÉFALO',
       tier: 'MESO',
-      center: [+26.0, +41.0, -32.0],
+      center: [2.60, 4.10, -3.20],
       mniCenter: [+2.60, +4.10, -3.20],
-      optimalDist: 115,
+      optimalDist: 11.5,
       color: '#6366f1',
       functionText: 'Integração sensoriomotora visuoespacial, manipulação de coordenadas espaciais e esquema corporal.',
       clinicalText: 'Apraxia ideomotora, síndrome de Balint (ataxia óptica) e déficits de navegação espacial.',
@@ -192,9 +192,9 @@
       name: 'Hipocampo (Corno de Amon CA1–CA4 e Giro Denteado)',
       category: 'SISTEMA LÍMBICO',
       tier: 'MESO',
-      center: [+24.5, -18.5, -11.0],
+      center: [2.45, -1.85, -1.10],
       mniCenter: [+2.45, -1.85, -1.10],
-      optimalDist: 95,
+      optimalDist: 9.5,
       color: '#4f46e5',
       functionText: 'Consolidação da memória episódica, navegação espacial através de células de lugar (place cells) e neurogênese adulta.',
       clinicalText: 'Amnésia anterógrada severa na Doença de Alzheimer (atrofia precoce de CA1/subículo), epilepsia de lobo temporal mesial.',
@@ -209,9 +209,9 @@
       name: 'Complexo Amigdaloidiano (Amígdala — Núcleos BLA e CeA)',
       category: 'SISTEMA LÍMBICO',
       tier: 'MESO',
-      center: [+21.5, -14.5, +4.5],
+      center: [2.15, -1.45, 0.45],
       mniCenter: [+2.15, -1.45, +0.45],
-      optimalDist: 90,
+      optimalDist: 9.0,
       color: '#e11d48',
       functionText: 'Detecção de ameaças, condicionamento aversivo ao medo, valência emocional da memória e respostas de fuga/luta.',
       clinicalText: 'Síndrome de Klüver-Bucy (hiperoralidade, docilidade extrema, ausência de medo), transtorno de estresse pós-traumático (TEPT).',
@@ -226,9 +226,9 @@
       name: 'Corpo Estriado (Núcleo Caudado e Putâmen)',
       category: 'NÚCLEOS DA BASE',
       tier: 'MESO',
-      center: [+18.5, +2.0, +8.5],
+      center: [1.85, 0.20, 0.85],
       mniCenter: [+1.85, +0.20, +0.85],
-      optimalDist: 100,
+      optimalDist: 10.0,
       color: '#f59e0b',
       functionText: 'Porta de entrada dos gânglios da base, seleção de programas motores, aprendizado por reforço e hábitos automatizados.',
       clinicalText: 'Bradicinesia e rigidez na Doença de Parkinson; coreia de Huntington por morte de neurônios espinhosos médios GABAérgicos.',
@@ -243,9 +243,9 @@
       name: 'Tálamo (Núcleos de Relé e Pulvinar Posterior)',
       category: 'DIENCÉFALO',
       tier: 'MESO',
-      center: [+11.5, -4.0, -8.0],
+      center: [1.15, -0.40, -0.80],
       mniCenter: [+1.15, -0.40, -0.80],
-      optimalDist: 100,
+      optimalDist: 10.0,
       color: '#ea580c',
       functionText: 'Estação de relé sensorial universal para o córtex, sincronização tálamo-cortical de 40 Hz e filtro atencional.',
       clinicalText: 'Sinal do taco de hóquei (hiperintensidade do pulvinar) na DCJ variante; dor talâmica central (síndrome de Dejerine-Roussy).',
@@ -260,9 +260,9 @@
       name: 'Hipotálamo, Infundíbulo e Glândula Hipófise',
       category: 'DIENCÉFALO / ENDÓCRINO',
       tier: 'MESO',
-      center: [0.0, -17.5, +7.5],
+      center: [0.00, -1.75, 0.75],
       mniCenter: [0.00, -1.75, +0.75],
-      optimalDist: 90,
+      optimalDist: 9.0,
       color: '#d97706',
       functionText: 'Centro supremo de homeostase: termorregulação, ritmo circadiano, apetite, osmolaridade e controle do eixo endócrino.',
       clinicalText: 'Diabetes insipidus por deficit de ADH, pan-hipopituitarismo, síndrome de Cushing e desregulação neurovegetativa.',
@@ -277,9 +277,9 @@
       name: 'Glândula Pineal (Epitálamo)',
       category: 'EPITÁLAMO',
       tier: 'MESO',
-      center: [0.0, -3.5, -20.5],
+      center: [0.00, -0.35, -2.05],
       mniCenter: [0.00, -0.35, -2.05],
-      optimalDist: 85,
+      optimalDist: 8.5,
       color: '#fbbf24',
       functionText: 'Síntese circadiana de Melatonina em resposta à escuridão sincronizada pelo núcleo supraquiasmático.',
       clinicalText: 'Calcificação precoce, pinealomas com hidrocefalia por oclusão do aqueduto de Sylvius e Síndrome de Parinaud.',
@@ -294,9 +294,9 @@
       name: 'Mesencéfalo e Substância Negra (Pars Compacta)',
       category: 'TRONCO ENCEFÁLICO',
       tier: 'MESO',
-      center: [+7.5, -25.5, -6.5],
+      center: [0.75, -2.55, -0.65],
       mniCenter: [+0.75, -2.55, -0.65],
-      optimalDist: 90,
+      optimalDist: 9.0,
       color: '#38bdf8',
       functionText: 'Síntese de Dopamina nigroestriatal, reflexos auditivos e visuais nos colículos, e controle do tônus muscular.',
       clinicalText: 'Morte de neurônios dopaminérgicos pigmentados por neuromelanina na Doença de Parkinson; paralisia supranuclear progressiva.',
@@ -311,9 +311,9 @@
       name: 'Ponte de Varólio (Protuberância Anular)',
       category: 'TRONCO ENCEFÁLICO',
       tier: 'MESO',
-      center: [0.0, -41.0, -4.5],
+      center: [0.00, -4.10, -0.45],
       mniCenter: [0.00, -4.10, -0.45],
-      optimalDist: 95,
+      optimalDist: 9.5,
       color: '#0284c7',
       functionText: 'Conexão córtico-ponto-cerebelar, núcleos dos nervos cranianos V, VI, VII e VIII, e centro pneumotáxico respiratório.',
       clinicalText: 'Síndrome do encarceramento (Locked-in) em trombose da artéria basilar, mielinólise pontina central.',
@@ -328,9 +328,9 @@
       name: 'Bulbo (Medula Oblonga) e Decussação das Pirâmides',
       category: 'TRONCO ENCEFÁLICO',
       tier: 'MESO',
-      center: [0.0, -58.5, -6.5],
+      center: [0.00, -5.85, -0.65],
       mniCenter: [0.00, -5.85, -0.65],
-      optimalDist: 95,
+      optimalDist: 9.5,
       color: '#0369a1',
       functionText: 'Centros vitais cardiorrespiratórios, reflexos vasomotores, deglutição, vômito e cruzamento piramidal motor.',
       clinicalText: 'Morte encefálica por herniação tonsilar no forame magno; síndrome bulbar lateral de Wallenberg.',
@@ -345,9 +345,9 @@
       name: 'Cerebelo (Fólias, Vérmis e Árvore da Vida)',
       category: 'CEREBELO',
       tier: 'MESO',
-      center: [0.0, -44.0, -32.0],
+      center: [0.00, -4.40, -3.20],
       mniCenter: [0.00, -4.40, -3.20],
-      optimalDist: 110,
+      optimalDist: 11.0,
       color: '#fda4af',
       functionText: 'Coordenação motora fina, cronometria de movimentos, correção de erros motores em tempo real e equilíbrio vestibular.',
       clinicalText: 'Ataxia cerebelar da marcha, dismetria, disdiadococinesia, tremor intencional e nistagmo.',
@@ -362,9 +362,9 @@
       name: 'Medula Espinhal Cervical e Torácica (C1–T12)',
       category: 'MEDULA ESPINHAL',
       tier: 'MESO',
-      center: [0.0, -100.0, -8.5],
+      center: [0.00, -10.00, -0.85],
       mniCenter: [0.00, -10.00, -0.85],
-      optimalDist: 130,
+      optimalDist: 13.0,
       color: '#10b981',
       functionText: 'Condução ascendente sensitiva (lemnisco medial e espinotalâmico) e descendente motora piramidal para membros superiores e tronco.',
       clinicalText: 'Tetraplegia em secção cervical alta (C1-C4 com falência diafragmática do nervo frênico); paraplegia torácica; placas de Esclerose Múltipla.',
@@ -379,9 +379,9 @@
       name: 'Medula Espinhal Lombossacral, Cone Medular e Cauda Equina',
       category: 'MEDULA ESPINHAL',
       tier: 'MESO',
-      center: [0.0, -180.0, -8.5],
+      center: [0.00, -18.00, -0.85],
       mniCenter: [0.00, -18.00, -0.85],
-      optimalDist: 130,
+      optimalDist: 13.0,
       color: '#34d399',
       functionText: 'Inervação motora e sensitiva dos membros inferiores, esfíncteres vesical e retal, e funções sexuais autônomas.',
       clinicalText: 'Síndrome da Cauda Equina (anestesia em sela, incontinência urinária/fecal), paraplegia flácida e ciatalgia compressiva.',
@@ -573,7 +573,26 @@
       this.highlightColor = new THREE.Color(0x00f2fe);
       this.highlightIntensity = 0.0;
 
+      // Grupos de Meninges e Vasculatura Real Aderida aos Sulcos
+      this.meningesGroup = null;
+      this.meningesLayers = { dura: null, arachnoid: null, pia: null };
+      this.currentMeningesMode = 'none';
+
+      this.vasculatureGroup = null;
+      this.thrombusMesh = null;
+      this.arteryMeshes = [];
+
+      // Grupo para exibição de Peça Isolada em 360 graus
+      this.isolatedPieceGroup = new THREE.Group();
+      this.isolatedPieceGroup.name = "ISOLATED_PIECE_GROUP";
+      this.isolatedPieceGroup.visible = false;
+      this.scene.add(this.isolatedPieceGroup);
+      this.isPieceIsolated = false;
+      this.currentIsolatedCode = null;
+
       this.buildAllCNSStructures();
+      this.buildMeningesLayers();
+      this.buildCerebralVasculature();
 
       if (typeof window.Tractography3D !== 'undefined') {
         this.tractography = new window.Tractography3D(this.masterGroup);
@@ -624,6 +643,11 @@
         uHighlightRadius: { value: 0.0 },
         uHighlightColor: { value: new THREE.Color(0x00f2fe) },
         uHighlightIntensity: { value: 0.0 },
+        uStrokeActive: { value: 0.0 },
+        uStrokeCenter: { value: new THREE.Vector3(4.62, 0.50, 2.39) },
+        uStrokeRadius: { value: 0.0 },
+        uStrokeCoreRadius: { value: 0.0 },
+        uStrokeTime: { value: 0.0 },
         uLightDir1: { value: new THREE.Vector3(0.5, 0.7, 0.6).normalize() },
         uLightDir2: { value: new THREE.Vector3(-0.6, 0.2, 0.5).normalize() }
       };
@@ -654,6 +678,11 @@
         uniform float uHighlightRadius;
         uniform vec3 uHighlightColor;
         uniform float uHighlightIntensity;
+        uniform float uStrokeActive;
+        uniform vec3 uStrokeCenter;
+        uniform float uStrokeRadius;
+        uniform float uStrokeCoreRadius;
+        uniform float uStrokeTime;
         uniform vec3 uLightDir1;
         uniform vec3 uLightDir2;
 
@@ -746,6 +775,26 @@
             }
           }
 
+          // Lesão Isquêmica Focal / AVC Agudo com Núcleo Necrótico e Penumbra Isquêmica
+          if (uStrokeActive > 0.5 && uStrokeRadius > 0.05) {
+            float strokeDist = length(vWorldPos - uStrokeCenter);
+            if (strokeDist < uStrokeRadius) {
+              // Zona de Penumbra Isquêmica pulsante (#dc2626 / #f97316)
+              float penumbraPulse = 0.85 + sin(uStrokeTime * 4.0 - strokeDist * 3.0) * 0.15;
+              vec3 penumbraColor = mix(vec3(0.976, 0.451, 0.086), vec3(0.863, 0.149, 0.149), clamp(strokeDist / uStrokeRadius, 0.0, 1.0));
+              float penumbraFactor = smoothstep(uStrokeRadius, uStrokeCoreRadius * 0.7, strokeDist) * penumbraPulse;
+              baseColor = mix(baseColor, penumbraColor, penumbraFactor * 0.92);
+
+              // Núcleo Isquêmico Necrótico Irreversível (#111827 cinza-escuro hipoperfundido)
+              if (strokeDist < uStrokeCoreRadius) {
+                float coreFactor = smoothstep(uStrokeCoreRadius, 0.0, strokeDist);
+                vec3 necroticCore = vec3(0.067, 0.094, 0.153);
+                baseColor = mix(baseColor, necroticCore, coreFactor * 0.95);
+                specStrength *= (1.0 - coreFactor * 0.9);
+              }
+            }
+          }
+
           float wrap = 0.35;
           float diff1 = max(0.0, (dot(N, uLightDir1) + wrap) / (1.0 + wrap));
           float diff2 = max(0.0, (dot(N, uLightDir2) + wrap) / (1.0 + wrap)) * 0.45;
@@ -782,26 +831,68 @@
 
       const atlas = window.SCIENTIFIC_ATLAS_MESHES || {};
 
-      // 1. Cerebelo com fólias anatômicas reais do Atlas
-      if (atlas.cerebellum_folia) {
-        const m = atlas.cerebellum_folia;
-        const geo = new THREE.BufferGeometry();
-        geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(m.vertices), 3));
-        geo.setIndex(new THREE.BufferAttribute(new Uint32Array(m.indices), 1));
-        geo.computeVertexNormals();
+      // 1. Cerebelo com Folia Anatômicas Reais Esculpidas e Árvore da Vida (120 x 80)
+      const vRings = 120;
+      const hSegs = 80;
+      const cbPositions = [];
+      const cbIndices = [];
 
-        const mat = createPhotorealisticNeuralTissueMaterial({
-          baseColor: 0xfda4af,
-          sssColor: 0xf43f5e,
-          rimColor: 0xfbbf24,
-          roughness: 0.42
-        });
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.name = "Cerebelo_Folia_Real";
-        mesh.rotation.set(0, 0, 0);
-        atlasGroup.add(mesh);
-        this.subcorticalMeshes.push(mesh);
+      for (let r = 0; r <= vRings; r++) {
+        const v = r / vRings;
+        const phi = v * Math.PI;
+        const sinPhi = Math.sin(phi);
+        const cosPhi = Math.cos(phi);
+        const y = -4.40 + cosPhi * 1.55;
+
+        for (let s = 0; s <= hSegs; s++) {
+          const u = s / hSegs;
+          const theta = u * Math.PI * 2;
+          const sinTheta = Math.sin(theta);
+          const cosTheta = Math.cos(theta);
+
+          let rx = 3.65 * sinPhi;
+          let rz = 2.45 * sinPhi;
+
+          // Incisura cerebelar posterior (notch posterior) e Vérmis mediano
+          const notch = (cosTheta < -0.3) ? Math.exp(-Math.pow(sinTheta * 3.5, 2)) * 0.45 : 0;
+          const vermis = Math.exp(-Math.pow(sinTheta * 2.8, 2)) * 0.18;
+          // Folia cerebelares horizontais profundas esculpidas matematicamente (Delta r = 0.12 * cos(y * 28.0))
+          const folia = Math.cos(y * 28.0) * 0.12;
+
+          const px = (rx + vermis) * sinTheta;
+          const pz = -2.85 + (rz - notch) * cosTheta + folia * 0.4;
+          const py = y + folia;
+          cbPositions.push(px, py, pz);
+        }
       }
+
+      for (let r = 0; r < vRings; r++) {
+        for (let s = 0; s < hSegs; s++) {
+          const a = r * (hSegs + 1) + s;
+          const b = (r + 1) * (hSegs + 1) + s;
+          const c = (r + 1) * (hSegs + 1) + (s + 1);
+          const d = r * (hSegs + 1) + (s + 1);
+          cbIndices.push(a, b, d);
+          cbIndices.push(b, c, d);
+        }
+      }
+
+      const cbGeo = new THREE.BufferGeometry();
+      cbGeo.setAttribute('position', new THREE.Float32BufferAttribute(cbPositions, 3));
+      cbGeo.setIndex(cbIndices);
+      cbGeo.computeVertexNormals();
+
+      const cbMat = createPhotorealisticNeuralTissueMaterial({
+        baseColor: 0x8c7a74, // Cor anatômica cinza-rosada parenquimatosa
+        sssColor: 0x9f8c85,
+        rimColor: 0x38bdf8,
+        roughness: 0.45
+      });
+      const cbMesh = new THREE.Mesh(cbGeo, cbMat);
+      cbMesh.name = "Cerebelo_Folia_Real";
+      cbMesh.rotation.set(0, 0, 0);
+      atlasGroup.add(cbMesh);
+      this.subcorticalMeshes.push(cbMesh);
 
       // 2. Corpo Estriado (Caudado e Putâmen)
       if (atlas.striatum_caudate_putamen) {
@@ -1648,16 +1739,541 @@
       }
     }
 
-    // [PT-BR]: Atualização por quadro animando o pulso bioluminescente e tractografia.
-    // [EN-GB]: Per-frame update animating the bioluminescent pulse and tractography.
+    // [PT-BR]: Atualização por quadro animando o pulso bioluminescente, AVC focal e tractografia.
+    // [EN-GB]: Per-frame update animating the bioluminescent pulse, focal stroke, and tractography.
     update(dt) {
-      if (this.cortexUniforms && this.highlightIntensity > 0) {
-        const pulse = 0.85 + Math.sin(performance.now() * 0.005) * 0.25;
-        this.cortexUniforms.uHighlightIntensity.value = this.highlightIntensity * pulse;
+      if (this.cortexUniforms) {
+        if (this.highlightIntensity > 0) {
+          const pulse = 0.85 + Math.sin(performance.now() * 0.005) * 0.25;
+          this.cortexUniforms.uHighlightIntensity.value = this.highlightIntensity * pulse;
+        }
+        if (this.cortexUniforms.uStrokeActive.value > 0.5) {
+          this.cortexUniforms.uStrokeTime.value += (dt || 0.016);
+        }
       }
       if (this.tractography && typeof this.tractography.update === 'function') {
         this.tractography.update(dt);
       }
+    }
+
+    // [PT-BR]: Constrói as 3 Camadas Meníngeas Dissecáveis (Dura-Máter +0.22, Aracnoide +0.11 e Pia-Máter +0.015) com Foice do Cérebro e Seio Sagital Superior.
+    // [EN-GB]: Builds 3 Dissectible Meningeal Layers (Dura Mater +0.22, Arachnoid +0.11, and Pia Mater +0.015) with Falx Cerebri and Superior Sagittal Sinus.
+    // [AI-CTX]: @llm-neuroscience: Dissectible meninges wrapping MNI152 cortex with cerebrospinal fluid (CSF) flow and venous drainage.
+    buildMeningesLayers() {
+      this.meningesGroup = new THREE.Group();
+      this.meningesGroup.name = "MENINGES_MASTER_GROUP";
+      this.meningesGroup.rotation.set(0, 0, 0);
+
+      if (!window.REAL_MNI_BRAIN || !window.REAL_MNI_BRAIN.vertices) {
+        this.masterGroup.add(this.meningesGroup);
+        return;
+      }
+
+      const origVerts = window.REAL_MNI_BRAIN.vertices;
+      const inds = window.REAL_MNI_BRAIN.indices;
+      const vCount = origVerts.length / 3;
+
+      // Cálculo de normais de vértice para expansão laminar
+      const normals = new Float32Array(origVerts.length);
+      for (let i = 0; i < inds.length; i += 3) {
+        const i0 = inds[i] * 3, i1 = inds[i + 1] * 3, i2 = inds[i + 2] * 3;
+        const ax = origVerts[i0], ay = origVerts[i0 + 1], az = origVerts[i0 + 2];
+        const bx = origVerts[i1], by = origVerts[i1 + 1], bz = origVerts[i1 + 2];
+        const cx = origVerts[i2], cy = origVerts[i2 + 1], cz = origVerts[i2 + 2];
+        const abx = bx - ax, aby = by - ay, abz = bz - az;
+        const acx = cx - ax, acy = cy - ay, acz = cz - az;
+        const nx = aby * acz - abz * acy;
+        const ny = abz * acx - abx * acz;
+        const nz = abx * acy - aby * acx;
+        normals[i0] += nx; normals[i0 + 1] += ny; normals[i0 + 2] += nz;
+        normals[i1] += nx; normals[i1 + 1] += ny; normals[i1 + 2] += nz;
+        normals[i2] += nx; normals[i2 + 1] += ny; normals[i2 + 2] += nz;
+      }
+      for (let i = 0; i < normals.length; i += 3) {
+        const l = Math.hypot(normals[i], normals[i + 1], normals[i + 2]) || 1.0;
+        normals[i] /= l; normals[i + 1] /= l; normals[i + 2] /= l;
+      }
+
+      const createLayerMesh = (offset, matOptions, name) => {
+        const layerPositions = new Float32Array(origVerts.length);
+        for (let i = 0; i < origVerts.length; i += 3) {
+          layerPositions[i] = origVerts[i] + normals[i] * offset;
+          layerPositions[i + 1] = origVerts[i + 1] + normals[i + 1] * offset;
+          layerPositions[i + 2] = origVerts[i + 2] + normals[i + 2] * offset;
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(layerPositions, 3));
+        geo.setIndex(new THREE.BufferAttribute(new Uint32Array(inds), 1));
+        geo.computeVertexNormals();
+
+        const mat = new THREE.MeshPhysicalMaterial(matOptions);
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.name = name;
+        mesh.rotation.set(0, 0, 0);
+        return mesh;
+      };
+
+      // 1. Pia-Máter (+0.015): Membrana vascular fina aderida intimamente à superfície
+      const piaMatOptions = {
+        color: 0xfca5a5,
+        roughness: 0.15,
+        metalness: 0.05,
+        clearcoat: 0.9,
+        clearcoatRoughness: 0.1,
+        transparent: true,
+        opacity: 0.45,
+        side: THREE.DoubleSide
+      };
+      this.meningesLayers.pia = createLayerMesh(0.015, piaMatOptions, "Pia_Mater_Real");
+      this.meningesLayers.pia.visible = false;
+      this.meningesGroup.add(this.meningesLayers.pia);
+
+      // 2. Aracnoide-Máter (+0.11): Membrana rendada translúcida e espaço subaracnóideo com LCR
+      const arachMatOptions = {
+        color: 0x38bdf8,
+        roughness: 0.20,
+        metalness: 0.1,
+        transmission: 0.75,
+        transparent: true,
+        opacity: 0.55,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.25,
+        side: THREE.DoubleSide
+      };
+      this.meningesLayers.arachnoid = createLayerMesh(0.11, arachMatOptions, "Aracnoide_Mater_LCR");
+      this.meningesLayers.arachnoid.visible = false;
+      this.meningesGroup.add(this.meningesLayers.arachnoid);
+
+      // 3. Dura-Máter (+0.22): Membrana fibrosa densa branco-perolada com Foice do Cérebro
+      const duraMatOptions = {
+        color: 0xf8fafc,
+        roughness: 0.45,
+        metalness: 0.08,
+        clearcoat: 0.4,
+        transparent: true,
+        opacity: 0.75,
+        side: THREE.DoubleSide
+      };
+      this.meningesLayers.dura = createLayerMesh(0.22, duraMatOptions, "Dura_Mater_Falx");
+      this.meningesLayers.dura.visible = false;
+
+      // Foice do Cérebro (Falx Cerebri na fissura inter-hemisférica X = 0)
+      const falxShape = new THREE.Shape();
+      falxShape.moveTo(0.0, 4.8);
+      falxShape.quadraticCurveTo(4.2, 2.5, 4.6, -0.8);
+      falxShape.quadraticCurveTo(2.8, -2.5, -0.2, -2.8);
+      falxShape.quadraticCurveTo(-2.5, -2.5, -5.2, -1.8);
+      falxShape.quadraticCurveTo(-4.5, 2.0, 0.0, 4.8);
+
+      const falxGeo = new THREE.ShapeGeometry(falxShape, 24);
+      falxGeo.rotateY(Math.PI / 2);
+      const falxMat = new THREE.MeshStandardMaterial({
+        color: 0xe2e8f0,
+        roughness: 0.5,
+        transparent: true,
+        opacity: 0.65,
+        side: THREE.DoubleSide
+      });
+      const falxMesh = new THREE.Mesh(falxGeo, falxMat);
+      falxMesh.position.set(0.0, 1.2, 0.2);
+      falxMesh.name = "Foice_do_Cerebro_Falx";
+      this.meningesLayers.dura.add(falxMesh);
+
+      // Seio Sagital Superior Venoso (#1d4ed8)
+      const sssCurve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0.0, 1.6, +5.2),
+        new THREE.Vector3(0.0, 4.5, +3.2),
+        new THREE.Vector3(0.0, 5.2, 0.0),
+        new THREE.Vector3(0.0, 4.6, -3.8),
+        new THREE.Vector3(0.0, 0.8, -6.6)
+      ]);
+      const sssGeo = new THREE.TubeGeometry(sssCurve, 32, 0.16, 8, false);
+      const sssMat = new THREE.MeshStandardMaterial({
+        color: 0x1d4ed8,
+        roughness: 0.25,
+        emissive: 0x1e40af,
+        emissiveIntensity: 0.65
+      });
+      const sssMesh = new THREE.Mesh(sssGeo, sssMat);
+      sssMesh.name = "Seio_Sagital_Superior_Dural";
+      this.meningesLayers.dura.add(sssMesh);
+
+      this.meningesGroup.add(this.meningesLayers.dura);
+      this.masterGroup.add(this.meningesGroup);
+    }
+
+    // [PT-BR]: Altera a camada de meninge visível ('none' | 'pia' | 'arachnoid' | 'dura' | 'all').
+    // [EN-GB]: Changes visible meningeal layer ('none' | 'pia' | 'arachnoid' | 'dura' | 'all').
+    setMeningesLayer(mode) {
+      this.currentMeningesMode = mode;
+      if (!this.meningesLayers) return;
+
+      const { dura, arachnoid, pia } = this.meningesLayers;
+      if (dura) dura.visible = (mode === 'dura' || mode === 'all');
+      if (arachnoid) arachnoid.visible = (mode === 'arachnoid' || mode === 'all');
+      if (pia) pia.visible = (mode === 'pia' || mode === 'all');
+    }
+
+    // [PT-BR]: Constrói a Árvore Vascular Arterial e Venosa Real aderida à superfície cortical de McGill/MNI152.
+    // [EN-GB]: Builds Real Arterial and Venous Vascular Tree adhering directly to McGill/MNI152 cortical surface.
+    // [AI-CTX]: @llm-neuroscience: Polígono de Willis, Artéria Cerebral Média (ACM ramos M1-M4), ACA, ACP e veias corticais.
+    buildCerebralVasculature() {
+      this.vasculatureGroup = new THREE.Group();
+      this.vasculatureGroup.name = "CEREBRAL_VASCULATURE_GROUP";
+      this.vasculatureGroup.rotation.set(0, 0, 0);
+
+      const verts = window.REAL_MNI_BRAIN ? window.REAL_MNI_BRAIN.vertices : null;
+
+      // Função de projeção de nós sobre o vértice cortical mais próximo
+      const projectNodes = (pts, normalOffset = 0.035) => {
+        if (!verts) return pts.map(p => new THREE.Vector3(p[0], p[1], p[2]));
+        return pts.map(p => {
+          let minD = Infinity;
+          let bestIdx = 0;
+          for (let i = 0; i < verts.length; i += 3) {
+            const d = (verts[i] - p[0]) ** 2 + (verts[i + 1] - p[1]) ** 2 + (verts[i + 2] - p[2]) ** 2;
+            if (d < minD) { minD = d; bestIdx = i; }
+          }
+          const vx = verts[bestIdx];
+          const vy = verts[bestIdx + 1];
+          const vz = verts[bestIdx + 2];
+          const len = Math.hypot(vx, vy, vz) || 1.0;
+          return new THREE.Vector3(
+            vx + (vx / len) * normalOffset,
+            vy + (vy / len) * normalOffset,
+            vz + (vz / len) * normalOffset
+          );
+        });
+      };
+
+      const arteryMat = new THREE.MeshStandardMaterial({
+        color: 0xef4444, // Vermelho arterial vivo
+        roughness: 0.22,
+        metalness: 0.12,
+        emissive: 0xb91c1c,
+        emissiveIntensity: 0.55
+      });
+
+      const veinMat = new THREE.MeshStandardMaterial({
+        color: 0x1e40af, // Azul venoso profundo
+        roughness: 0.25,
+        metalness: 0.10,
+        emissive: 0x1d4ed8,
+        emissiveIntensity: 0.45
+      });
+
+      // 1. Polígono de Willis na base do encéfalo
+      [-1, 1].forEach((sign) => {
+        // Carótida Interna e segmento proximal da ACM
+        const icaPts = [
+          [sign * 0.95, -2.4, +0.6],
+          [sign * 1.35, -1.8, +0.65],
+          [sign * 1.85, -1.2, +0.75]
+        ].map(p => new THREE.Vector3(p[0], p[1], p[2]));
+        const icaGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(icaPts), 12, 0.055, 6, false);
+        const icaMesh = new THREE.Mesh(icaGeo, arteryMat.clone());
+        icaMesh.name = `Carotida_Interna_${sign > 0 ? 'Esq' : 'Dir'}`;
+        this.vasculatureGroup.add(icaMesh);
+        this.arteryMeshes.push(icaMesh);
+
+        // Artéria Cerebral Média (ACM) — ramo M1 e ramos corticais M4 aderidos à Área de Broca, M1 e Wernicke
+        // Ramos para Área de Broca (+X esquerdo)
+        const mcaBrocaRaw = [
+          [sign * 1.85, -1.2, +0.75],
+          [sign * 2.85, -0.6, +0.95],
+          [sign * 3.85, -0.1, +1.65],
+          [sign * 4.62, +0.50, +2.39] // Área de Broca
+        ];
+        const mcaBrocaNodes = projectNodes(mcaBrocaRaw, 0.04);
+        const mcaBrocaGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(mcaBrocaNodes), 24, 0.038, 6, false);
+        const mcaBrocaMesh = new THREE.Mesh(mcaBrocaGeo, arteryMat.clone());
+        mcaBrocaMesh.name = `ACM_Broca_${sign > 0 ? 'Esq' : 'Dir'}`;
+        this.vasculatureGroup.add(mcaBrocaMesh);
+        this.arteryMeshes.push(mcaBrocaMesh);
+
+        // Ramo para Córtex Motor M1
+        const mcaM1Raw = [
+          [sign * 2.85, -0.6, +0.95],
+          [sign * 3.45, +1.2, +0.85],
+          [sign * 3.79, +3.80, +0.43] // Giro Pré-Central M1
+        ];
+        const mcaM1Nodes = projectNodes(mcaM1Raw, 0.04);
+        const mcaM1Geo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(mcaM1Nodes), 20, 0.032, 6, false);
+        const mcaM1Mesh = new THREE.Mesh(mcaM1Geo, arteryMat.clone());
+        mcaM1Mesh.name = `ACM_M1_${sign > 0 ? 'Esq' : 'Dir'}`;
+        this.vasculatureGroup.add(mcaM1Mesh);
+        this.arteryMeshes.push(mcaM1Mesh);
+
+        // Ramo para Área de Wernicke
+        const mcaWernickeRaw = [
+          [sign * 2.85, -0.6, +0.95],
+          [sign * 3.95, -0.5, -0.45],
+          [sign * 4.89, -0.29, -1.41] // Área de Wernicke
+        ];
+        const mcaWernickeNodes = projectNodes(mcaWernickeRaw, 0.04);
+        const mcaWernickeGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(mcaWernickeNodes), 20, 0.032, 6, false);
+        const mcaWernickeMesh = new THREE.Mesh(mcaWernickeGeo, arteryMat.clone());
+        mcaWernickeMesh.name = `ACM_Wernicke_${sign > 0 ? 'Esq' : 'Dir'}`;
+        this.vasculatureGroup.add(mcaWernickeMesh);
+        this.arteryMeshes.push(mcaWernickeMesh);
+
+        // Artéria Cerebral Anterior (ACA) no corpo caloso e face medial
+        const acaRaw = [
+          [sign * 0.85, -1.3, +1.2],
+          [sign * 0.45, +0.4, +2.3],
+          [sign * 0.35, +1.8, +1.8],
+          [sign * 0.35, +2.4, -0.2]
+        ];
+        const acaGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(projectNodes(acaRaw, 0.04)), 18, 0.035, 6, false);
+        const acaMesh = new THREE.Mesh(acaGeo, arteryMat.clone());
+        acaMesh.name = `ACA_${sign > 0 ? 'Esq' : 'Dir'}`;
+        this.vasculatureGroup.add(acaMesh);
+        this.arteryMeshes.push(acaMesh);
+
+        // Artéria Cerebral Posterior (ACP) irrigando lobo occipital V1
+        const acpRaw = [
+          [sign * 0.75, -2.1, -1.2],
+          [sign * 1.55, -2.0, -2.5],
+          [sign * 1.70, -1.18, -6.37] // V1 Calcarino
+        ];
+        const acpGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(projectNodes(acpRaw, 0.04)), 20, 0.035, 6, false);
+        const acpMesh = new THREE.Mesh(acpGeo, arteryMat.clone());
+        acpMesh.name = `ACP_${sign > 0 ? 'Esq' : 'Dir'}`;
+        this.vasculatureGroup.add(acpMesh);
+        this.arteryMeshes.push(acpMesh);
+
+        // Veias Corticais Superficiais desembocando no Seio Sagital Superior
+        const veinRaw = [
+          [sign * 4.4, +1.5, +0.8],
+          [sign * 3.1, +3.5, +0.4],
+          [sign * 0.6, +4.8, +0.2]
+        ];
+        const veinGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(projectNodes(veinRaw, 0.045)), 16, 0.035, 6, false);
+        const veinMesh = new THREE.Mesh(veinGeo, veinMat.clone());
+        veinMesh.name = `Veia_Cortical_Trolard_${sign > 0 ? 'Esq' : 'Dir'}`;
+        this.vasculatureGroup.add(veinMesh);
+      });
+
+      // Artéria Basilar na face ventral anterior da ponte
+      const basilarPts = [
+        new THREE.Vector3(0.0, -5.2, -0.65),
+        new THREE.Vector3(0.0, -4.2, -0.42),
+        new THREE.Vector3(0.0, -3.2, -0.62)
+      ];
+      const basilarGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(basilarPts), 12, 0.052, 6, false);
+      const basilarMesh = new THREE.Mesh(basilarGeo, arteryMat.clone());
+      basilarMesh.name = "Arteria_Basilar";
+      this.vasculatureGroup.add(basilarMesh);
+      this.arteryMeshes.push(basilarMesh);
+
+      // Malha de Trombo Oclusivo (escondido inicialmente)
+      const thrombusGeo = new THREE.DodecahedronGeometry(0.12);
+      const thrombusMat = new THREE.MeshStandardMaterial({
+        color: 0x450a0a, // Vermelho necrótico coagulado escuro
+        roughness: 0.7,
+        emissive: 0x7f1d1d,
+        emissiveIntensity: 0.35
+      });
+      this.thrombusMesh = new THREE.Mesh(thrombusGeo, thrombusMat);
+      this.thrombusMesh.name = "Trombo_Oclusivo_AVC";
+      this.thrombusMesh.visible = false;
+      this.vasculatureGroup.add(this.thrombusMesh);
+
+      this.masterGroup.add(this.vasculatureGroup);
+    }
+
+    // [PT-BR]: Dispara AVC isquêmico ou hemorrágico focal em uma coordenada 3D selecionada.
+    // [EN-GB]: Triggers focal ischaemic or haemorrhagic stroke at a selected 3D coordinate.
+    triggerFocalStroke(coords, isHaemorrhagic = false) {
+      if (!coords) return;
+      const pos = new THREE.Vector3(coords[0], coords[1], coords[2]);
+
+      // Ativa shader de necrose focal
+      if (this.cortexUniforms) {
+        this.cortexUniforms.uStrokeActive.value = 1.0;
+        this.cortexUniforms.uStrokeCenter.value.copy(pos);
+        this.cortexUniforms.uStrokeRadius.value = isHaemorrhagic ? 2.4 : 1.85;
+        this.cortexUniforms.uStrokeCoreRadius.value = isHaemorrhagic ? 1.4 : 0.95;
+      }
+
+      // Posiciona o trombo oclusivo na artéria aferente
+      if (this.thrombusMesh) {
+        this.thrombusMesh.position.copy(pos);
+        this.thrombusMesh.visible = true;
+      }
+
+      // Hipoperfusão: escurece os ramos arteriais mais próximos da lesão
+      this.arteryMeshes.forEach(art => {
+        if (art.name.includes('ACM_Broca_Esq') || art.name.includes('ACM_M1_Esq')) {
+          if (art.material) {
+            art.material.color.setHex(0x3f3f46); // Vaso colapsado hipoperfundido
+            art.material.emissive.setHex(0x18181b);
+          }
+        }
+      });
+    }
+
+    // [PT-BR]: Restaura o tecido e a árvore vascular saudáveis (recanalização / trombólise).
+    // [EN-GB]: Restores healthy tissue and vasculature (recanalisation / thrombolysis).
+    restoreHealthyTissue() {
+      if (this.cortexUniforms) {
+        this.cortexUniforms.uStrokeActive.value = 0.0;
+        this.cortexUniforms.uStrokeRadius.value = 0.0;
+        this.cortexUniforms.uStrokeCoreRadius.value = 0.0;
+      }
+      if (this.thrombusMesh) {
+        this.thrombusMesh.visible = false;
+      }
+      this.arteryMeshes.forEach(art => {
+        if (art.material) {
+          art.material.color.setHex(0xef4444);
+          art.material.emissive.setHex(0xb91c1c);
+        }
+      });
+    }
+
+    // [PT-BR]: Extrai a geometria cortical real a partir dos triângulos de window.REAL_MNI_BRAIN em um raio esférico.
+    // [EN-GB]: Extracts real cortical geometry directly from triangles of window.REAL_MNI_BRAIN within a spherical radius.
+    extractCorticalPieceGeometry(center, radius = 1.85) {
+      if (!window.REAL_MNI_BRAIN || !window.REAL_MNI_BRAIN.vertices) return null;
+
+      const verts = window.REAL_MNI_BRAIN.vertices;
+      const inds = window.REAL_MNI_BRAIN.indices;
+      const gyrus = window.REAL_MNI_BRAIN.gyrus || null;
+
+      const cx = center[0], cy = center[1], cz = center[2];
+      const r2 = radius * radius;
+      const triIndices = [];
+
+      for (let i = 0; i < inds.length; i += 3) {
+        const i0 = inds[i] * 3, i1 = inds[i + 1] * 3, i2 = inds[i + 2] * 3;
+        const ax = verts[i0], ay = verts[i0 + 1], az = verts[i0 + 2];
+        const bx = verts[i1], by = verts[i1 + 1], bz = verts[i1 + 2];
+        const c_x = verts[i2], cy_ = verts[i2 + 1], cz_ = verts[i2 + 2];
+        const mx = (ax + bx + c_x) / 3;
+        const my = (ay + by + cy_) / 3;
+        const mz = (az + bz + cz_) / 3;
+        if ((mx - cx) ** 2 + (my - cy) ** 2 + (mz - cz) ** 2 <= r2) {
+          triIndices.push(inds[i], inds[i + 1], inds[i + 2]);
+        }
+      }
+
+      if (triIndices.length === 0) return null;
+
+      const vMap = new Map();
+      const subVerts = [];
+      const subGyrus = [];
+      const subInds = [];
+
+      for (let i = 0; i < triIndices.length; i++) {
+        const oldIdx = triIndices[i];
+        let newIdx = vMap.get(oldIdx);
+        if (newIdx === undefined) {
+          newIdx = subVerts.length / 3;
+          vMap.set(oldIdx, newIdx);
+          subVerts.push(verts[oldIdx * 3] - cx, verts[oldIdx * 3 + 1] - cy, verts[oldIdx * 3 + 2] - cz);
+          if (gyrus) subGyrus.push(gyrus[oldIdx]);
+        }
+        subInds.push(newIdx);
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(subVerts, 3));
+      geo.setIndex(subInds);
+      if (subGyrus.length > 0) {
+        geo.setAttribute('aGyrus', new THREE.Float32BufferAttribute(subGyrus, 1));
+      }
+      geo.computeVertexNormals();
+      return geo;
+    }
+
+    // [PT-BR]: Modo Isolar Peça Anatômica Real 3D (Área de Broca, Wernicke, Hipocampo, etc.) para rotação em 360°.
+    // [EN-GB]: Isolate Real 3D Anatomical Piece Mode (Broca's Area, Wernicke's, Hippocampus, etc.) for 360° rotation.
+    isolatePiece(structureCode) {
+      if (!structureCode) return null;
+      this.isPieceIsolated = true;
+      this.currentIsolatedCode = structureCode;
+
+      // Oculta todo o SNC Macro
+      this.masterGroup.visible = false;
+
+      // Limpa peça isolada anterior
+      while (this.isolatedPieceGroup.children.length > 0) {
+        const c = this.isolatedPieceGroup.children[0];
+        this.isolatedPieceGroup.remove(c);
+        if (c.geometry) c.geometry.dispose();
+      }
+
+      const reg = this.regionsRegistry.find(r => r.code === structureCode);
+      if (!reg) return null;
+
+      let pieceMesh = null;
+
+      // 1. Áreas Corticais: extração real dos triângulos MNI152 de McGill
+      const corticalCodes = ['BROCA_LEFT', 'WERNICKE_LEFT', 'M1_LEFT', 'DLPFC_LEFT', 'S1_LEFT', 'V1_CALCARINE', 'A1_LEFT', 'INSULA_LEFT'];
+      if (corticalCodes.includes(structureCode)) {
+        const geo = this.extractCorticalPieceGeometry(reg.center, 2.2);
+        if (geo) {
+          const mat = createPhotorealisticNeuralTissueMaterial({
+            baseColor: new THREE.Color(reg.color).getHex(),
+            sssColor: 0xf43f5e,
+            rimColor: 0x00f2fe,
+            roughness: 0.35
+          });
+          pieceMesh = new THREE.Mesh(geo, mat);
+          pieceMesh.name = `ISOLATED_CORTICAL_${structureCode}`;
+        }
+      } else if (structureCode.includes('CEREBELLUM')) {
+        // Cerebelo folia isolado
+        const cb = this.subcorticalMeshes.find(m => m.name.includes('Cerebelo'));
+        if (cb) {
+          pieceMesh = cb.clone();
+          pieceMesh.position.set(-reg.center[0], -reg.center[1], -reg.center[2]);
+        }
+      } else if (structureCode.includes('HIPPOCAMPUS') || structureCode.includes('HIPO')) {
+        // Hipocampo contínuo isolado
+        const hip = this.subcorticalMeshes.find(m => m.name.includes('Hipocampo'));
+        if (hip) {
+          pieceMesh = hip.clone();
+          pieceMesh.position.set(-reg.center[0], -reg.center[1], -reg.center[2]);
+        }
+      } else if (structureCode.includes('HYPOTHALAMUS') || structureCode.includes('PITUITARY')) {
+        // Hipotálamo-hipófise isolado
+        const hypo = this.subcorticalMeshes.find(m => m.name.includes('Hipotalamo'));
+        if (hypo) {
+          pieceMesh = hypo.clone();
+          pieceMesh.position.set(-reg.center[0], -reg.center[1], -reg.center[2]);
+        }
+      } else if (structureCode.includes('BRAINSTEM') || structureCode.includes('CORD') || structureCode.includes('PONS')) {
+        // Tronco encefálico isolado
+        const stem = this.brainstemMeshes[0];
+        if (stem) {
+          pieceMesh = stem.clone();
+          pieceMesh.position.set(0, 4.5, 0.8);
+        }
+      } else {
+        // Fallback para qualquer outra estrutura subcortical
+        const sub = this.subcorticalMeshes[0];
+        if (sub) {
+          pieceMesh = sub.clone();
+          pieceMesh.position.set(-reg.center[0], -reg.center[1], -reg.center[2]);
+        }
+      }
+
+      if (pieceMesh) {
+        this.isolatedPieceGroup.add(pieceMesh);
+        this.isolatedPieceGroup.visible = true;
+      }
+      return pieceMesh;
+    }
+
+    // [PT-BR]: Retorna da visualização isolada 3D para a visualização integrada completa do SNC.
+    // [EN-GB]: Returns from isolated 3D view to the complete integrated CNS view.
+    restoreFullCNS() {
+      this.isPieceIsolated = false;
+      this.currentIsolatedCode = null;
+      this.isolatedPieceGroup.visible = false;
+      this.masterGroup.visible = true;
     }
 
     setVisible(isVisible) {

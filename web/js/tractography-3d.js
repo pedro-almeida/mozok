@@ -59,8 +59,10 @@
 
       const baseColor = new THREE.Color(def.color);
 
-      // 1. Feixe Principal (Tubular com Shader Glow)
-      const tubeGeo = new THREE.TubeGeometry(curve, 64, 0.55, 8, false);
+      // [PT-BR]: 1. Feixe Principal Fino em escala canônica MNI152 (r = 0.05, sem espaguetes gigantes)
+      // [EN-GB]: 1. Fine Main Bundle in canonical MNI152 scale (r = 0.05, zero giant spaghetti)
+      // [AI-CTX]: @llm-invariant: Strictly r = 0.04 to 0.08, visible inside brain volume.
+      const tubeGeo = new THREE.TubeGeometry(curve, 64, 0.055, 8, false);
       const tubeMat = new THREE.MeshStandardMaterial({
         color: baseColor,
         roughness: 0.35,
@@ -74,21 +76,23 @@
       mainTube.name = `Tube_${def.id}`;
       group.add(mainTube);
 
-      // 2. Fibras Periféricas Finas (Streamlines DTI adicionais para aspecto biológico multifilamentar)
-      const fiberCount = 6;
+      // [PT-BR]: 2. Fibras Periféricas Finas (Streamlines DTI sutis com r = 0.022)
+      // [EN-GB]: 2. Subtle Peripheral Streamlines (DTI streamlines with r = 0.022)
+      // [AI-CTX]: @llm-context: Multi-filament biological bundle within brain volume.
+      const fiberCount = 5;
       const strandMeshes = [];
       for (let f = 0; f < fiberCount; f++) {
         const offsetAngle = (f / fiberCount) * Math.PI * 2;
-        const offsetRad = 0.45 + (f % 2) * 0.25;
+        const offsetRad = 0.045 + (f % 2) * 0.025;
 
         // Gera curva ligeiramente perturbada
         const offsetPts = pts.map(p => {
           const perpX = Math.cos(offsetAngle) * offsetRad;
           const perpZ = Math.sin(offsetAngle) * offsetRad;
-          return new THREE.Vector3(p.x + perpX, p.y + (Math.sin(offsetAngle * 2) * 0.15), p.z + perpZ);
+          return new THREE.Vector3(p.x + perpX, p.y + (Math.sin(offsetAngle * 2) * 0.015), p.z + perpZ);
         });
         const strandCurve = new THREE.CatmullRomCurve3(offsetPts);
-        const strandGeo = new THREE.TubeGeometry(strandCurve, 48, 0.18, 5, false);
+        const strandGeo = new THREE.TubeGeometry(strandCurve, 48, 0.022, 5, false);
         const strandMat = new THREE.MeshStandardMaterial({
           color: baseColor.clone().offsetHSL(0.04 * (f - 2), 0, 0.1),
           roughness: 0.4,
@@ -102,10 +106,11 @@
         strandMeshes.push(strandMesh);
       }
 
-      // 3. Pulsos elétricos luminosos propagando-se pela via (Potenciais de Ação)
+      // [PT-BR]: 3. Pulsos luminosos sutis nos tratos
+      // [EN-GB]: 3. Subtle luminous action potential pulses along tract
       const pulsesPerTract = 4;
       const pulses = [];
-      const pulseGeo = new THREE.SphereGeometry(0.85, 8, 8);
+      const pulseGeo = new THREE.SphereGeometry(0.065, 8, 8);
       const pulseMat = new THREE.MeshBasicMaterial({
         color: 0xffffff,
         transparent: true,

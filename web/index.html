@@ -598,6 +598,16 @@
         </select>
       </div>
 
+      <!-- Controle de Dissecação das Meninges -->
+      <div class="meninges-controls-container" style="display: flex; align-items: center; gap: 3px; background: rgba(15, 23, 42, 0.90); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 2px 6px;">
+        <span style="font-size: 11px; font-weight: 700; color: #38bdf8;">🛡️ Meninges:</span>
+        <button id="btn-meninges-none" class="btn-action active" style="padding: 3px 6px; font-size: 10px;">Ocultar</button>
+        <button id="btn-meninges-pia" class="btn-action" style="padding: 3px 6px; font-size: 10px; color: #fca5a5;">Pia-Máter</button>
+        <button id="btn-meninges-arachnoid" class="btn-action" style="padding: 3px 6px; font-size: 10px; color: #38bdf8;">Aracnoide + LCR</button>
+        <button id="btn-meninges-dura" class="btn-action" style="padding: 3px 6px; font-size: 10px; color: #e2e8f0;">Dura-Máter</button>
+        <button id="btn-meninges-all" class="btn-action" style="padding: 3px 6px; font-size: 10px;">Todas</button>
+      </div>
+
       <!-- Botão Retornar à Visão Inicial Macro do SNC -->
       <button id="btn-home-view" class="btn-action" title="Retornar à Visão Geral do Sistema Nervoso Central (Escape/Home)" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5); color: #10b981;">
         <span id="btn-home-text">🏠 Voltar à Visão Inicial (SNC)</span>
@@ -761,8 +771,17 @@
       </div>
     </div>
     <div class="card-actions">
+      <button id="btn-isolate-piece" class="btn-action" style="background: rgba(245, 158, 11, 0.2); border-color: rgba(245, 158, 11, 0.6); color: #fbbf24;" title="Isolar e examinar peça anatômica real em 360°">
+        <span id="btn-isolate-text">🧩 Isolar Peça Real 3D</span>
+      </button>
+      <button id="btn-trigger-stroke-card" class="btn-action" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.6); color: #f87171;" title="Disparar AVC Isquêmico nesta região">
+        <span>🩸 Disparar AVC Aqui</span>
+      </button>
+      <button id="btn-restore-tissue-card" class="btn-action" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.6); color: #34d399;" title="Restaurar tecido saudável">
+        <span>↺ Restaurar</span>
+      </button>
       <button id="btn-card-dive" class="btn-action" style="background: rgba(0, 242, 254, 0.15); border-color: var(--accent-cyan);" title="Mergulhar nos Neurônios desta Região">
-        <span id="btn-card-dive-text">🔬 Mergulhar na Camada V</span>
+        <span id="btn-card-dive-text">🔬 Mergulhar nos Neurônios</span>
       </button>
       <button id="btn-narrate-card" class="btn-action active">
         <span id="btn-narrate-text">🔊 Narrar com Libras</span>
@@ -844,14 +863,14 @@
         scene.background = new THREE.Color(0x020617);
 
         camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 700);
-        camera.position.set(65, 35, 220);
+        camera.position.set(0, 3.5, 24.0);
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
         controls.minDistance = 0.25;
-        controls.maxDistance = 450.0;
-        controls.target.set(0, -25, 0);
+        controls.maxDistance = 85.0;
+        controls.target.set(0, -2.5, 0);
 
         // Iluminação anatômica trifásica
         const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.7);
@@ -1239,11 +1258,11 @@
 
         const targetPos = new THREE.Vector3(reg.center[0], reg.center[1], reg.center[2]);
         if (reg.id === 1) {
-          smoothFlyCameraTo(new THREE.Vector3(0, -25, 0), new THREE.Vector3(65, 35, 220), 0.9);
-        } else if (reg.center[0] > 15.0) {
+          smoothFlyCameraTo(new THREE.Vector3(0, -2.5, 0), new THREE.Vector3(0, 3.5, 24.0), 0.9);
+        } else if (reg.center[0] > 1.5) {
           const offset = new THREE.Vector3(reg.optimalDist * 0.85, reg.optimalDist * 0.22, reg.optimalDist * 0.52);
           smoothFlyCamera(targetPos, reg.optimalDist, offset);
-        } else if (reg.center[0] < -15.0) {
+        } else if (reg.center[0] < -1.5) {
           const offset = new THREE.Vector3(-reg.optimalDist * 0.85, reg.optimalDist * 0.22, reg.optimalDist * 0.52);
           smoothFlyCamera(targetPos, reg.optimalDist, offset);
         } else {
@@ -1480,7 +1499,16 @@
         if (btnDiveText) btnDiveText.textContent = t('btnDive') || '🔬 Mergulhar nos Neurônios (Camada V)';
 
         const btnCardDiveText = document.getElementById('btn-card-dive-text');
-        if (btnCardDiveText) btnCardDiveText.textContent = t('btnDive') || '🔬 Mergulhar na Camada V';
+        if (btnCardDiveText) btnCardDiveText.textContent = t('btnDive') || '🔬 Mergulhar nos Neurônios';
+
+        const btnIsolateText = document.getElementById('btn-isolate-text');
+        if (btnIsolateText) {
+          if (cnsAnatomy && cnsAnatomy.isPieceIsolated) {
+            btnIsolateText.textContent = '🧠 Ver no SNC Completo';
+          } else {
+            btnIsolateText.textContent = t('btnIsolatePiece') || '🧩 Isolar Peça Real 3D';
+          }
+        }
 
         const btnTourText = document.getElementById('btn-tour-text');
         if (btnTourText) btnTourText.textContent = t('btnTour') || '🎬 Tour Guiado IA';
@@ -1578,6 +1606,107 @@
             }
           });
         }
+
+        // Controle de Dissecação das Meninges
+        const meningesBtns = ['none', 'pia', 'arachnoid', 'dura', 'all'];
+        meningesBtns.forEach(mode => {
+          const btn = document.getElementById(`btn-meninges-${mode}`);
+          if (btn) {
+            btn.addEventListener('click', () => {
+              meningesBtns.forEach(m => {
+                const b = document.getElementById(`btn-meninges-${m}`);
+                if (b) b.classList.remove('active');
+              });
+              btn.classList.add('active');
+              if (cnsAnatomy && typeof cnsAnatomy.setMeningesLayer === 'function') {
+                cnsAnatomy.setMeningesLayer(mode);
+              }
+            });
+          }
+        });
+
+        // Botão Isolar Peça Real 3D vs Ver no SNC Completo
+        const btnIsolate = document.getElementById('btn-isolate-piece');
+        const btnIsolateText = document.getElementById('btn-isolate-text');
+        if (btnIsolate) {
+          btnIsolate.addEventListener('click', () => {
+            if (!cnsAnatomy) return;
+            if (!cnsAnatomy.isPieceIsolated) {
+              const code = activeRegion ? activeRegion.code : 'BROCA_LEFT';
+              const p = cnsAnatomy.isolatePiece(code);
+              if (p) {
+                btnIsolate.classList.add('active');
+                if (btnIsolateText) btnIsolateText.textContent = '🧠 Ver no SNC Completo';
+                smoothFlyCameraTo(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 6.5), 0.8);
+              }
+            } else {
+              cnsAnatomy.restoreFullCNS();
+              btnIsolate.classList.remove('active');
+              if (btnIsolateText) btnIsolateText.textContent = '🧩 Isolar Peça Real 3D';
+              if (activeRegion) selectRegion(activeRegion, false);
+            }
+          });
+        }
+
+        // Botão Disparar AVC no Card
+        const btnStrokeCard = document.getElementById('btn-trigger-stroke-card');
+        if (btnStrokeCard) {
+          btnStrokeCard.addEventListener('click', () => {
+            const coords = activeRegion ? activeRegion.center : [4.62, 0.50, 2.39];
+            if (pathologyEngine && typeof pathologyEngine.triggerFocalStrokeSimulation === 'function') {
+              pathologyEngine.triggerFocalStrokeSimulation(coords, false, activeRegion);
+            }
+          });
+        }
+
+        // Botão Restaurar Tecido Saudável
+        const btnRestoreTissue = document.getElementById('btn-restore-tissue-card');
+        if (btnRestoreTissue) {
+          btnRestoreTissue.addEventListener('click', () => {
+            if (cnsAnatomy && typeof cnsAnatomy.restoreHealthyTissue === 'function') {
+              cnsAnatomy.restoreHealthyTissue();
+            }
+            if (pathologyEngine) {
+              pathologyEngine.resetDiseaseSimulation();
+            }
+          });
+        }
+
+        // Raycasting Interativo no Córtex e Estruturas 3D ao Clicar na Cena
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        renderer.domElement.addEventListener('click', (e) => {
+          mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+          mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+          raycaster.setFromCamera(mouse, camera);
+
+          if (cnsAnatomy && cnsAnatomy.cortexMesh) {
+            const intersects = raycaster.intersectObject(cnsAnatomy.cortexMesh, false);
+            if (intersects.length > 0) {
+              const hit = intersects[0];
+              const pt = hit.point;
+
+              // Encontra região anatômica mais próxima
+              const regions = cnsAnatomy.getRegions();
+              let closest = regions[0];
+              let minDist = Infinity;
+              regions.forEach(r => {
+                const d = Math.hypot(r.center[0] - pt.x, r.center[1] - pt.y, r.center[2] - pt.z);
+                if (d < minDist) { minDist = d; closest = r; }
+              });
+
+              if (closest && minDist < 3.2) {
+                selectRegion(closest, true);
+              }
+
+              // Dispara AVC Isquêmico focal imediatamente no ponto clicado
+              if (pathologyEngine && typeof pathologyEngine.triggerFocalStrokeSimulation === 'function') {
+                pathologyEngine.triggerFocalStrokeSimulation([pt.x, pt.y, pt.z], false, closest);
+              }
+            }
+          }
+        });
       }
 
       function toggleGuidedTour() {
