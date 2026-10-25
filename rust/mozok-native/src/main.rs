@@ -215,14 +215,18 @@ fn main() {
     println!("MOZOK v2.0 -- Executável Nativo do Sistema Nervoso Central & Conectoma 3D");
     println!("==============================================================================");
 
-    // [PT-BR]: Se a porta 8090 já estiver ocupada (ex: instância anterior rodando), tenta matar o processo antigo
-    // ou abrir diretamente a URL no navegador antes de sair.
+    // [PT-BR]: Se a porta 8090 já estiver ocupada (ex: instância anterior rodando), encerra apenas os outros processos mozok-native (excluindo o próprio PID).
     #[cfg(target_os = "windows")]
     {
         if TcpListener::bind("127.0.0.1:8090").is_err() {
             println!("[INFO] Porta 8090 já em uso. Tentando encerrar processo mozok-native.exe anterior...");
-            let _ = Command::new("taskkill")
-                .args(["/F", "/IM", "mozok-native.exe"])
+            let my_pid = std::process::id();
+            let ps_cmd = format!(
+                "Get-Process -Name mozok-native -ErrorAction SilentlyContinue | Where-Object {{ $_.Id -ne {} }} | Stop-Process -Force",
+                my_pid
+            );
+            let _ = Command::new("powershell")
+                .args(["-NoProfile", "-Command", &ps_cmd])
                 .output();
             std::thread::sleep(std::time::Duration::from_millis(500));
         }

@@ -35,7 +35,7 @@ if not exist "web\assets\audio\pt-BR\struct_1.mp3" (
         python tools/prebuild_neural_audio.py
     )
 ) else (
-    echo [OK] Biblioteca de audios neurais pre-compilados validada (27/27 arquivos).
+    echo [OK] Biblioteca de audios neurais pre-compilados validada [27 de 27 arquivos].
 )
 echo.
 
@@ -78,7 +78,7 @@ if exist "target\release\mozok-native.exe" (
     echo [OK] Iniciando mozok-native.exe...
     :: [PT-BR]: Inicia mozok-native sem --no-launch para abrir o navegador apos o bind do listener TCP
     :: [EN-GB]: Launches mozok-native without --no-launch to open browser after TCP listener bind
-    start "" "target\release\mozok-native.exe"
+    start "MOZOK" "target\release\mozok-native.exe"
     goto finish_launch
 )
 
@@ -134,10 +134,12 @@ echo.
 
 where godot >nul 2>nul
 if %ERRORLEVEL% equ 0 (
-    echo [Godot 4] Motor Godot 4 detectado no PATH do sistema.
-    echo Pressione qualquer tecla para abrir tambem o motor Godot 4 nativo, ou feche esta janela.
-    pause >nul
-    start "" godot --path .
+    if "%1"=="--godot" (
+        echo [Godot 4] Iniciando motor Godot 4 nativo...
+        start "" godot --path .
+    ) else (
+        echo [Godot 4] Motor Godot 4 detectado. Para iniciar junto, use: run.bat --godot
+    )
 )
 
 echo ==============================================================================
