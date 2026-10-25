@@ -4,7 +4,7 @@
 //           @llm-invariant: Caches essential neuroanatomy scripts, styles, and assets.
 //           @llm-neuroscience: Ensures emergency and classroom offline accessibility in remote clinical/university regions.
 
-const CACHE_NAME = 'mozok-v2.2-network-first';
+const CACHE_NAME = 'mozok-v3.0-native';
 const STATIC_ASSETS = [
   './',
   './index.html',

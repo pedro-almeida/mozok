@@ -962,7 +962,7 @@
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
         controls.minDistance = 0.25;
-        controls.maxDistance = 85.0;
+        controls.maxDistance = 450.0;
         controls.target.set(0, -2.5, 0);
         controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
 
@@ -984,13 +984,19 @@
           lastTouchTime = now;
         });
 
-        // [PT-BR]: Vinculação do Calibrador Dinâmico MozokAdaptiveLOD (Auto-scaler e perfil de hardware)
-        // [EN-GB]: Binding of MozokAdaptiveLOD Dynamic Calibrator (Auto-scaler and hardware profile)
+        // [PT-BR]: Vinculação do Calibrador Dinâmico MozokAdaptiveLOD com proteção estrita contra NaN em maxDistance
+        // [EN-GB]: Binding of MozokAdaptiveLOD Dynamic Calibrator with strict NaN guard on maxDistance
         if (window.mozokAdaptiveLOD) {
           window.mozokAdaptiveLOD.bindBadge('#lod-status-badge');
           window.mozokAdaptiveLOD.onProfileChange((profile, config) => {
-            renderer.setPixelRatio(config.pixelRatio);
-            controls.maxDistance = config.maxDrawDistance;
+            if (config && Number.isFinite(config.pixelRatio)) {
+              renderer.setPixelRatio(config.pixelRatio);
+            }
+            if (config && Number.isFinite(config.maxDrawDistance) && config.maxDrawDistance >= 50) {
+              controls.maxDistance = config.maxDrawDistance;
+            } else {
+              controls.maxDistance = 450.0;
+            }
             if (neuralMicrocosmos && typeof neuralMicrocosmos.applyLOD === 'function') {
               neuralMicrocosmos.applyLOD(config);
             }
@@ -1529,7 +1535,12 @@
       // [PT-BR]: Governador de Escala e Resolução Espacial contínua durante zoom de mouse.
       // [EN-GB]: Continuous Scale Governor and Spatial Resolution update during mouse zoom.
       function updateMultiScaleZoom() {
-        const dist = camera.position.distanceTo(controls.target);
+        if (!Number.isFinite(camera.position.x) || !Number.isFinite(controls.target.x)) {
+          camera.position.set(0, 3.5, 24.0);
+          controls.target.set(0, -2.5, 0);
+        }
+        const rawDist = camera.position.distanceTo(controls.target);
+        const dist = Number.isFinite(rawDist) ? rawDist : 24.0;
         document.getElementById('hud-cam-dist').textContent = `Distância: ${dist.toFixed(1)} mm`;
 
         if (window.MOZOK_DATABASE && window.MOZOK_DATABASE.scales) {

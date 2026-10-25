@@ -60,12 +60,9 @@ if defined EDGE_PATH (
 echo [OK] Aceleracao maxima por hardware GPU ativada.
 echo.
 
-echo [4/5] Inicializando Servidor HTTP Local (127.0.0.1:8090)...
+echo [4/5] Inicializando Aplicativo Desktop Nativo MOZOK (GPU Win32)...
 :: Encerra qualquer instancia antiga travada de mozok-native.exe
 taskkill /F /IM mozok-native.exe >nul 2>nul
-
-set "TARGET_URL=http://127.0.0.1:8090/index.html?v=%RANDOM%"
-set "BROWSER_FLAGS=--app=%TARGET_URL% --new-window"
 
 :: Recompila mozok-native se cargo estiver disponivel
 where cargo >nul 2>nul
@@ -75,10 +72,8 @@ if %ERRORLEVEL% equ 0 (
 )
 
 if exist "target\release\mozok-native.exe" (
-    echo [OK] Iniciando mozok-native.exe...
-    :: [PT-BR]: Inicia mozok-native sem --no-launch para abrir o navegador apos o bind do listener TCP
-    :: [EN-GB]: Launches mozok-native without --no-launch to open browser after TCP listener bind
-    start "MOZOK" "target\release\mozok-native.exe"
+    echo [OK] Iniciando mozok-native.exe na GPU dedicada...
+    start "" "target\release\mozok-native.exe"
     goto finish_launch
 )
 
