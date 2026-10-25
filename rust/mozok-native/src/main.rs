@@ -155,36 +155,42 @@ fn handle_client(mut stream: TcpStream, web_root: Arc<PathBuf>) {
 /// [PT-BR]: Lança a janela em modo de aplicativo dedicado sem barras de navegador.
 /// [EN-GB]: Launches dedicated application mode window without browser toolbars.
 fn launch_dedicated_window(url: &str) {
-    let chrome_paths = [
+    let mut candidate_paths: Vec<PathBuf> = Vec::new();
+
+    // 1. Caminhos no LOCALAPPDATA (instalações por usuário)
+    if let Ok(local_app_data) = std::env::var("LOCALAPPDATA") {
+        let base = PathBuf::from(local_app_data);
+        candidate_paths.push(base.join(r"Google\Chrome\Application\chrome.exe"));
+        candidate_paths.push(base.join(r"Microsoft\Edge\Application\msedge.exe"));
+    }
+
+    // 2. Caminhos padrão do sistema (Program Files e Program Files x86)
+    candidate_paths.push(PathBuf::from(
         r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+    ));
+    candidate_paths.push(PathBuf::from(
         r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
-    ];
-    let edge_paths = [
+    ));
+    candidate_paths.push(PathBuf::from(
         r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+    ));
+    candidate_paths.push(PathBuf::from(
         r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
-    ];
+    ));
 
     let app_flag = format!("--app={}", url);
-    let extra_flags = [
-        "--force-color-profile=srgb",
-        "--enable-gpu-rasterization",
-        "--enable-zero-copy",
-        "--ignore-gpu-blocklist",
-        "--use-gl=desktop",
-    ];
 
-    for path in chrome_paths.iter().chain(edge_paths.iter()) {
-        if Path::new(path).exists() {
-            let mut cmd = Command::new(path);
-            cmd.arg(&app_flag);
-            for flag in extra_flags {
-                cmd.arg(flag);
-            }
-            // [PT-BR]: Inicia o processo em modo aplicativo com tratamento estrito sem pattern matching redundante.
-            // [EN-GB]: Spawns the process in app mode with strict handling without redundant pattern matching.
-            // [AI-CTX]: @llm-invariant: Eliminates clippy::redundant_pattern_matching when running with -D warnings.
+    for path in candidate_paths {
+        if path.exists() {
+            // [PT-BR]: Passa apenas --app e --new-window para evitar abortos silenciosos no Chrome/Edge do Windows.
+            // [EN-GB]: Passes only --app and --new-window to prevent silent aborts in Windows Chrome/Edge.
+            let mut cmd = Command::new(&path);
+            cmd.arg(&app_flag).arg("--new-window");
             if cmd.spawn().is_ok() {
-                println!("[OK] Janela nativa dedicada inicializada com {}", path);
+                println!(
+                    "[OK] Janela nativa dedicada inicializada com {}",
+                    path.display()
+                );
                 return;
             }
         }
@@ -192,7 +198,7 @@ fn launch_dedicated_window(url: &str) {
 
     // Fallback: comando de abertura padrão do sistema
     #[cfg(target_os = "windows")]
-    let _ = Command::new("cmd").args(["/c", "start", url]).spawn();
+    let _ = Command::new("cmd").args(["/C", "start", "", url]).spawn();
 
     #[cfg(target_os = "linux")]
     let _ = Command::new("xdg-open").arg(url).spawn();
@@ -208,6 +214,19 @@ fn main() {
     println!("==============================================================================");
     println!("MOZOK v2.0 -- Executável Nativo do Sistema Nervoso Central & Conectoma 3D");
     println!("==============================================================================");
+
+    // [PT-BR]: Se a porta 8090 já estiver ocupada (ex: instância anterior rodando), tenta matar o processo antigo
+    // ou abrir diretamente a URL no navegador antes de sair.
+    #[cfg(target_os = "windows")]
+    {
+        if TcpListener::bind("127.0.0.1:8090").is_err() {
+            println!("[INFO] Porta 8090 já em uso. Tentando encerrar processo mozok-native.exe anterior...");
+            let _ = Command::new("taskkill")
+                .args(["/F", "/IM", "mozok-native.exe"])
+                .output();
+            std::thread::sleep(std::time::Duration::from_millis(500));
+        }
+    }
 
     // [PT-BR]: Inicialização dos subsistemas biológicos em Rust
     // [EN-GB]: Initialisation of biological subsystems in Rust
@@ -265,6 +284,9 @@ fn main() {
             Ok(l) => l,
             Err(e) => {
                 eprintln!("[ERRO] Falha ao ligar servidor local: {}", e);
+                if !no_launch {
+                    launch_dedicated_window("http://127.0.0.1:8090/index.html");
+                }
                 return;
             }
         };

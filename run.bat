@@ -61,23 +61,17 @@ echo [OK] Aceleracao maxima por hardware GPU ativada.
 echo.
 
 echo [4/5] Inicializando Servidor HTTP Local (127.0.0.1:8090)...
-set "TARGET_URL=http://127.0.0.1:8090/index.html"
-set "BROWSER_FLAGS=--app=%TARGET_URL% --force-color-profile=srgb --enable-gpu-rasterization --enable-zero-copy --ignore-gpu-blocklist --use-gl=desktop"
+:: Encerra qualquer instancia antiga travada de mozok-native.exe
+taskkill /F /IM mozok-native.exe >nul 2>nul
 
-:: Verifica se a porta 8090 ja esta ativa
-powershell -NoProfile -Command "(Get-NetTCPConnection -LocalPort 8090 -State Listen -ErrorAction SilentlyContinue) -ne $null" | findstr /i "True" >nul 2>nul
+set "TARGET_URL=http://127.0.0.1:8090/index.html?v=%RANDOM%"
+set "BROWSER_FLAGS=--app=%TARGET_URL% --new-window"
+
+:: Recompila mozok-native se cargo estiver disponivel
+where cargo >nul 2>nul
 if %ERRORLEVEL% equ 0 (
-    echo [OK] Servidor HTTP local ja em execucao na porta 8090.
-    goto launch_browser
-)
-
-:: Compila mozok-native se necessario
-if not exist "target\release\mozok-native.exe" (
-    where cargo >nul 2>nul
-    if !ERRORLEVEL! equ 0 (
-        echo [INFO] Compilando mozok-native em perfil release...
-        cargo build --release -p mozok-native
-    )
+    echo [INFO] Compilando/Verificando mozok-native em perfil release...
+    cargo build --release -p mozok-native
 )
 
 if exist "target\release\mozok-native.exe" (
@@ -86,6 +80,13 @@ if exist "target\release\mozok-native.exe" (
     :: [EN-GB]: Launches mozok-native without --no-launch to open browser after TCP listener bind
     start "" "target\release\mozok-native.exe"
     goto finish_launch
+)
+
+:: Verifica se a porta 8090 ja esta ativa caso nao utilize mozok-native
+powershell -NoProfile -Command "(Get-NetTCPConnection -LocalPort 8090 -State Listen -ErrorAction SilentlyContinue) -ne $null" | findstr /i "True" >nul 2>nul
+if %ERRORLEVEL% equ 0 (
+    echo [OK] Servidor HTTP local ja em execucao na porta 8090.
+    goto launch_browser
 )
 
 :: Fallback para servidor HTTP embutido do Python caso o executavel nativo nao esteja disponivel

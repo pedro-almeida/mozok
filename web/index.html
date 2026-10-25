@@ -997,11 +997,14 @@
           });
         }
 
-        // [PT-BR]: Registro de Service Worker para PWA offline
-        // [EN-GB]: Service Worker registration for offline PWA
+        // [PT-BR]: Registro de Service Worker para PWA offline com verificação de atualização imediata
+        // [EN-GB]: Service Worker registration for offline PWA with immediate update check
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register('./sw.js').then(reg => {
-            console.log('[MOZOK PWA] Service Worker ativo:', reg.scope);
+            console.log('[MOZOK PWA] Service Worker registrado:', reg.scope);
+            if (reg.update) {
+              reg.update();
+            }
           }).catch(err => {
             console.warn('[MOZOK PWA] Falha ao registrar Service Worker:', err);
           });

@@ -4,7 +4,7 @@
 //           @llm-invariant: Caches essential neuroanatomy scripts, styles, and assets.
 //           @llm-neuroscience: Ensures emergency and classroom offline accessibility in remote clinical/university regions.
 
-const CACHE_NAME = 'mozok-v2.1-offline';
+const CACHE_NAME = 'mozok-v2.2-network-first';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -53,29 +53,39 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// [PT-BR]: Estratégia Network-First: busca atualizações da rede e faz fallback para o cache offline
+// [EN-GB]: Network-First strategy: fetches fresh updates from network and falls back to offline cache
 self.addEventListener('fetch', (event) => {
-  // Ignora requisições de áudio TTS de endpoints externos ou extensões
+  // Ignora requisições de áudio TTS de endpoints externos ou esquemas não-HTTP
   if (!event.request.url.startsWith(self.location.origin) && !event.request.url.startsWith('file:')) {
     return;
   }
 
+  // Não intercepta requisições não-GET
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          if (event.request.destination === 'document' || event.request.mode === 'navigate') {
+            return caches.match('./index.html');
+          }
         });
-        return response;
-      }).catch(() => {
-        if (event.request.destination === 'document') {
-          return caches.match('./index.html');
-        }
-      });
-    })
+      })
   );
 });
