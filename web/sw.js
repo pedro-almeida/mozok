@@ -4,7 +4,7 @@
 //           @llm-invariant: Caches essential neuroanatomy scripts, styles, and assets.
 //           @llm-neuroscience: Ensures emergency and classroom offline accessibility in remote clinical/university regions.
 
-const CACHE_NAME = 'mozok-pwa-v2.0.0';
+const CACHE_NAME = 'mozok-v2.1-offline';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -12,6 +12,7 @@ const STATIC_ASSETS = [
   './favicon.ico',
   './assets/icon-192.png',
   './assets/icon-512.png',
+  './assets/icon.png',
   './assets/apple-touch-icon.png',
   './js/mozok-adaptive-lod.js',
   './js/mozok-database.js',

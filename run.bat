@@ -2,10 +2,10 @@
 setlocal enabledelayedexpansion
 title MOZOK v2.0 -- Atlas e Simulador Neuroanatomico 3D Multiescala
 
-:: [PT-BR]: Script mestre de inicializacao do MOZOK v2.0 com servidor HTTP local (porta 8090), modo app dedicado e suporte a PWA.
-:: [EN-GB]: Master launch script for MOZOK v2.0 with local HTTP server (port 8090), dedicated app mode, and PWA support.
-:: [AI-CTX]: @llm-context: Prevents file:/// CORS issues with WebGL2 shaders, ES modules, audio assets, and parentheses in Program Files (x86).
-::           @llm-invariant: Starts background HTTP server on 127.0.0.1:8090 and launches dedicated app mode window with sRGB fidelity.
+:: [PT-BR]: Script mestre de inicializacao do MOZOK v2.0 com servidor HTTP nativo Rust (porta 8090), modo app dedicado e PWA.
+:: [EN-GB]: Master launch script for MOZOK v2.0 with native Rust HTTP server (port 8090), dedicated app mode, and PWA.
+:: [AI-CTX]: @llm-context: Prevents file:/// CORS issues, normalizes Windows paths, avoids WindowsApps/python.exe false positives, and ensures robust server startup.
+::           @llm-invariant: Binds 127.0.0.1:8090, guarantees clean Win32 execution, and launches dedicated application window without browser chrome.
 ::           @llm-neuroscience: High-performance low-latency rendering pipeline for the entire Central Nervous System and Layer V neuron.
 
 echo ==============================================================================
@@ -17,19 +17,21 @@ echo.
 cd /d "%~dp0"
 
 echo [1/5] Verificando e instalando icones multi-resolucao (Desktop, PWA, Godot)...
-where python >nul 2>nul
+:: [PT-BR]: Testa se o Python real esta disponivel (evita falso positivo do stub WindowsApps\python.exe)
+:: [EN-GB]: Tests if real Python is available (avoids false positive from WindowsApps\python.exe stub)
+python -c "import http.server" >nul 2>nul
 if %ERRORLEVEL% equ 0 (
     python tools/install_mozok_icons.py
 ) else (
-    echo [Nota] Python nao encontrado no PATH; usando icones existentes.
+    echo [Nota] Python real nao detectado no PATH; mantendo icones existentes.
 )
 echo.
 
 echo [2/5] Verificando biblioteca de audio neural de alta fidelidade...
 if not exist "web\assets\audio\pt-BR\struct_1.mp3" (
-    echo Gerando audios neurais de estudio com vozes neurais e SoundCraft filter...
-    where python >nul 2>nul
-    if %ERRORLEVEL% equ 0 (
+    echo Gerando audios neurais de estudio com vozes humanas e SoundCraft filter...
+    python -c "import http.server" >nul 2>nul
+    if !ERRORLEVEL! equ 0 (
         python tools/prebuild_neural_audio.py
     )
 ) else (
@@ -58,40 +60,61 @@ if defined EDGE_PATH (
 echo [OK] Aceleracao maxima por hardware GPU ativada.
 echo.
 
-echo [4/5] Garantindo servidor HTTP local em segundo plano na porta 8090...
-:: [PT-BR]: Verifica se a porta 8090 ja esta respondendo; se nao, inicia mozok-native.exe --no-launch ou python http.server
-:: [EN-GB]: Checks if port 8090 is already responding; if not, launches mozok-native.exe --no-launch or python http.server
+echo [4/5] Inicializando Servidor HTTP Local (127.0.0.1:8090)...
+set "TARGET_URL=http://127.0.0.1:8090/index.html"
+set "BROWSER_FLAGS=--app=%TARGET_URL% --force-color-profile=srgb --enable-gpu-rasterization --enable-zero-copy --ignore-gpu-blocklist --use-gl=desktop"
+
+:: Verifica se a porta 8090 ja esta ativa
 powershell -NoProfile -Command "(Get-NetTCPConnection -LocalPort 8090 -State Listen -ErrorAction SilentlyContinue) -ne $null" | findstr /i "True" >nul 2>nul
 if %ERRORLEVEL% equ 0 (
     echo [OK] Servidor HTTP local ja em execucao na porta 8090.
-) else (
-    if exist "target\release\mozok-native.exe" (
-        echo Iniciando servidor embutido nativo de alta performance (target\release\mozok-native.exe --no-launch)...
-        start /b "" "target\release\mozok-native.exe" --no-launch
-    ) else (
-        where python >nul 2>nul
-        if !ERRORLEVEL! equ 0 (
-            echo Iniciando servidor HTTP local via Python (127.0.0.1:8090)...
-            start /b "" python -m http.server 8090 --bind 127.0.0.1 --directory web
-        ) else (
-            echo [AVISO] Compilando mozok-native para prover servidor HTTP...
-            cargo build --release -p mozok-native
-            start /b "" "target\release\mozok-native.exe" --no-launch
+    goto launch_browser
+)
+
+:: Compila mozok-native se necessario
+if not exist "target\release\mozok-native.exe" (
+    where cargo >nul 2>nul
+    if !ERRORLEVEL! equ 0 (
+        echo [INFO] Compilando mozok-native em perfil release...
+        cargo build --release -p mozok-native
+    )
+)
+
+if exist "target\release\mozok-native.exe" (
+    echo [OK] Iniciando mozok-native.exe...
+    :: [PT-BR]: Inicia mozok-native sem --no-launch para abrir o navegador apos o bind do listener TCP
+    :: [EN-GB]: Launches mozok-native without --no-launch to open browser after TCP listener bind
+    start "" "target\release\mozok-native.exe"
+    goto finish_launch
+)
+
+:: Fallback para servidor HTTP embutido do Python caso o executavel nativo nao esteja disponivel
+python -c "import http.server" >nul 2>nul
+if %ERRORLEVEL% equ 0 (
+    echo [INFO] Iniciando servidor HTTP Python em segundo plano (127.0.0.1:8090)...
+    start /b "" python -m http.server 8090 --bind 127.0.0.1 --directory web
+    
+    :: Aguarda em loop ate a porta 8090 estar ouvindo (ate 10 tentativas)
+    set /a attempts=0
+    :wait_port
+    set /a attempts+=1
+    powershell -NoProfile -Command "(Get-NetTCPConnection -LocalPort 8090 -State Listen -ErrorAction SilentlyContinue) -ne $null" | findstr /i "True" >nul 2>nul
+    if !ERRORLEVEL! neq 0 (
+        if !attempts! lss 10 (
+            timeout /t 1 /nobreak >nul
+            goto wait_port
         )
     )
-    :: Aguarda estabilizacao do socket
-    timeout /t 2 /nobreak >nul
+    goto launch_browser
 )
-echo.
 
-echo [5/5] Iniciando MOZOK v2.0 em Modo de Aplicativo Nativo Dedicado sem Bordas...
-set "TARGET_URL=http://127.0.0.1:8090/index.html"
+echo [ERRO] Nao foi possivel iniciar o servidor via mozok-native nem via Python.
+echo Instale o Rust ou Python para executar o MOZOK.
+pause
+exit /b 1
 
-:: [PT-BR]: Flags de aceleracao GPU com fidelidade cromatica sRGB exata e modo aplicativo dedicado (--app=...)
-:: [EN-GB]: GPU acceleration flags with exact sRGB color profile fidelity and dedicated app mode (--app=...)
-:: [AI-CTX]: @llm-invariant: Opens http://127.0.0.1:8090/index.html without file:/// CORS restrictions; allows PWA installation and tab access.
-set "BROWSER_FLAGS=--app=%TARGET_URL% --force-color-profile=srgb --enable-gpu-rasterization --enable-zero-copy --ignore-gpu-blocklist --use-gl=desktop"
-
+:launch_browser
+echo [5/5] Abrindo MOZOK v2.0 em Modo de Aplicativo Dedicado sem Bordas...
 if defined CHROME_PATH (
     start "" "!CHROME_PATH!" %BROWSER_FLAGS%
 ) else if defined EDGE_PATH (
@@ -100,6 +123,8 @@ if defined CHROME_PATH (
     start "" "%TARGET_URL%"
 )
 
+:finish_launch
+echo.
 echo [OK] MOZOK v2.0 em execucao:
 echo      - Janela de aplicativo dedicado: Aberta sem barras de navegacao
 echo      - Acesso em abas do navegador:   %TARGET_URL%

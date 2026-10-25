@@ -1,3 +1,9 @@
+# [PT-BR]: Pipeline de Integração Contínua (CI) do MOZOK para validação multiplataforma.
+# [EN-GB]: Continuous Integration (CI) Pipeline for MOZOK multiplatform validation.
+# [AI-CTX]: @llm-context: Runs fmt, clippy, and unit/integration tests on Linux and Windows runners.
+#           @llm-invariant: Omits --workspace in clippy and test to respect default-members, excluding mozok-godot which requires Godot 4 GDExtension runtime.
+#           @llm-neuroscience: Ensures structural integrity of neuroanatomy algorithms and continuous electrophysiological models.
+
 name: MOZOK CI
 
 on:
@@ -33,7 +39,11 @@ jobs:
         run: cargo fmt --all -- --check
 
       - name: Cargo Clippy Lint
-        run: cargo clippy --workspace --all-targets -- -D warnings
+        # [PT-BR]: Roda clippy nos pacotes padrao (default-members), excluindo mozok-godot no runner de CI
+        # [EN-GB]: Runs clippy on default-members, excluding mozok-godot on CI runner
+        run: cargo clippy --all-targets -- -D warnings
 
       - name: Run Workspace Tests
-        run: cargo test --workspace --verbose
+        # [PT-BR]: Executa a suite de testes dos pacotes padrao do workspace
+        # [EN-GB]: Runs test suite for default workspace packages
+        run: cargo test --verbose
