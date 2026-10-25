@@ -32,21 +32,32 @@
       // [EN-GB]: In-memory cache of ObjectURLs and loaded audios.
       this.audioCache = new Map();
 
-      // [PT-BR]: Endpoints neurais oficiais locais e remotos para síntese dinâmica.
-      // [EN-GB]: Official local and remote neural endpoints for dynamic synthesis.
+      // [PT-BR]: Endpoints neurais oficiais locais e remotos para síntese dinâmica (Gemini 2.5 TTS / Groq / Svitlo / Zorya).
+      // [EN-GB]: Official local and remote neural endpoints for dynamic synthesis (Gemini 2.5 TTS / Groq / Svitlo / Zorya).
+      // [AI-CTX]: @llm-invariant: Supports local TTS endpoint http://127.0.0.1:8085/api/v1/voice/tts and remote Svitlo fallback.
       this.neuralEndpoints = [
         'http://127.0.0.1:8085/api/v1/voice/tts',
+        'http://127.0.0.1:8085/api/v1/svitlo/tts/explain',
         'https://svitlo.espectroipe.com.br/api/v1/svitlo/tts/explain'
       ];
 
-      // [PT-BR]: Vozes neurais oficiais por código de idioma (AntonioNeural como professor universitário titular).
-      // [EN-GB]: Official neural voices per language code (AntonioNeural as tenured university professor).
+      // [PT-BR]: Vozes neurais oficiais por código de idioma idênticas aos Flashcards Svitlo/Anki.
+      // [EN-GB]: Official neural voices per language code identical to Svitlo/Anki Flashcards.
+      // [AI-CTX]: @llm-invariant: pt-BR: FranciscaNeural, en-GB: SoniaNeural, uk-UA: PolinaNeural, it-IT: ElsaNeural.
       this.neuralVoices = {
-        'pt-BR': 'pt-BR-AntonioNeural',
-        'en-GB': 'en-GB-RyanNeural',
-        'it-IT': 'it-IT-DiegoNeural',
-        'uk-UA': 'uk-UA-OstapNeural',
-        'es-ES': 'es-ES-AlvaroNeural'
+        'pt-BR': 'pt-BR-FranciscaNeural',
+        'en-GB': 'en-GB-SoniaNeural',
+        'uk-UA': 'uk-UA-PolinaNeural',
+        'it-IT': 'it-IT-ElsaNeural',
+        'es-ES': 'es-ES-ElviraNeural'
+      };
+
+      // Modelos de síntese generativa e LLM didático
+      this.llmModels = {
+        geminiTts: 'gemini-2.5-flash-preview-tts',
+        geminiVoices: ['Aoede', 'Kore'],
+        groqAudio: 'canopylabs/orpheus-v1-english',
+        groqExplain: 'qwen/qwen3.8-27b'
       };
 
       this.initVoices();
@@ -54,8 +65,8 @@
       this.detectVLibras();
     }
 
-    // [PT-BR]: Pontua a qualidade da voz no navegador, priorizando estritamente vozes masculinas naturais de professor (Antonio, Natural, Online).
-    // [EN-GB]: Scores browser voice quality, strictly prioritising natural male professor voices (Antonio, Natural, Online).
+    // [PT-BR]: Pontua a qualidade da voz no navegador, priorizando vozes humanas naturais (Francisca, Sonia, Polina, Elsa, Natural, Online).
+    // [EN-GB]: Scores browser voice quality, prioritizing natural human voices (Francisca, Sonia, Polina, Elsa, Natural, Online).
     // [AI-CTX]: @llm-invariant: Eliminates robotic metallic voices in favor of Microsoft Natural and Google online voices.
     scoreVoice(v, targetLang) {
       if (!v || !v.name || !v.lang) return -1;
@@ -73,12 +84,14 @@
         return -1;
       }
 
-      // Critérios estritos de naturalidade e prosódia de professor universitário
-      if (vName.includes('antonio')) score += 70;
+      // Critérios estritos de naturalidade e prosódia humana
+      if (vName.includes('francisca')) score += 80;
+      if (vName.includes('sonia')) score += 80;
+      if (vName.includes('polina')) score += 80;
+      if (vName.includes('elsa')) score += 80;
+      if (vName.includes('antonio')) score += 65;
       if (vName.includes('natural')) score += 60;
       if (vName.includes('online')) score += 45;
-      if (vName.includes('francisca')) score += 40;
-      if (vName.includes('ryan') || vName.includes('diego') || vName.includes('ostap') || vName.includes('alvaro')) score += 40;
       if (vName.includes('google')) score += 30;
       if (vName.includes('neural')) score += 25;
 
@@ -287,8 +300,8 @@
       });
     }
 
-    // [PT-BR]: Prioridade 2: Síntese Neural Dinâmica via VPS Svitlo ou Zorya Local com voz pt-BR-AntonioNeural.
-    // [EN-GB]: Priority 2: Dynamic Neural Synthesis via Svitlo VPS or Local Zorya with pt-BR-AntonioNeural.
+    // [PT-BR]: Prioridade 2: Síntese Neural Dinâmica via VPS Svitlo, Gemini TTS, Groq ou Zorya Local.
+    // [EN-GB]: Priority 2: Dynamic Neural Synthesis via Svitlo VPS, Gemini TTS, Groq, or Local Zorya.
     async trySynthesizeNeural(text, langCode) {
       const cacheKey = `${langCode}:${text}`;
       if (this.audioCache.has(cacheKey)) {
@@ -299,13 +312,23 @@
 
       for (const endpoint of this.neuralEndpoints) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        const timeoutId = setTimeout(() => controller.abort(), 2500);
 
         try {
+          const payload = {
+            text,
+            voice,
+            lang: langCode,
+            gemini_model: this.llmModels.geminiTts,
+            gemini_voice: this.llmModels.geminiVoices[0],
+            groq_audio_model: this.llmModels.groqAudio,
+            groq_explain_model: this.llmModels.groqExplain
+          };
+
           const response = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text, voice, lang: langCode }),
+            body: JSON.stringify(payload),
             signal: controller.signal
           });
           clearTimeout(timeoutId);

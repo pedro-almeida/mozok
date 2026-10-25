@@ -139,7 +139,10 @@ fn launch_dedicated_window(url: &str) {
             for flag in extra_flags {
                 cmd.arg(flag);
             }
-            if let Ok(_) = cmd.spawn() {
+            // [PT-BR]: Inicia o processo em modo aplicativo com tratamento estrito sem pattern matching redundante.
+            // [EN-GB]: Spawns the process in app mode with strict handling without redundant pattern matching.
+            // [AI-CTX]: @llm-invariant: Eliminates clippy::redundant_pattern_matching when running with -D warnings.
+            if cmd.spawn().is_ok() {
                 println!("[OK] Janela nativa dedicada inicializada com {}", path);
                 return;
             }
@@ -158,6 +161,9 @@ fn launch_dedicated_window(url: &str) {
 }
 
 fn main() {
+    let args: Vec<String> = std::env::args().collect();
+    let no_launch = args.iter().any(|arg| arg == "--no-launch");
+
     println!("==============================================================================");
     println!("MOZOK v2.0 -- Executável Nativo do Sistema Nervoso Central & Conectoma 3D");
     println!("==============================================================================");
@@ -166,7 +172,10 @@ fn main() {
     // [EN-GB]: Initialisation of biological subsystems in Rust
     println!("[1/4] Inicializando Ontologia Anatômica e Árvore de Regiões...");
     let ontology = OntologyTree::new();
-    println!("      Ontologia ativa com {} nós hierárquicos.", ontology.len());
+    println!(
+        "      Ontologia ativa com {} nós hierárquicos.",
+        ontology.len()
+    );
 
     println!("[2/4] Calibrando Câmera Neuroanatômica e Origem Flutuante...");
     let initial_pos = Point3D::new(0.0, 3.5, 24.0);
@@ -176,8 +185,13 @@ fn main() {
     println!("[3/4] Inicializando Fisiologia do Líquor e Motor de Príons CJD...");
     let csf = CsfHydrodynamics::default();
     let _cjd = CjdSimulator::new();
-    let v_aqueduct = csf.instantaneous_flow_velocity_mm_s(mozok_physiology::VentricularCompartment::CerebralAqueductOfSylvius);
-    println!("      Líquor basal em {:.1} mm/s; modelo CJD ativo.", v_aqueduct);
+    let v_aqueduct = csf.instantaneous_flow_velocity_mm_s(
+        mozok_physiology::VentricularCompartment::CerebralAqueductOfSylvius,
+    );
+    println!(
+        "      Líquor basal em {:.1} mm/s; modelo CJD ativo.",
+        v_aqueduct
+    );
 
     // Encontra a pasta web/
     let exe_dir = std::env::current_exe()
@@ -200,21 +214,30 @@ fn main() {
     let web_root = Arc::new(web_root.canonicalize().unwrap_or(web_root));
     println!("[4/4] Raiz de ativos estáticos: {}", web_root.display());
 
-    // Liga servidor TCP em porta efêmera disponível
-    let listener = match TcpListener::bind("127.0.0.1:0") {
-        Ok(l) => l,
-        Err(e) => {
-            eprintln!("[ERRO] Falha ao ligar servidor local: {}", e);
-            return;
-        }
-    };
+    // [PT-BR]: Liga servidor TCP tentando primeiro a porta fixa 8090 com fallback para porta efêmera (:0).
+    // [EN-GB]: Binds TCP server attempting fixed port 8090 first with fallback to ephemeral port (:0).
+    // [AI-CTX]: @llm-invariant: TcpListener::bind("127.0.0.1:8090").or_else(|_| TcpListener::bind("127.0.0.1:0"))
+    let listener =
+        match TcpListener::bind("127.0.0.1:8090").or_else(|_| TcpListener::bind("127.0.0.1:0")) {
+            Ok(l) => l,
+            Err(e) => {
+                eprintln!("[ERRO] Falha ao ligar servidor local: {}", e);
+                return;
+            }
+        };
 
     let local_addr = listener.local_addr().unwrap();
     let app_url = format!("http://127.0.0.1:{}/index.html", local_addr.port());
     println!("[OK] Servidor embutido ouvindo em {}", app_url);
 
-    // Abre janela dedicada
-    launch_dedicated_window(&app_url);
+    // [PT-BR]: Abre janela dedicada do navegador se --no-launch não for fornecido.
+    // [EN-GB]: Opens dedicated browser window if --no-launch is not supplied.
+    // [AI-CTX]: @llm-invariant: Supports headless/daemon server mode with --no-launch flag.
+    if !no_launch {
+        launch_dedicated_window(&app_url);
+    } else {
+        println!("[INFO] Modo --no-launch ativo. Servidor rodando sem abrir nova janela.");
+    }
 
     println!("\nMOZOK Desktop rodando com sucesso. Pressione Ctrl+C para encerrar.");
 

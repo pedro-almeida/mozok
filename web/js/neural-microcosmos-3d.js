@@ -272,9 +272,12 @@
         emissiveIntensity: 0.32
       });
 
-      // Ordem 1: Tronco Apical Primário (radius = 0.38, 5 pontos de controle)
+      // Ordem 1: Tronco Apical Primário (radius = 0.38, 5 pontos de controle que emergem do topo do soma em y=1.65)
+      // [PT-BR]: Conexão exata e estrita partindo do ápice do soma piramidal (0.0, 1.65, 0.0) garantindo continuidade sem costuras ou lacunas flutuantes.
+      // [EN-GB]: Exact continuous connection starting from the pyramidal soma apex (0.0, 1.65, 0.0) preventing seams or floating gaps.
+      // [AI-CTX]: @llm-invariant: Branching tubes originate strictly from parent curve getPointAt(t) coordinates.
       const apicalCurve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0.0, 1.8, 0.0),
+        new THREE.Vector3(0.0, 1.65, 0.0),
         new THREE.Vector3(0.16, 4.5, 0.12),
         new THREE.Vector3(-0.14, 7.8, -0.10),
         new THREE.Vector3(0.22, 11.2, 0.20),
@@ -285,7 +288,7 @@
       apicalMesh.name = "Dendrito_Apical_Ordem1";
       neuronGroup.add(apicalMesh);
 
-      // Função recursiva para gerar 5 pontos biológicos com tortuosidade
+      // Função recursiva para gerar 5 pontos biológicos com tortuosidade estritamente conexos
       function create5PointCurve(startPt, endPt, tortuosity = 0.45) {
         const p0 = startPt.clone();
         const p4 = endPt.clone();
@@ -295,31 +298,32 @@
         return new THREE.CatmullRomCurve3([p0, p1, p2, p3, p4]);
       }
 
-      // Ordem 2: Ramos Secundários (radius = 0.22, 5 pontos)
+      // Ordem 2: Ramos Secundários (radius = 0.22, 5 pontos partindo estritamente de apicalCurve.getPointAt(t))
       const secondaryTargets = [
-        { start: apicalCurve.getPointAt(0.25), end: new THREE.Vector3(2.8, 6.2, 1.2) },
-        { start: apicalCurve.getPointAt(0.25), end: new THREE.Vector3(-2.6, 5.9, -1.0) },
-        { start: apicalCurve.getPointAt(0.50), end: new THREE.Vector3(3.6, 10.0, -1.4) },
-        { start: apicalCurve.getPointAt(0.50), end: new THREE.Vector3(-3.2, 9.6, 1.6) },
-        { start: apicalCurve.getPointAt(0.75), end: new THREE.Vector3(4.2, 13.8, 1.8) },
-        { start: apicalCurve.getPointAt(0.75), end: new THREE.Vector3(-3.8, 14.2, -1.6) }
+        { t: 0.25, end: new THREE.Vector3(2.8, 6.2, 1.2) },
+        { t: 0.25, end: new THREE.Vector3(-2.6, 5.9, -1.0) },
+        { t: 0.50, end: new THREE.Vector3(3.6, 10.0, -1.4) },
+        { t: 0.50, end: new THREE.Vector3(-3.2, 9.6, 1.6) },
+        { t: 0.75, end: new THREE.Vector3(4.2, 13.8, 1.8) },
+        { t: 0.75, end: new THREE.Vector3(-3.8, 14.2, -1.6) }
       ];
 
       secondaryTargets.forEach((sec, sIdx) => {
-        const secCurve = create5PointCurve(sec.start, sec.end, 0.55);
+        const secStart = apicalCurve.getPointAt(sec.t);
+        const secCurve = create5PointCurve(secStart, sec.end, 0.55);
         const secGeo = new THREE.TubeGeometry(secCurve, 18, 0.22, 6, false);
         neuronGroup.add(new THREE.Mesh(secGeo, dendriteMat));
 
-        // Ordem 3: Ramos Terciários (radius = 0.12, 5 pontos)
+        // Ordem 3: Ramos Terciários (radius = 0.12, 5 pontos partindo exatamente de sec.end)
         const t1End = sec.end.clone().add(new THREE.Vector3((sIdx % 2 === 0 ? 1.8 : -1.8), 2.2, (Math.random() - 0.5) * 1.5));
         const t2End = sec.end.clone().add(new THREE.Vector3((Math.random() - 0.5) * 1.4, 2.5, (sIdx % 2 === 0 ? -1.6 : 1.6)));
         
-        [t1End, t2End].forEach((tertEnd, tIdx) => {
+        [t1End, t2End].forEach((tertEnd) => {
           const tertCurve = create5PointCurve(sec.end, tertEnd, 0.40);
           const tertGeo = new THREE.TubeGeometry(tertCurve, 14, 0.12, 5, false);
           neuronGroup.add(new THREE.Mesh(tertGeo, dendriteMat));
 
-          // Ordem 4: Ramos Quaternários Terminais (radius = 0.05 -> 0.02, 5 pontos)
+          // Ordem 4: Ramos Quaternários Terminais (radius = 0.05 -> 0.02, partindo de tertEnd)
           const q1End = tertEnd.clone().add(new THREE.Vector3((Math.random() - 0.5) * 1.2, 1.6, (Math.random() - 0.5) * 1.2));
           const q2End = tertEnd.clone().add(new THREE.Vector3((Math.random() - 0.5) * 1.2, 1.8, (Math.random() - 0.5) * 1.2));
           [q1End, q2End].forEach((quatEnd) => {
@@ -348,7 +352,7 @@
         neuronGroup.add(swcGroup);
       }
 
-      // Dendritos Basais (3 árvores irradiando da base com ordens 1 e 2)
+      // Dendritos Basais (3 árvores irradiando da base com ordens 1 e 2 partindo da superfície basal)
       for (let b = 0; b < 3; b++) {
         const angle = (b / 3) * Math.PI * 2;
         const bStart = new THREE.Vector3(Math.cos(angle) * 1.45, -1.25, Math.sin(angle) * 1.45);
@@ -448,12 +452,14 @@
         opacity: 0.38
       });
 
+      const upAxis = new THREE.Vector3(0, 1, 0);
+
       for (let m = 0; m < internodeCount; m++) {
         const uStart = 0.12 + m * 0.115;
         const uEnd = uStart + 0.092; // Gap de 0.023 para o nódulo de Ranvier
         const uRanvier = uEnd + 0.0115;
 
-        // Subcurva com 5 pontos para a cápsula de mielina
+        // Subcurva com 5 pontos para a cápsula de mielina (alinhada estritamente aos pontos da curva axonal)
         const subPts = [];
         for (let k = 0; k <= 4; k++) {
           subPts.push(axonCurve.getPointAt(uStart + (k / 4) * (uEnd - uStart)));
@@ -467,11 +473,20 @@
         neuronGroup.add(mMesh);
         myelinSheaths.push(mMesh);
 
-        // Nódulo de Ranvier (Anel estreito com alta densidade de canais Nav1.6 e halo volumétrico)
+        // [PT-BR]: Nódulo de Ranvier alinhado estritamente ao vetor tangente da curva axonal via quaternion.setFromUnitVectors.
+        // [EN-GB]: Ranvier node strictly aligned to the axonal curve tangent vector via quaternion.setFromUnitVectors.
+        // [AI-CTX]: @llm-invariant: quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent);
         if (m < internodeCount - 1 && uRanvier < 0.98) {
           const rPt = axonCurve.getPointAt(uRanvier);
+          const tangent = axonCurve.getTangentAt(uRanvier).normalize();
+
           const nodeGroup = new THREE.Group();
           nodeGroup.position.copy(rPt);
+
+          // Alinha o anel ao vetor tangente real da trajetória do axônio
+          const quat = new THREE.Quaternion();
+          quat.setFromUnitVectors(upAxis, tangent);
+          nodeGroup.quaternion.copy(quat);
 
           const rGeo = new THREE.TorusGeometry(0.24, 0.065, 10, 20);
           const rMesh = new THREE.Mesh(rGeo, ranvierMat.clone());
