@@ -964,6 +964,77 @@
         controls.minDistance = 0.25;
         controls.maxDistance = 85.0;
         controls.target.set(0, -2.5, 0);
+        controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
+
+        // [PT-BR]: Suporte a duplo toque para isolar/focar estruturas em telas touch
+        // [EN-GB]: Double-tap gesture to isolate/focus anatomical structures on touch devices
+        let lastTouchTime = 0;
+        renderer.domElement.addEventListener('touchend', (e) => {
+          const now = Date.now();
+          if (now - lastTouchTime < 320 && now - lastTouchTime > 0) {
+            e.preventDefault();
+            if (activeRegion && cnsAnatomy) {
+              if (!cnsAnatomy.isPieceIsolated) {
+                cnsAnatomy.isolatePiece(activeRegion.code);
+              } else {
+                cnsAnatomy.restoreFullCNS();
+              }
+            }
+          }
+          lastTouchTime = now;
+        });
+
+        // [PT-BR]: Vinculação do Calibrador Dinâmico MozokAdaptiveLOD (Auto-scaler e perfil de hardware)
+        // [EN-GB]: Binding of MozokAdaptiveLOD Dynamic Calibrator (Auto-scaler and hardware profile)
+        if (window.mozokAdaptiveLOD) {
+          window.mozokAdaptiveLOD.bindBadge('#lod-status-badge');
+          window.mozokAdaptiveLOD.onProfileChange((profile, config) => {
+            renderer.setPixelRatio(config.pixelRatio);
+            controls.maxDistance = config.maxDrawDistance;
+            if (neuralMicrocosmos && typeof neuralMicrocosmos.applyLOD === 'function') {
+              neuralMicrocosmos.applyLOD(config);
+            }
+          });
+        }
+
+        // [PT-BR]: Registro de Service Worker para PWA offline
+        // [EN-GB]: Service Worker registration for offline PWA
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('./sw.js').then(reg => {
+            console.log('[MOZOK PWA] Service Worker ativo:', reg.scope);
+          }).catch(err => {
+            console.warn('[MOZOK PWA] Falha ao registrar Service Worker:', err);
+          });
+        }
+
+        // [PT-BR]: Configuração das gavetas deslizantes inferiores para telas mobile/touch
+        // [EN-GB]: Configuration of bottom sliding drawers for mobile/touch screens
+        const btnDrawerStruct = document.getElementById('btn-drawer-structures');
+        const btnDrawerTelem = document.getElementById('btn-drawer-telemetry');
+        const sidebarLeft = document.querySelector('.sidebar-left');
+        const hudRight = document.querySelector('.hud-right');
+
+        if (btnDrawerStruct && sidebarLeft) {
+          btnDrawerStruct.addEventListener('click', () => {
+            const isOpen = sidebarLeft.classList.toggle('open');
+            btnDrawerStruct.classList.toggle('active', isOpen);
+            if (isOpen && hudRight) {
+              hudRight.classList.remove('open');
+              if (btnDrawerTelem) btnDrawerTelem.classList.remove('active');
+            }
+          });
+        }
+
+        if (btnDrawerTelem && hudRight) {
+          btnDrawerTelem.addEventListener('click', () => {
+            const isOpen = hudRight.classList.toggle('open');
+            btnDrawerTelem.classList.toggle('active', isOpen);
+            if (isOpen && sidebarLeft) {
+              sidebarLeft.classList.remove('open');
+              if (btnDrawerStruct) btnDrawerStruct.classList.remove('active');
+            }
+          });
+        }
 
         // Iluminação anatômica trifásica
         const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.7);
@@ -1490,10 +1561,14 @@
             if (neuralMicrocosmos) neuralMicrocosmos.setVisible(false);
             if (cnsAnatomy) {
               cnsAnatomy.setVisible(true);
-              if (matchedTier.id === 1 || dist > 140.0) {
-                cnsAnatomy.setAnatomyOpacity(0.42, 1.0);
+              if (cnsAnatomy.viewMode === 'external') {
+                cnsAnatomy.setAnatomyOpacity(1.0, 1.0);
+              } else if (cnsAnatomy.viewMode === 'internal_xray') {
+                cnsAnatomy.setAnatomyOpacity(0.16, 1.0);
+              } else if (matchedTier.id === 1 || dist > 140.0) {
+                cnsAnatomy.setAnatomyOpacity(1.0, 1.0);
               } else {
-                cnsAnatomy.setAnatomyOpacity(0.35, 1.0);
+                cnsAnatomy.setAnatomyOpacity(0.85, 1.0);
               }
             }
           }
@@ -1582,7 +1657,7 @@
         const t = (k) => window.MOZOK_I18N.t(k, currentLang);
 
         const btnHomeText = document.getElementById('btn-home-text');
-        if (btnHomeText) btnHomeText.textContent = t('btnHome') || '🏠 Voltar à Visão Inicial (SNC)';
+        if (btnHomeText) btnHomeText.textContent = t('btnHome') || '🏠 Início';
 
         const btnDiveText = document.getElementById('btn-dive-text');
         if (btnDiveText) btnDiveText.textContent = t('btnDive') || '🔬 Mergulhar nos Neurônios (Camada V)';
@@ -1600,7 +1675,7 @@
         }
 
         const btnTourText = document.getElementById('btn-tour-text');
-        if (btnTourText) btnTourText.textContent = t('btnTour') || '🎬 Tour Guiado IA';
+        if (btnTourText) btnTourText.textContent = t('btnTour') || '🎬 Tour Professor';
 
         const btnNarrateText = document.getElementById('btn-narrate-text');
         if (btnNarrateText) btnNarrateText.textContent = t('btnNarrateCard') || '🔊 Narrar com Libras';
@@ -1637,6 +1712,39 @@
           }
         });
 
+        // [PT-BR]: Seletor Rápido de Modos de Visão Anatômica na Topbar Fixa
+        // [EN-GB]: Quick Anatomical View Modes Selector on Fixed Topbar
+        const btnViewExt = document.getElementById('btn-view-external');
+        const btnViewXray = document.getElementById('btn-view-xray');
+        const btnViewVasc = document.getElementById('btn-view-vascular');
+        const btnViewMic = document.getElementById('btn-view-micro');
+
+        const viewModeBtns = [
+          { el: btnViewExt, mode: 'external' },
+          { el: btnViewXray, mode: 'internal_xray' },
+          { el: btnViewVasc, mode: 'vascular' },
+          { el: btnViewMic, mode: 'micro' }
+        ];
+
+        viewModeBtns.forEach(({ el, mode }) => {
+          if (el) {
+            el.addEventListener('click', () => {
+              viewModeBtns.forEach(b => b.el && b.el.classList.remove('active'));
+              el.classList.add('active');
+              if (mode === 'micro') {
+                flyToScaleTier(6);
+              } else {
+                if (activeScaleTierIndex >= 5) {
+                  flyToScaleTier(0);
+                }
+                if (cnsAnatomy && typeof cnsAnatomy.setViewMode === 'function') {
+                  cnsAnatomy.setViewMode(mode);
+                }
+              }
+            });
+          }
+        });
+
         const btnDive = document.getElementById('btn-dive');
         if (btnDive) {
           btnDive.addEventListener('click', toggleMicroView);
@@ -1667,7 +1775,7 @@
             const isEnabled = window.MozokAINarrator ? window.MozokAINarrator.toggleVoice() : false;
             voiceBtn.classList.toggle('active', isEnabled);
             const voiceText = document.getElementById('btn-voice-text');
-            if (voiceText) voiceText.textContent = `🔊 Voz IA: ${isEnabled ? 'ON' : 'OFF'}`;
+            if (voiceText) voiceText.textContent = `🔊 Voz Professor: ${isEnabled ? 'ON' : 'OFF'}`;
           });
         }
 
@@ -1691,7 +1799,7 @@
                 const loc = window.MOZOK_I18N.getStructure(activeRegion.id, currentLang);
                 if (loc && loc.audioScript) script = loc.audioScript;
               }
-              window.MozokAINarrator.speak(script, currentLang);
+              window.MozokAINarrator.speak(script, currentLang, activeRegion.id);
             }
           });
         }
