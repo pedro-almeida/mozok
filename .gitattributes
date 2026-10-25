@@ -2,11 +2,11 @@
 # [EN-GB]: GitHub Linguist configuration for repository language statistics in MOZOK.
 # [AI-CTX]: @llm-context: Overrides file language detection to ignore massive static geometry and vendor bundles.
 #           @llm-invariant: Guarantees Rust and GDScript lead the repository language percentages.
+#           @llm-neuroscience: Preserves focus on core neural simulation code.
 
 web/js/vendor/** linguist-vendored=true
-web/js/brain-mesh-data.js linguist-generated=true
-web/js/swc-neurons-data.js linguist-generated=true
-web/js/scientific-atlas-meshes.js linguist-generated=true
+web/js/*-data.js linguist-generated=true
+web/js/*-meshes.js linguist-generated=true
 web/js/mozok-i18n.js linguist-generated=true
 web/js/mozok-database.js linguist-generated=true
 web/index.html linguist-documentation=true

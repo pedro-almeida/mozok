@@ -8,6 +8,7 @@ members = [
     "rust/mozok-physiology",
     "rust/mozok-pathology",
     "rust/mozok-godot",
+    "rust/mozok-native",
     "tests",
 ]
 default-members = [
@@ -18,6 +19,7 @@ default-members = [
     "rust/mozok-search",
     "rust/mozok-physiology",
     "rust/mozok-pathology",
+    "rust/mozok-native",
     "tests",
 ]
 resolver = "2"

@@ -1,0 +1,18 @@
+# [PT-BR]: Manifesto Cargo do Executável Nativo do MOZOK v2.0 Desktop & Servidor Local.
+# [EN-GB]: Cargo Manifest for MOZOK v2.0 Native Desktop & Local Server Executable.
+# [AI-CTX]: @llm-context: Integrates core, atlas, navigation, physiology, and pathology into a standalone native binary.
+#           @llm-invariant: Zero bloated external dependencies; standard library TCP/HTTP embedded static server + app mode.
+
+[package]
+name = "mozok-native"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+mozok-core = { path = "../mozok-core" }
+mozok-atlas = { path = "../mozok-atlas" }
+mozok-navigation = { path = "../mozok-navigation" }
+mozok-physiology = { path = "../mozok-physiology" }
+mozok-pathology = { path = "../mozok-pathology" }

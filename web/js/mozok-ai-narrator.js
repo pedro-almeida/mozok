@@ -1,20 +1,19 @@
-// [PT-BR]: Motor de Narração Neural Natural em 3 Camadas e Integração com VLibras (Tradução Simultânea em Libras).
-// [EN-GB]: 3-Tier Natural Neural AI Voice Narrator Engine and VLibras Integration (Simultaneous Sign Language Translation).
-// [AI-CTX]: @llm-context: Accessibility bridge linking Edge-TTS/Zorya Local, Web Speech API (natural voices), and VLibras for WCAG AAA compliance.
-//           @llm-invariant: 3-tier voice synthesis (Tier 1: Zorya/Svitlo Neural HTTP; Tier 2: Edge/Chrome Natural voices with 140ms respiratory pauses; Tier 3: Subtitles + VLibras).
-//           @llm-neuroscience: Natural human prosody for clinical and anatomical neurobiology explanations.
-//           @llm-a11y: WCAG AAA compliant screen-reader friendly speech and sign language bridge.
+// [PT-BR]: Motor de Narração Neural de Alta Fidelidade com Didática de Professor Universitário e Acessibilidade VLibras / WCAG AAA.
+// [EN-GB]: High-Fidelity Neural Narrator Engine with University Professor Pedagogy and VLibras / WCAG AAA Accessibility.
+// [AI-CTX]: @llm-context: 3-Tier voice synthesis engine: Tier 1 (Pre-built studio MP3s / Edge-TTS AntonioNeural), Tier 2 (Svitlo/Zorya Neural HTTP), Tier 3 (Natural Web Speech with 180ms pauses and VLibras sign language).
+//           @llm-invariant: Voice pt-BR-AntonioNeural as primary professor voice, prebuilt audio stored in assets/audio/{lang}/, seamless offline fallbacks.
+//           @llm-neuroscience: University professor cadence with physiological and anatomical step-by-step explanations.
+//           @llm-a11y: WCAG AAA compliant screen-reader friendly speech, synchronized subtitles, and VLibras bridge.
 
 (function (window) {
   'use strict';
 
-  // [PT-BR]: Classe controladora da narração neural e sincronização com VLibras.
-  // [EN-GB]: Controller class for neural voice narration and VLibras synchronization.
+  // [PT-BR]: Classe controladora da narração neural e sincronização multimodal.
+  // [EN-GB]: Controller class for neural voice narration and multimodal synchronization.
   class MozokAINarrator {
     constructor() {
       // [PT-BR]: Estado de ativação de voz, legendas, VLibras e idioma ativo (5 idiomas suportados).
       // [EN-GB]: State of voice synthesis, subtitles, VLibras activation, and active language (5 supported languages).
-      // [AI-CTX]: @llm-invariant: Default voice on, subtitles on, initial language pt-BR.
       this.isVoiceEnabled = true;
       this.isVLibrasActive = false;
       this.currentLang = 'pt-BR';
@@ -25,25 +24,29 @@
       this.sentenceTimeout = null;
       this.currentAudio = null;
 
-      // [PT-BR]: Cache em memória de ObjectURLs para síntese neural instantânea (Tier 1).
-      // [EN-GB]: In-memory cache of ObjectURLs for instant neural synthesis (Tier 1).
+      // [PT-BR]: Diretório base de áudios neurais pré-gravados de estúdio (Tier 1 Offline).
+      // [EN-GB]: Base directory for pre-recorded studio neural audios (Tier 1 Offline).
+      this.prebuiltAudioPath = 'assets/audio';
+
+      // [PT-BR]: Cache em memória de ObjectURLs e áudios carregados.
+      // [EN-GB]: In-memory cache of ObjectURLs and loaded audios.
       this.audioCache = new Map();
 
-      // [PT-BR]: Endpoints neurais oficiais locais e remotos para síntese de alta fidelidade.
-      // [EN-GB]: Official local and remote neural endpoints for high-fidelity speech synthesis.
+      // [PT-BR]: Endpoints neurais oficiais locais e remotos para síntese dinâmica.
+      // [EN-GB]: Official local and remote neural endpoints for dynamic synthesis.
       this.neuralEndpoints = [
         'http://127.0.0.1:8085/api/v1/voice/tts',
         'https://svitlo.espectroipe.com.br/api/v1/svitlo/tts/explain'
       ];
 
-      // [PT-BR]: Vozes neurais oficiais por código de idioma.
-      // [EN-GB]: Official neural voices per language code.
+      // [PT-BR]: Vozes neurais oficiais por código de idioma (AntonioNeural como professor universitário titular).
+      // [EN-GB]: Official neural voices per language code (AntonioNeural as tenured university professor).
       this.neuralVoices = {
-        'pt-BR': 'pt-BR-FranciscaNeural',
-        'en-GB': 'en-GB-SoniaNeural',
-        'it-IT': 'it-IT-ElsaNeural',
-        'uk-UA': 'uk-UA-PolinaNeural',
-        'es-ES': 'es-ES-ElviraNeural'
+        'pt-BR': 'pt-BR-AntonioNeural',
+        'en-GB': 'en-GB-RyanNeural',
+        'it-IT': 'it-IT-DiegoNeural',
+        'uk-UA': 'uk-UA-OstapNeural',
+        'es-ES': 'es-ES-AlvaroNeural'
       };
 
       this.initVoices();
@@ -51,8 +54,8 @@
       this.detectVLibras();
     }
 
-    // [PT-BR]: Pontua a qualidade da voz no navegador, priorizando estritamente vozes neurais/online (Francisca, Natural, etc.).
-    // [EN-GB]: Scores browser voice quality, strictly prioritising neural/online natural voices (Francisca, Natural, etc.).
+    // [PT-BR]: Pontua a qualidade da voz no navegador, priorizando estritamente vozes masculinas naturais de professor (Antonio, Natural, Online).
+    // [EN-GB]: Scores browser voice quality, strictly prioritising natural male professor voices (Antonio, Natural, Online).
     // [AI-CTX]: @llm-invariant: Eliminates robotic metallic voices in favor of Microsoft Natural and Google online voices.
     scoreVoice(v, targetLang) {
       if (!v || !v.name || !v.lang) return -1;
@@ -70,19 +73,19 @@
         return -1;
       }
 
-      // Critérios estritos de naturalidade e prosódia humana
+      // Critérios estritos de naturalidade e prosódia de professor universitário
+      if (vName.includes('antonio')) score += 70;
       if (vName.includes('natural')) score += 60;
       if (vName.includes('online')) score += 45;
       if (vName.includes('francisca')) score += 40;
-      if (vName.includes('antonio') || vName.includes('thalita')) score += 35;
-      if (vName.includes('sonia') || vName.includes('elsa') || vName.includes('polina') || vName.includes('elvira')) score += 35;
+      if (vName.includes('ryan') || vName.includes('diego') || vName.includes('ostap') || vName.includes('alvaro')) score += 40;
       if (vName.includes('google')) score += 30;
       if (vName.includes('neural')) score += 25;
 
       return score;
     }
 
-    // [PT-BR]: Inicializa e seleciona as melhores vozes neurais para os 5 idiomas suportados.
+    // [PT-BR]: Inicializa e seleciona as melhores vozes para os 5 idiomas suportados.
     // [EN-GB]: Initialises and selects the best natural voices for the 5 supported languages.
     initVoices() {
       if (!('speechSynthesis' in window)) {
@@ -154,14 +157,15 @@
         transform: translateX(-50%);
         max-width: 800px;
         width: 90%;
-        background: rgba(6, 9, 17, 0.92);
+        background: rgba(6, 9, 17, 0.94);
         backdrop-filter: blur(16px);
-        border: 1px solid rgba(0, 242, 254, 0.4);
+        border: 1px solid rgba(0, 242, 254, 0.45);
         border-radius: 12px;
         padding: 12px 20px;
         color: #ffffff;
         font-family: 'Inter', system-ui, sans-serif;
-        font-size: 15px;
+        font-size: 14px;
+        font-weight: 500;
         line-height: 1.5;
         text-align: center;
         z-index: 9999;
@@ -213,13 +217,13 @@
       if (!this.subtitleEl) this.setupSubtitleOverlay();
       if (!this.subtitleEl) return;
 
-      this.subtitleEl.innerHTML = `<span style="color: #00f2fe; font-weight: 600; margin-right: 6px;">💬 IA:</span> ${text}`;
+      this.subtitleEl.innerHTML = `<span style="color: #00f2fe; font-weight: 700; margin-right: 6px;">👨‍🏫 Prof. Dr. Mozok:</span> ${text}`;
       this.subtitleEl.style.display = 'block';
       this.subtitleEl.style.opacity = '1';
 
       if (this.subtitleTimeout) clearTimeout(this.subtitleTimeout);
 
-      const durationMs = Math.max(4000, text.length * 65);
+      const durationMs = Math.max(4500, text.length * 75);
       this.subtitleTimeout = setTimeout(() => {
         if (this.subtitleEl) {
           this.subtitleEl.style.opacity = '0';
@@ -230,9 +234,61 @@
       }, durationMs);
     }
 
-    // [PT-BR]: Camada 1: Tenta sintetizar áudio via Servidor Neural Local (Zorya) ou Edge-TTS HTTP com timeout de 2500ms.
-    // [EN-GB]: Tier 1: Attempts neural audio synthesis via Local Neural Server (Zorya) or Edge-TTS HTTP with 2500ms timeout.
-    // [AI-CTX]: @llm-context: High-fidelity natural speech using official neural voices (Francisca, Sonia, Elsa, Polina, Elvira).
+    // [PT-BR]: Prioridade 1: Tenta reproduzir áudio pré-compilado de estúdio (.mp3 local offline com voz AntonioNeural).
+    // [EN-GB]: Priority 1: Attempts to play pre-compiled studio audio (.mp3 local offline with AntonioNeural voice).
+    // [AI-CTX]: @llm-invariant: Highest fidelity human audio with zero network latency.
+    async tryPlayPrebuiltAudio(structId, targetLang) {
+      if (structId === null || structId === undefined) return false;
+
+      const filename = structId === 0 || structId === 'tour' ? 'tour.mp3' : `struct_${structId}.mp3`;
+      const audioUrl = `${this.prebuiltAudioPath}/${targetLang}/${filename}`;
+
+      return new Promise((resolve) => {
+        const audio = new Audio(audioUrl);
+        audio.preload = 'auto';
+
+        let resolved = false;
+        const cleanup = () => {
+          audio.removeEventListener('canplaythrough', onCanPlay);
+          audio.removeEventListener('error', onError);
+        };
+
+        const onCanPlay = async () => {
+          if (resolved) return;
+          resolved = true;
+          cleanup();
+          this.currentAudio = audio;
+          try {
+            await audio.play();
+            resolve(true);
+          } catch (e) {
+            resolve(false);
+          }
+        };
+
+        const onError = () => {
+          if (resolved) return;
+          resolved = true;
+          cleanup();
+          resolve(false);
+        };
+
+        audio.addEventListener('canplaythrough', onCanPlay, { once: true });
+        audio.addEventListener('error', onError, { once: true });
+
+        // Timeout de guarda para carregamento de arquivo local
+        setTimeout(() => {
+          if (!resolved) {
+            resolved = true;
+            cleanup();
+            resolve(false);
+          }
+        }, 1200);
+      });
+    }
+
+    // [PT-BR]: Prioridade 2: Síntese Neural Dinâmica via VPS Svitlo ou Zorya Local com voz pt-BR-AntonioNeural.
+    // [EN-GB]: Priority 2: Dynamic Neural Synthesis via Svitlo VPS or Local Zorya with pt-BR-AntonioNeural.
     async trySynthesizeNeural(text, langCode) {
       const cacheKey = `${langCode}:${text}`;
       if (this.audioCache.has(cacheKey)) {
@@ -243,7 +299,7 @@
 
       for (const endpoint of this.neuralEndpoints) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2500);
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
 
         try {
           const response = await fetch(endpoint, {
@@ -262,22 +318,21 @@
           }
         } catch (err) {
           clearTimeout(timeoutId);
-          // Continua para o próximo endpoint ou fallback
         }
       }
 
       return null;
     }
 
-    // [PT-BR]: Camada 2: Fallback Web Speech API com segmentação por frases e pausas respiratórias de 140ms.
-    // [EN-GB]: Tier 2: Web Speech API fallback with sentence segmentation and 140ms natural respiratory pauses.
+    // [PT-BR]: Prioridade 3: Fallback Web Speech API Otimizado com vozes naturais de professor e pausas de 180ms.
+    // [EN-GB]: Priority 3: Optimized Web Speech API Fallback with natural professor voices and 180ms respiratory pauses.
     speakWebSpeechFallback(text, targetLang) {
       if (!('speechSynthesis' in window)) return;
 
       window.speechSynthesis.cancel();
       if (this.sentenceTimeout) clearTimeout(this.sentenceTimeout);
 
-      // Divide em períodos mantendo a pontuação final (. ? ! ; :)
+      // Divide em períodos e orações compostas mantendo pontuação natural para pausas cadenciadas
       const rawSentences = text.match(/[^.?!;:]+[.?!;:]+/g) || [text];
       const sentences = rawSentences.map(s => s.trim()).filter(s => s.length > 0);
 
@@ -289,8 +344,8 @@
 
         const utterance = new SpeechSynthesisUtterance(sentence);
         utterance.lang = targetLang;
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
+        utterance.rate = 0.94; // [PT-BR]: Cadência didática de sala de aula
+        utterance.pitch = 0.96; // [PT-BR]: Tom barítono calmo e seguro
 
         const voice = this.voicesByLang[targetLang] || this.currentVoice;
         if (voice) {
@@ -298,11 +353,11 @@
         }
 
         utterance.onend = () => {
-          // [PT-BR]: Pausa respiratória natural de 140ms entre períodos
-          // [EN-GB]: Natural 140ms respiratory pause between sentences
+          // [PT-BR]: Pausa respiratória natural de 180ms entre orações
+          // [EN-GB]: Natural 180ms respiratory pause between clauses
           this.sentenceTimeout = setTimeout(() => {
             speakNextSentence();
-          }, 140);
+          }, 180);
         };
 
         utterance.onerror = (e) => {
@@ -316,10 +371,10 @@
       speakNextSentence();
     }
 
-    // [PT-BR]: Sintetiza e fala o texto em 3 camadas determinísticas com sincronização integral de legendas e VLibras.
-    // [EN-GB]: Synthesises and speaks text across 3 deterministic tiers with full subtitles and VLibras synchronization.
-    // [AI-CTX]: @llm-neuroscience: Speaks clinical, neurophysiological, and anatomical data with natural human prosody.
-    async speak(text, langCode) {
+    // [PT-BR]: Sintetiza e fala o texto com a sequência em 3 camadas de prioridade.
+    // [EN-GB]: Synthesises and speaks text following 3-tier priority sequence.
+    // [AI-CTX]: @llm-neuroscience: Natural didactic professor voice explaining neuroanatomy and neurophysiology.
+    async speak(text, langCode, structId) {
       if (!text) return;
       const targetLang = langCode || this.currentLang || 'pt-BR';
 
@@ -330,7 +385,23 @@
 
       this.stopAudioOnly();
 
-      // Camada 1: Servidor Neural Local / Zorya / Edge-TTS HTTP
+      // [PT-BR]: Resolução automática de ID da estrutura caso não tenha sido explicitada
+      // [EN-GB]: Automatic structure ID resolution if not explicitly passed
+      let resolvedId = structId;
+      if (resolvedId === undefined && window.MOZOK_DATABASE && window.MOZOK_DATABASE.structures) {
+        const found = window.MOZOK_DATABASE.structures.find(s => s.audioScript === text || text.includes(s.estrutura));
+        if (found) resolvedId = found.id;
+      }
+
+      // Prioridade 1: Áudio de estúdio neural pré-gravado (Edge-TTS AntonioNeural local offline)
+      try {
+        const played = await this.tryPlayPrebuiltAudio(resolvedId, targetLang);
+        if (played) return;
+      } catch (err) {
+        console.warn('[MozokAINarrator] Prebuilt audio não disponível, tentando síntese neural online:', err);
+      }
+
+      // Prioridade 2: Servidor Neural Local / Zorya / Svitlo HTTP
       try {
         const neuralUrl = await this.trySynthesizeNeural(text, targetLang);
         if (neuralUrl) {
@@ -341,10 +412,10 @@
           return;
         }
       } catch (err) {
-        console.warn('[MozokAINarrator] Falha no Tier 1 Neural, acionando Tier 2 Web Speech:', err);
+        console.warn('[MozokAINarrator] Falha no Tier 2 Neural, acionando Tier 3 Web Speech:', err);
       }
 
-      // Camada 2: Fallback Web Speech API com vozes neurais e pausas de 140ms
+      // Prioridade 3: Fallback Web Speech API com voz de professor e pausas de 180ms
       this.speakWebSpeechFallback(text, targetLang);
     }
 

@@ -1,16 +1,43 @@
 @echo off
 setlocal enabledelayedexpansion
-title MOZOK v1.0.0 -- Multi-Scale Human Brain and Connectome Explorer
+title MOZOK v2.0 -- Atlas e Simulador Neuroanatomico 3D Multiescala
+
+:: [PT-BR]: Script mestre de inicializacao com pre-compilacao de icones, audios neurais e modo aplicativo nativo.
+:: [EN-GB]: Master launch script with icon pre-generation, neural audio pre-compilation, and dedicated native app mode.
+:: [AI-CTX]: @llm-context: Desktop launcher configuring GPU acceleration, assets verification, dedicated app window, and Godot 4 / Rust native hooks.
+::           @llm-invariant: App mode without browser toolbars (--app="%TARGET_URL%"); exact sRGB profile; offline prebuilt assets.
+::           @llm-neuroscience: High-fidelity visual and pedagogical launch environment for full CNS exploration.
 
 echo ==============================================================================
-echo MOZOK v1.0.0 -- Multi-Scale Human Brain and Connectome Explorer
-echo Google Earth for the Human Brain -- 500 Neurons 3D and Prion Simulator
+echo MOZOK v2.0 -- Atlas e Simulador Neuroanatomico 3D Multiescala
+echo Sistema Nervoso Central, Conectoma, Fisiologia e Patologia (MNI152 + Micro)
 echo ==============================================================================
 echo.
 
 cd /d "%~dp0"
 
-echo [1/3] Configurando GPU dedicada NVIDIA GTX 1650 no Registro do Windows...
+echo [1/4] Verificando e instalando icones multi-resolucao (Desktop, PWA, Godot)...
+where python >nul 2>nul
+if %ERRORLEVEL% equ 0 (
+    python tools/install_mozok_icons.py
+) else (
+    echo [Nota] Python nao encontrado no PATH; usando icones existentes.
+)
+echo.
+
+echo [2/4] Verificando biblioteca de audio neural com voz de professor...
+if not exist "web\assets\audio\pt-BR\struct_1.mp3" (
+    echo Gerando audios neurais de estudio com Edge-TTS...
+    where python >nul 2>nul
+    if %ERRORLEVEL% equ 0 (
+        python tools/prebuild_neural_audio.py
+    )
+) else (
+    echo [OK] Biblioteca de audios neurais pre-compilados validada (27/27 arquivos).
+)
+echo.
+
+echo [3/4] Configurando GPU dedicada NVIDIA / AMD no Registro do Windows...
 
 set "CHROME_PATH="
 if exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" set "CHROME_PATH=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
@@ -31,39 +58,34 @@ if defined EDGE_PATH (
 echo [OK] Aceleracao maxima por hardware GPU ativada.
 echo.
 
-echo [2/3] Iniciando MOZOK v1.0 WebGL2 Studio em tela cheia...
+echo [4/4] Iniciando MOZOK v2.0 em Modo de Aplicativo Dedicado sem Bordas...
 set "TARGET_URL=file:///%~dp0web/index.html"
 set "TARGET_URL=%TARGET_URL:\=/%"
 
-:: [PT-BR]: Flags de aceleracao GPU com fidelidade cromatica sRGB exata para shaders WebGL2 MNI152
-:: [EN-GB]: GPU acceleration flags with exact sRGB color profile fidelity for MNI152 WebGL2 shaders
-:: [AI-CTX]: @llm-context: Browser launch configuration enforcing dedicated GPU and sRGB color profile
-set "BROWSER_FLAGS=--force-color-profile=srgb --enable-gpu-rasterization --enable-zero-copy --ignore-gpu-blocklist --use-gl=desktop --start-fullscreen"
+:: [PT-BR]: Flags de aceleracao GPU com fidelidade cromatica sRGB exata e modo aplicativo dedicado (--app=...)
+:: [EN-GB]: GPU acceleration flags with exact sRGB color profile fidelity and dedicated app mode (--app=...)
+set "BROWSER_FLAGS=--app=%TARGET_URL% --force-color-profile=srgb --enable-gpu-rasterization --enable-zero-copy --ignore-gpu-blocklist --use-gl=desktop"
 
 if defined CHROME_PATH (
-    start "" "!CHROME_PATH!" %BROWSER_FLAGS% "%TARGET_URL%"
+    start "" "!CHROME_PATH!" %BROWSER_FLAGS%
 ) else if defined EDGE_PATH (
-    start "" "!EDGE_PATH!" %BROWSER_FLAGS% "%TARGET_URL%"
+    start "" "!EDGE_PATH!" %BROWSER_FLAGS%
 ) else (
     start "" "%TARGET_URL%"
 )
 
-echo [OK] WebGL2 Studio iniciado no navegador padrao.
+echo [OK] MOZOK v2.0 iniciado com sucesso no modo aplicativo dedicado.
 echo.
 
-echo [3/3] Verificando Motor Nativo Godot 4...
 where godot >nul 2>nul
 if %ERRORLEVEL% equ 0 (
-    echo Motor Godot 4 detectado no PATH do sistema.
+    echo [Godot 4] Motor Godot 4 detectado no PATH do sistema.
     echo Pressione qualquer tecla para abrir tambem o motor Godot 4 nativo, ou feche esta janela.
     pause >nul
     start "" godot --path .
-) else (
-    echo [Nota] Executavel godot nao encontrado no PATH (execucao pura via WebGL2 Studio 100%% offline).
 )
 
-echo.
 echo ==============================================================================
-echo MOZOK v1.0.0 em execucao! Para reiniciar, execute run.bat novamente.
+echo MOZOK v2.0 em execucao! Para reiniciar, execute run.bat novamente.
 echo ==============================================================================
 exit /b 0

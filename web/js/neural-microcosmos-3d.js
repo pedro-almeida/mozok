@@ -137,6 +137,21 @@
     }
   }
 
+  // [PT-BR]: Função de ruído harmônico multi-octava fbm3D(x, y, z) para ondulação biomembranosa fotorrealista.
+  // [EN-GB]: Multi-octave harmonic noise function fbm3D(x, y, z) for photorealistic biomembrane undulation.
+  // [AI-CTX]: @llm-neuroscience: Simulates microscopic phospholipid membrane fluctuation and irregular somatic morphology.
+  function fbm3D(x, y, z) {
+    let val = 0.0;
+    let amp = 0.5;
+    let freq = 1.0;
+    for (let o = 0; o < 4; o++) {
+      val += amp * (Math.sin(x * freq + 0.45) * Math.cos(y * freq + 1.25) * Math.sin(z * freq + 2.1));
+      freq *= 2.05;
+      amp *= 0.48;
+    }
+    return val;
+  }
+
   // ==========================================================================
   // 2. CONSTRUTOR DE NEURÔNIOS BIOLOGICAMENTE PLAUSÍVEIS (CAMADA V)
   // ==========================================================================
@@ -150,8 +165,8 @@
       neuronGroup.name = `BIOLOGICAL_NEURON_HERO_${seed}`;
 
       // 1. SOMA ORGÂNICO ESCULPIDO COM TEXTURA CELULAR (SphereGeometry 64x48)
-      // [PT-BR]: Soma esculpido em resolução 64x48 com deformação contínua tri-lobada basal e cone de implantação suave (hillock).
-      // [EN-GB]: Sculpted soma at 64x48 resolution with continuous basal tri-lobed deformation and smooth axon hillock tapering.
+      // [PT-BR]: Soma esculpido em resolução 64x48 com deformação contínua tri-lobada basal, fbm3D e cone de implantação suave (hillock).
+      // [EN-GB]: Sculpted soma at 64x48 resolution with continuous basal tri-lobed deformation, fbm3D, and smooth axon hillock tapering.
       const somaGeo = new THREE.SphereGeometry(1.65, 64, 48);
       const sPos = somaGeo.attributes.position;
       for (let i = 0; i < sPos.count; i++) {
@@ -180,6 +195,12 @@
             y -= hFactor * 0.25;
           }
         }
+
+        // Ruído harmônico multi-octava fbm3D(x, y, z) para ondulação biomembranosa fotorrealista
+        const fbm = fbm3D(x * 1.8, y * 1.8, z * 1.8) * 0.12;
+        x *= (1.0 + fbm);
+        y *= (1.0 + fbm * 0.5);
+        z *= (1.0 + fbm);
 
         // Microtextura biológica fina de membrana fosfolipídica
         const noise = Math.sin(x * 6.0) * Math.cos(z * 6.0) * 0.055 + Math.sin(y * 8.0) * 0.035;
@@ -487,13 +508,68 @@
       }
       neuronGroup.add(boutonGroup);
 
+      // [PT-BR]: Hélices PrP^C Fisiológicas (3 hélices alfa + 4 íons Cu2+ no domínio flexível)
+      // [EN-GB]: Physiological PrP^C Helices (3 alpha-helices + 4 Cu2+ ions in flexible domain)
+      const prpcGroup = new THREE.Group();
+      prpcGroup.name = "PRPC_PHYSIOLOGICAL_HELICES";
+      const helixMat = new THREE.MeshStandardMaterial({
+        color: 0x38bdf8,
+        roughness: 0.25,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.45
+      });
+      const cuMat = new THREE.MeshBasicMaterial({ color: 0x00f2fe });
+      for (let p = 0; p < 12; p++) {
+        const pMono = new THREE.Group();
+        for (let h = 0; h < 3; h++) {
+          const hGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.32, 6);
+          hGeo.rotateZ(h * 0.65);
+          const hMesh = new THREE.Mesh(hGeo, helixMat);
+          hMesh.position.set((h - 1) * 0.12, 0, 0);
+          pMono.add(hMesh);
+        }
+        for (let c = 0; c < 4; c++) {
+          const cu = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 6), cuMat);
+          cu.position.set((c - 1.5) * 0.08, -0.20, 0);
+          pMono.add(cu);
+        }
+        const ang = (p / 12) * Math.PI * 2;
+        pMono.position.set(Math.cos(ang) * 1.85, (p % 3) * 0.75 - 0.35, Math.sin(ang) * 1.85);
+        prpcGroup.add(pMono);
+      }
+      neuronGroup.add(prpcGroup);
+
+      // [PT-BR]: Protofibrilas PrP^Sc Patológicas (Beta-solenoides em feixes cruzados)
+      // [EN-GB]: Pathological PrP^Sc Protofibrils (Cross-beta stacked solenoids)
+      const prpscGroup = new THREE.Group();
+      prpscGroup.name = "PRPSC_PATHOLOGICAL_FIBRILS";
+      prpscGroup.visible = false;
+      const prpscMat = new THREE.MeshStandardMaterial({
+        color: 0xdc2626,
+        roughness: 0.35,
+        emissive: 0x991b1b,
+        emissiveIntensity: 0.65
+      });
+      for (let f = 0; f < 8; f++) {
+        const fibCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3((Math.random() - 0.5) * 2.2, (Math.random() - 0.5) * 2.8, (Math.random() - 0.5) * 2.2),
+          new THREE.Vector3((Math.random() - 0.5) * 2.6, (Math.random() - 0.5) * 3.2, (Math.random() - 0.5) * 2.6),
+          new THREE.Vector3((Math.random() - 0.5) * 3.0, (Math.random() - 0.5) * 3.6, (Math.random() - 0.5) * 3.0)
+        ]);
+        const fibMesh = new THREE.Mesh(new THREE.TubeGeometry(fibCurve, 10, 0.08, 4, false), prpscMat);
+        prpscGroup.add(fibMesh);
+      }
+      neuronGroup.add(prpscGroup);
+
       return {
         group: neuronGroup,
         axonCurve,
         myelinSheaths,
         ranvierNodes,
         spinesGroup,
-        somaMesh
+        somaMesh,
+        prpcGroup,
+        prpscGroup
       };
     }
   }
@@ -754,6 +830,32 @@
       };
 
       this.initBiologicalMicrocosm();
+
+      // [PT-BR]: Integração em tempo real com o calibrador adaptativo de hardware MozokAdaptiveLOD
+      // [EN-GB]: Real-time integration with MozokAdaptiveLOD dynamic hardware calibrator
+      if (typeof window !== 'undefined' && window.mozokAdaptiveLOD) {
+        window.mozokAdaptiveLOD.onProfileChange((config) => {
+          this.applyLOD(config);
+        });
+      }
+    }
+
+    // [PT-BR]: Aplica o orçamento de polígonos e densidade de neurônios dinamicamente sem travar a cena.
+    // [EN-GB]: Applies polygon budget and neuron density dynamically without freezing the scene.
+    applyLOD(config) {
+      if (!config) return;
+      const targetCount = config.swcNeuronCount || 24;
+      if (this.neighborNeurons) {
+        this.neighborNeurons.forEach((n, idx) => {
+          n.group.visible = (idx < targetCount);
+        });
+      }
+      const particleCount = config.extracellularParticles || 120;
+      if (this.extracellularParticles) {
+        this.extracellularParticles.forEach((p, idx) => {
+          p.mesh.visible = (idx < particleCount);
+        });
+      }
     }
 
     initBiologicalMicrocosm() {
@@ -775,24 +877,26 @@
       this.initSynapticCleftVesicles();
     }
 
-    // [PT-BR]: Constrói o Conectoma Microscópico idêntico à imagem Firefly Layer V (28 neurônios vizinhos em azul-petróleo e âmbar, mais 250 micropartículas extracelulares).
-    // [EN-GB]: Builds Microscopic Connectome matching Firefly Layer V (28 neighbor neurons in deep teal and amber, plus 250 extracellular microparticles).
+    // [PT-BR]: Constrói o Conectoma Microscópico escalável de até 96 neurônios da Camada V com dados SWC e 250 micropartículas extracelulares.
+    // [EN-GB]: Builds scalable Microscopic Connectome up to 96 Layer V neurons with SWC data and 250 extracellular microparticles.
     // [AI-CTX]: @llm-neuroscience: Cortical Layer V microcolumn with dense synaptic connectivity and extracellular ion/vesicle bath.
     initConnectomeBackground() {
       this.neighborNeuronsGroup = new THREE.Group();
-      this.neighborNeuronsGroup.name = "LAYER_V_NEIGHBOR_NEURONS_28";
+      this.neighborNeuronsGroup.name = "LAYER_V_NEIGHBOR_NEURONS_96";
       this.neighborNeurons = [];
 
-      // 28 Neurônios Vizinhos Esculpidos em azul-petróleo profundo (#0284c7 / #1e3a8a) e âmbar (#d97706 / #f59e0b)
-      const neighborCoords = [
-        [-8.5, 4.2, -6.0], [9.2, 5.0, -5.5], [-7.2, -5.5, -4.5], [8.0, -6.2, -5.0],
-        [-12.0, 1.5, -8.0], [13.0, 2.0, -7.5], [-4.5, 9.5, -7.0], [5.2, 10.0, -6.5],
-        [-11.5, -9.0, -9.0], [11.0, -8.5, -8.5], [-14.5, 8.0, -11.0], [14.0, 7.5, -10.5],
-        [-6.0, -14.0, -8.0], [6.5, -14.5, -7.5], [-16.0, -3.5, -12.0], [16.5, -2.8, -11.5],
-        [-5.5, 3.0, 5.5], [6.0, 3.5, 5.0], [-7.5, -4.0, 6.0], [7.2, -4.5, 5.5],
-        [-10.5, 6.5, 7.5], [10.8, 6.2, 7.0], [-3.8, -11.5, 6.5], [4.2, -12.0, 6.0],
-        [-13.5, -7.2, 9.0], [13.2, -7.5, 8.5], [-15.0, 4.5, 9.5], [15.2, 4.8, 9.0]
-      ];
+      // 96 Posições em arranjo colunar cortical biológico (Camada V)
+      const neighborCoords = [];
+      for (let i = 0; i < 96; i++) {
+        const phi = (i / 96) * Math.PI * 16.0;
+        const rad = 4.5 + (i % 8) * 2.8;
+        const y = -14.0 + (i / 96) * 28.0;
+        neighborCoords.push([
+          Math.cos(phi) * rad,
+          y,
+          Math.sin(phi) * rad
+        ]);
+      }
 
       const tealMat = new THREE.MeshPhysicalMaterial({
         color: 0x0284c7, // Azul-petróleo profundo (#0284c7)
@@ -821,7 +925,7 @@
         const mat = (idx % 2 === 0) ? tealMat.clone() : amberMat.clone();
 
         // Pericário piramidal orgânico
-        const sGeo = new THREE.SphereGeometry(1.20, 20, 16);
+        const sGeo = new THREE.SphereGeometry(1.20, 18, 14);
         sGeo.scale(1.0, 1.38, 1.0);
         const sMesh = new THREE.Mesh(sGeo, mat);
         nGroup.add(sMesh);
@@ -834,7 +938,7 @@
           new THREE.Vector3((Math.random() - 0.5) * 2.4, 7.8, (Math.random() - 0.5) * 2.0),
           new THREE.Vector3((Math.random() - 0.5) * 3.0, 10.0, (Math.random() - 0.5) * 2.5)
         ]);
-        const apGeo = new THREE.TubeGeometry(apCurve, 14, 0.18, 6, false);
+        const apGeo = new THREE.TubeGeometry(apCurve, 12, 0.16, 5, false);
         const apMesh = new THREE.Mesh(apGeo, mat);
         nGroup.add(apMesh);
 
@@ -846,9 +950,15 @@
           new THREE.Vector3((Math.random() - 0.5) * 2.2, -8.5, (Math.random() - 0.5) * 1.6),
           new THREE.Vector3((Math.random() - 0.5) * 2.8, -11.0, (Math.random() - 0.5) * 2.0)
         ]);
-        const axGeo = new THREE.TubeGeometry(axCurve, 14, 0.12, 5, false);
+        const axGeo = new THREE.TubeGeometry(axCurve, 12, 0.11, 4, false);
         const axMesh = new THREE.Mesh(axGeo, mat);
         nGroup.add(axMesh);
+
+        // Oculta por padrão além do limite inicial detectado
+        const initialBudget = (typeof window !== 'undefined' && window.mozokAdaptiveLOD)
+          ? window.mozokAdaptiveLOD.getConfig().swcNeuronCount
+          : 28;
+        nGroup.visible = (idx < initialBudget);
 
         this.neighborNeuronsGroup.add(nGroup);
         this.neighborNeurons.push({ group: nGroup, pos: new THREE.Vector3(coord[0], coord[1], coord[2]) });
@@ -1041,8 +1151,20 @@
       } else if (this.currentPathology === 'EPILEPSY') {
         // Hiperativação paroxística: disparos contínuos de alta frequência
         this.triggerActionPotential(45.0);
+      } else if (this.currentPathology === 'PRION') {
+        // [PT-BR]: Neuropatologia espongiforme: ativação de protofibrilas PrP^Sc e atrofia sináptica
+        // [EN-GB]: Spongiform neuropathology: activation of PrP^Sc protofibrils and synaptic atrophy
+        if (this.heroNeuron.prpscGroup) this.heroNeuron.prpscGroup.visible = true;
+        if (this.heroNeuron.prpcGroup) this.heroNeuron.prpcGroup.visible = false;
+        this.heroNeuron.somaMesh.material.color.setHex(0x78350f);
+        this.heroNeuron.somaMesh.material.roughness = 0.58;
+        if (this.heroNeuron.spinesGroup) {
+          this.heroNeuron.spinesGroup.scale.setScalar(0.35);
+        }
       } else {
         // NORMAL
+        if (this.heroNeuron.prpscGroup) this.heroNeuron.prpscGroup.visible = false;
+        if (this.heroNeuron.prpcGroup) this.heroNeuron.prpcGroup.visible = true;
         this.heroNeuron.myelinSheaths.forEach(m => {
           m.scale.set(1.0, 1.0, 1.0);
           m.material.color.setHex(0xe0f2fe);

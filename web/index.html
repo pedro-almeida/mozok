@@ -2,9 +2,13 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>MOZOK v2.0 — Atlas e Simulador Neuroanatômico 3D Multiescala (SNC, Neurônios e Patologias)</title>
   <meta name="description" content="MOZOK v2.0: Plataforma científica 3D neuroanatômica contínua do SNC até neurônios piramidais, mielina, nódulos de Ranvier, eletrofisiologia de Hodgkin-Huxley e simulador de 7 patologias.">
+  <meta name="theme-color" content="#020617">
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
+  <link rel="manifest" href="./manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -13,7 +17,7 @@
     /* [EN-US]: CSS Variables of MOZOK v2.0 Design System with high-performance support and WCAG AAA accessibility. */
     :root {
       --bg-dark: #020617;
-      --bg-panel: rgba(10, 16, 28, 0.90);
+      --bg-panel: rgba(10, 16, 28, 0.94);
       --bg-panel-border: rgba(45, 75, 125, 0.45);
       --text-main: #f1f5f9;
       --text-muted: #94a3b8;
@@ -56,55 +60,87 @@
       display: none;
     }
 
-    /* TOP HEADER & TELEMETRY BAR */
+    /* [PT-BR]: TOPBAR FLEXBOX FIXA E ENXUTA (54px, flex-wrap: nowrap, z-index: 100) — FIM DO BUG DE F5 */
+    /* [EN-GB]: FIXED AND SLIM FLEXBOX TOPBAR (54px, flex-wrap: nowrap, z-index: 100) — NO F5 OVERLAP BUG */
     .top-header {
-      position: absolute;
-      top: 12px;
-      left: 16px;
-      right: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 10;
-      pointer-events: none;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .brand-pill {
-      pointer-events: auto;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 54px;
       background: var(--bg-panel);
       backdrop-filter: blur(16px);
-      border: 1px solid var(--bg-panel-border);
-      border-radius: 12px;
-      padding: 8px 16px;
+      border-bottom: 1px solid var(--bg-panel-border);
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 100;
+      flex-wrap: nowrap;
       gap: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .topbar-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 242, 254, 0.45);
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
     }
 
     .brand-title {
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
       background: linear-gradient(135deg, #ffffff 0%, var(--accent-cyan) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .brand-subtitle {
-      font-size: 10px;
+      font-size: 9px;
       color: var(--text-muted);
       font-family: 'JetBrains Mono', monospace;
     }
 
-    .top-controls {
-      pointer-events: auto;
+    .lod-badge {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(0, 242, 254, 0.35);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .topbar-center {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .topbar-right {
       display: flex;
       align-items: center;
       gap: 8px;
-      flex-wrap: wrap;
+      flex-shrink: 0;
     }
 
     .btn-action {
@@ -112,23 +148,23 @@
       backdrop-filter: blur(12px);
       border: 1px solid rgba(56, 189, 248, 0.35);
       color: var(--text-main);
-      padding: 7px 14px;
+      padding: 6px 12px;
       border-radius: 8px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
       white-space: nowrap;
     }
 
     .btn-action:hover {
-      background: rgba(56, 189, 248, 0.2);
+      background: rgba(56, 189, 248, 0.22);
       border-color: var(--accent-cyan);
-      box-shadow: 0 0 16px rgba(0, 242, 254, 0.35);
+      box-shadow: 0 0 14px rgba(0, 242, 254, 0.35);
       transform: translateY(-1px);
     }
 
@@ -136,76 +172,28 @@
       background: linear-gradient(135deg, rgba(0, 242, 254, 0.3), rgba(56, 189, 248, 0.4));
       border-color: var(--accent-cyan);
       color: #ffffff;
-      box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
-    }
-
-    /* COMPACT BIOMARKER & METRICS BAR */
-    .metrics-bar {
-      position: absolute;
-      top: 68px;
-      left: 16px;
-      right: 16px;
-      z-index: 10;
-      pointer-events: auto;
-      background: rgba(10, 16, 28, 0.84);
-      backdrop-filter: blur(14px);
-      border: 1px solid var(--bg-panel-border);
-      border-radius: 10px;
-      padding: 6px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      overflow-x: auto;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-    }
-
-    .metric-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      white-space: nowrap;
-    }
-
-    .metric-label {
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-size: 10px;
-    }
-
-    .metric-val {
-      color: var(--accent-cyan);
-      font-weight: 700;
-    }
-
-    .metric-val.warn {
-      color: var(--accent-rose);
-    }
-
-    .metric-val.gold {
-      color: var(--accent-gold);
+      box-shadow: 0 0 16px rgba(0, 242, 254, 0.5);
     }
 
     /* 9-TIER MULTI-SCALE NAVIGATION STRIP */
     .multiscale-nav-bar {
-      position: absolute;
-      top: 108px;
+      position: fixed;
+      top: 60px;
       left: 16px;
       right: 16px;
-      z-index: 10;
+      height: 34px;
+      z-index: 90;
       pointer-events: auto;
       background: rgba(10, 16, 28, 0.88);
       backdrop-filter: blur(14px);
       border: 1px solid var(--bg-panel-border);
-      border-radius: 10px;
-      padding: 5px 10px;
+      border-radius: 8px;
+      padding: 3px 8px;
       display: flex;
       align-items: center;
       gap: 6px;
       overflow-x: auto;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     }
 
     .multiscale-label {
@@ -250,12 +238,12 @@
 
     /* LEFT SIDEBAR: CONSOLE MULTI-TABS (ESTRUTURAS, TRACTOGRAFIA, GLIA) */
     .sidebar-left {
-      position: absolute;
-      top: 152px;
+      position: fixed;
+      top: 102px;
       left: 16px;
       bottom: 110px;
       width: 320px;
-      z-index: 10;
+      z-index: 80;
       background: var(--bg-panel);
       backdrop-filter: blur(16px);
       border: 1px solid var(--bg-panel-border);
@@ -408,13 +396,13 @@
 
     /* RIGHT HUD */
     .hud-right {
-      position: absolute;
-      top: 152px;
+      position: fixed;
+      top: 102px;
       right: 16px;
       width: 290px;
       bottom: 110px;
       overflow-y: auto;
-      z-index: 10;
+      z-index: 80;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -461,11 +449,11 @@
 
     /* BOTTOM SCIENTIFIC CARD */
     .bottom-banner {
-      position: absolute;
+      position: fixed;
       bottom: 10px;
       left: 16px;
       right: 16px;
-      z-index: 10;
+      z-index: 85;
       max-height: 96px;
       background: var(--bg-panel);
       backdrop-filter: blur(18px);
@@ -551,8 +539,8 @@
 
     /* FLOATING TOUR BANNER */
     .tour-banner {
-      position: absolute;
-      top: 152px;
+      position: fixed;
+      top: 104px;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(15, 23, 42, 0.95);
@@ -566,7 +554,124 @@
       display: none;
       align-items: center;
       gap: 8px;
-      z-index: 20;
+      z-index: 95;
+    }
+
+    /* [PT-BR]: GAVETAS FLUTUANTES BOTTOM SHEET PARA MOBILE/TOUCH (85% DA TELA LIVRE) */
+    /* [EN-GB]: FLOATING BOTTOM SHEET DRAWERS FOR MOBILE/TOUCH (85% FREE SCREEN) */
+    .mobile-drawer-tabs {
+      display: none;
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 95;
+      gap: 8px;
+      background: rgba(10, 16, 28, 0.95);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--accent-cyan);
+      border-radius: 20px;
+      padding: 4px 8px;
+      box-shadow: 0 4px 20px rgba(0, 242, 254, 0.35);
+    }
+
+    .mobile-drawer-btn {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #f1f5f9;
+      border-radius: 14px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .mobile-drawer-btn.active {
+      background: var(--accent-cyan);
+      color: #020617;
+      border-color: var(--accent-cyan);
+    }
+
+    /* RESPONSIVIDADE TABLETS & DESKTOPS COMPACTOS */
+    @media (max-width: 1024px) {
+      .top-header { height: 50px; padding: 0 10px; }
+      .brand-title { font-size: 12px; }
+      .brand-subtitle { display: none; }
+      .btn-action { padding: 5px 8px; font-size: 10px; }
+      .sidebar-left { width: 280px; }
+      .hud-right { width: 260px; }
+    }
+
+    /* RESPONSIVIDADE MOBILE SMARTPHONES */
+    @media (max-width: 768px) {
+      .top-header {
+        height: 48px;
+        padding: 0 6px;
+        gap: 4px;
+      }
+      .topbar-logo { width: 26px; height: 26px; }
+      .brand-title { font-size: 11px; }
+      .lod-badge { font-size: 8px; padding: 2px 4px; }
+      .view-modes-group .btn-action { padding: 4px 6px; font-size: 9px; }
+      .topbar-right .btn-action { padding: 4px 6px; font-size: 9px; }
+      .topbar-right .lang-selector-container select { font-size: 9px; padding: 3px 2px; }
+
+      .multiscale-nav-bar {
+        top: 52px;
+        left: 6px;
+        right: 6px;
+        height: 30px;
+        padding: 2px 6px;
+      }
+
+      /* MOBILE BOTTOM SHEETS QUE LIBERAM 85% DA TELA */
+      .sidebar-left {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100vw;
+        height: 52vh;
+        border-radius: 16px 16px 0 0;
+        transform: translateY(105%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 90;
+        box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.85);
+      }
+      .sidebar-left.open {
+        transform: translateY(0);
+      }
+
+      .hud-right {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100vw;
+        height: 52vh;
+        border-radius: 16px 16px 0 0;
+        transform: translateY(105%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 90;
+        pointer-events: auto;
+        box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.85);
+      }
+      .hud-right.open {
+        transform: translateY(0);
+      }
+
+      .bottom-banner {
+        display: none;
+      }
+
+      .mobile-drawer-tabs {
+        display: flex;
+      }
     }
   </style>
 </head>
@@ -577,17 +682,45 @@
   <!-- Container de Compatibilidade Micro -->
   <div id="container-protein-3d"><div id="canvas-protein-3d"></div></div>
 
-  <!-- TOP HEADER -->
+  <!-- TOPBAR FLEXBOX FIXA E ENXUTA (54px, flex-wrap: nowrap, z-index: 100) — FIM DO BUG DE F5 -->
   <header class="top-header">
-    <div class="brand-pill">
-      <div>
-        <div class="brand-title">MOZOK v2.0 — Atlas Neuroanatômico & Eletrofisiológico 3D</div>
-        <div class="brand-subtitle">Córtex MNI152 | Hodgkin-Huxley | 9 Vias DTI | Glia | VLibras A11y</div>
+    <!-- Esquerda: Ícone + Título + Badge de Performance/LOD -->
+    <div class="topbar-left">
+      <img src="assets/icon.png" alt="MOZOK" width="32" height="32" class="topbar-logo">
+      <div class="brand-text">
+        <span class="brand-title">MOZOK v2.0</span>
+        <span class="brand-subtitle">Atlas SNC MNI152</span>
       </div>
+      <div id="lod-status-badge" class="lod-badge">⚡ AUTO: ULTRA 60 FPS</div>
     </div>
 
-    <div class="top-controls">
-      <!-- Seletor de 5 Idiomas -->
+    <!-- Centro: Modos Rápidos de Visão Anatômica -->
+    <div class="topbar-center view-modes-group">
+      <button id="btn-view-external" class="btn-action active" title="Córtex MNI152 sólido externo com sulcos e giros reais">
+        <span>🧠 Externo Real</span>
+      </button>
+      <button id="btn-view-xray" class="btn-action" title="Demarcação cirúrgica de estruturas internas (Fresnel rimGlow e Pins 3D)">
+        <span>👁️ Estruturas Internas</span>
+      </button>
+      <button id="btn-view-vascular" class="btn-action" title="Árvore vascular cerebral e espinhal com meninges">
+        <span>🛡️ Meninges & Vasos</span>
+      </button>
+      <button id="btn-view-micro" class="btn-action" title="Mergulhar nos neurônios piramidais da Camada V">
+        <span>🔬 Neurônios Camada V</span>
+      </button>
+    </div>
+
+    <!-- Direita: Ações principais e Acessibilidade -->
+    <div class="topbar-right">
+      <button id="btn-home-view" class="btn-action" title="Retornar à Visão Geral do Sistema Nervoso Central (Escape/Home)" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5); color: #10b981;">
+        <span id="btn-home-text">🏠 Início</span>
+      </button>
+      <button id="btn-tour" class="btn-action" title="Tour guiado com explicação de professor">
+        <span id="btn-tour-text">🎬 Tour Professor</span>
+      </button>
+      <button id="btn-voice" class="btn-action active" title="Ativar/desativar voz didática de professor">
+        <span id="btn-voice-text">🔊 Voz Professor</span>
+      </button>
       <div class="lang-selector-container" style="display: flex; align-items: center; background: rgba(15, 23, 42, 0.88); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 1px 4px;">
         <select id="select-language" style="background: transparent; color: #f1f5f9; border: none; font-size: 11px; font-weight: 700; cursor: pointer; outline: none; padding: 5px 3px;">
           <option value="pt-BR" style="background: #0f172a;">🇧🇷 PT-BR</option>
@@ -597,74 +730,11 @@
           <option value="es-ES" style="background: #0f172a;">🇪🇸 ES</option>
         </select>
       </div>
-
-      <!-- Controle de Dissecação das Meninges -->
-      <div class="meninges-controls-container" style="display: flex; align-items: center; gap: 3px; background: rgba(15, 23, 42, 0.90); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 2px 6px;">
-        <span style="font-size: 11px; font-weight: 700; color: #38bdf8;">🛡️ Meninges:</span>
-        <button id="btn-meninges-none" class="btn-action active" style="padding: 3px 6px; font-size: 10px;">Ocultar</button>
-        <button id="btn-meninges-pia" class="btn-action" style="padding: 3px 6px; font-size: 10px; color: #fca5a5;">Pia-Máter</button>
-        <button id="btn-meninges-arachnoid" class="btn-action" style="padding: 3px 6px; font-size: 10px; color: #38bdf8;">Aracnoide + LCR</button>
-        <button id="btn-meninges-dura" class="btn-action" style="padding: 3px 6px; font-size: 10px; color: #e2e8f0;">Dura-Máter</button>
-        <button id="btn-meninges-all" class="btn-action" style="padding: 3px 6px; font-size: 10px;">Todas</button>
-      </div>
-
-      <!-- Botão Retornar à Visão Inicial Macro do SNC -->
-      <button id="btn-home-view" class="btn-action" title="Retornar à Visão Geral do Sistema Nervoso Central (Escape/Home)" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5); color: #10b981;">
-        <span id="btn-home-text">🏠 Voltar à Visão Inicial (SNC)</span>
-      </button>
-
-      <!-- Botão Mergulho nos Neurônios da Camada V -->
-      <button id="btn-dive" class="btn-action" title="Mergulhar no Neurônio Heroico da Camada V">
-        <span id="btn-dive-text">🔬 Mergulhar nos Neurônios (Camada V)</span>
-      </button>
-
-      <button id="btn-tour" class="btn-action">
-        <span id="btn-tour-text">🎬 Tour Guiado IA</span>
-      </button>
-      <button id="btn-voice" class="btn-action active">
-        <span id="btn-voice-text">🔊 Voz IA: ON</span>
-      </button>
       <button id="btn-fullscreen" class="btn-action" title="Tela Cheia">
         <span>⛶</span>
       </button>
     </div>
   </header>
-
-  <!-- COMPACT BIOMARKERS AND METRICS BAR -->
-  <div class="metrics-bar">
-    <div class="metric-item">
-      <span class="metric-label" id="label-scale">Escala:</span>
-      <span id="metric-scale" class="metric-val">MACRO (220 mm)</span>
-    </div>
-    <div class="metric-item">
-      <span class="metric-label">PrPC:</span>
-      <span id="metric-prpc" class="metric-val">100%</span>
-    </div>
-    <div class="metric-item">
-      <span class="metric-label">PrPSc:</span>
-      <span id="metric-prpsc" class="metric-val">0.00</span>
-    </div>
-    <div class="metric-item">
-      <span class="metric-label" id="label-vacuoles">Vacúolos:</span>
-      <span id="metric-vacuoles" class="metric-val">0.0%</span>
-    </div>
-    <div class="metric-item">
-      <span class="metric-label">Tau Total:</span>
-      <span id="metric-tau" class="metric-val">180 pg/mL</span>
-    </div>
-    <div class="metric-item">
-      <span class="metric-label">14-3-3:</span>
-      <span id="metric-1433" class="metric-val">0.40 ng/mL</span>
-    </div>
-    <div class="metric-item">
-      <span class="metric-label" id="label-csf">Líquor Aqueduto:</span>
-      <span id="metric-csf" class="metric-val">32.4 mm/s</span>
-    </div>
-    <div class="metric-item">
-      <span class="metric-label">RT-QuIC:</span>
-      <span id="metric-rtquic" class="metric-val gold">NEGATIVO</span>
-    </div>
-  </div>
 
   <!-- 9-TIER MULTI-SCALE NAVIGATION STRIP -->
   <nav class="multiscale-nav-bar" id="multiscale-nav-bar">
@@ -720,7 +790,23 @@
       </div>
     </div>
 
-    <!-- CARD 2: ELETROFISIOLOGIA HODGKIN-HUXLEY -->
+    <!-- CARD 2: BIOMARCADORES DO LÍQUOR & TELEMETRIA CEREBRAL -->
+    <div class="hud-card" id="hud-card-biomarkers">
+      <div class="hud-card-title">
+        <span>BIOMARCADORES DO LÍQUOR</span>
+        <span id="metric-scale" style="font-size: 9px; color: #38bdf8;">MACRO (220 mm)</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 10px; font-family: 'JetBrains Mono', monospace;">
+        <div><span style="color: #94a3b8;">PrP^C: </span><span id="metric-prpc" style="color: #00f2fe; font-weight: 700;">100%</span></div>
+        <div><span style="color: #94a3b8;">PrP^Sc: </span><span id="metric-prpsc" style="color: #00f2fe; font-weight: 700;">0.00</span></div>
+        <div><span style="color: #94a3b8;">Tau: </span><span id="metric-tau" style="color: #00f2fe; font-weight: 700;">180 pg/mL</span></div>
+        <div><span style="color: #94a3b8;">14-3-3: </span><span id="metric-1433" style="color: #00f2fe; font-weight: 700;">0.40 ng/mL</span></div>
+        <div style="grid-column: span 2;"><span style="color: #94a3b8;">Líquor Aqueduto: </span><span id="metric-csf" style="color: #10b981; font-weight: 700;">32.4 mm/s</span></div>
+        <div style="grid-column: span 2;"><span style="color: #94a3b8;">RT-QuIC: </span><span id="metric-rtquic" style="color: #fbbf24; font-weight: 700;">NEGATIVO</span></div>
+      </div>
+    </div>
+
+    <!-- CARD 3: ELETROFISIOLOGIA HODGKIN-HUXLEY -->
     <div class="hud-card" id="hud-card-electrophysiology">
       <div class="hud-card-title">
         <span>BIOFÍSICA HODGKIN-HUXLEY</span>
@@ -736,7 +822,7 @@
       </button>
     </div>
 
-    <!-- CARD 3: MICRO-CONECTOMA BIOLÓGICO -->
+    <!-- CARD 4: MICRO-CONECTOMA BIOLÓGICO -->
     <div class="hud-card">
       <div class="hud-card-title">
         <span id="hud-micro-title">NEURÔNIO PIRAMIDAL REAL</span>
@@ -750,7 +836,7 @@
 
   <!-- FLOATING TOUR BANNER -->
   <div id="tour-banner" class="tour-banner">
-    <span>🎬 Tour Guiado Ativo:</span>
+    <span>🎬 Tour Professor Ativo:</span>
     <span id="tour-banner-text">Sistema Nervoso Central Completo</span>
   </div>
 
@@ -789,9 +875,16 @@
     </div>
   </footer>
 
+  <!-- ABAS FLUTUANTES PARA GAVETAS MOBILE (85% DA TELA LIVRE) -->
+  <div class="mobile-drawer-tabs">
+    <button id="btn-drawer-structures" class="mobile-drawer-btn">📂 Estruturas</button>
+    <button id="btn-drawer-telemetry" class="mobile-drawer-btn">📊 Telemetria</button>
+  </div>
+
   <!-- OFFLINE SCIENTIFIC DATA ASSETS (100% Local & Fast) -->
   <script src="js/vendor/three.min.js"></script>
   <script src="js/vendor/OrbitControls.js"></script>
+  <script src="js/mozok-adaptive-lod.js"></script>
   <script src="js/mozok-database.js"></script>
   <script src="js/swc-neurons-data.js"></script>
   <script src="js/scientific-atlas-meshes.js"></script>
