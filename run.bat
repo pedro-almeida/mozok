@@ -39,25 +39,14 @@ if not exist "web\assets\audio\pt-BR\struct_1.mp3" (
 )
 echo.
 
-echo [3/5] Configurando GPU dedicada NVIDIA / AMD no Registro do Windows...
-
-set "CHROME_PATH="
-if exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" set "CHROME_PATH=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
-if exist "%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe" set "CHROME_PATH=%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"
-if exist "%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe" set "CHROME_PATH=%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe"
-
-set "EDGE_PATH="
-if exist "%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe" set "EDGE_PATH=%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe"
-if exist "%ProgramFiles%\Microsoft\Edge\Application\msedge.exe" set "EDGE_PATH=%ProgramFiles%\Microsoft\Edge\Application\msedge.exe"
-
-if defined CHROME_PATH (
-    reg add "HKCU\Software\Microsoft\DirectX\UserGpuPreferences" /v "!CHROME_PATH!" /t REG_SZ /d "GpuPreference=2;" /f >nul 2>nul
-)
-if defined EDGE_PATH (
-    reg add "HKCU\Software\Microsoft\DirectX\UserGpuPreferences" /v "!EDGE_PATH!" /t REG_SZ /d "GpuPreference=2;" /f >nul 2>nul
-)
-
-echo [OK] Aceleracao maxima por hardware GPU ativada.
+echo [3/5] Configurando GPU dedicada NVIDIA exclusivamente para mozok-native.exe...
+reg delete "HKCU\Software\Microsoft\DirectX\UserGpuPreferences" /v "%ProgramFiles%\Google\Chrome\Application\chrome.exe" /f >nul 2>nul
+reg delete "HKCU\Software\Microsoft\DirectX\UserGpuPreferences" /v "%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe" /f >nul 2>nul
+reg delete "HKCU\Software\Microsoft\DirectX\UserGpuPreferences" /v "%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe" /f >nul 2>nul
+reg delete "HKCU\Software\Microsoft\DirectX\UserGpuPreferences" /v "%ProgramFiles%\Microsoft\Edge\Application\msedge.exe" /f >nul 2>nul
+reg add "HKCU\Software\Microsoft\DirectX\UserGpuPreferences" /v "%~dp0mozok-native.exe" /t REG_SZ /d "GpuPreference=2;" /f >nul 2>nul
+reg add "HKCU\Software\Microsoft\DirectX\UserGpuPreferences" /v "%~dp0target\release\mozok-native.exe" /t REG_SZ /d "GpuPreference=2;" /f >nul 2>nul
+echo [OK] GPU dedicada vinculada apenas ao aplicativo nativo (Chrome/Edge livres).
 echo.
 
 echo [4/5] Inicializando Aplicativo Desktop Nativo MOZOK (GPU Win32)...

@@ -699,6 +699,7 @@
 
       // Grupo de Pins / Rótulos Flutuantes 3D para Demarcação Subcortical Cirúrgica
       this.internalPinsGroup = null;
+      this.activeCalloutPin = null;
 
       // Grupo para exibição de Peça Isolada em 360 graus
       this.isolatedPieceGroup = new THREE.Group();
@@ -892,12 +893,17 @@
             specStrength *= (1.0 - 0.85 * uDamage);
           }
 
-          // Destaque Bioluminescente Direto na Superfície sem Saturnos
-          if (uHighlightRadius > 0.1 && uHighlightIntensity > 0.01) {
+          // Delimitação Cirúrgica Focal com Anel de Contorno Anatômico (ex: Área de Broca, M1, S1, V1)
+          if (uHighlightRadius > 0.05 && uHighlightIntensity > 0.01) {
             float distToHighlight = length(vWorldPos - uHighlightCenter);
             if (distToHighlight < uHighlightRadius) {
-              float hFactor = smoothstep(uHighlightRadius, 0.0, distToHighlight) * uHighlightIntensity;
-              baseColor = mix(baseColor, uHighlightColor, hFactor * 0.85);
+              float normDist = distToHighlight / uHighlightRadius;
+              // Preenchimento interno suave preservando os sulcos e giros MNI152
+              float innerFill = smoothstep(1.0, 0.15, normDist) * uHighlightIntensity;
+              // Anel de contorno cirúrgico brilhante na borda exata da área delimitada
+              float borderRing = smoothstep(1.0, 0.86, normDist) * smoothstep(0.66, 0.86, normDist) * uHighlightIntensity;
+              baseColor = mix(baseColor, uHighlightColor, innerFill * 0.68);
+              baseColor += uHighlightColor * borderRing * 0.95;
             }
           }
 
@@ -2357,37 +2363,151 @@
       this.masterGroup.add(this.pnsGroup);
     }
 
-    // [PT-BR]: Destaca a região anatômica iluminando a própria malha (sem esferas ou Saturnos).
-    // [EN-GB]: Highlights anatomical region directly on mesh surface (zero spheres or Saturns).
+    // [PT-BR]: Destaca e delimita cirurgicamente a região anatômica selecionada com raio real e marcador 3D único.
+    // [EN-GB]: Surgically highlights and delimits the selected anatomical region with true radius and single 3D callout pin.
     highlightRegion(region) {
       if (!region) return;
+      const coords = region.center || region.coordenadas || [0, -2.5, 0];
 
-      this.highlightCenter.set(region.center[0], region.center[1], region.center[2]);
-      this.highlightRadius = 26.0;
-      this.highlightColor.set(region.color);
+      // Se for Visão Global (id === 1), desliga a delimitação focal para mostrar o SNC natural completo
+      if (region.id === 1 || region.code === 'WB_CNS') {
+        this.highlightIntensity = 0.0;
+        if (this.cortexUniforms) {
+          this.cortexUniforms.uHighlightIntensity.value = 0.0;
+          this.cortexUniforms.uHighlightRadius.value = 0.0;
+        }
+        if (this.activeCalloutPin) this.activeCalloutPin.visible = false;
+        return;
+      }
+
+      // Raio anatômico cirúrgico real em unidades da cena (1 unidade = 10 mm)
+      const radiusByCode = {
+        DLPFC_LEFT: 1.85,
+        BROCA_LEFT: 1.45,
+        M1_LEFT: 1.75,
+        S1_LEFT: 1.70,
+        WERNICKE_LEFT: 1.50,
+        V1_CALCARINE: 1.65,
+        A1_LEFT: 1.25,
+        INSULA_LEFT: 1.30,
+        PARIETAL_LEFT: 1.75
+      };
+      const trueRadius = radiusByCode[region.code] || 1.50;
+
+      this.highlightCenter.set(coords[0], coords[1], coords[2]);
+      this.highlightRadius = trueRadius;
+      this.highlightColor.set(region.color || '#00f2fe');
       this.highlightIntensity = 1.0;
 
-      // [PT-BR]: Se for uma estrutura interna subcortical e estiver em modo externo, transiciona automaticamente para Raio-X
-      // [EN-GB]: If selecting an internal subcortical nucleus while in external mode, automatically transitions to X-Ray
       const internalCodes = [
         'THALAMUS', 'STRIATUM', 'HIPPOCAMPUS', 'AMYGDALA', 'CORPUS_CALLOSUM',
-        'GLOBUS_PALLIDUS', 'VENTRICLES', 'HYPOTHALAMUS_PITUITARY', 'PINEAL_GLAND',
-        'MIDBRAIN_SN'
+        'GLOBUS_PALLIDUS', 'VENTRICLES', 'VENTRICULAR_SYSTEM', 'HYPOTHALAMUS_PITUITARY',
+        'PINEAL_GLAND', 'MIDBRAIN_SN', 'OPTIC_CHIASM'
       ];
+      const catUpper = String(region.category || region.categoria || '').toUpperCase();
       const isInternal = (region.tier === 'SUBCORTICAL') ||
-        (region.category && ['DIENCÉFALO', 'NÚCLEOS DA BASE', 'SISTEMA LÍMBICO', 'SISTEMA VENTRICULAR', 'EPITÁLAMO'].some(c => region.category.toUpperCase().includes(c))) ||
+        ['DIENCÉFALO', 'NÚCLEOS DA BASE', 'SISTEMA LÍMBICO', 'SISTEMA VENTRICULAR', 'EPITÁLAMO', 'COMISSURAS'].some(c => catUpper.includes(c)) ||
         internalCodes.includes(region.code);
 
-      if (isInternal && this.viewMode === 'external') {
+      if (isInternal) {
         this.setViewMode('internal_xray');
+        // Em estruturas subcorticais internas, não pinta a casca externa do córtex para não tampar a visão do núcleo
+        if (this.cortexUniforms) {
+          this.cortexUniforms.uHighlightRadius.value = 0.0;
+          this.cortexUniforms.uHighlightIntensity.value = 0.0;
+        }
+      } else {
+        if (this.viewMode === 'internal_xray') {
+          this.setViewMode('external');
+        }
+        if (this.cortexUniforms) {
+          this.cortexUniforms.uHighlightCenter.value.copy(this.highlightCenter);
+          this.cortexUniforms.uHighlightRadius.value = this.highlightRadius;
+          this.cortexUniforms.uHighlightColor.value.copy(this.highlightColor);
+          this.cortexUniforms.uHighlightIntensity.value = 1.0;
+        }
       }
 
-      if (this.cortexUniforms) {
-        this.cortexUniforms.uHighlightCenter.value.copy(this.highlightCenter);
-        this.cortexUniforms.uHighlightRadius.value = this.highlightRadius;
-        this.cortexUniforms.uHighlightColor.value.copy(this.highlightColor);
-        this.cortexUniforms.uHighlightIntensity.value = 1.0;
+      // Atualiza o Marcador 3D Dinâmico Único (Callout Cirúrgico) exatamente na estrutura clicada
+      this.updateActiveCalloutPin(region, coords);
+    }
+
+    updateActiveCalloutPin(region, coords) {
+      if (this.internalPinsGroup) {
+        // Oculta a pilha de 10 rótulos estáticos para manter a leitura limpa focada na peça clicada
+        this.internalPinsGroup.visible = false;
       }
+      if (typeof document === 'undefined') return;
+
+      if (!this.activeCalloutPin) {
+        this.activeCalloutPin = new THREE.Group();
+        this.activeCalloutPin.name = "ACTIVE_SURGICAL_CALLOUT_PIN";
+        this.masterGroup.add(this.activeCalloutPin);
+      }
+
+      while (this.activeCalloutPin.children.length > 0) {
+        this.activeCalloutPin.remove(this.activeCalloutPin.children[0]);
+      }
+
+      const col = new THREE.Color(region.color || '#00f2fe');
+      const hexStr = '#' + col.getHexString();
+
+      // Esfera central e anel de demarcação no ponto exato
+      const dotMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.14, 16, 16),
+        new THREE.MeshBasicMaterial({ color: col })
+      );
+      this.activeCalloutPin.add(dotMesh);
+
+      const haloMesh = new THREE.Mesh(
+        new THREE.RingGeometry(0.24, 0.34, 24),
+        new THREE.MeshBasicMaterial({ color: col, side: THREE.DoubleSide, transparent: true, opacity: 0.85 })
+      );
+      haloMesh.lookAt(new THREE.Vector3(coords[0] * 2, coords[1] + 1, coords[2] * 2));
+      this.activeCalloutPin.add(haloMesh);
+
+      // Haste externa radial
+      const outDir = new THREE.Vector3(coords[0], Math.max(0.4, coords[1] * 0.3), coords[2]);
+      if (outDir.lengthSq() < 0.01) outDir.set(0, 1, 1);
+      outDir.normalize().multiplyScalar(1.35);
+
+      const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), outDir]);
+      this.activeCalloutPin.add(new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: col, linewidth: 2 })));
+
+      // Placa 3D de alta definição com o nome curto da estrutura
+      const shortName = String(region.estrutura || region.name || region.code).split('(')[0].trim();
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 96;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.92)';
+        if (ctx.roundRect) ctx.roundRect(6, 6, 500, 84, 16);
+        else ctx.rect(6, 6, 500, 84);
+        ctx.fill();
+        ctx.strokeStyle = hexStr;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        ctx.fillStyle = hexStr;
+        ctx.font = 'bold 20px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`[${region.code || 'SNC'}]`, 256, 34);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 24px Inter, sans-serif';
+        ctx.fillText(shortName.slice(0, 34), 256, 68);
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.minFilter = THREE.LinearFilter;
+        const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+        sprite.position.copy(outDir).add(new THREE.Vector3(0, 0.32, 0));
+        sprite.scale.set(3.2, 0.60, 1.0);
+        this.activeCalloutPin.add(sprite);
+      }
+
+      this.activeCalloutPin.position.set(coords[0], coords[1], coords[2]);
+      this.activeCalloutPin.visible = true;
     }
 
     // [PT-BR]: Define a transparência do córtex e subcórtex para exploração profunda.

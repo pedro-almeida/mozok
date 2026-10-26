@@ -152,47 +152,43 @@ fn enforce_nvidia_high_performance_registry() {
     use std::os::windows::process::CommandExt;
     use std::process::Command;
 
+    // 1. Remove chrome.exe e msedge.exe da chave UserGpuPreferences para que o navegador comum do usuário NÃO ligue a GTX 1650 à toa
+    let browsers_to_unforce = [
+        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+    ];
+    for b in browsers_to_unforce {
+        let _ = Command::new("reg")
+            .args([
+                "delete",
+                r"HKCU\Software\Microsoft\DirectX\UserGpuPreferences",
+                "/v",
+                b,
+                "/f",
+            ])
+            .creation_flags(CREATE_NO_WINDOW)
+            .status();
+    }
+
+    // 2. Registra EXCLUSIVAMENTE o executável nativo mozok-native.exe para rodar na GPU dedicada NVIDIA GeForce GTX 1650
     if let Ok(exe_path) = std::env::current_exe() {
-        let mut targets = vec![exe_path.display().to_string()];
-
-        // Registra também os binários de renderização WebView2/Edge/Chrome na dGPU NVIDIA GTX 1650
-        let candidates = [
-            r"C:\Program Files (x86)\Microsoft\EdgeWebView\Application",
-            r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
-            r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-        ];
-        for c in candidates {
-            let p = std::path::Path::new(c);
-            if p.is_file() {
-                targets.push(p.display().to_string());
-            } else if p.is_dir() {
-                if let Ok(entries) = std::fs::read_dir(p) {
-                    for entry in entries.flatten() {
-                        let wv = entry.path().join("msedgewebview2.exe");
-                        if wv.is_file() {
-                            targets.push(wv.display().to_string());
-                        }
-                    }
-                }
-            }
-        }
-
-        for t in targets {
-            let _ = Command::new("reg")
-                .args([
-                    "add",
-                    r"HKCU\Software\Microsoft\DirectX\UserGpuPreferences",
-                    "/v",
-                    &t,
-                    "/t",
-                    "REG_SZ",
-                    "/d",
-                    "GpuPreference=2;",
-                    "/f",
-                ])
-                .creation_flags(CREATE_NO_WINDOW)
-                .status();
-        }
+        let exe_str = strip_windows_verbatim(exe_path).display().to_string();
+        let _ = Command::new("reg")
+            .args([
+                "add",
+                r"HKCU\Software\Microsoft\DirectX\UserGpuPreferences",
+                "/v",
+                &exe_str,
+                "/t",
+                "REG_SZ",
+                "/d",
+                "GpuPreference=2;",
+                "/f",
+            ])
+            .creation_flags(CREATE_NO_WINDOW)
+            .status();
     }
 }
 

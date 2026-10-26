@@ -159,68 +159,81 @@
     // [EN-GB]: Builds and injects pathology selector and the 3 control buttons (Start, Pause, Reset) in the top navigation bar.
     // [AI-CTX]: @llm-a11y: Accessible dropdown and action buttons to control disease simulation and camera targeting.
     setupUI() {
-      const topBar = document.querySelector('.top-controls');
+      const hudRight = document.querySelector('.hud-right');
+      const topBar = hudRight || document.querySelector('.top-controls');
       if (!topBar) return;
 
       const existingSelect = document.getElementById('select-pathology');
       if (existingSelect) return;
 
       const container = document.createElement('div');
-      container.className = 'pathology-selector-container';
+      container.className = 'hud-card pathology-selector-container';
       container.style.cssText = `
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(15, 23, 42, 0.92);
-        border: 1px solid rgba(0, 242, 254, 0.4);
+        pointer-events: auto;
+        background: rgba(10, 16, 28, 0.96);
+        border: 1px solid rgba(244, 63, 94, 0.55);
         border-radius: 10px;
-        padding: 4px 8px;
-        flex-wrap: wrap;
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65);
       `;
 
       container.innerHTML = `
-        <span id="label-pathology-title" style="font-size: 11px; font-weight: 700; color: #38bdf8;">SIMULADOR DE PATOLOGIAS:</span>
+        <div class="hud-card-title" style="margin-bottom: 2px;">
+          <span id="label-pathology-title" style="color: #fb7185; font-weight: 800;">🧬 SIMULADOR DE PATOLOGIAS</span>
+          <span id="pathology-stage-badge" style="font-size: 9px; color: #10b981; font-family: 'JetBrains Mono', monospace;">HÍGIDO</span>
+        </div>
         <select id="select-pathology" style="
+          width: 100%;
           background: #0f172a;
           color: #f1f5f9;
-          border: 1px solid #38bdf8;
+          border: 1px solid rgba(56, 189, 248, 0.55);
           border-radius: 6px;
-          padding: 5px 8px;
+          padding: 6px 8px;
           font-size: 11px;
-          font-weight: 600;
+          font-weight: 700;
           cursor: pointer;
           outline: none;
         ">
           <option value="NORMAL">🧪 Fisiologia Normal (SNC Hígido)</option>
-          <option value="ALZHEIMER">🧠 Doença de Alzheimer (DA)</option>
-          <option value="PARKINSON">⚡ Doença de Parkinson (DP)</option>
-          <option value="MS">🛡️ Esclerose Múltipla (EM)</option>
-          <option value="ALS">🧬 Esclerose Lateral Amiotrófica (ELA)</option>
-          <option value="STROKE">🩸 AVC Isquêmico (ACM Esquerda)</option>
-          <option value="EPILEPSY">⚡ Epilepsia (Crise Paroxística)</option>
-          <option value="CJD">☣️ Doença de Creutzfeldt-Jakob (DCJ)</option>
+          <option value="STROKE">🩸 AVC Isquêmico (ACM Esquerda / Broca)</option>
+          <option value="CJD">☣️ Doença de Creutzfeldt-Jakob (DCJ / Príons)</option>
+          <option value="ALZHEIMER">🧠 Doença de Alzheimer (Hipocampo / Tau)</option>
+          <option value="PARKINSON">⚡ Doença de Parkinson (Substância Negra)</option>
+          <option value="MS">🛡️ Esclerose Múltipla (Desmielinização)</option>
+          <option value="ALS">🧬 Esclerose Lateral Amiotrófica (ELA / M1)</option>
+          <option value="EPILEPSY">⚡ Epilepsia (Hipersincronia Paroxística)</option>
         </select>
-        <button id="btn-start-disease" class="btn-action" style="padding: 5px 10px; font-size: 11px; background: rgba(16, 185, 129, 0.25); border-color: #10b981; color: #10b981;" title="Iniciar Simulação e Voar para Foco">
-          <span>▶ Iniciar Simulação</span>
-        </button>
-        <button id="btn-pause-disease" class="btn-action" style="padding: 5px 8px; font-size: 11px;" title="Pausar / Retomar Cascata Patológica">
-          <span>⏸ Pausar</span>
-        </button>
-        <button id="btn-reset-disease" class="btn-action" style="padding: 5px 8px; font-size: 11px; color: #fbbf24; border-color: rgba(251, 191, 36, 0.4);" title="Restaurar 100% Fisiologia Normal">
-          <span>↺ Reiniciar SNC</span>
-        </button>
+        <div style="display: flex; gap: 5px; width: 100%;">
+          <button id="btn-start-disease" class="btn-action" style="flex: 1; justify-content: center; padding: 5px 6px; font-size: 10px; background: rgba(16, 185, 129, 0.22); border-color: #10b981; color: #34d399;" title="Iniciar Simulação Patológica">
+            <span>▶ Simular</span>
+          </button>
+          <button id="btn-pause-disease" class="btn-action" style="padding: 5px 8px; font-size: 10px;" title="Pausar / Retomar">
+            <span>⏸</span>
+          </button>
+          <button id="btn-reset-disease" class="btn-action" style="padding: 5px 8px; font-size: 10px; color: #fbbf24; border-color: rgba(251, 191, 36, 0.45);" title="Restaurar Fisiologia Normal">
+            <span>↺ Saudável</span>
+          </button>
+        </div>
       `;
 
       topBar.insertBefore(container, topBar.firstChild);
 
       const selectEl = document.getElementById('select-pathology');
       selectEl.addEventListener('change', (e) => {
-        this.setPathology(e.target.value, false);
+        const val = e.target.value;
+        if (val === 'NORMAL') {
+          this.resetDiseaseSimulation();
+        } else {
+          this.startDiseaseSimulation(val);
+        }
       });
 
       const btnStart = document.getElementById('btn-start-disease');
       btnStart.addEventListener('click', () => {
-        const val = selectEl.value === 'NORMAL' ? 'ALZHEIMER' : selectEl.value;
+        const val = selectEl.value === 'NORMAL' ? 'STROKE' : selectEl.value;
         selectEl.value = val;
         this.startDiseaseSimulation(val);
       });

@@ -554,42 +554,63 @@
     }
 
     buildFireflyLayerVConnectome() {
-      // 17 Neurônios Esculpidos Exatos do Slide da DCJ (1 Hero Âmbar Central + 7 Vizinhos Próximos + 9 Camada de Profundidade)
+      // 1. Neurônio 0: Hero Central (Âmbar-Dourado)
       this.buildFireflyLayerVNeuronMesh({ id: 0, isHero: true, isAmber: true, position: new THREE.Vector3(0.0, 2.2, 0.0), scale: 1.0, hasVisibleMyelin: true });
+      // 2. Neurônios 1 a 7 (Vizinhos Próximos Interligados)
       this.buildFireflyLayerVNeuronMesh({ id: 1, isHero: false, isAmber: false, position: new THREE.Vector3(-9.8, 3.6, -2.5), scale: 0.68, hasVisibleMyelin: true });
       this.buildFireflyLayerVNeuronMesh({ id: 2, isHero: false, isAmber: false, position: new THREE.Vector3(-7.5, -5.8, 2.2), scale: 0.78, axonTarget: new THREE.Vector3(2.5, -7.5, 1.0), hasVisibleMyelin: true });
-      this.buildFireflyLayerVNeuronMesh({ id: 3, isHero: false, isAmber: true, position: new THREE.Vector3(-8.2, -1.6, -5.5), scale: 0.48, hasVisibleMyelin: false });
-      this.buildFireflyLayerVNeuronMesh({ id: 4, isHero: false, isAmber: true, position: new THREE.Vector3(1.8, -4.5, -5.2), scale: 0.55, hasVisibleMyelin: true });
-      this.buildFireflyLayerVNeuronMesh({ id: 5, isHero: false, isAmber: false, position: new THREE.Vector3(9.4, 4.2, -3.0), scale: 0.65, hasVisibleMyelin: true });
-      this.buildFireflyLayerVNeuronMesh({ id: 6, isHero: false, isAmber: true, position: new THREE.Vector3(7.8, 3.0, -2.2), scale: 0.45, hasVisibleMyelin: false });
-      this.buildFireflyLayerVNeuronMesh({ id: 7, isHero: false, isAmber: true, position: new THREE.Vector3(8.4, -4.8, -2.0), scale: 0.52, hasVisibleMyelin: true });
+      this.buildFireflyLayerVNeuronMesh({ id: 3, isHero: false, isAmber: true, position: new THREE.Vector3(-8.2, -1.6, -5.5), scale: 0.52, hasVisibleMyelin: true });
+      this.buildFireflyLayerVNeuronMesh({ id: 4, isHero: false, isAmber: true, position: new THREE.Vector3(1.8, -4.5, -5.2), scale: 0.58, hasVisibleMyelin: true });
+      this.buildFireflyLayerVNeuronMesh({ id: 5, isHero: false, isAmber: false, position: new THREE.Vector3(9.4, 4.2, -3.0), scale: 0.68, hasVisibleMyelin: true });
+      this.buildFireflyLayerVNeuronMesh({ id: 6, isHero: false, isAmber: true, position: new THREE.Vector3(7.8, 3.0, -2.2), scale: 0.50, hasVisibleMyelin: true });
+      this.buildFireflyLayerVNeuronMesh({ id: 7, isHero: false, isAmber: true, position: new THREE.Vector3(8.4, -4.8, -2.0), scale: 0.56, hasVisibleMyelin: true });
 
-      const distantPositions = [
-        new THREE.Vector3(-14.5, 6.5, -12.0),
-        new THREE.Vector3(-12.0, -7.2, -14.5),
-        new THREE.Vector3(-5.5, 8.5, -16.0),
-        new THREE.Vector3(-2.0, -9.0, -13.5),
-        new THREE.Vector3(4.5, 8.0, -17.5),
-        new THREE.Vector3(12.5, 7.5, -15.0),
-        new THREE.Vector3(13.8, -1.5, -18.0),
-        new THREE.Vector3(11.5, -8.5, -13.0),
-        new THREE.Vector3(0.0, 10.5, -21.0)
+      // 3. Neurônios 8 a 16 (Anel Intermediário)
+      const midPositions = [
+        new THREE.Vector3(-14.5, 6.5, -9.0),
+        new THREE.Vector3(-12.0, -7.2, -10.5),
+        new THREE.Vector3(-5.5, 8.5, -11.0),
+        new THREE.Vector3(-2.0, -9.0, -9.5),
+        new THREE.Vector3(4.5, 8.0, -12.5),
+        new THREE.Vector3(12.5, 7.5, -10.0),
+        new THREE.Vector3(13.8, -1.5, -11.0),
+        new THREE.Vector3(11.5, -8.5, -9.0),
+        new THREE.Vector3(0.0, 10.5, -14.0)
       ];
       for (let d = 0; d < 9; d++) {
         this.buildFireflyLayerVNeuronMesh({
           id: 8 + d,
           isHero: false,
-          isAmber: (d % 3 === 0),
-          position: distantPositions[d],
-          scale: 0.32 + (d % 3) * 0.08,
-          hasVisibleMyelin: false
+          isAmber: (d % 2 === 0),
+          position: midPositions[d],
+          scale: 0.44 + (d % 3) * 0.08,
+          hasVisibleMyelin: (d % 2 === 0)
+        });
+      }
+
+      // 4. Neurônios 17 a 64 (+48 Neurônios Piramidais formando uma Floresta Cortical Densa em 360° na Camada V)
+      for (let k = 0; k < 48; k++) {
+        const ring = k % 3;
+        const angle = (k / 48) * Math.PI * 2 * 2.0 + ring * 0.55;
+        const radius = 12.5 + ring * 6.5 + (k % 5) * 1.8;
+        const yPos = -14.0 + ((k * 7) % 28);
+        const zOffset = Math.sin(angle) * radius * 0.75 - 4.0;
+        const xOffset = Math.cos(angle) * radius;
+
+        this.buildFireflyLayerVNeuronMesh({
+          id: 17 + k,
+          isHero: false,
+          isAmber: (k % 5 === 0 || k % 5 === 2),
+          position: new THREE.Vector3(xOffset, yPos, zOffset),
+          scale: 0.34 + (k % 4) * 0.07,
+          hasVisibleMyelin: (k % 3 === 0)
         });
       }
     }
 
     build24PhysicalSynapsesAndNeurotransmitters() {
       const hero = this.neurons[0];
-      const neighbors = this.neurons.slice(1, 8);
+      const neighbors = this.neurons.slice(1, 25);
 
       const boutonGeo = new THREE.SphereGeometry(0.22, 10, 8);
       boutonGeo.scale(1.2, 0.85, 0.85);
@@ -598,7 +619,7 @@
       spineGeo.scale(0.9, 1.25, 0.9);
 
       let bridgeCount = 0;
-      const targetBridges = 24;
+      const targetBridges = 60;
 
       for (let n = 0; n < neighbors.length && bridgeCount < targetBridges; n++) {
         const neighbor = neighbors[n];
@@ -703,7 +724,7 @@
     }
 
     buildActionPotentialPulses() {
-      const pulseCount = 180;
+      const pulseCount = 420;
       const positions = new Float32Array(pulseCount * 3);
       const colors = new Float32Array(pulseCount * 3);
       const myelinatedNeurons = this.neurons.filter(n => n.axonCurveGlobal !== null);
