@@ -145,6 +145,62 @@ fn handle_client(mut stream: TcpStream, web_root: Arc<PathBuf>) {
 }
 
 #[cfg(target_os = "windows")]
+const CREATE_NO_WINDOW: u32 = 0x08000000;
+
+#[cfg(target_os = "windows")]
+fn enforce_nvidia_high_performance_registry() {
+    use std::os::windows::process::CommandExt;
+    use std::process::Command;
+
+    if let Ok(exe_path) = std::env::current_exe() {
+        let mut targets = vec![exe_path.display().to_string()];
+
+        // Registra também os binários de renderização WebView2/Edge/Chrome na dGPU NVIDIA GTX 1650
+        let candidates = [
+            r"C:\Program Files (x86)\Microsoft\EdgeWebView\Application",
+            r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+            r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        ];
+        for c in candidates {
+            let p = std::path::Path::new(c);
+            if p.is_file() {
+                targets.push(p.display().to_string());
+            } else if p.is_dir() {
+                if let Ok(entries) = std::fs::read_dir(p) {
+                    for entry in entries.flatten() {
+                        let wv = entry.path().join("msedgewebview2.exe");
+                        if wv.is_file() {
+                            targets.push(wv.display().to_string());
+                        }
+                    }
+                }
+            }
+        }
+
+        for t in targets {
+            let _ = Command::new("reg")
+                .args([
+                    "add",
+                    r"HKCU\Software\Microsoft\DirectX\UserGpuPreferences",
+                    "/v",
+                    &t,
+                    "/t",
+                    "REG_SZ",
+                    "/d",
+                    "GpuPreference=2;",
+                    "/f",
+                ])
+                .creation_flags(CREATE_NO_WINDOW)
+                .status();
+        }
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+#[allow(dead_code)]
+fn enforce_nvidia_high_performance_registry() {}
+
+#[cfg(target_os = "windows")]
 fn run_native_windows_gui(app_url: String, web_root: PathBuf) {
     use tao::{
         dpi::LogicalSize,
@@ -154,10 +210,12 @@ fn run_native_windows_gui(app_url: String, web_root: PathBuf) {
     };
     use wry::WebViewBuilder;
 
+    enforce_nvidia_high_performance_registry();
+
     // Configura flags de GPU de alta performance para o motor gráfico nativo
     std::env::set_var(
         "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS",
-        "--ignore-gpu-blocklist --enable-gpu-rasterization --enable-zero-copy --enable-webgl2-compute-context --autoplay-policy=no-user-gesture-required",
+        "--ignore-gpu-blocklist --enable-gpu-rasterization --enable-zero-copy --enable-webgl2-compute-context --use-angle=d3d11 --autoplay-policy=no-user-gesture-required",
     );
 
     let event_loop = EventLoop::new();

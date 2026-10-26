@@ -936,6 +936,8 @@
       let physTime = 0;
       let currentLang = 'pt-BR';
       let flyAnimId = null;
+      let isMicroMode = false;
+      let pointerDownPos = { x: 0, y: 0 };
 
       function init() {
         const canvas = document.getElementById('webgl-canvas');
@@ -1326,51 +1328,95 @@
         const activeChip = document.getElementById(`tier-chip-${tier.id}`);
         if (activeChip) activeChip.classList.add('active');
 
-        const target = new THREE.Vector3(tier.cameraTarget[0], tier.cameraTarget[1], tier.cameraTarget[2]);
-        const pos = new THREE.Vector3(tier.cameraPos[0], tier.cameraPos[1], tier.cameraPos[2]);
+        const diveBtn = document.getElementById('btn-dive');
+        const btnDiveText = document.getElementById('btn-dive-text');
+        const topbarModeBtns = ['btn-view-external', 'btn-view-xray', 'btn-view-vascular', 'btn-view-micro'];
 
-        // [PT-BR]: Separação estrita de escalas: nunca sobrepõe o microcosmo neural gigante ao encéfalo inteiro.
-        // [EN-GB]: Strict scale separation: never overlaps giant neural microcosmos over the whole brain.
-        // [AI-CTX]: @llm-invariant: Tiers 1-4 active CNS anatomy only (Tier 1 opacity 0.42); Tiers 5-9 active microcosmos with dark #030914 background.
         if (tier.id >= 5) {
+          isMicroMode = true;
           if (scene) scene.background.set('#030914');
           if (neuralMicrocosmos) neuralMicrocosmos.setVisible(true);
           if (cnsAnatomy) cnsAnatomy.setVisible(false);
-          const diveBtn = document.getElementById('btn-dive');
-          const btnDiveText = document.getElementById('btn-dive-text');
+
           if (diveBtn) {
             diveBtn.classList.add('active');
             if (btnDiveText) btnDiveText.textContent = '🔭 Retornar ao SNC Macro';
           }
+          topbarModeBtns.forEach(id => {
+            const b = document.getElementById(id);
+            if (b) b.classList.toggle('active', id === 'btn-view-micro');
+          });
+
+          // Posições calibradas para o Microcosmo Neural (Tiers 5 a 9)
+          const microTargets = {
+            5: { target: [0, 0, 0], pos: [0, 2.0, 26.0] },
+            6: { target: [0, 0, 0], pos: [0, 1.5, 18.0] },
+            7: { target: [0, 0, 0], pos: [0, 0.5, 11.5] },
+            8: { target: [0, -18.5, 0], pos: [0, -17.5, 4.8] },
+            9: { target: [0.18, -6.5, -0.12], pos: [0.18, -6.2, 2.6] }
+          };
+          const mCam = microTargets[tier.id] || microTargets[7];
+          smoothFlyCameraTo(
+            new THREE.Vector3(mCam.target[0], mCam.target[1], mCam.target[2]),
+            new THREE.Vector3(mCam.pos[0], mCam.pos[1], mCam.pos[2]),
+            0.85
+          );
         } else {
+          isMicroMode = false;
           if (scene) scene.background.set('#020617');
           if (neuralMicrocosmos) neuralMicrocosmos.setVisible(false);
           if (cnsAnatomy) {
             cnsAnatomy.setVisible(true);
-            if (tier.id === 1) cnsAnatomy.setAnatomyOpacity(0.42, 1.0);
-            else cnsAnatomy.setAnatomyOpacity(0.35, 1.0);
+            if (cnsAnatomy.viewMode === 'internal_xray') {
+              cnsAnatomy.setAnatomyOpacity(0.18, 1.0);
+            } else {
+              cnsAnatomy.setAnatomyOpacity(1.0, 1.0);
+            }
           }
-          const diveBtn = document.getElementById('btn-dive');
-          const btnDiveText = document.getElementById('btn-dive-text');
           if (diveBtn) {
             diveBtn.classList.remove('active');
             if (btnDiveText) btnDiveText.textContent = '🔬 Mergulhar nos Neurônios (Camada V)';
           }
+          const btnMic = document.getElementById('btn-view-micro');
+          if (btnMic && btnMic.classList.contains('active')) {
+            btnMic.classList.remove('active');
+            const btnExt = document.getElementById('btn-view-external');
+            if (btnExt) btnExt.classList.add('active');
+          }
+
+          const target = new THREE.Vector3(tier.cameraTarget[0], tier.cameraTarget[1], tier.cameraTarget[2]);
+          const pos = new THREE.Vector3(tier.cameraPos[0], tier.cameraPos[1], tier.cameraPos[2]);
+          smoothFlyCameraTo(target, pos, 0.85);
         }
 
-        smoothFlyCameraTo(target, pos, 0.9);
-
-        document.getElementById('hud-tier-name').textContent = tier.name.split(' ')[0].toUpperCase();
-        document.getElementById('metric-scale').textContent = `${tier.name} (${tier.cameraDist} mm)`;
-        document.getElementById('hud-scale-desc').textContent = tier.description;
+        const tierNameEl = document.getElementById('hud-tier-name');
+        if (tierNameEl) tierNameEl.textContent = tier.name.split(' ')[0].toUpperCase();
+        const metricScaleEl = document.getElementById('metric-scale');
+        if (metricScaleEl) metricScaleEl.textContent = `${tier.name} (${tier.cameraDist} mm)`;
+        const scaleDescEl = document.getElementById('hud-scale-desc');
+        if (scaleDescEl) scaleDescEl.textContent = tier.description;
         const pct = Math.max(5, Math.min(100, Math.round((tier.id / 9) * 100)));
-        document.getElementById('hud-scale-bar').style.width = `${105 - pct}%`;
+        const scaleBarEl = document.getElementById('hud-scale-bar');
+        if (scaleBarEl) scaleBarEl.style.width = `${105 - pct}%`;
       }
 
-      // [PT-BR]: Seleciona uma região do SNC, orienta a câmera pelo lado correto e narra.
-      // [EN-GB]: Selects a CNS region, orientates camera from correct side and narrates.
+      // [PT-BR]: Seleciona uma região do SNC, garante modo Macro visível, orienta a câmera e narra.
+      // [EN-GB]: Selects a CNS region, ensures Macro mode visibility, orientates camera and narrates.
       function selectRegion(reg, triggerSpeech) {
+        if (!reg) return;
         activeRegion = reg;
+
+        // Sempre retorna ao modo Macro do SNC ao selecionar uma região anatômica para leitura
+        if (isMicroMode) {
+          isMicroMode = false;
+          if (scene) scene.background.set('#020617');
+          if (neuralMicrocosmos) neuralMicrocosmos.setVisible(false);
+          if (cnsAnatomy) cnsAnatomy.setVisible(true);
+          const diveBtn = document.getElementById('btn-dive');
+          const btnDiveText = document.getElementById('btn-dive-text');
+          if (diveBtn) diveBtn.classList.remove('active');
+          if (btnDiveText) btnDiveText.textContent = '🔬 Mergulhar nos Neurônios (Camada V)';
+        }
 
         document.querySelectorAll('.region-item').forEach((el) => el.classList.remove('active'));
         const activeEl = document.getElementById(`region-item-${reg.id}`);
@@ -1388,6 +1434,9 @@
           const loc = window.MOZOK_I18N.getStructure(reg.id, currentLang);
           if (loc) regData = { ...regData, ...loc };
         }
+
+        const centerCoords = regData.center || regData.coordenadas || [0, -2.5, 0];
+        const optDist = Number.isFinite(regData.optimalDist) ? regData.optimalDist : 11.0;
 
         // Atualiza Bottom Banner
         const cardTitle = document.getElementById('card-title');
@@ -1419,26 +1468,35 @@
           doiLink.href = `https://doi.org/${regData.doi}`;
         }
 
-        cnsAnatomy.highlightRegion(reg);
-
-        const isSubcortical = (reg.category === 'DIENCÉFALO' || reg.category === 'SISTEMA LÍMBICO' || reg.category === 'NÚCLEOS DA BASE');
-        if (isSubcortical) {
-          cnsAnatomy.setAnatomyOpacity(0.25, 1.0);
-        } else {
-          cnsAnatomy.setAnatomyOpacity(1.0, 1.0);
+        if (cnsAnatomy) {
+          cnsAnatomy.highlightRegion({ ...regData, center: centerCoords });
+          const catUpper = String(regData.category || regData.categoria || '').toUpperCase();
+          const isSubcortical = (
+            catUpper.includes('DIENCÉFALO') ||
+            catUpper.includes('LÍMBICO') ||
+            catUpper.includes('BASE') ||
+            catUpper.includes('VENTRICULAR') ||
+            catUpper.includes('EPITÁLAMO')
+          );
+          if (isSubcortical) {
+            cnsAnatomy.setAnatomyOpacity(0.22, 1.0);
+          } else {
+            cnsAnatomy.setAnatomyOpacity(1.0, 1.0);
+          }
         }
 
-        const targetPos = new THREE.Vector3(reg.center[0], reg.center[1], reg.center[2]);
-        if (reg.id === 1) {
+        const targetPos = new THREE.Vector3(centerCoords[0], centerCoords[1], centerCoords[2]);
+        if (regData.id === 1) {
           smoothFlyCameraTo(new THREE.Vector3(0, -2.5, 0), new THREE.Vector3(0, 3.5, 24.0), 0.9);
-        } else if (reg.center[0] > 1.5) {
-          const offset = new THREE.Vector3(reg.optimalDist * 0.85, reg.optimalDist * 0.22, reg.optimalDist * 0.52);
-          smoothFlyCamera(targetPos, reg.optimalDist, offset);
-        } else if (reg.center[0] < -1.5) {
-          const offset = new THREE.Vector3(-reg.optimalDist * 0.85, reg.optimalDist * 0.22, reg.optimalDist * 0.52);
-          smoothFlyCamera(targetPos, reg.optimalDist, offset);
+        } else if (centerCoords[0] > 1.5) {
+          const offset = new THREE.Vector3(optDist * 0.85, optDist * 0.22, optDist * 0.52);
+          smoothFlyCamera(targetPos, optDist, offset);
+        } else if (centerCoords[0] < -1.5) {
+          const offset = new THREE.Vector3(-optDist * 0.85, optDist * 0.22, optDist * 0.52);
+          smoothFlyCamera(targetPos, optDist, offset);
         } else {
-          smoothFlyCamera(targetPos, reg.optimalDist);
+          const offset = new THREE.Vector3(0.0, optDist * 0.15, optDist);
+          smoothFlyCamera(targetPos, optDist, offset);
         }
 
         if (triggerSpeech && window.MozokAINarrator) {
@@ -1511,11 +1569,29 @@
       // [PT-BR]: Retorna à visão macro inicial do SNC (Home / Escape).
       // [EN-GB]: Returns to initial CNS macro view (Home / Escape).
       function returnToMacroHome() {
-        flyToScaleTier(0);
+        isMicroMode = false;
         if (cnsAnatomy) {
+          cnsAnatomy.isPieceIsolated = false;
+          if (typeof cnsAnatomy.restoreFullCNS === 'function') {
+            cnsAnatomy.restoreFullCNS();
+          }
           cnsAnatomy.setVisible(true);
+          cnsAnatomy.setViewMode('external');
           cnsAnatomy.setAnatomyOpacity(1.0, 1.0);
         }
+        if (neuralMicrocosmos) {
+          neuralMicrocosmos.setVisible(false);
+        }
+        const btnIsolate = document.getElementById('btn-isolate-piece');
+        const btnIsolateText = document.getElementById('btn-isolate-text');
+        if (btnIsolate) btnIsolate.classList.remove('active');
+        if (btnIsolateText) btnIsolateText.textContent = '🧩 Isolar Peça Real 3D';
+
+        document.querySelectorAll('#btn-view-external, #btn-view-xray, #btn-view-vascular, #btn-view-micro').forEach(b => b && b.classList.remove('active'));
+        const btnExt = document.getElementById('btn-view-external');
+        if (btnExt) btnExt.classList.add('active');
+
+        flyToScaleTier(0);
         const regions = cnsAnatomy ? cnsAnatomy.getRegions() : [];
         if (regions.length > 0) {
           selectRegion(regions[0], false);
@@ -1525,67 +1601,69 @@
       // [PT-BR]: Alternância entre o modo Macro do SNC e o Microcosmo Neural.
       // [EN-GB]: Toggle between Macro CNS and Neural Microcosm.
       function toggleMicroView() {
-        if (activeScaleTierIndex < 5) {
-          flyToScaleTier(6); // Tier 7: Neurônio Piramidal
+        if (!isMicroMode) {
+          flyToScaleTier(6); // Tier 7: Neurônio Piramidal Individual
         } else {
-          flyToScaleTier(0); // Tier 1: SNC Inteiro
+          returnToMacroHome();
         }
       }
 
       // [PT-BR]: Governador de Escala e Resolução Espacial contínua durante zoom de mouse.
       // [EN-GB]: Continuous Scale Governor and Spatial Resolution update during mouse zoom.
       function updateMultiScaleZoom() {
-        if (!Number.isFinite(camera.position.x) || !Number.isFinite(controls.target.x)) {
-          camera.position.set(0, 3.5, 24.0);
-          controls.target.set(0, -2.5, 0);
-        }
+        // Não sobrescreve estado durante animações de voo cinemático de botões/regiões
+        if (flyAnimId !== null) return;
+
         const rawDist = camera.position.distanceTo(controls.target);
-        const dist = Number.isFinite(rawDist) ? rawDist : 24.0;
-        document.getElementById('hud-cam-dist').textContent = `Distância: ${dist.toFixed(1)} mm`;
+        if (!Number.isFinite(rawDist)) return;
+
+        // No modo Macro 1 unidade = 10 mm; no modo Micro 1 unidade = 0.5 mm
+        const distMm = isMicroMode ? (rawDist * 0.5) : (rawDist * 10.0);
+        const hudDistEl = document.getElementById('hud-cam-dist');
+        if (hudDistEl) {
+          hudDistEl.textContent = isMicroMode
+            ? `Distância: ${(rawDist * 25).toFixed(0)} μm`
+            : `Distância: ${distMm.toFixed(1)} mm`;
+        }
 
         if (window.MOZOK_DATABASE && window.MOZOK_DATABASE.scales) {
           const tiers = window.MOZOK_DATABASE.scales;
-          let matchedTier = tiers[0];
-          for (let i = 0; i < tiers.length; i++) {
-            if (dist <= tiers[i].rangeMm[0] && dist >= tiers[i].rangeMm[1]) {
-              matchedTier = tiers[i];
-              break;
-            }
-          }
-          if (dist > tiers[0].rangeMm[0]) matchedTier = tiers[0];
-          if (dist < tiers[tiers.length - 1].rangeMm[1]) matchedTier = tiers[tiers.length - 1];
+          let matchedTier = isMicroMode ? tiers[6] : tiers[0];
 
-          document.getElementById('hud-tier-name').textContent = matchedTier.name.split(' ')[0].toUpperCase();
-          document.getElementById('metric-scale').textContent = `${matchedTier.name} (${dist.toFixed(1)} mm)`;
-          document.getElementById('hud-scale-desc').textContent = matchedTier.description;
+          if (!isMicroMode) {
+            // No modo Macro, restringe aos Tiers 1..4 (SNC, Encéfalo, Lobo, Giro) para nunca saltar sozinho para os neurônios
+            for (let i = 0; i < 4; i++) {
+              if (distMm <= tiers[i].rangeMm[0] && distMm >= tiers[i].rangeMm[1]) {
+                matchedTier = tiers[i];
+                break;
+              }
+            }
+            if (distMm > tiers[0].rangeMm[0]) matchedTier = tiers[0];
+            if (distMm < tiers[3].rangeMm[1]) matchedTier = tiers[3];
+          } else {
+            // No modo Micro, navega entre os Tiers 5..9 (Coluna, Camada V, Neurônio, Sinapse, Canal Iônico)
+            for (let i = 4; i < tiers.length; i++) {
+              if (distMm <= tiers[i].rangeMm[0] && distMm >= tiers[i].rangeMm[1]) {
+                matchedTier = tiers[i];
+                break;
+              }
+            }
+            if (distMm > tiers[4].rangeMm[0]) matchedTier = tiers[4];
+            if (distMm < tiers[tiers.length - 1].rangeMm[1]) matchedTier = tiers[tiers.length - 1];
+          }
+
+          activeScaleTierIndex = matchedTier.id - 1;
+
+          const tierNameEl = document.getElementById('hud-tier-name');
+          if (tierNameEl) tierNameEl.textContent = matchedTier.name.split(' ')[0].toUpperCase();
+          const metricScaleEl = document.getElementById('metric-scale');
+          if (metricScaleEl) metricScaleEl.textContent = `${matchedTier.name} (${distMm.toFixed(1)} mm)`;
+          const scaleDescEl = document.getElementById('hud-scale-desc');
+          if (scaleDescEl) scaleDescEl.textContent = matchedTier.description;
 
           document.querySelectorAll('.tier-chip').forEach(c => c.classList.remove('active'));
           const chip = document.getElementById(`tier-chip-${matchedTier.id}`);
           if (chip) chip.classList.add('active');
-
-          // [PT-BR]: Separação estrita de escalas durante zoom contínuo do mouse.
-          // [EN-GB]: Strict scale separation during continuous mouse zoom.
-          // [AI-CTX]: @llm-invariant: Tiers 1-4 show CNS Anatomy (Tier 1 opacity 0.42); Tiers 5-9 show Microcosmos with #030914 dark background.
-          if (matchedTier.id >= 5) {
-            if (scene) scene.background.set('#030914');
-            if (neuralMicrocosmos) neuralMicrocosmos.setVisible(true);
-            if (cnsAnatomy) cnsAnatomy.setVisible(false);
-          } else {
-            if (scene) scene.background.set('#020617');
-            if (neuralMicrocosmos) neuralMicrocosmos.setVisible(false);
-            if (cnsAnatomy) {
-              cnsAnatomy.setVisible(true);
-              if (cnsAnatomy.viewMode === 'external') {
-                cnsAnatomy.setAnatomyOpacity(1.0, 1.0);
-              } else if (cnsAnatomy.viewMode === 'internal_xray') {
-                cnsAnatomy.setAnatomyOpacity(0.16, 1.0);
-              } else if (matchedTier.id === 1 || dist > 140.0) {
-                cnsAnatomy.setAnatomyOpacity(1.0, 1.0);
-              } else {
-                cnsAnatomy.setAnatomyOpacity(0.85, 1.0);
-              }
-            }
-          }
         }
       }
 
@@ -1748,7 +1826,7 @@
               if (mode === 'micro') {
                 flyToScaleTier(6);
               } else {
-                if (activeScaleTierIndex >= 5) {
+                if (isMicroMode || activeScaleTierIndex >= 5) {
                   flyToScaleTier(0);
                 }
                 if (cnsAnatomy && typeof cnsAnatomy.setViewMode === 'function') {
@@ -1883,37 +1961,44 @@
           });
         }
 
-        // Raycasting Interativo no Córtex e Estruturas 3D ao Clicar na Cena
+        // Raycasting Interativo no Córtex e Estruturas 3D (Apenas clique curto real, ZERO disparo de AVC automático)
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
-        renderer.domElement.addEventListener('click', (e) => {
-          mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-          mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        renderer.domElement.addEventListener('pointerdown', (e) => {
+          pointerDownPos.x = e.clientX;
+          pointerDownPos.y = e.clientY;
+        });
+
+        renderer.domElement.addEventListener('pointerup', (e) => {
+          if (e.button !== 0) return;
+          const dragDist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+          // Se o usuário arrastou o mouse para girar/orbitar a câmera, ignora o clique
+          if (dragDist > 5.0) return;
+          if (isMicroMode) return;
+
+          const rect = renderer.domElement.getBoundingClientRect();
+          mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+          mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
           raycaster.setFromCamera(mouse, camera);
 
-          if (cnsAnatomy && cnsAnatomy.cortexMesh) {
+          if (cnsAnatomy && cnsAnatomy.cortexMesh && cnsAnatomy.masterGroup.visible) {
             const intersects = raycaster.intersectObject(cnsAnatomy.cortexMesh, false);
             if (intersects.length > 0) {
               const hit = intersects[0];
               const pt = hit.point;
 
-              // Encontra região anatômica mais próxima
               const regions = cnsAnatomy.getRegions();
               let closest = regions[0];
               let minDist = Infinity;
               regions.forEach(r => {
-                const d = Math.hypot(r.center[0] - pt.x, r.center[1] - pt.y, r.center[2] - pt.z);
+                const c = r.center || r.coordenadas || [0, 0, 0];
+                const d = Math.hypot(c[0] - pt.x, c[1] - pt.y, c[2] - pt.z);
                 if (d < minDist) { minDist = d; closest = r; }
               });
 
-              if (closest && minDist < 3.2) {
-                selectRegion(closest, true);
-              }
-
-              // Dispara AVC Isquêmico focal imediatamente no ponto clicado
-              if (pathologyEngine && typeof pathologyEngine.triggerFocalStrokeSimulation === 'function') {
-                pathologyEngine.triggerFocalStrokeSimulation([pt.x, pt.y, pt.z], false, closest);
+              if (closest && minDist < 4.5) {
+                selectRegion(closest, false);
               }
             }
           }

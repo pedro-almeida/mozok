@@ -1903,121 +1903,113 @@
       return mesh;
     }
 
-    // [PT-BR]: Constrói o Tronco Encefálico Contínuo (Mesencéfalo + Ponte + Bulbo) e Medula Espinhal em uma única malha de alta resolução (120 anéis verticais x 48 segmentos radiais).
-    // [EN-GB]: Builds Continuous Brainstem (Midbrain + Pons + Medulla) and Spinal Cord in a single high-resolution continuous mesh (120 vertical rings x 48 radial segments).
-    // [AI-CTX]: @llm-invariant: Single sculpted continuous mesh without disjoined primitives or balloon animals.
+    // [PT-BR]: Constrói o Tronco Encefálico Contínuo (Mesencéfalo + Ponte + Bulbo) e Medula Espinhal Anatômica (160 anéis verticais x 64 segmentos radiais) com Sulcos Medulares, Radículas Oblíquas, Gânglios Dorsais e Cauda Equina.
+    // [EN-GB]: Builds Continuous Brainstem and Anatomical Spinal Cord (160 vertical rings x 64 radial segments) with Medullary Sulci, Oblique Rootlets, Dorsal Root Ganglia, and Cauda Equina.
     buildContinuousBrainstemAndSpinalCord() {
       const stemAndCordGroup = new THREE.Group();
       stemAndCordGroup.name = "BRAINSTEM_SPINAL_CORD_CONTINUOUS_GROUP";
       stemAndCordGroup.rotation.set(0, 0, 0);
 
-      const vRings = 120;
-      const hSegs = 48;
+      const vRings = 160;
+      const hSegs = 64;
       const positions = [];
       const indices = [];
 
       for (let r = 0; r <= vRings; r++) {
         const t = r / vRings;
-        // Y desce de -2.0 (topo do mesencéfalo) até -22.0 (filo terminal da cauda equina)
-        const y = -2.0 - t * 20.0;
+        // Y desce de -2.0 (topo do mesencéfalo) até -19.2 (ápice do cone medular em L1/L2)
+        const y = -2.0 - t * 17.2;
 
-        // Curvatura longitudinal do neuroeixo
-        // Z central: mesencéfalo (-0.65) -> avança na ponte (-0.45) -> bulbo (-0.65) -> medula (-0.85)
+        // Curvatura anatômica sagital (lordose cervical suave e cifose torácica sutil)
         let zCenter = -0.85;
         if (y >= -3.3) {
-          // Mesencéfalo
           const f = (y - (-3.3)) / 1.3;
           zCenter = -0.65 + f * 0.05;
         } else if (y >= -5.0) {
-          // Ponte: abaulamento ventral anterior em Z
           const ponsT = (y - (-5.0)) / 1.7;
-          zCenter = -0.65 + Math.sin(ponsT * Math.PI) * 0.22;
+          zCenter = -0.65 + Math.sin(ponsT * Math.PI) * 0.24;
         } else if (y >= -6.8) {
-          // Bulbo
           zCenter = -0.65 - ((-5.0 - y) / 1.8) * 0.20;
+        } else {
+          const spinalT = (-6.8 - y) / 12.4;
+          zCenter = -0.85 + Math.sin(spinalT * Math.PI * 1.6) * 0.16;
         }
         const xCenter = 0.0;
 
         for (let s = 0; s <= hSegs; s++) {
           const theta = (s / hSegs) * Math.PI * 2;
-          const cosT = Math.cos(theta); // Direção Anteroposterior (Z): cosT > 0 é Anterior (+Z), cosT < 0 é Posterior (-Z)
-          const sinT = Math.sin(theta); // Direção Lateral (X): sinT > 0 é Esquerda (+X), sinT < 0 é Direita (-X)
+          const cosT = Math.cos(theta); // +Z Anterior, -Z Posterior
+          const sinT = Math.sin(theta); // +X Esquerda, -X Direita
 
-          let rx = 0.45;
+          let rx = 0.48;
           let rz = 0.40;
 
           if (y >= -3.3) {
-            // ==================== MESENCÉFALO (Y in [-2.0, -3.3]) ====================
-            rx = 1.15;
-            rz = 1.05;
-
-            // Pedúnculos cerebrais anteriores e fossa interpeduncular na linha média anterior
+            // MESENCÉFALO
+            rx = 1.12;
+            rz = 1.02;
             if (cosT > 0) {
-              const peduncleBump = Math.pow(Math.abs(sinT), 1.5) * 0.35;
-              const interpeduncularFossa = (1.0 - Math.abs(sinT)) * 0.20;
+              const peduncleBump = Math.pow(Math.abs(sinT), 1.4) * 0.34;
+              const interpeduncularFossa = Math.exp(-Math.pow(sinT * 4.5, 2)) * 0.24;
               rz += (peduncleBump - interpeduncularFossa);
-            }
-            // Colículos quadrigêmeos posteriores
-            if (cosT < 0) {
-              const colliculusBump = Math.abs(sinT) * 0.22;
+            } else {
+              const colliculusBump = Math.sin(Math.abs(sinT) * Math.PI) * 0.20;
               rz += colliculusBump;
             }
           } else if (y >= -5.0) {
-            // ==================== PONTE DE VARÓLIO (Y in [-3.3, -5.0]) ====================
+            // PONTE DE VARÓLIO
             const ponsFactor = Math.sin(((y - (-5.0)) / 1.7) * Math.PI);
-            rx = 1.05 + ponsFactor * 0.85;
-            rz = 0.95 + ponsFactor * 0.95;
-
-            // Abaulamento ventral massivo anterior e sulco basilar mediano
+            rx = 1.02 + ponsFactor * 0.82;
+            rz = 0.92 + ponsFactor * 0.90;
             if (cosT > 0) {
-              const ventralBulge = cosT * ponsFactor * 0.65;
-              const basilarGroove = (1.0 - Math.abs(sinT)) * 0.16 * ponsFactor;
-              rz += (ventralBulge - basilarGroove);
-
-              // Estriações transversais pontocerebelares sutis
-              const striation = Math.sin(y * 36.0) * 0.035 * ponsFactor;
-              rz += striation;
+              const ventralBulge = cosT * ponsFactor * 0.62;
+              const basilarGroove = Math.exp(-Math.pow(sinT * 5.0, 2)) * 0.18 * ponsFactor;
+              const striation = Math.sin(y * 32.0) * 0.025 * ponsFactor;
+              rz += (ventralBulge - basilarGroove + striation);
             }
-            // Pedúnculos cerebelares médios laterais
-            rx += Math.abs(sinT) * ponsFactor * 0.35;
+            rx += Math.abs(sinT) * ponsFactor * 0.32;
           } else if (y >= -6.8) {
-            // ==================== BULBO / MEDULA OBLONGA (Y in [-5.0, -6.8]) ====================
+            // BULBO (MEDULA OBLONGA)
             const bulbFactor = (y - (-6.8)) / 1.8;
-            rx = 0.52 + bulbFactor * 0.42;
-            rz = 0.48 + bulbFactor * 0.38;
-
-            // Fissura mediana anterior e Pirâmides bulbares
+            rx = 0.54 + bulbFactor * 0.42;
+            rz = 0.46 + bulbFactor * 0.38;
             if (cosT > 0) {
-              const fissure = Math.exp(-Math.pow(sinT * 6.0, 2)) * 0.12;
-              const pyramidRidge = Math.sin(Math.abs(sinT) * Math.PI) * 0.16;
+              const fissure = Math.exp(-Math.pow(sinT * 7.0, 2)) * 0.11;
+              const pyramidRidge = Math.sin(Math.abs(sinT) * Math.PI) * 0.15;
               rz += (pyramidRidge - fissure);
             }
-            // Olivas bulbares anterolaterais
-            if (cosT > 0 && Math.abs(sinT) > 0.45 && Math.abs(sinT) < 0.85) {
-              const oliveBump = Math.sin((Math.abs(sinT) - 0.45) / 0.40 * Math.PI) * 0.14 * bulbFactor;
+            if (cosT > 0 && Math.abs(sinT) > 0.42 && Math.abs(sinT) < 0.86) {
+              const oliveBump = Math.sin((Math.abs(sinT) - 0.42) / 0.44 * Math.PI) * 0.14 * bulbFactor;
               rz += oliveBump;
-              rx += oliveBump * 0.6;
+              rx += oliveBump * 0.55;
             }
           } else {
-            // ==================== MEDULA ESPINHAL (Y in [-6.8, -22.0]) ====================
-            // Formato oval anatômico: diâmetro transversal rx > anteroposterior rz
-            rx = 0.46;
-            rz = 0.38;
+            // MEDULA ESPINHAL ANATÔMICA (C1 até Cone Medular L1/L2)
+            rx = 0.50;
+            rz = 0.40;
 
-            // Intumescência Cervical (C4–T1, centrada em Y = -9.2)
-            const cervBulge = Math.exp(-Math.pow((y + 9.2) * 0.55, 2)) * 0.22;
-            // Intumescência Lombossacral (L1–S1, centrada em Y = -16.2)
-            const lumbBulge = Math.exp(-Math.pow((y + 16.2) * 0.65, 2)) * 0.18;
+            // Intumescência Cervical (C4–T1, centrada em Y = -9.4)
+            const cervBulge = Math.exp(-Math.pow((y + 9.4) * 0.52, 2)) * 0.22;
+            // Intumescência Lombossacral (L1–S2, centrada em Y = -15.8)
+            const lumbBulge = Math.exp(-Math.pow((y + 15.8) * 0.68, 2)) * 0.19;
 
-            // Afunilamento do Cone Medular abaixo de Y = -17.5
+            // Cone Medular suave (Y < -17.0 até -19.2)
             let coneTaper = 1.0;
-            if (y < -17.5) {
-              coneTaper = Math.max(0.18, 1.0 - (-17.5 - y) * 0.22);
+            if (y < -17.0) {
+              const cNorm = Math.min(1.0, (-17.0 - y) / 2.2);
+              coneTaper = Math.max(0.08, Math.cos(cNorm * Math.PI * 0.48));
             }
 
             const cordScale = (1.0 + cervBulge + lumbBulge) * coneTaper;
             rx *= cordScale;
             rz *= cordScale;
+
+            // Fissura Mediana Anterior profunda (+Z) e Sulco Mediano Posterior (-Z)
+            const antFissure = (cosT > 0) ? Math.exp(-Math.pow(sinT * 9.0, 2)) * 0.085 * coneTaper : 0.0;
+            const postSulcus = (cosT < 0) ? Math.exp(-Math.pow(sinT * 11.0, 2)) * 0.055 * coneTaper : 0.0;
+            // Sulcos anterolaterais e posterolaterais (funículos anterior, lateral e posterior)
+            const latGrooves = Math.exp(-Math.pow((Math.abs(sinT) - 0.72) * 8.0, 2)) * 0.03 * coneTaper;
+            rz -= (antFissure + postSulcus + latGrooves);
           }
 
           const px = xCenter + rx * sinT;
@@ -2044,11 +2036,12 @@
       stemCordGeo.setIndex(indices);
       stemCordGeo.computeVertexNormals();
 
+      // Paleta orgânica de substância branca mielinizada idêntica ao encéfalo MNI152 (marfim-rosado quente com SSS)
       const stemCordMat = createPhotorealisticNeuralTissueMaterial({
-        baseColor: 0x38bdf8,
-        sssColor: 0x0284c7,
-        rimColor: 0x10b981,
-        roughness: 0.36
+        baseColor: 0xeeddcc,
+        sssColor: 0xd48c70,
+        rimColor: 0x7dd3fc,
+        roughness: 0.32
       });
 
       const stemCordMesh = new THREE.Mesh(stemCordGeo, stemCordMat);
@@ -2058,56 +2051,83 @@
       this.brainstemMeshes.push(stemCordMesh);
       this.spinalMeshes.push(stemCordMesh);
 
-      // Raízes Nervosas Espinhais Orgânicas Contínuas (Pares C1 a L5)
-      const pairs = 24;
-      for (let p = 0; p < pairs; p++) {
-        const rY = -7.2 - p * 0.52;
+      // Material orgânico de raízes nervosas e gânglios espinhais (marfim-dourado natural)
+      const rootMat = createPhotorealisticNeuralTissueMaterial({
+        baseColor: 0xf5e6d3,
+        sssColor: 0xc2785c,
+        rimColor: 0x38bdf8,
+        roughness: 0.34
+      });
+
+      // 31 Pares de Raízes Espinhais com Radículas Ventrais/Dorsais Convergentes e Gânglio da Raiz Dorsal (DRG)
+      const totalSegments = 28;
+      for (let p = 0; p < totalSegments; p++) {
+        const frac = p / (totalSegments - 1);
+        const rY = -7.0 - frac * 11.2;
+        const spinalT = (-6.8 - rY) / 12.4;
+        const zCord = -0.85 + Math.sin(spinalT * Math.PI * 1.6) * 0.16;
+        // Inclinação oblíqua progressiva (raízes cervicais quase horizontais, torácicas e lombares descendentes)
+        const dropY = 0.18 + Math.pow(frac, 1.6) * 1.15;
+        const spanX = 1.15 - frac * 0.25;
+
         [-1, 1].forEach((sign) => {
-          const rootCurve = new THREE.CatmullRomCurve3([
-            new THREE.Vector3(sign * 0.38, rY, -0.85),
-            new THREE.Vector3(sign * 0.82, rY - 0.12, -0.92),
-            new THREE.Vector3(sign * 1.55, rY - 0.32, -0.98)
+          // Raiz Dorsal (sensitiva, emerge do sulco posterolateral) + Gânglio Espinhal (DRG)
+          const dorsalCurve = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(sign * 0.36, rY, zCord - 0.16),
+            new THREE.Vector3(sign * (0.68 * spanX), rY - dropY * 0.45, zCord - 0.12),
+            new THREE.Vector3(sign * (1.05 * spanX), rY - dropY * 0.80, zCord - 0.04),
+            new THREE.Vector3(sign * (1.42 * spanX), rY - dropY, zCord)
           ]);
-          const rootGeo = new THREE.TubeGeometry(rootCurve, 8, 0.065, 6, false);
-          const rootMat = createPhotorealisticNeuralTissueMaterial({
-            baseColor: 0x34d399,
-            sssColor: 0x10b981,
-            rimColor: 0x00f2fe,
-            roughness: 0.30
-          });
-          const rMesh = new THREE.Mesh(rootGeo, rootMat);
-          rMesh.name = `Raiz_Nervosa_P${p}_${sign > 0 ? 'Esq' : 'Dir'}`;
-          rMesh.rotation.set(0, 0, 0);
-          stemAndCordGroup.add(rMesh);
-          this.spinalMeshes.push(rMesh);
+          const dGeo = new THREE.TubeGeometry(dorsalCurve, 12, 0.032, 6, false);
+          const dMesh = new THREE.Mesh(dGeo, rootMat);
+          stemAndCordGroup.add(dMesh);
+          this.spinalMeshes.push(dMesh);
+
+          // Raiz Ventral (motora, emerge do sulco anterolateral e une-se à dorsal após o DRG)
+          const ventralCurve = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(sign * 0.34, rY - 0.04, zCord + 0.16),
+            new THREE.Vector3(sign * (0.65 * spanX), rY - dropY * 0.48, zCord + 0.10),
+            new THREE.Vector3(sign * (1.05 * spanX), rY - dropY * 0.82, zCord + 0.02),
+            new THREE.Vector3(sign * (1.42 * spanX), rY - dropY, zCord)
+          ]);
+          const vGeo = new THREE.TubeGeometry(ventralCurve, 12, 0.028, 6, false);
+          const vMesh = new THREE.Mesh(vGeo, rootMat);
+          stemAndCordGroup.add(vMesh);
+          this.spinalMeshes.push(vMesh);
+
+          // Gânglio da Raiz Dorsal (DRG - dilatação fusiforme anatômica na raiz dorsal)
+          const drgPt = dorsalCurve.getPointAt(0.68);
+          const drgGeo = new THREE.SphereGeometry(0.058, 10, 8);
+          drgGeo.scale(1.45, 0.85, 0.90);
+          const drgMesh = new THREE.Mesh(drgGeo, rootMat);
+          drgMesh.position.copy(drgPt);
+          stemAndCordGroup.add(drgMesh);
+          this.spinalMeshes.push(drgMesh);
         });
       }
 
-      // Cauda Equina Filamentosa Descendente a partir de Y = -17.5
-      const caudaCount = 42;
+      // Filum Terminale e Cauda Equina Anatômica (Feixe denso de raízes L2–Co1 descendo do Cone Medular até S5)
+      const caudaCount = 48;
       for (let f = 0; f < caudaCount; f++) {
         const angle = (f / caudaCount) * Math.PI * 2;
-        const rad = 0.15 + Math.random() * 0.28;
-        const len = 3.2 + Math.random() * 2.8;
+        const isFilum = (f === 0);
+        const startRad = isFilum ? 0.0 : (0.08 + (f % 5) * 0.055);
+        const startY = isFilum ? -19.1 : (-17.2 - (f % 7) * 0.26);
+        const len = isFilum ? 4.8 : (3.4 + (f % 6) * 0.45);
+        const spreadX = Math.cos(angle) * (startRad + 0.38);
+        const spreadZ = -0.85 + Math.sin(angle) * (startRad + 0.18);
 
         const cCurve = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(Math.cos(angle) * rad, -17.5, -0.85 + Math.sin(angle) * rad),
-          new THREE.Vector3(Math.cos(angle) * (rad + 0.25), -19.5, -0.85 + (Math.random() - 0.5) * 0.2),
-          new THREE.Vector3(Math.cos(angle) * (rad + 0.45), -17.5 - len, -0.85 + (Math.random() - 0.5) * 0.3)
+          new THREE.Vector3(Math.cos(angle) * startRad, startY, -0.85 + Math.sin(angle) * startRad),
+          new THREE.Vector3(spreadX * 0.65, startY - len * 0.38, spreadZ),
+          new THREE.Vector3(spreadX * 0.95, startY - len * 0.72, spreadZ + Math.sin(f) * 0.08),
+          new THREE.Vector3(spreadX * 1.18, startY - len, spreadZ)
         ]);
-        const cGeo = new THREE.TubeGeometry(cCurve, 8, 0.042, 5, false);
-        const cMat = new THREE.MeshStandardMaterial({
-          color: 0x6ee7b7,
-          roughness: 0.35,
-          transparent: true,
-          opacity: 0.85,
-          emissive: 0x10b981,
-          emissiveIntensity: 0.25
-        });
-        const cMesh = new THREE.Mesh(cGeo, cMat);
+        const cGeo = new THREE.TubeGeometry(cCurve, 14, isFilum ? 0.036 : 0.024, 6, false);
+        const cMesh = new THREE.Mesh(cGeo, rootMat);
         cMesh.name = `Cauda_Equina_Filamento_${f}`;
-        cMesh.rotation.set(0, 0, 0);
         stemAndCordGroup.add(cMesh);
+        this.spinalMeshes.push(cMesh);
       }
 
       this.masterGroup.add(stemAndCordGroup);

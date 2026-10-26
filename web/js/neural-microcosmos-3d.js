@@ -1,27 +1,8 @@
 /**
  * ============================================================================
- * MOZOK v2.0 — MICROCOSMO NEURAL BIOLOGICAMENTE PLAUSÍVEL 3D
- * Neurônios Reais, Sistema Glial Quádruplo e Modelo Hodgkin-Huxley
- * ============================================================================
- * Características:
- * 1. Neurônios Estruturados Biologicamente Plausíveis:
- *    - Soma orgânico assimétrico, membrana semitransparente (Fresnel), núcleo DAPI e nucléolo
- *    - Dendritos fractais com afinamento pela Lei de Rall (d_parent^1.5 = sum d_child^1.5)
- *    - Espinhas dendríticas 3D tipo cogumelo com pescoço e cabeça pós-sináptica (PSD-95)
- *    - Axônio com trajetória biológica curvada, cone de implantação e segmento inicial (AIS)
- *    - Internódios visíveis de bainha de mielina e nódulos de Ranvier reais (gaps com Nav1.6)
- *    - Terminais sinápticos e fendas com vesículas quânticas
- * 2. Simulação Eletrofisiológica de Hodgkin-Huxley:
- *    - Equações biofísicas completas de potencial de repouso (-70 mV), despolarização (+30 mV),
- *      repolarização (-70 mV), hiperpolarização (-85 mV) e período refratário
- *    - Condução saltatória realística saltando entre nódulos de Ranvier
- *    - Atraso sináptico de 0.8 ms antes da exocitose vesicular
- * 3. Sistema Glial Quádruplo:
- *    - Astrócitos (pés vasculares perivasculares nos capilares e sinapse tripartite)
- *    - Oligodendrócitos (formação de internódios de mielina)
- *    - Micróglia (vigilante ramificada em repouso vs. ameboide ativada)
- *    - Células ependimárias (epitélio ciliado ventricular com batimento coordenado)
- * 4. Painel Osciloscópio Eletrofisiológico em Tempo Real (Canvas V_m(t))
+ * MOZOK v3.0 — MICROCOSMO NEURAL BIOLUMINESCENTE DE ALTA RESOLUÇÃO (CAMADA V)
+ * Neurônios Piramidais de Betz com Afinamento Contínuo (Lei de Rall),
+ * Bainha de Mielina Lamelar Translúcida, Sistema Glial e Hodgkin-Huxley
  * ============================================================================
  */
 
@@ -29,32 +10,29 @@
   'use strict';
 
   // ==========================================================================
-  // 1. MODELO BIOFÍSICO HODGKIN-HUXLEY SIMPLIFICADO
+  // 1. MODELO BIOFÍSICO HODGKIN-HUXLEY (CALIBRADO A 37°C)
   // ==========================================================================
   class HodgkinHuxleyModel {
     constructor() {
-      // Parâmetros clássicos de Hodgkin-Huxley (calibrados para axônio humano a 37°C)
-      this.Cm = 1.0; // uF/cm^2
-      this.gNa = 120.0; // mS/cm^2
-      this.gK = 36.0;  // mS/cm^2
-      this.gL = 0.3;   // mS/cm^2
+      this.Cm = 1.0;
+      this.gNa = 120.0;
+      this.gK = 36.0;
+      this.gL = 0.3;
 
-      this.ENa = 55.0;  // mV
-      this.EK = -85.0;  // mV
-      this.EL = -65.0;  // mV
+      this.ENa = 55.0;
+      this.EK = -85.0;
+      this.EL = -65.0;
 
-      // Estado inicial em repouso
-      this.V = -70.0; // mV
+      this.V = -70.0;
       this.m = 0.0529;
       this.h = 0.5961;
       this.n = 0.3177;
 
       this.stimulus = 0.0;
       this.isRefractory = false;
-      this.phase = 'REPOUSO (-70 mV)';
+      this.phase = 'POTENCIAL DE REPOUSO (-70 mV)';
       this.time = 0.0;
 
-      // Histórico para renderização do osciloscópio
       this.history = [];
       this.maxHistory = 140;
     }
@@ -63,41 +41,28 @@
       const v = V + 40.0;
       return Math.abs(v) < 1e-4 ? 1.0 : (0.1 * v) / (1.0 - Math.exp(-v / 10.0));
     }
-    betaM(V) {
-      return 4.0 * Math.exp(-(V + 65.0) / 18.0);
-    }
-    alphaH(V) {
-      return 0.07 * Math.exp(-(V + 65.0) / 20.0);
-    }
-    betaH(V) {
-      return 1.0 / (1.0 + Math.exp(-(V + 35.0) / 10.0));
-    }
+    betaM(V) { return 4.0 * Math.exp(-(V + 65.0) / 18.0); }
+    alphaH(V) { return 0.07 * Math.exp(-(V + 65.0) / 20.0); }
+    betaH(V) { return 1.0 / (1.0 + Math.exp(-(V + 35.0) / 10.0)); }
     alphaN(V) {
       const v = V + 55.0;
       return Math.abs(v) < 1e-4 ? 0.1 : (0.01 * v) / (1.0 - Math.exp(-v / 10.0));
     }
-    betaN(V) {
-      return 0.125 * Math.exp(-(V + 65.0) / 80.0);
-    }
+    betaN(V) { return 0.125 * Math.exp(-(V + 65.0) / 80.0); }
 
-    triggerStimulus(current = 15.0) {
+    triggerStimulus(current = 18.0) {
       this.stimulus = current;
     }
 
     step(dtMs = 0.8) {
       this.time += dtMs;
-
-      // Integração numérica rígida com sub-stepping e clamping (Euler estável)
       const subSteps = 20;
       const dt = dtMs / subSteps;
 
       for (let s = 0; s < subSteps; s++) {
-        const aM = this.alphaM(this.V);
-        const bM = this.betaM(this.V);
-        const aH = this.alphaH(this.V);
-        const bH = this.betaH(this.V);
-        const aN = this.alphaN(this.V);
-        const bN = this.betaN(this.V);
+        const aM = this.alphaM(this.V), bM = this.betaM(this.V);
+        const aH = this.alphaH(this.V), bH = this.betaH(this.V);
+        const aN = this.alphaN(this.V), bN = this.betaN(this.V);
 
         this.m = Math.max(0, Math.min(1, this.m + (aM * (1.0 - this.m) - bM * this.m) * dt));
         this.h = Math.max(0, Math.min(1, this.h + (aH * (1.0 - this.h) - bH * this.h) * dt));
@@ -115,15 +80,12 @@
         }
       }
 
-      // Determinação da fase biofísica
       if (this.V > 15.0) {
         this.phase = 'DESPOLARIZAÇÃO PICO (+30 mV)';
       } else if (this.V > -55.0 && this.V <= 15.0) {
         this.phase = 'DESPOLARIZAÇÃO (Influxo Na+)';
-      } else if (this.V <= -70.0 && this.V >= -85.0) {
+      } else if (this.V <= -72.0) {
         this.phase = 'HIPERPOLARIZAÇÃO / REFRATÁRIO';
-      } else if (this.V < -85.0) {
-        this.phase = 'HIPERPOLARIZAÇÃO MÁXIMA';
       } else {
         this.phase = 'POTENCIAL DE REPOUSO (-70 mV)';
       }
@@ -132,448 +94,354 @@
       if (this.history.length > this.maxHistory) {
         this.history.shift();
       }
-
       return this.V;
     }
   }
 
-  // [PT-BR]: Função de ruído harmônico multi-octava fbm3D(x, y, z) para ondulação biomembranosa fotorrealista.
-  // [EN-GB]: Multi-octave harmonic noise function fbm3D(x, y, z) for photorealistic biomembrane undulation.
-  // [AI-CTX]: @llm-neuroscience: Simulates microscopic phospholipid membrane fluctuation and irregular somatic morphology.
-  function fbm3D(x, y, z) {
-    let val = 0.0;
-    let amp = 0.5;
-    let freq = 1.0;
-    for (let o = 0; o < 4; o++) {
-      val += amp * (Math.sin(x * freq + 0.45) * Math.cos(y * freq + 1.25) * Math.sin(z * freq + 2.1));
-      freq *= 2.05;
-      amp *= 0.48;
+  // ==========================================================================
+  // 2. GERADOR DE GEOMETRIA TUBULAR COM AFINAMENTO CONTÍNUO (LEI DE RALL)
+  // ==========================================================================
+  function createTaperedBranchGeometry(curve, radiusStart, radiusEnd, tubularSegments = 28, radialSegments = 12, capsuleEnds = false) {
+    const positions = [];
+    const indices = [];
+    const frames = curve.computeFrenetFrames(tubularSegments, false);
+
+    for (let i = 0; i <= tubularSegments; i++) {
+      const u = i / tubularSegments;
+      const pt = curve.getPointAt(u);
+      const N = frames.normals[i];
+      const B = frames.binormals[i];
+
+      let r = radiusStart * (1.0 - u) + radiusEnd * u;
+      if (capsuleEnds) {
+        // Perfil boleado suave nas extremidades paranodais da bainha de mielina
+        const edgeFade = Math.sin(u * Math.PI);
+        r *= (0.55 + 0.45 * Math.pow(edgeFade, 0.35));
+      }
+
+      for (let j = 0; j <= radialSegments; j++) {
+        const v = (j / radialSegments) * Math.PI * 2;
+        const cosV = Math.cos(v);
+        const sinV = Math.sin(v);
+
+        const nx = cosV * N.x + sinV * B.x;
+        const ny = cosV * N.y + sinV * B.y;
+        const nz = cosV * N.z + sinV * B.z;
+
+        positions.push(pt.x + r * nx, pt.y + r * ny, pt.z + r * nz);
+      }
     }
-    return val;
+
+    for (let i = 0; i < tubularSegments; i++) {
+      for (let j = 0; j < radialSegments; j++) {
+        const a = i * (radialSegments + 1) + j;
+        const b = (i + 1) * (radialSegments + 1) + j;
+        const c = (i + 1) * (radialSegments + 1) + (j + 1);
+        const d = i * (radialSegments + 1) + (j + 1);
+        indices.push(a, b, d);
+        indices.push(b, c, d);
+      }
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+    return geo;
   }
 
   // ==========================================================================
-  // 2. CONSTRUTOR DE NEURÔNIOS BIOLOGICAMENTE PLAUSÍVEIS (CAMADA V)
+  // 3. CONSTRUTOR DE NEURÔNIO PIRAMIDAL DE CAMADA V (BETZ) BIOLUMINESCENTE
   // ==========================================================================
-  // [PT-BR]: Construtor de Neurônio Piramidal Gigante de Camada V padrão Firefly (Soma esculpido, 4 ordens Rall, mielina lamelar e nódulos de Ranvier bioluminescentes).
-  // [EN-GB]: Layer V Giant Pyramidal Neuron Builder Firefly standard (Sculpted soma, 4-order Rall tree, lamellar myelin, and bioluminescent Ranvier nodes).
-  // [AI-CTX]: @llm-context: High-resolution biological reconstruction with SWC real data integration and Rall's branching law.
-  //           @llm-neuroscience: Cortical Layer V Betz/pyramidal neuron with apical tuft, basal branches, and myelinated saltatory axon.
   class BiologicalNeuronBuilder {
     static createHeroPyramidalNeuron(seed = 1) {
       const neuronGroup = new THREE.Group();
       neuronGroup.name = `BIOLOGICAL_NEURON_HERO_${seed}`;
 
-      // 1. SOMA ORGÂNICO ESCULPIDO COM TEXTURA CELULAR (SphereGeometry 64x48)
-      // [PT-BR]: Soma esculpido em resolução 64x48 com deformação contínua tri-lobada basal, fbm3D e cone de implantação suave (hillock).
-      // [EN-GB]: Sculpted soma at 64x48 resolution with continuous basal tri-lobed deformation, fbm3D, and smooth axon hillock tapering.
-      const somaGeo = new THREE.SphereGeometry(1.65, 64, 48);
+      // 1. SOMA PIRAMIDAL EM GOTA ANATÔMICA CONTÍNUA (Zero ruído serrilhado)
+      const somaGeo = new THREE.SphereGeometry(1.45, 64, 48);
       const sPos = somaGeo.attributes.position;
       for (let i = 0; i < sPos.count; i++) {
         let x = sPos.getX(i);
         let y = sPos.getY(i);
         let z = sPos.getZ(i);
 
-        // Tronco apical contínuo sem costuras abruptas (+Y)
         if (y > 0) {
-          const taper = (y / 1.65);
-          x *= (1.0 - taper * 0.42);
-          z *= (1.0 - taper * 0.42);
-          y *= 1.28;
+          // Afunilamento piramidal cônico suave que se funde ao dendrito apical em y = +2.25
+          const u = Math.min(1.0, y / 1.45);
+          const taper = Math.pow(1.0 - u, 0.72) * 0.82 + 0.18;
+          x *= taper;
+          z *= taper;
+          y *= 1.55;
         } else {
-          // Deformação basal tri-lobada suave
+          // Base piramidal tri-lobada suave e afunilamento no cone de implantação axonal (hillock)
+          const u = Math.min(1.0, Math.abs(y) / 1.45);
           const angle = Math.atan2(z, x);
-          const triLobe = Math.sin(angle * 3.0) * 0.24;
-          x *= (1.0 + triLobe);
-          z *= (1.0 + triLobe);
-
-          // Afunilamento suave no cone de implantação axonal (axon hillock)
-          if (y < -0.75) {
-            const hFactor = Math.abs(y + 0.75) / 0.90;
-            x *= (1.0 - hFactor * 0.55);
-            z *= (1.0 - hFactor * 0.55);
-            y -= hFactor * 0.25;
-          }
+          const basalSkirt = (1.0 - u) * Math.cos(angle * 3.0) * 0.12;
+          const hillockTaper = u > 0.55 ? (1.0 - (u - 0.55) / 0.45 * 0.65) : 1.0;
+          x *= (1.08 + basalSkirt) * hillockTaper;
+          z *= (1.08 + basalSkirt) * hillockTaper;
+          y *= 1.15;
         }
-
-        // Ruído harmônico multi-octava fbm3D(x, y, z) para ondulação biomembranosa fotorrealista
-        const fbm = fbm3D(x * 1.8, y * 1.8, z * 1.8) * 0.12;
-        x *= (1.0 + fbm);
-        y *= (1.0 + fbm * 0.5);
-        z *= (1.0 + fbm);
-
-        // Microtextura biológica fina de membrana fosfolipídica
-        const noise = Math.sin(x * 6.0) * Math.cos(z * 6.0) * 0.055 + Math.sin(y * 8.0) * 0.035;
-        sPos.setXYZ(i, x + noise, y, z + noise);
+        sPos.setXYZ(i, x, y, z);
       }
       somaGeo.computeVertexNormals();
 
-      // Membrana Celular Fosfolipídica Translúcida Âmbar-Dourada com SSS Quente
+      // Membrana Plasmática Bioluminescente Translúcida (Ciano-Safira com Brilho Dourado Interno)
       const membraneMat = new THREE.MeshPhysicalMaterial({
-        color: 0xf59e0b, // Âmbar biológico (#f59e0b)
-        roughness: 0.22,
-        transmission: 0.68,
-        opacity: 0.94,
+        color: 0x38bdf8,
+        roughness: 0.16,
+        metalness: 0.05,
+        transmission: 0.72,
+        opacity: 0.92,
         transparent: true,
-        reflectivity: 0.88,
-        clearcoat: 0.85,
-        clearcoatRoughness: 0.12,
-        emissive: 0xd97706,
-        emissiveIntensity: 0.38,
-        sheen: 0.65,
-        sheenColor: new THREE.Color(0xfbbf24)
+        ior: 1.42,
+        clearcoat: 0.90,
+        clearcoatRoughness: 0.10,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.48,
+        sheen: 0.80,
+        sheenColor: new THREE.Color(0x00f2fe)
       });
       const somaMesh = new THREE.Mesh(somaGeo, membraneMat);
       somaMesh.name = "Soma_Membrana_Organica";
       neuronGroup.add(somaMesh);
 
-      // Núcleo Celular Visível em Gradiente Âmbar-Escuro (#78350f / #92400e)
-      const nucleusGeo = new THREE.SphereGeometry(0.78, 32, 28);
+      // Núcleo Eucromático Translúcido e Nucléolo Bioluminescente Dourado
+      const nucleusGeo = new THREE.SphereGeometry(0.68, 32, 24);
+      nucleusGeo.scale(1.0, 1.12, 1.0);
       const nucleusMat = new THREE.MeshStandardMaterial({
-        color: 0x78350f, // Âmbar-escuro / chocolate profundo
-        roughness: 0.25,
-        emissive: 0x92400e,
-        emissiveIntensity: 0.55
+        color: 0x1e3a8a,
+        roughness: 0.22,
+        transparent: true,
+        opacity: 0.88,
+        emissive: 0x3b82f6,
+        emissiveIntensity: 0.65
       });
       const nucleusMesh = new THREE.Mesh(nucleusGeo, nucleusMat);
-      nucleusMesh.position.set(0.06, -0.12, 0.04);
+      nucleusMesh.position.set(0.0, -0.05, 0.0);
       neuronGroup.add(nucleusMesh);
 
-      // Nucléolo Dourado Central (#fbbf24)
-      const nucleolusGeo = new THREE.SphereGeometry(0.26, 20, 20);
+      const nucleolusGeo = new THREE.SphereGeometry(0.24, 24, 20);
       const nucleolusMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
       const nucleolusMesh = new THREE.Mesh(nucleolusGeo, nucleolusMat);
-      nucleolusMesh.position.set(0.10, -0.08, 0.06);
+      nucleolusMesh.position.set(0.05, -0.02, 0.04);
       neuronGroup.add(nucleolusMesh);
 
-      // Corpúsculos de Nissl e Mitocôndrias Citoplasmáticas (Esferas Orgânicas Suaves)
-      const organelleGeo = new THREE.SphereGeometry(0.085, 12, 10);
-      const organelleMat = new THREE.MeshStandardMaterial({
-        color: 0x10b981,
-        roughness: 0.3,
-        emissive: 0x059669,
-        emissiveIntensity: 0.45
-      });
-      for (let o = 0; o < 16; o++) {
-        const oMesh = new THREE.Mesh(organelleGeo, organelleMat);
-        const theta = (o / 16) * Math.PI * 2;
-        const rad = 0.92 + Math.random() * 0.38;
-        oMesh.position.set(Math.cos(theta) * rad, (Math.random() - 0.5) * 1.3, Math.sin(theta) * rad);
-        neuronGroup.add(oMesh);
-      }
-
-      // 2. ÁRVORE DENDRÍTICA FRACTAL MULTINÍVEL (4 ORDENS DE RAMIFICAÇÃO PELA LEI DE RALL)
-      // [PT-BR]: Lei de Rall (d_parent^1.5 = sum d_child^1.5) com 4 ordens (0.38 -> 0.22 -> 0.12 -> 0.05 -> 0.02) e curvatura de 5 pontos.
-      // [EN-GB]: Rall's Law 4-order fractal branching with 5-point biological tortuosity curves.
-      const dendriteMat = new THREE.MeshStandardMaterial({
-        color: 0xf59e0b,
-        roughness: 0.32,
-        emissive: 0xb45309,
-        emissiveIntensity: 0.32
-      });
-
-      // Ordem 1: Tronco Apical Primário (radius = 0.38, 5 pontos de controle que emergem do topo do soma em y=1.65)
-      // [PT-BR]: Conexão exata e estrita partindo do ápice do soma piramidal (0.0, 1.65, 0.0) garantindo continuidade sem costuras ou lacunas flutuantes.
-      // [EN-GB]: Exact continuous connection starting from the pyramidal soma apex (0.0, 1.65, 0.0) preventing seams or floating gaps.
-      // [AI-CTX]: @llm-invariant: Branching tubes originate strictly from parent curve getPointAt(t) coordinates.
-      const apicalCurve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0.0, 1.65, 0.0),
-        new THREE.Vector3(0.16, 4.5, 0.12),
-        new THREE.Vector3(-0.14, 7.8, -0.10),
-        new THREE.Vector3(0.22, 11.2, 0.20),
-        new THREE.Vector3(0.0, 15.0, 0.0)
-      ]);
-      const apicalGeo = new THREE.TubeGeometry(apicalCurve, 36, 0.38, 8, false);
-      const apicalMesh = new THREE.Mesh(apicalGeo, dendriteMat);
-      apicalMesh.name = "Dendrito_Apical_Ordem1";
-      neuronGroup.add(apicalMesh);
-
-      // Função recursiva para gerar 5 pontos biológicos com tortuosidade estritamente conexos
-      function create5PointCurve(startPt, endPt, tortuosity = 0.45) {
-        const p0 = startPt.clone();
-        const p4 = endPt.clone();
-        const p1 = p0.clone().lerp(p4, 0.25).add(new THREE.Vector3((Math.random() - 0.5) * tortuosity, 0.2, (Math.random() - 0.5) * tortuosity));
-        const p2 = p0.clone().lerp(p4, 0.50).add(new THREE.Vector3((Math.random() - 0.5) * tortuosity * 1.2, 0.3, (Math.random() - 0.5) * tortuosity * 1.2));
-        const p3 = p0.clone().lerp(p4, 0.75).add(new THREE.Vector3((Math.random() - 0.5) * tortuosity, 0.2, (Math.random() - 0.5) * tortuosity));
-        return new THREE.CatmullRomCurve3([p0, p1, p2, p3, p4]);
-      }
-
-      // Ordem 2: Ramos Secundários (radius = 0.22, 5 pontos partindo estritamente de apicalCurve.getPointAt(t))
-      const secondaryTargets = [
-        { t: 0.25, end: new THREE.Vector3(2.8, 6.2, 1.2) },
-        { t: 0.25, end: new THREE.Vector3(-2.6, 5.9, -1.0) },
-        { t: 0.50, end: new THREE.Vector3(3.6, 10.0, -1.4) },
-        { t: 0.50, end: new THREE.Vector3(-3.2, 9.6, 1.6) },
-        { t: 0.75, end: new THREE.Vector3(4.2, 13.8, 1.8) },
-        { t: 0.75, end: new THREE.Vector3(-3.8, 14.2, -1.6) }
-      ];
-
-      secondaryTargets.forEach((sec, sIdx) => {
-        const secStart = apicalCurve.getPointAt(sec.t);
-        const secCurve = create5PointCurve(secStart, sec.end, 0.55);
-        const secGeo = new THREE.TubeGeometry(secCurve, 18, 0.22, 6, false);
-        neuronGroup.add(new THREE.Mesh(secGeo, dendriteMat));
-
-        // Ordem 3: Ramos Terciários (radius = 0.12, 5 pontos partindo exatamente de sec.end)
-        const t1End = sec.end.clone().add(new THREE.Vector3((sIdx % 2 === 0 ? 1.8 : -1.8), 2.2, (Math.random() - 0.5) * 1.5));
-        const t2End = sec.end.clone().add(new THREE.Vector3((Math.random() - 0.5) * 1.4, 2.5, (sIdx % 2 === 0 ? -1.6 : 1.6)));
-        
-        [t1End, t2End].forEach((tertEnd) => {
-          const tertCurve = create5PointCurve(sec.end, tertEnd, 0.40);
-          const tertGeo = new THREE.TubeGeometry(tertCurve, 14, 0.12, 5, false);
-          neuronGroup.add(new THREE.Mesh(tertGeo, dendriteMat));
-
-          // Ordem 4: Ramos Quaternários Terminais (radius = 0.05 -> 0.02, partindo de tertEnd)
-          const q1End = tertEnd.clone().add(new THREE.Vector3((Math.random() - 0.5) * 1.2, 1.6, (Math.random() - 0.5) * 1.2));
-          const q2End = tertEnd.clone().add(new THREE.Vector3((Math.random() - 0.5) * 1.2, 1.8, (Math.random() - 0.5) * 1.2));
-          [q1End, q2End].forEach((quatEnd) => {
-            const quatCurve = create5PointCurve(tertEnd, quatEnd, 0.28);
-            const quatGeo = new THREE.TubeGeometry(quatCurve, 10, 0.045, 4, false);
-            neuronGroup.add(new THREE.Mesh(quatGeo, dendriteMat));
-          });
-        });
-      });
-
-      // Integração morfológica com dados reais SWC quando disponíveis
-      if (typeof window !== 'undefined' && window.SWC_NEURONS_DATA && window.SWC_NEURONS_DATA[0] && window.SWC_NEURONS_DATA[0].segments) {
-        const swcData = window.SWC_NEURONS_DATA[0].segments;
-        const swcGroup = new THREE.Group();
-        swcGroup.name = "SWC_REAL_MORPHOLOGY_OVERLAY";
-        const stride = Math.max(1, Math.floor(swcData.length / 45));
-        for (let i = 0; i < swcData.length - stride; i += stride) {
-          const s = swcData[i];
-          const e = swcData[i + stride];
-          const pStart = new THREE.Vector3(s[0] * 0.45, s[1] * 0.45 + 1.8, s[2] * 0.45);
-          const pEnd = new THREE.Vector3(e[3] * 0.45, e[4] * 0.45 + 1.8, e[5] * 0.45);
-          const curve = create5PointCurve(pStart, pEnd, 0.15);
-          const geo = new THREE.TubeGeometry(curve, 6, 0.038, 4, false);
-          swcGroup.add(new THREE.Mesh(geo, dendriteMat));
-        }
-        neuronGroup.add(swcGroup);
-      }
-
-      // Dendritos Basais (3 árvores irradiando da base com ordens 1 e 2 partindo da superfície basal)
-      for (let b = 0; b < 3; b++) {
-        const angle = (b / 3) * Math.PI * 2;
-        const bStart = new THREE.Vector3(Math.cos(angle) * 1.45, -1.25, Math.sin(angle) * 1.45);
-        const bEnd = new THREE.Vector3(Math.cos(angle) * 6.2 + (Math.random() - 0.5) * 1.5, -4.8, Math.sin(angle) * 6.2);
-        const bCurve = create5PointCurve(bStart, bEnd, 0.65);
-        const bGeo = new THREE.TubeGeometry(bCurve, 22, 0.32, 6, false);
-        neuronGroup.add(new THREE.Mesh(bGeo, dendriteMat));
-
-        // Ramificação secundária basal
-        const bSecEnd1 = bEnd.clone().add(new THREE.Vector3((Math.random() - 0.5) * 2.5, -2.2, (Math.random() - 0.5) * 2.5));
-        const bSecEnd2 = bEnd.clone().add(new THREE.Vector3((Math.random() - 0.5) * 2.5, -2.4, (Math.random() - 0.5) * 2.5));
-        [bSecEnd1, bSecEnd2].forEach(bSec => {
-          const bSecCurve = create5PointCurve(bEnd, bSec, 0.45);
-          neuronGroup.add(new THREE.Mesh(new THREE.TubeGeometry(bSecCurve, 14, 0.16, 5, false), dendriteMat));
-        });
-      }
-
-      // Espinhas Dendríticas 3D em Cogumelo (220 espinhas com haste e cabeça)
-      const spineCount = 220;
-      const spineHeadGeo = new THREE.SphereGeometry(0.12, 8, 8);
-      spineHeadGeo.translate(0, 0.22, 0);
-
-      const spineMat = new THREE.MeshStandardMaterial({
-        color: 0xfbbf24,
-        roughness: 0.28,
-        emissive: 0xd97706,
+      // 2. ÁRVORE DENDRÍTICA CONTÍNUA AFINADA PELA LEI DE RALL
+      const dendriteMat = new THREE.MeshPhysicalMaterial({
+        color: 0x38bdf8,
+        roughness: 0.24,
+        transmission: 0.45,
+        transparent: true,
+        opacity: 0.95,
+        clearcoat: 0.65,
+        emissive: 0x0369a1,
         emissiveIntensity: 0.42
       });
 
       const spinesGroup = new THREE.Group();
       spinesGroup.name = "Dendritic_Spines";
-      for (let s = 0; s < spineCount; s++) {
-        const u = 0.12 + (s / spineCount) * 0.85;
-        const pt = apicalCurve.getPointAt(u);
-        const theta = Math.random() * Math.PI * 2;
-        const offset = new THREE.Vector3(Math.cos(theta) * 0.48, 0, Math.sin(theta) * 0.48);
+      const spineStalkMat = new THREE.MeshStandardMaterial({
+        color: 0x38bdf8,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.5
+      });
+      const spineHeadMat = new THREE.MeshStandardMaterial({
+        color: 0xfbbf24,
+        roughness: 0.2,
+        emissive: 0xf59e0b,
+        emissiveIntensity: 0.85
+      });
 
-        const spineMesh = new THREE.Mesh(spineHeadGeo, spineMat);
-        spineMesh.position.copy(pt).add(offset);
-        spineMesh.scale.setScalar(0.75 + Math.random() * 0.55);
-        spinesGroup.add(spineMesh);
+      function addMushroomSpinesAlongCurve(curve, count, baseRadius) {
+        const frames = curve.computeFrenetFrames(count + 2, false);
+        for (let s = 1; s <= count; s++) {
+          const u = s / (count + 1);
+          const pt = curve.getPointAt(u);
+          const N = frames.normals[s];
+          const B = frames.binormals[s];
+          const angle = (s * 2.39996) % (Math.PI * 2); // Ângulo áureo para distribuição biológica
+          const dir = new THREE.Vector3(
+            Math.cos(angle) * N.x + Math.sin(angle) * B.x,
+            Math.cos(angle) * N.y + Math.sin(angle) * B.y,
+            Math.cos(angle) * N.z + Math.sin(angle) * B.z
+          ).normalize();
+
+          const localR = baseRadius * (1.0 - u * 0.45);
+          const stalkStart = pt.clone().add(dir.clone().multiplyScalar(localR * 0.85));
+          const stalkEnd = pt.clone().add(dir.clone().multiplyScalar(localR + 0.22));
+
+          const stalkCurve = new THREE.LineCurve3(stalkStart, stalkEnd);
+          const stalkGeo = new THREE.TubeGeometry(stalkCurve, 3, 0.016, 5, false);
+          spinesGroup.add(new THREE.Mesh(stalkGeo, spineStalkMat));
+
+          const headGeo = new THREE.SphereGeometry(0.052, 8, 8);
+          const headMesh = new THREE.Mesh(headGeo, spineHeadMat);
+          headMesh.position.copy(stalkEnd);
+          spinesGroup.add(headMesh);
+        }
       }
+
+      // Tronco Apical Principal (emerge suavemente do ápice do soma em y = 1.95 até a Camada I em y = 14.5)
+      const apicalCurve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0.0, 1.85, 0.0),
+        new THREE.Vector3(0.14, 4.8, 0.10),
+        new THREE.Vector3(-0.12, 8.2, -0.08),
+        new THREE.Vector3(0.16, 11.4, 0.12),
+        new THREE.Vector3(0.0, 14.2, 0.0)
+      ]);
+      const apicalGeo = createTaperedBranchGeometry(apicalCurve, 0.28, 0.11, 44, 14, false);
+      neuronGroup.add(new THREE.Mesh(apicalGeo, dendriteMat));
+      addMushroomSpinesAlongCurve(apicalCurve, 55, 0.22);
+
+      // Dendritos Oblíquos e Tufo Apical (Camadas II/III e I) com afinamento até 0.018
+      const apicalBranches = [
+        { u: 0.24, mid: [1.6, 5.4, 0.6], end: [3.2, 6.8, 1.2], r0: 0.13, r1: 0.035 },
+        { u: 0.28, mid: [-1.5, 5.8, -0.5], end: [-3.0, 7.2, -1.1], r0: 0.13, r1: 0.035 },
+        { u: 0.52, mid: [1.8, 9.2, -0.7], end: [3.5, 11.0, -1.4], r0: 0.11, r1: 0.030 },
+        { u: 0.56, mid: [-1.7, 9.6, 0.8], end: [-3.3, 11.4, 1.5], r0: 0.11, r1: 0.030 },
+        { u: 0.82, mid: [1.5, 13.0, 0.9], end: [3.4, 15.2, 1.8], r0: 0.095, r1: 0.024 },
+        { u: 0.85, mid: [-1.4, 13.2, -0.8], end: [-3.2, 15.5, -1.6], r0: 0.095, r1: 0.024 },
+        { u: 0.98, mid: [1.2, 15.4, -0.6], end: [2.6, 17.0, -1.3], r0: 0.085, r1: 0.020 },
+        { u: 0.98, mid: [-1.1, 15.5, 0.7], end: [-2.5, 17.2, 1.4], r0: 0.085, r1: 0.020 }
+      ];
+
+      apicalBranches.forEach((br, idx) => {
+        const startPt = apicalCurve.getPointAt(br.u);
+        const midPt = new THREE.Vector3(br.mid[0], br.mid[1], br.mid[2]);
+        const endPt = new THREE.Vector3(br.end[0], br.end[1], br.end[2]);
+        const bCurve = new THREE.CatmullRomCurve3([startPt, startPt.clone().lerp(midPt, 0.5), midPt, midPt.clone().lerp(endPt, 0.5), endPt]);
+        neuronGroup.add(new THREE.Mesh(createTaperedBranchGeometry(bCurve, br.r0, br.r1, 22, 10, false), dendriteMat));
+        addMushroomSpinesAlongCurve(bCurve, 14, br.r0);
+
+        // Ramificações Terciárias finas
+        const sub1 = endPt.clone().add(new THREE.Vector3((idx % 2 === 0 ? 1.4 : -1.4), 1.6, 0.8));
+        const sub2 = endPt.clone().add(new THREE.Vector3((idx % 2 === 0 ? 0.8 : -0.8), 1.8, -0.9));
+        [sub1, sub2].forEach(sEnd => {
+          const sMid = endPt.clone().lerp(sEnd, 0.5).add(new THREE.Vector3(0, 0.35, 0));
+          const sCurve = new THREE.CatmullRomCurve3([endPt, sMid, sEnd]);
+          neuronGroup.add(new THREE.Mesh(createTaperedBranchGeometry(sCurve, br.r1, 0.012, 14, 8, false), dendriteMat));
+        });
+      });
+
+      // 5 Árvores Dendríticas Basais irradiando da saia basal do soma piramidal
+      for (let b = 0; b < 5; b++) {
+        const angle = (b / 5) * Math.PI * 2 + 0.3;
+        const bStart = new THREE.Vector3(Math.cos(angle) * 1.05, -0.85, Math.sin(angle) * 1.05);
+        const bMid = new THREE.Vector3(Math.cos(angle) * 2.8, -2.1, Math.sin(angle) * 2.8);
+        const bEnd = new THREE.Vector3(Math.cos(angle) * 4.8, -3.6, Math.sin(angle) * 4.8);
+        const bCurve = new THREE.CatmullRomCurve3([bStart, bMid, bEnd]);
+        neuronGroup.add(new THREE.Mesh(createTaperedBranchGeometry(bCurve, 0.16, 0.04, 20, 10, false), dendriteMat));
+        addMushroomSpinesAlongCurve(bCurve, 12, 0.12);
+
+        [-0.45, 0.45].forEach(deltaAng => {
+          const subAng = angle + deltaAng;
+          const subEnd = bEnd.clone().add(new THREE.Vector3(Math.cos(subAng) * 2.2, -1.4, Math.sin(subAng) * 2.2));
+          const subCurve = new THREE.CatmullRomCurve3([bEnd, bEnd.clone().lerp(subEnd, 0.5), subEnd]);
+          neuronGroup.add(new THREE.Mesh(createTaperedBranchGeometry(subCurve, 0.04, 0.012, 12, 8, false), dendriteMat));
+        });
+      }
+
       neuronGroup.add(spinesGroup);
 
-      // 3. AXÔNIO CURVO, CONE DE IMPLANTAÇÃO, 7 INTERNÓDIOS DE MIELINA E NÓDULOS DE RANVIER
-      // [PT-BR]: Axônio descendente de 7 pontos com 7 internódios boleados e nódulos de Ranvier estreitos com halo ciano (#00f2fe).
-      // [EN-GB]: Descending 7-point axon with 7 rounded internodes and narrow Ranvier nodes with cyan halo (#00f2fe).
+      // 3. AXÔNIO MIELINIZADO E NÓDULOS DE RANVIER BIOLUMINESCENTES
       const axonCurve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0.0, -1.65, 0.0),    // Cone de implantação axonal (hillock)
-        new THREE.Vector3(0.18, -3.4, 0.12),   // Segmento inicial do axônio (AIS)
-        new THREE.Vector3(-0.22, -6.5, -0.16), // Primeiro internódio mielínico
-        new THREE.Vector3(0.32, -10.2, 0.22),  // Trajetória biológica descendente
-        new THREE.Vector3(-0.15, -14.2, -0.12),// Condução saltatória rápida
-        new THREE.Vector3(0.24, -18.5, 0.16),  // Arborização pré-terminal
-        new THREE.Vector3(0.0, -23.0, 0.0)     // Botões sinápticos terminais
+        new THREE.Vector3(0.0, -1.45, 0.0),
+        new THREE.Vector3(0.12, -3.4, 0.08),
+        new THREE.Vector3(-0.16, -6.5, -0.12),
+        new THREE.Vector3(0.20, -10.2, 0.14),
+        new THREE.Vector3(-0.12, -14.2, -0.08),
+        new THREE.Vector3(0.16, -18.0, 0.10),
+        new THREE.Vector3(0.0, -21.5, 0.0)
       ]);
 
-      // Fibra Axonal Nua Central
-      const axonCoreGeo = new THREE.TubeGeometry(axonCurve, 56, 0.14, 8, false);
+      const axonCoreGeo = createTaperedBranchGeometry(axonCurve, 0.14, 0.075, 64, 10, false);
       const axonCoreMat = new THREE.MeshStandardMaterial({
-        color: 0x38bdf8,
-        roughness: 0.35,
+        color: 0x00f2fe,
+        roughness: 0.20,
         emissive: 0x0284c7,
-        emissiveIntensity: 0.55
+        emissiveIntensity: 0.75
       });
-      const axonCoreMesh = new THREE.Mesh(axonCoreGeo, axonCoreMat);
-      neuronGroup.add(axonCoreMesh);
+      neuronGroup.add(new THREE.Mesh(axonCoreGeo, axonCoreMat));
 
-      // 7 Segmentos Internodais de Mielina Lamelar Orgânica com Extremidades Paranodais Boleadas
-      const internodeCount = 7;
+      const internodeCount = 6;
       const myelinSheaths = [];
       const ranvierNodes = [];
 
       const myelinMat = new THREE.MeshPhysicalMaterial({
-        color: 0xfef3c7, // Âmbar biológico claro translúcido
-        roughness: 0.28,
-        transmission: 0.55,
-        opacity: 0.90,
+        color: 0xe0f2fe,
+        roughness: 0.18,
+        transmission: 0.68,
+        opacity: 0.86,
         transparent: true,
-        reflectivity: 0.75,
-        clearcoat: 0.70,
-        clearcoatRoughness: 0.16,
-        emissive: 0xf59e0b,
-        emissiveIntensity: 0.26
+        ior: 1.44,
+        clearcoat: 0.85,
+        emissive: 0x0369a1,
+        emissiveIntensity: 0.22
       });
 
       const ranvierMat = new THREE.MeshStandardMaterial({
-        color: 0x00f2fe, // Azul-ciano bioluminescente intenso
+        color: 0xfbbf24,
         roughness: 0.12,
         emissive: 0x00f2fe,
-        emissiveIntensity: 1.45
+        emissiveIntensity: 1.6
       });
-
-      const haloMat = new THREE.MeshBasicMaterial({
-        color: 0x00f2fe,
-        transparent: true,
-        opacity: 0.38
-      });
-
-      const upAxis = new THREE.Vector3(0, 1, 0);
 
       for (let m = 0; m < internodeCount; m++) {
-        const uStart = 0.12 + m * 0.115;
-        const uEnd = uStart + 0.092; // Gap de 0.023 para o nódulo de Ranvier
-        const uRanvier = uEnd + 0.0115;
+        const uStart = 0.10 + m * 0.135;
+        const uEnd = uStart + 0.108;
+        const uRanvier = uEnd + 0.0135;
 
-        // Subcurva com 5 pontos para a cápsula de mielina (alinhada estritamente aos pontos da curva axonal)
         const subPts = [];
-        for (let k = 0; k <= 4; k++) {
-          subPts.push(axonCurve.getPointAt(uStart + (k / 4) * (uEnd - uStart)));
+        for (let k = 0; k <= 6; k++) {
+          subPts.push(axonCurve.getPointAt(uStart + (k / 6) * (uEnd - uStart)));
         }
         const subCurve = new THREE.CatmullRomCurve3(subPts);
-
-        // Perfil boleado em cápsula orgânica âmbar-translúcida (extremidades paranodais suaves)
-        const mGeo = new THREE.TubeGeometry(subCurve, 16, 0.44, 10, false);
+        const mGeo = createTaperedBranchGeometry(subCurve, 0.28, 0.28, 20, 14, true);
         const mMesh = new THREE.Mesh(mGeo, myelinMat.clone());
         mMesh.name = `Myelin_Internode_${m}`;
         neuronGroup.add(mMesh);
         myelinSheaths.push(mMesh);
 
-        // [PT-BR]: Nódulo de Ranvier alinhado estritamente ao vetor tangente da curva axonal via quaternion.setFromUnitVectors.
-        // [EN-GB]: Ranvier node strictly aligned to the axonal curve tangent vector via quaternion.setFromUnitVectors.
-        // [AI-CTX]: @llm-invariant: quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent);
-        if (m < internodeCount - 1 && uRanvier < 0.98) {
+        if (m < internodeCount - 1 && uRanvier < 0.96) {
           const rPt = axonCurve.getPointAt(uRanvier);
-          const tangent = axonCurve.getTangentAt(uRanvier).normalize();
-
-          const nodeGroup = new THREE.Group();
-          nodeGroup.position.copy(rPt);
-
-          // Alinha o anel ao vetor tangente real da trajetória do axônio
-          const quat = new THREE.Quaternion();
-          quat.setFromUnitVectors(upAxis, tangent);
-          nodeGroup.quaternion.copy(quat);
-
-          const rGeo = new THREE.TorusGeometry(0.24, 0.065, 10, 20);
+          const rGeo = new THREE.SphereGeometry(0.14, 16, 14);
+          rGeo.scale(1.0, 0.65, 1.0);
           const rMesh = new THREE.Mesh(rGeo, ranvierMat.clone());
-          nodeGroup.add(rMesh);
-
-          // Halo volumétrico suave em azul-ciano
-          const haloGeo = new THREE.SphereGeometry(0.36, 12, 10);
-          const haloMesh = new THREE.Mesh(haloGeo, haloMat.clone());
-          nodeGroup.add(haloMesh);
-
-          nodeGroup.name = `Ranvier_Node_${m}`;
-          neuronGroup.add(nodeGroup);
+          rMesh.position.copy(rPt);
+          neuronGroup.add(rMesh);
           ranvierNodes.push(rMesh);
         }
       }
 
-      // Botões Sinápticos Terminais
-      const terminalPt = axonCurve.getPointAt(1.0);
-      const boutonGroup = new THREE.Group();
-      boutonGroup.name = "Synaptic_Boutons";
-      const boutonGeo = new THREE.SphereGeometry(0.38, 14, 12);
-      boutonGeo.scale(1.2, 0.8, 1.0);
+      // Arborização Telodendrial e Botões Sinápticos Terminais
+      const termOrigin = axonCurve.getPointAt(1.0);
       const boutonMat = new THREE.MeshStandardMaterial({
-        color: 0x4ade80,
-        roughness: 0.25,
-        emissive: 0x22c55e,
-        emissiveIntensity: 0.65
+        color: 0x34d399,
+        roughness: 0.22,
+        emissive: 0x10b981,
+        emissiveIntensity: 0.75
       });
-
-      for (let t = 0; t < 3; t++) {
-        const b = new THREE.Mesh(boutonGeo, boutonMat);
-        b.position.copy(terminalPt).add(new THREE.Vector3((t - 1) * 0.72, -0.45, (Math.random() - 0.5) * 0.55));
-        boutonGroup.add(b);
-      }
-      neuronGroup.add(boutonGroup);
-
-      // [PT-BR]: Hélices PrP^C Fisiológicas (3 hélices alfa + 4 íons Cu2+ no domínio flexível)
-      // [EN-GB]: Physiological PrP^C Helices (3 alpha-helices + 4 Cu2+ ions in flexible domain)
-      const prpcGroup = new THREE.Group();
-      prpcGroup.name = "PRPC_PHYSIOLOGICAL_HELICES";
-      const helixMat = new THREE.MeshStandardMaterial({
-        color: 0x38bdf8,
-        roughness: 0.25,
-        emissive: 0x0284c7,
-        emissiveIntensity: 0.45
-      });
-      const cuMat = new THREE.MeshBasicMaterial({ color: 0x00f2fe });
-      for (let p = 0; p < 12; p++) {
-        const pMono = new THREE.Group();
-        for (let h = 0; h < 3; h++) {
-          const hGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.32, 6);
-          hGeo.rotateZ(h * 0.65);
-          const hMesh = new THREE.Mesh(hGeo, helixMat);
-          hMesh.position.set((h - 1) * 0.12, 0, 0);
-          pMono.add(hMesh);
-        }
-        for (let c = 0; c < 4; c++) {
-          const cu = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 6), cuMat);
-          cu.position.set((c - 1.5) * 0.08, -0.20, 0);
-          pMono.add(cu);
-        }
-        const ang = (p / 12) * Math.PI * 2;
-        pMono.position.set(Math.cos(ang) * 1.85, (p % 3) * 0.75 - 0.35, Math.sin(ang) * 1.85);
-        prpcGroup.add(pMono);
-      }
-      neuronGroup.add(prpcGroup);
-
-      // [PT-BR]: Protofibrilas PrP^Sc Patológicas (Beta-solenoides em feixes cruzados)
-      // [EN-GB]: Pathological PrP^Sc Protofibrils (Cross-beta stacked solenoids)
-      const prpscGroup = new THREE.Group();
-      prpscGroup.name = "PRPSC_PATHOLOGICAL_FIBRILS";
-      prpscGroup.visible = false;
-      const prpscMat = new THREE.MeshStandardMaterial({
-        color: 0xdc2626,
-        roughness: 0.35,
-        emissive: 0x991b1b,
-        emissiveIntensity: 0.65
-      });
-      for (let f = 0; f < 8; f++) {
-        const fibCurve = new THREE.CatmullRomCurve3([
-          new THREE.Vector3((Math.random() - 0.5) * 2.2, (Math.random() - 0.5) * 2.8, (Math.random() - 0.5) * 2.2),
-          new THREE.Vector3((Math.random() - 0.5) * 2.6, (Math.random() - 0.5) * 3.2, (Math.random() - 0.5) * 2.6),
-          new THREE.Vector3((Math.random() - 0.5) * 3.0, (Math.random() - 0.5) * 3.6, (Math.random() - 0.5) * 3.0)
+      for (let t = 0; t < 4; t++) {
+        const ang = (t / 4) * Math.PI * 2;
+        const tEnd = termOrigin.clone().add(new THREE.Vector3(Math.cos(ang) * 1.1, -1.2, Math.sin(ang) * 1.1));
+        const tCurve = new THREE.CatmullRomCurve3([
+          termOrigin,
+          termOrigin.clone().lerp(tEnd, 0.5).add(new THREE.Vector3(0, -0.2, 0)),
+          tEnd
         ]);
-        const fibMesh = new THREE.Mesh(new THREE.TubeGeometry(fibCurve, 10, 0.08, 4, false), prpscMat);
-        prpscGroup.add(fibMesh);
+        neuronGroup.add(new THREE.Mesh(createTaperedBranchGeometry(tCurve, 0.07, 0.025, 10, 8, false), axonCoreMat));
+        const bMesh = new THREE.Mesh(new THREE.SphereGeometry(0.18, 14, 12), boutonMat);
+        bMesh.scale.set(1.2, 0.85, 1.2);
+        bMesh.position.copy(tEnd);
+        neuronGroup.add(bMesh);
       }
+
+      const prpcGroup = new THREE.Group();
+      const prpscGroup = new THREE.Group();
+      prpscGroup.visible = false;
+      neuronGroup.add(prpcGroup);
       neuronGroup.add(prpscGroup);
 
       return {
@@ -590,219 +458,99 @@
   }
 
   // ==========================================================================
-  // 3. CONSTRUTOR DO SISTEMA GLIAL ORGÂNICO (ZERO PRIMITIVAS RÍGIDAS)
+  // 4. SISTEMA GLIAL ORGÂNICO (ASTRÓCITOS, OLIGODENDRÓCITOS, MICRÓGLIA, EPÊNDIMA)
   // ==========================================================================
-  // [PT-BR]: Reconstrução orgânica de Astrócitos, Oligodendrócitos, Micróglia e Células Ependimárias (zero Dodecahedron/BoxGeometry, curvas de 5 pontos e capilar sanguíneo 3D).
-  // [EN-GB]: Organic glia system reconstruction (zero Dodecahedron/BoxGeometry, 5-point curves, and 3D blood capillary).
-  // [AI-CTX]: @llm-context: Eliminates geometric primitives for true neurobiological ultrastructure.
-  //           @llm-neuroscience: Protoplasmic astrocytes with perivascular feet, myelinating oligodendrocytes, surveillance microglia, and ependymal cilia.
   class GliaSystemBuilder {
     static buildAllGliaTypes() {
       const gliaGroup = new THREE.Group();
-      gliaGroup.name = "GLIA_SYSTEM_GROUP";
-
       const gliaCollections = {
         ASTROCYTE: new THREE.Group(),
         OLIGODENDROCYTE: new THREE.Group(),
         MICROGLIA: new THREE.Group(),
         EPENDYMAL: new THREE.Group()
       };
-
-      gliaCollections.ASTROCYTE.name = "GLIA_ASTROCYTES";
-      gliaCollections.OLIGODENDROCYTE.name = "GLIA_OLIGODENDROCYTES";
-      gliaCollections.MICROGLIA.name = "GLIA_MICROGLIA";
-      gliaCollections.EPENDYMAL.name = "GLIA_EPENDYMAL";
-      // Células ependimárias ocultas por padrão na visão da Camada V cortical
       gliaCollections.EPENDYMAL.visible = false;
 
-      // Capilar sanguíneo 3D translúcido abraçado pelos pés perivasculares astrocitários
+      // Capilar Sanguíneo Barreira Hematoencefálica (BHE)
       const capCurve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-10.0, 7.5, -4.5),
-        new THREE.Vector3(-5.2, 3.8, -3.6),
-        new THREE.Vector3(0.0, 0.6, -3.0),
-        new THREE.Vector3(5.4, -4.2, -3.8),
-        new THREE.Vector3(10.5, -8.5, -4.8)
+        new THREE.Vector3(-8.5, 6.5, -4.2),
+        new THREE.Vector3(-4.2, 3.0, -3.5),
+        new THREE.Vector3(0.0, 0.2, -3.2),
+        new THREE.Vector3(4.5, -3.8, -3.8),
+        new THREE.Vector3(8.8, -7.5, -4.5)
       ]);
-      const capGeo = new THREE.TubeGeometry(capCurve, 36, 0.42, 12, false);
       const capMat = new THREE.MeshPhysicalMaterial({
-        color: 0xef4444, // Vermelho endotelial
-        roughness: 0.18,
-        transmission: 0.65,
-        opacity: 0.85,
+        color: 0xe11d48,
+        roughness: 0.20,
+        transmission: 0.62,
+        opacity: 0.82,
         transparent: true,
-        clearcoat: 0.8,
-        emissive: 0x991b1b,
-        emissiveIntensity: 0.4
+        emissive: 0x881337,
+        emissiveIntensity: 0.35
       });
-      const capillaryMesh = new THREE.Mesh(capGeo, capMat);
-      capillaryMesh.name = "Capilar_Sanguineo_Perivascular";
-      gliaCollections.ASTROCYTE.add(capillaryMesh);
+      gliaCollections.ASTROCYTE.add(new THREE.Mesh(new THREE.TubeGeometry(capCurve, 36, 0.34, 12, false), capMat));
 
-      // A. ASTRÓCITOS PROTOPLASMÁTICOS (Soma orgânico com 10 ramos sinuosos de 5 pontos e pés perivasculares)
+      // Astrócitos Estrelados Finos
       const astroMat = new THREE.MeshStandardMaterial({
-        color: 0x38bdf8,
-        roughness: 0.32,
-        emissive: 0x0284c7,
-        emissiveIntensity: 0.45
-      });
-
-      for (let a = 0; a < 6; a++) {
-        const astroCell = new THREE.Group();
-        // Soma orgânico esférico suave com ruído biológico
-        const aSomaGeo = new THREE.SphereGeometry(0.58, 24, 20);
-        const aPos = aSomaGeo.attributes.position;
-        for (let k = 0; k < aPos.count; k++) {
-          const vx = aPos.getX(k);
-          const vy = aPos.getY(k);
-          const vz = aPos.getZ(k);
-          const n = Math.sin(vx * 7.0) * Math.cos(vz * 7.0) * 0.045;
-          aPos.setXYZ(k, vx + n, vy + n, vz + n);
-        }
-        aSomaGeo.computeVertexNormals();
-        astroCell.add(new THREE.Mesh(aSomaGeo, astroMat));
-
-        // 10 ramos sinuosos de 5 pontos que se bifurcam em processos secundários
-        for (let p = 0; p < 10; p++) {
-          const phi = Math.acos(2 * Math.random() - 1);
-          const theta = Math.random() * Math.PI * 2;
-          const endPt = new THREE.Vector3(
-            Math.sin(phi) * Math.cos(theta) * 2.8,
-            Math.sin(phi) * Math.sin(theta) * 2.8,
-            Math.cos(phi) * 2.8
-          );
-
-          const p0 = new THREE.Vector3(0, 0, 0);
-          const p4 = endPt.clone();
-          const p1 = p0.clone().lerp(p4, 0.25).add(new THREE.Vector3((Math.random() - 0.5) * 0.35, 0.15, (Math.random() - 0.5) * 0.35));
-          const p2 = p0.clone().lerp(p4, 0.50).add(new THREE.Vector3((Math.random() - 0.5) * 0.45, -0.15, (Math.random() - 0.5) * 0.45));
-          const p3 = p0.clone().lerp(p4, 0.75).add(new THREE.Vector3((Math.random() - 0.5) * 0.35, 0.12, (Math.random() - 0.5) * 0.35));
-
-          const armCurve = new THREE.CatmullRomCurve3([p0, p1, p2, p3, p4]);
-          const armGeo = new THREE.TubeGeometry(armCurve, 12, 0.065, 6, false);
-          astroCell.add(new THREE.Mesh(armGeo, astroMat));
-
-          // Bifurcação secundária com pé perivascular curvo abraçando o capilar
-          if (p % 3 === 0) {
-            const footEnd = endPt.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.8, -0.6, (Math.random() - 0.5) * 0.8));
-            const footPts = [
-              endPt,
-              endPt.clone().lerp(footEnd, 0.33),
-              endPt.clone().lerp(footEnd, 0.66).add(new THREE.Vector3(0.12, 0.05, 0.0)),
-              footEnd.clone().add(new THREE.Vector3(-0.08, -0.05, 0.0)),
-              footEnd
-            ];
-            const footCurve = new THREE.CatmullRomCurve3(footPts);
-            astroCell.add(new THREE.Mesh(new THREE.TubeGeometry(footCurve, 8, 0.045, 5, false), astroMat));
-
-            // Pé vascular curvo boleado
-            const endfootGeo = new THREE.SphereGeometry(0.18, 12, 10);
-            endfootGeo.scale(1.4, 0.6, 1.2);
-            const endfootMesh = new THREE.Mesh(endfootGeo, astroMat);
-            endfootMesh.position.copy(footEnd);
-            astroCell.add(endfootMesh);
-          }
-        }
-        astroCell.position.set(-6.2 + a * 2.5, 2.0 + (a % 2) * 3.0, -3.0 + (a % 3) * 2.5);
-        gliaCollections.ASTROCYTE.add(astroCell);
-      }
-
-      // B. OLIGODENDROCITOS (Soma esférico-ovoide suave com processos curvos conectados aos internódios de mielina)
-      const oligoMat = new THREE.MeshStandardMaterial({
         color: 0x34d399,
-        roughness: 0.30,
+        roughness: 0.28,
+        transparent: true,
+        opacity: 0.85,
         emissive: 0x059669,
-        emissiveIntensity: 0.45
+        emissiveIntensity: 0.40
       });
-      for (let o = 0; o < 5; o++) {
-        const oligoCell = new THREE.Group();
-        const oSomaGeo = new THREE.SphereGeometry(0.44, 20, 16);
-        oSomaGeo.scale(1.0, 1.22, 0.95);
-        oligoCell.add(new THREE.Mesh(oSomaGeo, oligoMat));
-
-        // Processos curvos de 5 pontos que se estendem até as bainhas de mielina
-        for (let pr = 0; pr < 6; pr++) {
-          const armEnd = new THREE.Vector3(
-            (Math.random() - 0.5) * 3.8,
-            -2.0 - pr * 1.7,
-            (Math.random() - 0.5) * 3.2
-          );
-          const p0 = new THREE.Vector3(0, 0, 0);
-          const p4 = armEnd.clone();
-          const p1 = p0.clone().lerp(p4, 0.25).add(new THREE.Vector3((Math.random() - 0.5) * 0.4, 0.1, (Math.random() - 0.5) * 0.4));
-          const p2 = p0.clone().lerp(p4, 0.50).add(new THREE.Vector3((Math.random() - 0.5) * 0.5, -0.15, (Math.random() - 0.5) * 0.5));
-          const p3 = p0.clone().lerp(p4, 0.75).add(new THREE.Vector3((Math.random() - 0.5) * 0.3, 0.1, (Math.random() - 0.5) * 0.3));
-
-          const armCurve = new THREE.CatmullRomCurve3([p0, p1, p2, p3, p4]);
-          const armMesh = new THREE.Mesh(new THREE.TubeGeometry(armCurve, 10, 0.048, 5, false), oligoMat);
-          oligoCell.add(armMesh);
+      for (let a = 0; a < 4; a++) {
+        const cell = new THREE.Group();
+        cell.add(new THREE.Mesh(new THREE.SphereGeometry(0.38, 18, 16), astroMat));
+        for (let p = 0; p < 8; p++) {
+          const phi = Math.acos(2 * ((p * 0.618) % 1) - 1);
+          const theta = p * 2.4;
+          const endPt = new THREE.Vector3(Math.sin(phi) * Math.cos(theta) * 2.2, Math.sin(phi) * Math.sin(theta) * 2.2, Math.cos(phi) * 2.2);
+          const c = new THREE.CatmullRomCurve3([new THREE.Vector3(0, 0, 0), endPt.clone().multiplyScalar(0.5), endPt]);
+          cell.add(new THREE.Mesh(createTaperedBranchGeometry(c, 0.055, 0.012, 10, 6, false), astroMat));
         }
-        oligoCell.position.set(4.5 + (o % 2) * 2.0, -4.0 - o * 2.8, 2.5);
-        gliaCollections.OLIGODENDROCYTE.add(oligoCell);
+        cell.position.set(-4.8 + a * 3.2, 2.2 - a * 1.8, -2.8);
+        gliaCollections.ASTROCYTE.add(cell);
       }
 
-      // C. MICRÓGLIA (Morfologia ramificada orgânica com processos tortuosos finos de 5 pontos)
+      // Oligodendrócitos Mielinizantes
+      const oligoMat = new THREE.MeshStandardMaterial({
+        color: 0x818cf8,
+        roughness: 0.28,
+        emissive: 0x4f46e5,
+        emissiveIntensity: 0.45
+      });
+      for (let o = 0; o < 3; o++) {
+        const cell = new THREE.Group();
+        cell.add(new THREE.Mesh(new THREE.SphereGeometry(0.34, 16, 14), oligoMat));
+        const pos = new THREE.Vector3(2.8, -4.2 - o * 4.2, 1.4);
+        cell.position.copy(pos);
+        for (let pr = 0; pr < 3; pr++) {
+          const targetAxon = new THREE.Vector3(-pos.x, -0.8 + pr * 0.9, -pos.z);
+          const c = new THREE.CatmullRomCurve3([new THREE.Vector3(0, 0, 0), targetAxon.clone().multiplyScalar(0.5), targetAxon]);
+          cell.add(new THREE.Mesh(createTaperedBranchGeometry(c, 0.045, 0.018, 10, 6, false), oligoMat));
+        }
+        gliaCollections.OLIGODENDROCYTE.add(cell);
+      }
+
+      // Micróglia Sentinela
       const microMat = new THREE.MeshStandardMaterial({
-        color: 0xf59e0b,
-        roughness: 0.38,
+        color: 0xfbbf24,
+        roughness: 0.32,
         emissive: 0xd97706,
         emissiveIntensity: 0.42
       });
-      for (let m = 0; m < 8; m++) {
-        const microCell = new THREE.Group();
-        const mSomaGeo = new THREE.SphereGeometry(0.34, 16, 14);
-        microCell.add(new THREE.Mesh(mSomaGeo, microMat));
-
-        for (let b = 0; b < 10; b++) {
-          const dir = new THREE.Vector3((Math.random() - 0.5) * 3.4, (Math.random() - 0.5) * 3.4, (Math.random() - 0.5) * 3.4);
-          const p0 = new THREE.Vector3(0, 0, 0);
-          const p4 = dir.clone();
-          const p1 = p0.clone().lerp(p4, 0.25).add(new THREE.Vector3((Math.random() - 0.5) * 0.3, 0.1, (Math.random() - 0.5) * 0.3));
-          const p2 = p0.clone().lerp(p4, 0.50).add(new THREE.Vector3((Math.random() - 0.5) * 0.4, -0.1, (Math.random() - 0.5) * 0.4));
-          const p3 = p0.clone().lerp(p4, 0.75).add(new THREE.Vector3((Math.random() - 0.5) * 0.3, 0.1, (Math.random() - 0.5) * 0.3));
-
-          const brCurve = new THREE.CatmullRomCurve3([p0, p1, p2, p3, p4]);
-          const brMesh = new THREE.Mesh(new THREE.TubeGeometry(brCurve, 8, 0.035, 4, false), microMat);
-          microCell.add(brMesh);
+      for (let m = 0; m < 4; m++) {
+        const cell = new THREE.Group();
+        cell.add(new THREE.Mesh(new THREE.SphereGeometry(0.24, 14, 12), microMat));
+        for (let b = 0; b < 6; b++) {
+          const ang = (b / 6) * Math.PI * 2;
+          const endPt = new THREE.Vector3(Math.cos(ang) * 1.4, (b % 2 === 0 ? 0.8 : -0.8), Math.sin(ang) * 1.4);
+          const c = new THREE.CatmullRomCurve3([new THREE.Vector3(0, 0, 0), endPt.clone().multiplyScalar(0.5), endPt]);
+          cell.add(new THREE.Mesh(createTaperedBranchGeometry(c, 0.032, 0.008, 8, 5, false), microMat));
         }
-        microCell.position.set((Math.random() - 0.5) * 16.0, (Math.random() - 0.5) * 14.0, (Math.random() - 0.5) * 12.0);
-        gliaCollections.MICROGLIA.add(microCell);
-      }
-
-      // D. CÉLULAS EPENDIMÁRIAS (Posicionadas apenas no nível ventricular/LCR; corpos colunares boleados suaves e cílios curvos)
-      const ependMat = new THREE.MeshStandardMaterial({
-        color: 0xc084fc,
-        roughness: 0.28,
-        emissive: 0x9333ea,
-        emissiveIntensity: 0.42
-      });
-      const ciliaMat = new THREE.MeshBasicMaterial({ color: 0xe9d5ff });
-
-      const ependRow = 14;
-      const ciliaList = [];
-      for (let i = 0; i < ependRow; i++) {
-        const ependCell = new THREE.Group();
-        // Corpo colunar boleado suave (CylinderGeometry boleado em vez de BoxGeometry)
-        const colGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.85, 16);
-        const colMesh = new THREE.Mesh(colGeo, ependMat);
-        ependCell.add(colMesh);
-
-        // Tufo de 5 cílios apicais curvos
-        for (let c = 0; c < 5; c++) {
-          const cilPts = [
-            new THREE.Vector3((c - 2) * 0.10, 0.42, 0),
-            new THREE.Vector3((c - 2) * 0.10 + 0.05, 0.58, 0.04),
-            new THREE.Vector3((c - 2) * 0.10 + 0.08, 0.75, 0.06),
-            new THREE.Vector3((c - 2) * 0.10 + 0.05, 0.92, 0.04),
-            new THREE.Vector3((c - 2) * 0.10, 1.05, 0)
-          ];
-          const cilCurve = new THREE.CatmullRomCurve3(cilPts);
-          const cilGeo = new THREE.TubeGeometry(cilCurve, 8, 0.022, 5, false);
-          const cilMesh = new THREE.Mesh(cilGeo, ciliaMat);
-          ependCell.add(cilMesh);
-          ciliaList.push(cilMesh);
-        }
-        ependCell.position.set(-5.5 + i * 0.85, -12.5, -4.5);
-        gliaCollections.EPENDYMAL.add(ependCell);
+        cell.position.set((m % 2 === 0 ? -3.6 : 3.6), -1.5 + m * 2.5, 2.2);
+        gliaCollections.MICROGLIA.add(cell);
       }
 
       gliaGroup.add(gliaCollections.ASTROCYTE);
@@ -813,306 +561,184 @@
       return {
         group: gliaGroup,
         collections: gliaCollections,
-        ciliaList
+        ciliaList: []
       };
     }
   }
 
   // ==========================================================================
-  // 4. CLASSE PRINCIPAL DO MICROCOSMO NEURAL 3D
+  // 5. CLASSE PRINCIPAL DO MICROCOSMO NEURAL 3D
   // ==========================================================================
   class NeuralMicrocosmos3D {
-    constructor(scene, options = {}) {
+    constructor(scene) {
       this.scene = scene;
       this.masterGroup = new THREE.Group();
       this.masterGroup.name = "NEURAL_MICROCOSMOS_BIOLOGICAL_MASTER";
+      // Inicia estritamente oculto para que o Mozok sempre abra no Cérebro Macro
+      this.masterGroup.visible = false;
       this.scene.add(this.masterGroup);
 
       this.hhSimulator = new HodgkinHuxleyModel();
       this.heroNeuron = null;
       this.gliaSystem = null;
-      this.actionSaltatoryPulses = [];
       this.synapticVesicles = [];
       this.elapsedTime = 0.0;
       this.currentPathology = 'NORMAL';
+      this.pulseProgress = 0.0;
 
-      // Visibilidade das células da Glia
       this.gliaVisibility = {
         ASTROCYTE: true,
         OLIGODENDROCYTE: true,
         MICROGLIA: true,
-        EPENDYMAL: true
+        EPENDYMAL: false
       };
 
       this.initBiologicalMicrocosm();
-
-      // [PT-BR]: Integração em tempo real com o calibrador adaptativo de hardware MozokAdaptiveLOD
-      // [EN-GB]: Real-time integration with MozokAdaptiveLOD dynamic hardware calibrator
-      if (typeof window !== 'undefined' && window.mozokAdaptiveLOD) {
-        window.mozokAdaptiveLOD.onProfileChange((config) => {
-          this.applyLOD(config);
-        });
-      }
     }
 
-    // [PT-BR]: Aplica o orçamento de polígonos e densidade de neurônios dinamicamente sem travar a cena.
-    // [EN-GB]: Applies polygon budget and neuron density dynamically without freezing the scene.
     applyLOD(config) {
-      if (!config) return;
-      const targetCount = config.swcNeuronCount || 24;
-      if (this.neighborNeurons) {
-        this.neighborNeurons.forEach((n, idx) => {
-          n.group.visible = (idx < targetCount);
-        });
-      }
-      const particleCount = config.extracellularParticles || 120;
-      if (this.extracellularParticles) {
-        this.extracellularParticles.forEach((p, idx) => {
-          p.mesh.visible = (idx < particleCount);
-        });
-      }
+      if (!config || !this.neighborNeurons) return;
+      const targetCount = Math.min(12, config.swcNeuronCount || 10);
+      this.neighborNeurons.forEach((n, idx) => {
+        n.group.visible = (idx < targetCount);
+      });
     }
 
     initBiologicalMicrocosm() {
-      // 1. Constrói Neurônio Heroico Piramidal Biológico da Camada V
       this.heroNeuron = BiologicalNeuronBuilder.createHeroPyramidalNeuron(1);
       this.masterGroup.add(this.heroNeuron.group);
 
-      // 2. Constrói o Sistema Glial Quádruplo
       this.gliaSystem = GliaSystemBuilder.buildAllGliaTypes();
       this.masterGroup.add(this.gliaSystem.group);
 
-      // 3. Conectoma de Fundo (Plexo de Neurônios da Camada V em InstancedMesh GPU)
       this.initConnectomeBackground();
-
-      // 4. Pulsos Saltatórios nos Nódulos de Ranvier
       this.initSaltatoryConduction();
-
-      // 5. Vesículas de Neurotransmissores Quânticos na Fenda Sináptica
       this.initSynapticCleftVesicles();
     }
 
-    // [PT-BR]: Constrói o Conectoma Microscópico escalável de até 96 neurônios da Camada V com dados SWC e 250 micropartículas extracelulares.
-    // [EN-GB]: Builds scalable Microscopic Connectome up to 96 Layer V neurons with SWC data and 250 extracellular microparticles.
-    // [AI-CTX]: @llm-neuroscience: Cortical Layer V microcolumn with dense synaptic connectivity and extracellular ion/vesicle bath.
     initConnectomeBackground() {
       this.neighborNeuronsGroup = new THREE.Group();
-      this.neighborNeuronsGroup.name = "LAYER_V_NEIGHBOR_NEURONS_96";
       this.neighborNeurons = [];
 
-      // 96 Posições em arranjo colunar cortical biológico (Camada V)
-      const neighborCoords = [];
-      for (let i = 0; i < 96; i++) {
-        const phi = (i / 96) * Math.PI * 16.0;
-        const rad = 4.5 + (i % 8) * 2.8;
-        const y = -14.0 + (i / 96) * 28.0;
-        neighborCoords.push([
-          Math.cos(phi) * rad,
-          y,
-          Math.sin(phi) * rad
-        ]);
-      }
-
-      const tealMat = new THREE.MeshPhysicalMaterial({
-        color: 0x0284c7, // Azul-petróleo profundo (#0284c7)
-        roughness: 0.28,
-        transmission: 0.48,
-        opacity: 0.88,
+      const bgMat = new THREE.MeshPhysicalMaterial({
+        color: 0x0284c7,
+        roughness: 0.30,
+        transmission: 0.65,
+        opacity: 0.48,
         transparent: true,
-        emissive: 0x1e3a8a, // Azul-marinho profundo
-        emissiveIntensity: 0.40
+        emissive: 0x0369a1,
+        emissiveIntensity: 0.25
       });
 
-      const amberMat = new THREE.MeshPhysicalMaterial({
-        color: 0xd97706, // Âmbar suave (#d97706)
-        roughness: 0.32,
-        transmission: 0.52,
-        opacity: 0.88,
-        transparent: true,
-        emissive: 0xb45309,
-        emissiveIntensity: 0.38
-      });
+      // 12 neurônios piramidais esbeltos ao fundo formando a minicoluna cortical sem poluir o neurônio principal
+      for (let i = 0; i < 12; i++) {
+        const angle = (i / 12) * Math.PI * 2;
+        const rad = 7.5 + (i % 3) * 3.2;
+        const y = -6.0 + (i % 4) * 3.5;
 
-      neighborCoords.forEach((coord, idx) => {
         const nGroup = new THREE.Group();
-        nGroup.position.set(coord[0], coord[1], coord[2]);
+        nGroup.position.set(Math.cos(angle) * rad, y, Math.sin(angle) * rad - 3.5);
 
-        const mat = (idx % 2 === 0) ? tealMat.clone() : amberMat.clone();
+        const sGeo = new THREE.ConeGeometry(0.65, 1.5, 16);
+        nGroup.add(new THREE.Mesh(sGeo, bgMat));
 
-        // Pericário piramidal orgânico
-        const sGeo = new THREE.SphereGeometry(1.20, 18, 14);
-        sGeo.scale(1.0, 1.38, 1.0);
-        const sMesh = new THREE.Mesh(sGeo, mat);
-        nGroup.add(sMesh);
-
-        // Tronco dendrítico apical ascendente com 5 pontos de controle
         const apCurve = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(0, 1.2, 0),
-          new THREE.Vector3((Math.random() - 0.5) * 1.0, 3.2, (Math.random() - 0.5) * 1.0),
-          new THREE.Vector3((Math.random() - 0.5) * 1.8, 5.5, (Math.random() - 0.5) * 1.5),
-          new THREE.Vector3((Math.random() - 0.5) * 2.4, 7.8, (Math.random() - 0.5) * 2.0),
-          new THREE.Vector3((Math.random() - 0.5) * 3.0, 10.0, (Math.random() - 0.5) * 2.5)
+          new THREE.Vector3(0, 0.7, 0),
+          new THREE.Vector3(0.15, 4.5, 0),
+          new THREE.Vector3(0, 9.0, 0)
         ]);
-        const apGeo = new THREE.TubeGeometry(apCurve, 12, 0.16, 5, false);
-        const apMesh = new THREE.Mesh(apGeo, mat);
-        nGroup.add(apMesh);
+        nGroup.add(new THREE.Mesh(createTaperedBranchGeometry(apCurve, 0.12, 0.03, 14, 8, false), bgMat));
 
-        // Axônio descendente de 5 pontos
         const axCurve = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(0, -1.2, 0),
-          new THREE.Vector3((Math.random() - 0.5) * 0.8, -3.2, (Math.random() - 0.5) * 0.8),
-          new THREE.Vector3((Math.random() - 0.5) * 1.5, -5.8, (Math.random() - 0.5) * 1.2),
-          new THREE.Vector3((Math.random() - 0.5) * 2.2, -8.5, (Math.random() - 0.5) * 1.6),
-          new THREE.Vector3((Math.random() - 0.5) * 2.8, -11.0, (Math.random() - 0.5) * 2.0)
+          new THREE.Vector3(0, -0.7, 0),
+          new THREE.Vector3(-0.1, -5.0, 0),
+          new THREE.Vector3(0, -10.0, 0)
         ]);
-        const axGeo = new THREE.TubeGeometry(axCurve, 12, 0.11, 4, false);
-        const axMesh = new THREE.Mesh(axGeo, mat);
-        nGroup.add(axMesh);
-
-        // Oculta por padrão além do limite inicial detectado
-        const initialBudget = (typeof window !== 'undefined' && window.mozokAdaptiveLOD)
-          ? window.mozokAdaptiveLOD.getConfig().swcNeuronCount
-          : 28;
-        nGroup.visible = (idx < initialBudget);
+        nGroup.add(new THREE.Mesh(createTaperedBranchGeometry(axCurve, 0.06, 0.025, 12, 6, false), bgMat));
 
         this.neighborNeuronsGroup.add(nGroup);
-        this.neighborNeurons.push({ group: nGroup, pos: new THREE.Vector3(coord[0], coord[1], coord[2]) });
-      });
-
+        this.neighborNeurons.push({ group: nGroup, pos: nGroup.position.clone() });
+      }
       this.masterGroup.add(this.neighborNeuronsGroup);
 
-      // 250 Micropartículas de Íons/Vesículas Flutuantes no Espaço Extracelular
+      // 120 Micropartículas de Íons Extracelulares Suaves
       this.extracellularParticlesGroup = new THREE.Group();
-      this.extracellularParticlesGroup.name = "EXTRACELLULAR_PARTICLES_250";
       this.extracellularParticles = [];
-      const epGeo = new THREE.SphereGeometry(0.05, 8, 8);
-      const epMatCyan = new THREE.MeshBasicMaterial({ color: 0x00f2fe, transparent: true, opacity: 0.85 });
-      const epMatAmber = new THREE.MeshBasicMaterial({ color: 0xfbbf24, transparent: true, opacity: 0.85 });
-      const epMatTeal = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75 });
+      const epGeo = new THREE.SphereGeometry(0.038, 6, 6);
+      const epMatCyan = new THREE.MeshBasicMaterial({ color: 0x00f2fe, transparent: true, opacity: 0.65 });
+      const epMatAmber = new THREE.MeshBasicMaterial({ color: 0xfbbf24, transparent: true, opacity: 0.65 });
 
-      for (let p = 0; p < 250; p++) {
-        const mat = (p % 3 === 0) ? epMatCyan : (p % 3 === 1 ? epMatAmber : epMatTeal);
-        const pMesh = new THREE.Mesh(epGeo, mat);
-        const rad = 2.5 + Math.random() * 16.5;
+      for (let p = 0; p < 120; p++) {
+        const pMesh = new THREE.Mesh(epGeo, p % 2 === 0 ? epMatCyan : epMatAmber);
+        const rad = 2.2 + Math.random() * 11.0;
         const theta = Math.random() * Math.PI * 2;
-        const y = (Math.random() - 0.5) * 30.0;
+        const y = (Math.random() - 0.5) * 24.0;
         pMesh.position.set(Math.cos(theta) * rad, y, Math.sin(theta) * rad);
         this.extracellularParticlesGroup.add(pMesh);
         this.extracellularParticles.push({
           mesh: pMesh,
           basePos: pMesh.position.clone(),
-          speed: 0.35 + Math.random() * 0.75,
+          speed: 0.35 + Math.random() * 0.55,
           phase: Math.random() * Math.PI * 2
         });
       }
       this.masterGroup.add(this.extracellularParticlesGroup);
 
-      // 24 Sinapses Químicas Conectando os Neurônios entre si
+      // 12 Pontes Sinápticas Conectando a Minicoluna
       this.synapseCircuitsGroup = new THREE.Group();
-      this.synapseCircuitsGroup.name = "SYNAPSE_CIRCUITS_24";
       this.synapses = [];
-
-      const synapseMat = new THREE.LineBasicMaterial({
-        color: 0x38bdf8,
-        transparent: true,
-        opacity: 0.35
-      });
-
-      for (let s = 0; s < 24; s++) {
-        // Conexão entre o neurônio herói [0, 0, 0] e um vizinho, ou entre vizinhos
-        const startPt = (s < 16)
-          ? new THREE.Vector3((Math.random() - 0.5) * 2.0, (Math.random() - 0.5) * 4.0, (Math.random() - 0.5) * 2.0)
-          : this.neighborNeurons[s % 16].pos.clone().add(new THREE.Vector3(0, (Math.random() - 0.5) * 2.0, 0));
-
-        const targetNeuron = this.neighborNeurons[(s * 3 + 1) % 16];
-        const endPt = targetNeuron.pos.clone().add(new THREE.Vector3((Math.random() - 0.5) * 1.5, (Math.random() - 0.5) * 2.5, 0));
-
-        const midPt = startPt.clone().lerp(endPt, 0.5).add(new THREE.Vector3((Math.random() - 0.5) * 2.5, (Math.random() - 0.5) * 2.5, (Math.random() - 0.5) * 2.0));
+      for (let s = 0; s < 12; s++) {
+        const startPt = new THREE.Vector3(0, -19.5, 0);
+        const targetNeuron = this.neighborNeurons[s % this.neighborNeurons.length];
+        const endPt = targetNeuron.pos.clone();
+        const midPt = startPt.clone().lerp(endPt, 0.5).add(new THREE.Vector3(0, 2.0, 0));
         const curve = new THREE.CatmullRomCurve3([startPt, midPt, endPt]);
-
-        const synGeo = new THREE.TubeGeometry(curve, 16, 0.035, 4, false);
-        const synMesh = new THREE.Mesh(synGeo, new THREE.MeshStandardMaterial({
-          color: (s % 2 === 0) ? 0x0284c7 : 0xf59e0b,
-          roughness: 0.3,
-          transparent: true,
-          opacity: 0.45
-        }));
+        const synMesh = new THREE.Mesh(
+          createTaperedBranchGeometry(curve, 0.028, 0.012, 14, 6, false),
+          new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.32 })
+        );
         this.synapseCircuitsGroup.add(synMesh);
-
-        // Botão sináptico pós-sináptico
-        const boutonGeo = new THREE.SphereGeometry(0.18, 8, 8);
-        const boutonMesh = new THREE.Mesh(boutonGeo, new THREE.MeshBasicMaterial({ color: 0x00f2fe }));
-        boutonMesh.position.copy(endPt);
-        this.synapseCircuitsGroup.add(boutonMesh);
-
         this.synapses.push({ curve, startPt, endPt });
       }
-
       this.masterGroup.add(this.synapseCircuitsGroup);
     }
 
     initSaltatoryConduction() {
-      // Cria pulso saltatório luminoso que viaja ao longo dos nódulos de Ranvier
-      const pulseGeo = new THREE.SphereGeometry(0.35, 12, 12);
+      const pulseGeo = new THREE.SphereGeometry(0.26, 16, 16);
       const pulseMat = new THREE.MeshBasicMaterial({
-        color: 0x00f2fe,
+        color: 0xfbbf24,
         transparent: true,
         opacity: 0.95
       });
       this.saltatoryPulseMesh = new THREE.Mesh(pulseGeo, pulseMat);
       this.masterGroup.add(this.saltatoryPulseMesh);
-
-      this.currentRanvierIndex = 0;
-      this.ranvierHopTimer = 0.0;
     }
 
-    // [PT-BR]: Partículas de Neurotransmissores Bidirecionais nas Sinapses (Anterógrado Glutamato/GABA + Retrógrado 2-AG/NO e Recaptação EAAT2/GAT-1).
-    // [EN-GB]: Bidirectional Synaptic Neurotransmitter Particles (Anterograde Glutamate/GABA + Retrograde 2-AG/NO and EAAT2/GAT-1 reuptake).
     initSynapticCleftVesicles() {
       this.synapticVesiclesGroup = new THREE.Group();
-      this.synapticVesiclesGroup.name = "BIDIRECTIONAL_NEUROTRANSMITTERS";
       this.synapticVesicles = [];
+      const pGeo = new THREE.SphereGeometry(0.05, 6, 6);
 
-      const pGeo = new THREE.SphereGeometry(0.065, 6, 6);
-
-      // 180 partículas transitando pelas 24 sinapses
-      const totalParticles = 180;
-      for (let i = 0; i < totalParticles; i++) {
-        const synapseIdx = i % this.synapses.length;
-        const syn = this.synapses[synapseIdx];
-
-        // 60% anterógrado (Glutamato dourado #fbbf24 ou GABA ciano #00f2fe), 40% retrógrado (2-AG verde-esmeralda #10b981)
-        const isRetrograde = (i % 5 >= 3);
-        let colorHex = 0xfbbf24; // Glutamato padrão
-        if (isRetrograde) {
-          colorHex = 0x10b981; // Retrógrado 2-AG / Óxido Nítrico (NO)
-        } else if (i % 2 === 0) {
-          colorHex = 0x00f2fe; // GABA inibitório ciano
-        }
-
+      for (let i = 0; i < 72; i++) {
+        const syn = this.synapses[i % this.synapses.length];
+        const colorHex = (i % 2 === 0) ? 0xfbbf24 : 0x00f2fe;
         const mesh = new THREE.Mesh(pGeo, new THREE.MeshBasicMaterial({ color: colorHex }));
         this.synapticVesiclesGroup.add(mesh);
-
         this.synapticVesicles.push({
           mesh,
           syn,
           u: Math.random(),
-          speed: (0.15 + Math.random() * 0.35) * (isRetrograde ? -1.0 : 1.0),
-          isRetrograde
+          speed: 0.22 + (i % 5) * 0.06
         });
       }
-
       this.masterGroup.add(this.synapticVesiclesGroup);
     }
 
-    // [PT-BR]: Dispara um potencial de ação e inicia a condução saltatória.
-    // [EN-GB]: Triggers an action potential and initiates saltatory conduction.
-    triggerActionPotential(stimulusStrength = 20.0) {
+    triggerActionPotential(stimulusStrength = 22.0) {
       this.hhSimulator.triggerStimulus(stimulusStrength);
+      this.pulseProgress = 0.05;
     }
 
-    // [PT-BR]: Alterna a visibilidade dos tipos de glia.
-    // [EN-GB]: Toggles glia cell types visibility.
     setGliaVisibility(type, isVisible) {
       if (this.gliaVisibility[type] !== undefined) {
         this.gliaVisibility[type] = !!isVisible;
@@ -1122,163 +748,81 @@
       }
     }
 
-    // [PT-BR]: Aplica os efeitos celulares de uma das 7 patologias.
-    // [EN-GB]: Applies cellular manifestations of one of the 7 pathologies.
     applyPathologyMode(pathologyKey) {
       this.currentPathology = (pathologyKey || 'NORMAL').toUpperCase();
-
       if (!this.heroNeuron) return;
 
       if (this.currentPathology === 'MS') {
-        // Desmielinização: reduz tamanho e opacidade da mielina
         this.heroNeuron.myelinSheaths.forEach(m => {
-          m.scale.set(0.3, 0.4, 0.3);
+          m.scale.set(0.45, 0.6, 0.45);
           m.material.color.setHex(0xe11d48);
-          m.material.opacity = 0.45;
-        });
-        // Bloqueio de condução saltatória
-        this.heroNeuron.ranvierNodes.forEach(r => {
-          r.material.color.setHex(0x78716c);
-          r.material.emissiveIntensity = 0.2;
+          m.material.opacity = 0.40;
         });
       } else if (this.currentPathology === 'ALZHEIMER') {
-        // Atrofia de espinhas dendríticas e perda sináptica
-        if (this.heroNeuron.spinesGroup) {
-          this.heroNeuron.spinesGroup.scale.setScalar(0.4);
-        }
-        this.heroNeuron.somaMesh.material.color.setHex(0x78350f);
-      } else if (this.currentPathology === 'PARKINSON') {
-        // Redução dopaminérgica e desaceleração de condução
-        this.synapticVesicles.forEach(v => {
-          v.mesh.material.color.setHex(0x92400e);
-        });
+        if (this.heroNeuron.spinesGroup) this.heroNeuron.spinesGroup.scale.setScalar(0.45);
+        this.heroNeuron.somaMesh.material.color.setHex(0x64748b);
       } else if (this.currentPathology === 'STROKE') {
-        // Despolarização anóxica maciça e edema citotóxico (inchaço do soma)
-        this.heroNeuron.somaMesh.scale.setScalar(1.35);
-        this.heroNeuron.somaMesh.material.color.setHex(0x450a0a);
-        this.synapticVesicles.forEach(v => {
-          v.mesh.material.color.setHex(0xfbbf24); // Excesso de cálcio excitotóxico
-        });
-      } else if (this.currentPathology === 'ALS') {
-        // Degeneração motora com fragmentação axonal
-        this.heroNeuron.somaMesh.scale.setScalar(0.75);
-        this.heroNeuron.somaMesh.material.color.setHex(0x57534e);
-      } else if (this.currentPathology === 'EPILEPSY') {
-        // Hiperativação paroxística: disparos contínuos de alta frequência
-        this.triggerActionPotential(45.0);
-      } else if (this.currentPathology === 'PRION') {
-        // [PT-BR]: Neuropatologia espongiforme: ativação de protofibrilas PrP^Sc e atrofia sináptica
-        // [EN-GB]: Spongiform neuropathology: activation of PrP^Sc protofibrils and synaptic atrophy
-        if (this.heroNeuron.prpscGroup) this.heroNeuron.prpscGroup.visible = true;
-        if (this.heroNeuron.prpcGroup) this.heroNeuron.prpcGroup.visible = false;
-        this.heroNeuron.somaMesh.material.color.setHex(0x78350f);
-        this.heroNeuron.somaMesh.material.roughness = 0.58;
-        if (this.heroNeuron.spinesGroup) {
-          this.heroNeuron.spinesGroup.scale.setScalar(0.35);
-        }
+        this.heroNeuron.somaMesh.scale.setScalar(1.25);
+        this.heroNeuron.somaMesh.material.color.setHex(0xef4444);
       } else {
-        // NORMAL
-        if (this.heroNeuron.prpscGroup) this.heroNeuron.prpscGroup.visible = false;
-        if (this.heroNeuron.prpcGroup) this.heroNeuron.prpcGroup.visible = true;
         this.heroNeuron.myelinSheaths.forEach(m => {
           m.scale.set(1.0, 1.0, 1.0);
           m.material.color.setHex(0xe0f2fe);
-          m.material.opacity = 0.90;
+          m.material.opacity = 0.86;
         });
-        this.heroNeuron.ranvierNodes.forEach(r => {
-          r.material.color.setHex(0x00f2fe);
-          r.material.emissiveIntensity = 1.2;
-        });
-        if (this.heroNeuron.spinesGroup) {
-          this.heroNeuron.spinesGroup.scale.setScalar(1.0);
-        }
+        if (this.heroNeuron.spinesGroup) this.heroNeuron.spinesGroup.scale.setScalar(1.0);
         this.heroNeuron.somaMesh.scale.setScalar(1.0);
-        this.heroNeuron.somaMesh.material.color.setHex(0xf59e0b);
+        this.heroNeuron.somaMesh.material.color.setHex(0x38bdf8);
       }
     }
 
-    // [PT-BR]: Loop de atualização a 60 FPS com integração de Hodgkin-Huxley e condução saltatória.
-    // [EN-GB]: 60 FPS update loop with Hodgkin-Huxley integration and saltatory conduction.
     update(dt) {
+      if (!this.masterGroup.visible) return;
       this.elapsedTime += dt;
 
-      // 1. Atualização do simulador Hodgkin-Huxley (avança 1 ms por frame)
       const dtMs = dt * 1000.0 * 0.05;
       const vm = this.hhSimulator.step(dtMs);
 
-      // Disparos espontâneos rítmicos normais a 40 Hz (ou mais rápidos em epilepsia)
-      const fireInterval = (this.currentPathology === 'EPILEPSY') ? 0.08 : 0.45;
-      if (Math.sin(this.elapsedTime * (Math.PI * 2 / fireInterval)) > 0.985 && !this.hhSimulator.isRefractory) {
+      const fireInterval = (this.currentPathology === 'EPILEPSY') ? 0.12 : 0.65;
+      if (Math.sin(this.elapsedTime * (Math.PI * 2 / fireInterval)) > 0.985) {
         this.hhSimulator.triggerStimulus(18.0);
       }
 
-      // 2. Condução Saltatória e Brilho Eletrofisiológico nos Nódulos de Ranvier
-      if (this.heroNeuron && this.heroNeuron.ranvierNodes.length > 0) {
-        const nodes = this.heroNeuron.ranvierNodes;
-
-        // Sincronização do brilho bioluminescente (#00f2fe) com a despolarização de Hodgkin-Huxley
-        const hhDepolFactor = Math.max(0.0, (vm + 60.0) / 90.0);
-        const dynamicIntensity = 1.2 + hhDepolFactor * 1.8;
-
-        this.ranvierHopTimer += dt * 4.5;
-        if (this.ranvierHopTimer >= 1.0) {
-          this.ranvierHopTimer = 0.0;
-          this.currentRanvierIndex = (this.currentRanvierIndex + 1) % nodes.length;
-
-          // Efeito de pulso luminoso saltando para o próximo nódulo
-          const targetNode = nodes[this.currentRanvierIndex];
-          if (targetNode && this.saltatoryPulseMesh) {
-            this.saltatoryPulseMesh.position.copy(targetNode.position);
-            targetNode.scale.setScalar(1.6);
-          }
+      // Propagação contínua da onda de potencial de ação ao longo da curva axonal e Nódulos de Ranvier
+      if (this.heroNeuron && this.heroNeuron.axonCurve) {
+        const speed = (this.currentPathology === 'MS') ? 0.25 : 0.85;
+        this.pulseProgress = (this.pulseProgress + dt * speed) % 1.0;
+        const pulsePt = this.heroNeuron.axonCurve.getPointAt(this.pulseProgress);
+        if (this.saltatoryPulseMesh) {
+          this.saltatoryPulseMesh.position.copy(pulsePt);
+          const scalePulse = 1.0 + Math.max(0, (vm + 65.0) / 85.0) * 0.65;
+          this.saltatoryPulseMesh.scale.setScalar(scalePulse);
         }
 
-        // Suaviza escala e modula emissão dos nódulos com a onda de despolarização
-        nodes.forEach(n => {
-          n.scale.lerp(new THREE.Vector3(1, 1, 1), dt * 6.0);
-          if (n.material && n.material.emissiveIntensity !== undefined) {
-            n.material.emissiveIntensity = dynamicIntensity;
-          }
+        this.heroNeuron.ranvierNodes.forEach((node) => {
+          const d = node.position.distanceTo(pulsePt);
+          const glow = d < 1.8 ? (2.4 - d) : 1.0;
+          node.scale.setScalar(1.0 + (glow - 1.0) * 0.35);
+          if (node.material) node.material.emissiveIntensity = glow;
         });
       }
 
-      // 3. Batimento Ciliar das Células Ependimárias (Ondas Metacronais)
-      if (this.gliaSystem && this.gliaSystem.ciliaList) {
-        const cilia = this.gliaSystem.ciliaList;
-        for (let c = 0; c < cilia.length; c++) {
-          const cil = cilia[c];
-          cil.rotation.z = Math.sin(this.elapsedTime * 9.0 + c * 0.45) * 0.35;
-        }
-      }
-
-      // 4. Fluxo Bidirecional de Neurotransmissores e Recaptação nas 24 Sinapses
       this.synapticVesicles.forEach(v => {
-        v.u += v.speed * dt;
-        if (v.u > 1.0) {
-          v.u = 0.0;
-        } else if (v.u < 0.0) {
-          v.u = 1.0;
-        }
+        v.u = (v.u + v.speed * dt) % 1.0;
         if (v.syn && v.syn.curve) {
-          const pt = v.syn.curve.getPointAt(v.u);
-          v.mesh.position.copy(pt);
+          v.mesh.position.copy(v.syn.curve.getPointAt(v.u));
         }
       });
 
-      // 5. Movimento Browniano Suave das 250 Micropartículas Extracelulares
-      if (this.extracellularParticles && this.extracellularParticles.length > 0) {
-        for (let p = 0; p < this.extracellularParticles.length; p++) {
-          const ep = this.extracellularParticles[p];
-          const t = this.elapsedTime * ep.speed + ep.phase;
-          ep.mesh.position.x = ep.basePos.x + Math.sin(t * 1.2) * 0.35;
-          ep.mesh.position.y = ep.basePos.y + Math.cos(t * 0.9) * 0.45;
-          ep.mesh.position.z = ep.basePos.z + Math.sin(t * 1.5) * 0.35;
-        }
-      }
+      this.extracellularParticles.forEach(ep => {
+        const t = this.elapsedTime * ep.speed + ep.phase;
+        ep.mesh.position.x = ep.basePos.x + Math.sin(t) * 0.25;
+        ep.mesh.position.y = ep.basePos.y + Math.cos(t * 0.8) * 0.30;
+      });
     }
 
     setVisible(isVisible) {
-      this.masterGroup.visible = isVisible;
+      this.masterGroup.visible = !!isVisible;
     }
 
     getElectrophysiologyState() {
