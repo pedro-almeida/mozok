@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MOZOK v2.0 — Atlas e Simulador Neuroanatômico 3D Multiescala (SNC, Neurônios e Patologias)</title>
-  <meta name="description" content="MOZOK v2.0: Plataforma científica 3D neuroanatômica contínua do SNC até neurônios piramidais, mielina, nódulos de Ranvier, eletrofisiologia de Hodgkin-Huxley e simulador de 7 patologias.">
+  <title>MOZOK v1.0 Beta — Atlas e Simulador Neuroanatômico 3D Multiescala (SNC, SNP, Neurônios e Patologias)</title>
+  <meta name="description" content="MOZOK v1.0 Beta: Plataforma científica 3D neuroanatômica contínua do SNC e SNP até neurônios piramidais, mielina, nódulos de Ranvier, eletrofisiologia de Hodgkin-Huxley e simulador de patologias.">
   <meta name="theme-color" content="#020617">
   <link rel="icon" type="image/x-icon" href="./favicon.ico">
   <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
@@ -595,82 +595,210 @@
       border-color: var(--accent-cyan);
     }
 
+    /* ELEVADOR CRÂNIO-CAUDAL (DESKTOP & VERTICAL) */
+    .neuroaxis-elevator {
+      position: fixed;
+      left: 348px;
+      top: 52%;
+      transform: translateY(-50%);
+      z-index: 82;
+      background: rgba(10, 16, 28, 0.90);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(0, 242, 254, 0.38);
+      border-radius: 12px;
+      padding: 10px 7px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.65);
+    }
+    .neuroaxis-elevator .elev-title {
+      font-size: 9px;
+      font-weight: 800;
+      color: #00f2fe;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      letter-spacing: 0.8px;
+    }
+    .neuroaxis-elevator .elev-btn {
+      padding: 4px 7px;
+      font-size: 11px;
+    }
+    .neuroaxis-elevator .elev-slider {
+      writing-mode: bt-lr;
+      -webkit-appearance: slider-vertical;
+      width: 18px;
+      height: 145px;
+      accent-color: #00f2fe;
+      cursor: pointer;
+    }
+    .neuroaxis-elevator .elev-level {
+      font-size: 9px;
+      font-family: 'JetBrains Mono', monospace;
+      color: #34d399;
+      font-weight: 700;
+    }
+
     /* RESPONSIVIDADE TABLETS & DESKTOPS COMPACTOS */
-    @media (max-width: 1024px) {
-      .top-header { height: 50px; padding: 0 10px; }
+    @media (max-width: 1100px) {
+      .top-header { height: 50px; padding: 0 10px; overflow-x: auto; }
       .brand-title { font-size: 12px; }
       .brand-subtitle { display: none; }
       .btn-action { padding: 5px 8px; font-size: 10px; }
-      .sidebar-left { width: 280px; }
-      .hud-right { width: 260px; }
+      .sidebar-left { width: 270px; }
+      .hud-right { width: 255px; }
+      .neuroaxis-elevator { left: 288px; }
     }
 
-    /* RESPONSIVIDADE MOBILE SMARTPHONES */
-    @media (max-width: 768px) {
+    /* ADAPTAÇÃO VISUAL COMPLETA PARA TELAS VERTICAIS (RETRATO) E SMARTPHONES */
+    @media (max-width: 820px), (orientation: portrait) {
       .top-header {
-        height: 48px;
-        padding: 0 6px;
-        gap: 4px;
+        height: auto;
+        min-height: 76px;
+        padding: 6px 8px;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: space-between;
+      }
+      .topbar-left {
+        order: 1;
+        gap: 6px;
       }
       .topbar-logo { width: 26px; height: 26px; }
       .brand-title { font-size: 11px; }
-      .lod-badge { font-size: 8px; padding: 2px 4px; }
-      .view-modes-group .btn-action { padding: 4px 6px; font-size: 9px; }
-      .topbar-right .btn-action { padding: 4px 6px; font-size: 9px; }
-      .topbar-right .lang-selector-container select { font-size: 9px; padding: 3px 2px; }
+      .brand-subtitle { display: none; }
+      .lod-badge { font-size: 8px; padding: 2px 5px; }
 
+      .topbar-right {
+        order: 2;
+        gap: 4px;
+        overflow-x: auto;
+        max-width: 56vw;
+        scrollbar-width: none;
+      }
+      .topbar-right::-webkit-scrollbar { display: none; }
+      .topbar-right .btn-action { padding: 4px 7px; font-size: 9px; }
+      .topbar-right .lang-selector-container select { font-size: 9px; padding: 2px; }
+
+      /* Faixa de modos de visão em linha própria deslizante por toque (sem cortar botões) */
+      .topbar-center.view-modes-group {
+        order: 3;
+        width: 100%;
+        overflow-x: auto;
+        display: flex;
+        gap: 5px;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .topbar-center.view-modes-group::-webkit-scrollbar { display: none; }
+      .view-modes-group .btn-action {
+        padding: 5px 9px;
+        font-size: 10px;
+        flex-shrink: 0;
+      }
+
+      /* Barra de 9 escalas logo abaixo do cabeçalho duplo */
       .multiscale-nav-bar {
-        top: 52px;
+        top: 82px;
         left: 6px;
         right: 6px;
         height: 30px;
         padding: 2px 6px;
+        scrollbar-width: none;
+      }
+      .multiscale-nav-bar::-webkit-scrollbar { display: none; }
+
+      /* Elevador Crânio-Caudal compacto na borda ESQUERDA (longe do botão VLibras na direita) */
+      .neuroaxis-elevator {
+        left: 8px;
+        top: 47%;
+        transform: translateY(-50%);
+        padding: 6px 4px;
+        gap: 4px;
+        border-radius: 10px;
+        width: 34px;
+      }
+      .neuroaxis-elevator .elev-title {
+        font-size: 7px;
+        letter-spacing: 0.4px;
+      }
+      .neuroaxis-elevator .elev-btn {
+        padding: 2px 5px;
+        font-size: 9px;
+      }
+      .neuroaxis-elevator .elev-slider {
+        width: 14px;
+        height: 96px;
+      }
+      .neuroaxis-elevator .elev-level {
+        font-size: 7px;
       }
 
-      /* MOBILE BOTTOM SHEETS QUE LIBERAM 85% DA TELA */
-      .sidebar-left {
+      /* Gavetas deslizantes Bottom Sheet (Estruturas e Patologias/HUD) */
+      .sidebar-left, .hud-right {
         position: fixed;
         top: auto;
         bottom: 0;
         left: 0;
         right: 0;
         width: 100vw;
-        height: 52vh;
+        height: 56vh;
         border-radius: 16px 16px 0 0;
         transform: translateY(105%);
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 90;
-        box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.85);
-      }
-      .sidebar-left.open {
-        transform: translateY(0);
-      }
-
-      .hud-right {
-        position: fixed;
-        top: auto;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100vw;
-        height: 52vh;
-        border-radius: 16px 16px 0 0;
-        transform: translateY(105%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 90;
+        z-index: 96;
         pointer-events: auto;
-        box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.85);
+        box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.88);
       }
-      .hud-right.open {
+      .sidebar-left.open, .hud-right.open {
         transform: translateY(0);
       }
 
+      /* Mini-Card Científico Inferior sempre visível em telas verticais */
       .bottom-banner {
-        display: none;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        bottom: 52px;
+        left: 8px;
+        right: 8px;
+        max-height: none;
+        padding: 7px 10px;
+        gap: 6px;
+        border-radius: 10px;
+        background: rgba(10, 16, 28, 0.90);
+      }
+      .card-title { font-size: 11px; }
+      .card-details { font-size: 10px; }
+      .card-meta-row { display: none; }
+      .card-actions {
+        width: 100%;
+        overflow-x: auto;
+        gap: 5px;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+      }
+      .card-actions::-webkit-scrollbar { display: none; }
+      .card-actions .btn-action {
+        padding: 4px 8px;
+        font-size: 9.5px;
+        flex-shrink: 0;
       }
 
       .mobile-drawer-tabs {
         display: flex;
+        bottom: 8px;
+        z-index: 98;
+        width: calc(100vw - 16px);
+        justify-content: center;
+      }
+      .mobile-drawer-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 6px 8px;
+        font-size: 10.5px;
       }
     }
   </style>
@@ -688,8 +816,8 @@
     <div class="topbar-left">
       <img src="assets/icon.png" alt="MOZOK" width="32" height="32" class="topbar-logo">
       <div class="brand-text">
-        <span class="brand-title">MOZOK v2.0</span>
-        <span class="brand-subtitle">Atlas SNC MNI152</span>
+        <span class="brand-title">MOZOK <small style="font-size: 9px; padding: 1px 5px; border-radius: 4px; background: rgba(0, 242, 254, 0.18); border: 1px solid rgba(0, 242, 254, 0.45); color: #00f2fe; vertical-align: middle;">v1.0 Beta</small></span>
+        <span class="brand-subtitle">Atlas SNC & SNP MNI152</span>
       </div>
       <div id="lod-status-badge" class="lod-badge">⚡ AUTO: ULTRA 60 FPS</div>
     </div>
@@ -776,12 +904,12 @@
   </aside>
 
   <!-- ELEVADOR CRÂNIO-CAUDAL (DESLIZAR DO ENCÉFALO ATÉ A MEDULA E SNP) -->
-  <div id="neuroaxis-elevator" style="position: fixed; left: 348px; top: 50%; transform: translateY(-50%); z-index: 85; background: rgba(10, 16, 28, 0.92); backdrop-filter: blur(14px); border: 1px solid rgba(0, 242, 254, 0.38); border-radius: 12px; padding: 10px 8px; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 8px 28px rgba(0,0,0,0.65);">
-    <span style="font-size: 9px; font-weight: 800; color: #00f2fe; writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: 0.8px;">EIXO CRÂNIO-CAUDAL</span>
-    <button id="btn-elev-up" class="btn-action" style="padding: 4px 7px; font-size: 11px;" title="Subir para o Encéfalo (Tecla ↑ / W)">▲</button>
-    <input id="slider-neuroaxis-y" type="range" min="-24" max="3" step="0.5" value="-2.5" style="writing-mode: bt-lr; -webkit-appearance: slider-vertical; width: 18px; height: 150px; accent-color: #00f2fe; cursor: pointer;" title="Arraste para descer do Encéfalo até a Medula Espinhal e SNP">
-    <button id="btn-elev-down" class="btn-action" style="padding: 4px 7px; font-size: 11px;" title="Descer para a Medula e SNP (Tecla ↓ / S)">▼</button>
-    <span id="elev-level-label" style="font-size: 9px; font-family: 'JetBrains Mono', monospace; color: #34d399; font-weight: 700;">CÉREBRO</span>
+  <div id="neuroaxis-elevator" class="neuroaxis-elevator">
+    <span class="elev-title">EIXO CRÂNIO-CAUDAL</span>
+    <button id="btn-elev-up" class="btn-action elev-btn" title="Subir para o Encéfalo (Tecla ↑ / W)">▲</button>
+    <input id="slider-neuroaxis-y" type="range" min="-24" max="3" step="0.5" value="-2.5" class="elev-slider" title="Arraste para descer do Encéfalo até a Medula Espinhal e SNP">
+    <button id="btn-elev-down" class="btn-action elev-btn" title="Descer para a Medula e SNP (Tecla ↓ / S)">▼</button>
+    <span id="elev-level-label" class="elev-level">CÉREBRO</span>
   </div>
 
   <!-- RIGHT HUD: SCALE, ELECTROPHYSIOLOGY & BIOMARKERS -->
@@ -888,10 +1016,10 @@
     </div>
   </footer>
 
-  <!-- ABAS FLUTUANTES PARA GAVETAS MOBILE (85% DA TELA LIVRE) -->
   <div class="mobile-drawer-tabs">
     <button id="btn-drawer-structures" class="mobile-drawer-btn">📂 Estruturas</button>
-    <button id="btn-drawer-telemetry" class="mobile-drawer-btn">📊 Telemetria</button>
+    <button id="btn-drawer-telemetry" class="mobile-drawer-btn">🧬 Patologias & HUD</button>
+    <button id="btn-drawer-home" class="mobile-drawer-btn" onclick="if(window.mozokReturnToMacro) window.mozokReturnToMacro();">🏠 Início</button>
   </div>
 
   <!-- OFFLINE SCIENTIFIC DATA ASSETS (100% Local & Fast) -->
@@ -950,6 +1078,15 @@
       let isMicroMode = false;
       let pointerDownPos = { x: 0, y: 0 };
 
+      // [PT-BR]: Multiplicador responsivo de distância para enquadrar perfeitamente o cérebro em telas verticais (smartphones/retrato)
+      function getPortraitDistMultiplier() {
+        const aspect = window.innerWidth / Math.max(1, window.innerHeight);
+        if (aspect < 1.0) {
+          return Math.min(1.65, Math.max(1.18, 0.92 / Math.max(0.42, aspect)));
+        }
+        return 1.0;
+      }
+
       function init() {
         const canvas = document.getElementById('webgl-canvas');
         const width = window.innerWidth;
@@ -968,8 +1105,10 @@
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0x020617);
 
-        camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 700);
-        camera.position.set(0, 3.5, 24.0);
+        const initialAspect = width / Math.max(1, height);
+        camera = new THREE.PerspectiveCamera(initialAspect < 1.0 ? 48 : 36, initialAspect, 0.1, 700);
+        const pMult = getPortraitDistMultiplier();
+        camera.position.set(0, 3.5, 24.0 * pMult);
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
@@ -1509,10 +1648,11 @@
         }
 
         const targetPos = new THREE.Vector3(centerCoords[0], centerCoords[1], centerCoords[2]);
-        const viewDist = Math.max(13.5, optDist * 1.25);
+        const pMult = getPortraitDistMultiplier();
+        const viewDist = Math.max(13.5, optDist * 1.25) * pMult;
 
         if (regData.id === 1 || regData.code === 'WB_CNS') {
-          smoothFlyCameraTo(new THREE.Vector3(0, -2.5, 0), new THREE.Vector3(0, 3.5, 24.0), 0.9);
+          smoothFlyCameraTo(new THREE.Vector3(0, -2.5, 0), new THREE.Vector3(0, 3.5, 24.0 * pMult), 0.9);
         } else if (centerCoords[1] < -6.5) {
           // Estruturas da Medula Espinhal e Sistema Nervoso Periférico (SNP): visão anterolateral panorâmica na altura exata Y
           const camPos = new THREE.Vector3(4.5, centerCoords[1] + 1.2, centerCoords[2] + viewDist);
@@ -1544,6 +1684,13 @@
 
         if (triggerSpeech && window.MozokAINarrator) {
           window.MozokAINarrator.speak(regData.audioScript, currentLang);
+        }
+
+        const sidebarLeft = document.querySelector('.sidebar-left');
+        const btnDrawerStruct = document.getElementById('btn-drawer-structures');
+        if (window.innerWidth <= 820 && sidebarLeft && sidebarLeft.classList.contains('open')) {
+          sidebarLeft.classList.remove('open');
+          if (btnDrawerStruct) btnDrawerStruct.classList.remove('active');
         }
       }
 
@@ -2178,12 +2325,15 @@
       function onResize() {
         if (!renderer || !camera) return;
         const w = window.innerWidth;
-        const h = window.innerHeight;
-        camera.aspect = w / h;
+        const h = Math.max(1, window.innerHeight);
+        const aspect = w / h;
+        camera.fov = aspect < 1.0 ? 48 : 36;
+        camera.aspect = aspect;
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
       }
 
+      window.mozokReturnToMacro = returnToMacroHome;
       window.addEventListener('DOMContentLoaded', init);
     })();
   </script>

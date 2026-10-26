@@ -11,7 +11,7 @@
 
     ui: {
       'pt-BR': {
-        brandTitle: 'MOZOK v2.0 — Atlas do Sistema Nervoso Central & Patologias',
+        brandTitle: 'MOZOK v1.0 Beta — Atlas do Sistema Nervoso Central, SNP & Patologias',
         brandSubtitle: 'Córtex MNI152 Real | 500 Neurônios Camada V | VLibras A11y',
         btnHome: '🏠 Voltar à Visão Inicial (SNC)',
         btnDive: '🔬 Mergulhar nos Neurônios (Camada V)',
@@ -56,7 +56,7 @@
         clinicalPrefix: 'Correlação:'
       },
       'en-GB': {
-        brandTitle: 'MOZOK v2.0 — Central Nervous System Atlas & Neuropathology Simulator',
+        brandTitle: 'MOZOK v1.0 Beta — Central Nervous System Atlas & Neuropathology Simulator',
         brandSubtitle: 'Real MNI152 Cortex | Layer V Neurons | Accessible Multilingual Hub',
         btnHome: '🏠 Reset to Initial View (CNS)',
         btnDive: '🔬 Dive into Neurons (Layer V)',
@@ -101,7 +101,7 @@
         clinicalPrefix: 'Clinical Correlation:'
       },
       'it-IT': {
-        brandTitle: 'MOZOK v2.0 — Atlante del Sistema Nervioso Centrale e Simulatore di Patologie',
+        brandTitle: 'MOZOK v1.0 Beta — Atlante del Sistema Nervioso Centrale e Simulatore di Patologie',
         brandSubtitle: 'Corteccia MNI152 Reale | Neuroni Strato V | Accessibilità Totale',
         btnHome: '🏠 Torna alla Vista Iniziale (SNC)',
         btnDive: '🔬 Immergiti nei Neuroni (Strato V)',
@@ -146,7 +146,7 @@
         clinicalPrefix: 'Correlazione Clinica:'
       },
       'uk-UA': {
-        brandTitle: 'МОЗОК v2.0 — Інтерактивний 3D-атлас ЦНС та симулятор нейропатологій',
+        brandTitle: 'МОЗОК v1.0 Beta — Інтерактивний 3D-атлас ЦНС та симулятор нейропатологій',
         brandSubtitle: 'Справжня кора MNI152 | Нейрони V шару | Повна доступність',
         btnHome: '🏠 Початковий вигляд (ЦНС)',
         btnDive: '🔬 Зануритися в нейрони (V шар)',
@@ -191,7 +191,7 @@
         clinicalPrefix: 'Клінічна кореляція:'
       },
       'es-ES': {
-        brandTitle: 'MOZOK v2.0 — Atlas del Sistema Nervioso Central y Simulador de Patologías',
+        brandTitle: 'MOZOK v1.0 Beta — Atlas del Sistema Nervioso Central y Simulador de Patologías',
         brandSubtitle: 'Corteza MNI152 Real | Neuronas Capa V | Accesibilidad Total',
         btnHome: '🏠 Volver a la Vista Inicial (SNC)',
         btnDive: '🔬 Sumergirse en las Neuronas (Capa V)',

@@ -1,15 +1,15 @@
 @echo off
 setlocal enabledelayedexpansion
-title MOZOK v2.0 -- Atlas e Simulador Neuroanatomico 3D Multiescala
+title MOZOK v1.0 Beta -- Atlas e Simulador Neuroanatomico 3D Multiescala
 
-:: [PT-BR]: Script mestre de inicializacao do MOZOK v2.0 com servidor HTTP nativo Rust (porta 8090), modo app dedicado e PWA.
-:: [EN-GB]: Master launch script for MOZOK v2.0 with native Rust HTTP server (port 8090), dedicated app mode, and PWA.
+:: [PT-BR]: Script mestre de inicializacao do MOZOK v1.0 Beta com servidor HTTP nativo Rust (porta 8090), modo app dedicado e PWA.
+:: [EN-GB]: Master launch script for MOZOK v1.0 Beta with native Rust HTTP server (port 8090), dedicated app mode, and PWA.
 :: [AI-CTX]: @llm-context: Prevents file:/// CORS issues, normalizes Windows paths, avoids WindowsApps/python.exe false positives, and ensures robust server startup.
 ::           @llm-invariant: Binds 127.0.0.1:8090, guarantees clean Win32 execution, and launches dedicated application window without browser chrome.
 ::           @llm-neuroscience: High-performance low-latency rendering pipeline for the entire Central Nervous System and Layer V neuron.
 
 echo ==============================================================================
-echo MOZOK v2.0 -- Atlas e Simulador Neuroanatomico 3D Multiescala
+echo MOZOK v1.0 Beta -- Atlas e Simulador Neuroanatomico 3D Multiescala
 echo Sistema Nervoso Central, Conectoma, Fisiologia e Patologia (MNI152 + Micro)
 echo ==============================================================================
 echo.
@@ -99,7 +99,7 @@ pause
 exit /b 1
 
 :launch_browser
-echo [5/5] Abrindo MOZOK v2.0 em Modo de Aplicativo Dedicado sem Bordas...
+echo [5/5] Abrindo MOZOK v1.0 Beta em Modo de Aplicativo Dedicado sem Bordas...
 if defined CHROME_PATH (
     start "" "!CHROME_PATH!" %BROWSER_FLAGS%
 ) else if defined EDGE_PATH (
@@ -110,7 +110,7 @@ if defined CHROME_PATH (
 
 :finish_launch
 echo.
-echo [OK] MOZOK v2.0 em execucao:
+echo [OK] MOZOK v1.0 Beta em execucao:
 echo      - Janela de aplicativo dedicado: Aberta sem barras de navegacao
 echo      - Acesso em abas do navegador:   %TARGET_URL%
 echo      - Instalacao como PWA nativo:    Ativa via manifest.json e sw.js
@@ -127,6 +127,6 @@ if %ERRORLEVEL% equ 0 (
 )
 
 echo ==============================================================================
-echo MOZOK v2.0 em execucao! Para reiniciar, execute run.bat novamente.
+echo MOZOK v1.0 Beta em execucao! Para reiniciar, execute run.bat novamente.
 echo ==============================================================================
 exit /b 0

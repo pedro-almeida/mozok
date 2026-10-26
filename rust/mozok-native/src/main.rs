@@ -78,7 +78,7 @@ fn handle_client(mut stream: TcpStream, web_root: Arc<PathBuf>) {
     }
 
     if raw_path == "/api/status" {
-        let json = r#"{"status":"ok","engine":"MOZOK v2.0 Native GPU","rust_crates":["mozok-core","mozok-atlas","mozok-navigation","mozok-physiology","mozok-pathology"]}"#;
+        let json = r#"{"status":"ok","engine":"MOZOK v1.0 Beta Native GPU","rust_crates":["mozok-core","mozok-atlas","mozok-navigation","mozok-physiology","mozok-pathology"]}"#;
         let response = format!(
             "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n{}",
             json.len(),
@@ -217,7 +217,7 @@ fn run_native_windows_gui(app_url: String, web_root: PathBuf) {
     let event_loop = EventLoop::new();
 
     let mut win_builder = WindowBuilder::new()
-        .with_title("MOZOK v2.0 — Atlas e Simulador Neuroanatômico 3D Multiescala (GPU Nativo)")
+        .with_title("MOZOK v1.0 Beta — Atlas e Simulador Neuroanatômico 3D Multiescala (GPU Nativo)")
         .with_inner_size(LogicalSize::new(1440.0, 900.0))
         .with_maximized(true);
 
