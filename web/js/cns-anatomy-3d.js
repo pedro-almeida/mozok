@@ -727,6 +727,7 @@
       this.buildPhotorealisticMNICortex();
       this.buildAtlasSubcorticalStructures();
       this.buildContinuousBrainstemAndSpinalCord();
+      this.buildPeripheralNervousSystem3D();
       this.buildThalamocorticalRadiations();
     }
 
@@ -2133,6 +2134,229 @@
       this.masterGroup.add(stemAndCordGroup);
     }
 
+    // [PT-BR]: Constrói o "H" Medular de Substância Cinzenta e todo o Sistema Nervoso Periférico (SNP): Cadeia Ganglionar Simpática, Nervo Vago, Plexo Cervical/Frênico, Plexo Braquial, Nervos Intercostais e Plexo Lombossacral/Nervo Ciático.
+    // [EN-GB]: Builds the Spinal Gray Matter Butterfly ("H") and the complete Peripheral Nervous System (PNS).
+    buildPeripheralNervousSystem3D() {
+      this.pnsGroup = new THREE.Group();
+      this.pnsGroup.name = "PERIPHERAL_NERVOUS_SYSTEM_SNP_GROUP";
+      this.pnsMeshes = [];
+
+      // 1. "H" MEDULAR INTERNO (BORBOLETA DE SUBSTÂNCIA CINZENTA + CANAL CENTRAL EPENDIMÁRIO)
+      const grayMatterMat = new THREE.MeshStandardMaterial({
+        color: 0xd97706,
+        emissive: 0xb45309,
+        emissiveIntensity: 0.55,
+        roughness: 0.35
+      });
+      const centralCanalMat = new THREE.MeshBasicMaterial({
+        color: 0x00f2fe,
+        transparent: true,
+        opacity: 0.85
+      });
+
+      const canalCurve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0, -6.8, -0.85),
+        new THREE.Vector3(0, -10.5, -0.72),
+        new THREE.Vector3(0, -14.5, -0.92),
+        new THREE.Vector3(0, -18.8, -0.85)
+      ]);
+      const canalMesh = new THREE.Mesh(new THREE.TubeGeometry(canalCurve, 48, 0.045, 8, false), centralCanalMat);
+      this.pnsGroup.add(canalMesh);
+      this.spinalMeshes.push(canalMesh);
+
+      // Cornos Anteriores (Motores) e Posteriores (Sensitivos) bilaterais formando o "H" medular
+      [-1, 1].forEach(sign => {
+        const antHornCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.16, -6.9, -0.72),
+          new THREE.Vector3(sign * 0.22, -9.4, -0.60),
+          new THREE.Vector3(sign * 0.15, -13.0, -0.78),
+          new THREE.Vector3(sign * 0.21, -15.8, -0.72),
+          new THREE.Vector3(sign * 0.08, -18.5, -0.78)
+        ]);
+        const postHornCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.22, -6.9, -0.96),
+          new THREE.Vector3(sign * 0.28, -9.4, -0.86),
+          new THREE.Vector3(sign * 0.20, -13.0, -1.02),
+          new THREE.Vector3(sign * 0.26, -15.8, -0.96),
+          new THREE.Vector3(sign * 0.10, -18.5, -0.92)
+        ]);
+        this.pnsGroup.add(new THREE.Mesh(new THREE.TubeGeometry(antHornCurve, 40, 0.068, 8, false), grayMatterMat));
+        this.pnsGroup.add(new THREE.Mesh(new THREE.TubeGeometry(postHornCurve, 40, 0.052, 8, false), grayMatterMat));
+      });
+
+      // Materiais de Alta Visibilidade Anatômica para o SNP
+      const nerveGoldMat = new THREE.MeshStandardMaterial({
+        color: 0xfbbf24,
+        emissive: 0xd97706,
+        emissiveIntensity: 0.50,
+        roughness: 0.28
+      });
+      const sympatheticMat = new THREE.MeshStandardMaterial({
+        color: 0xf97316,
+        emissive: 0xea580c,
+        emissiveIntensity: 0.55,
+        roughness: 0.30
+      });
+      const vagusMat = new THREE.MeshStandardMaterial({
+        color: 0x34d399,
+        emissive: 0x059669,
+        emissiveIntensity: 0.55,
+        roughness: 0.28
+      });
+
+      [-1, 1].forEach(sign => {
+        // 2. NERVO VAGO (NC X — PARASSIMPÁTICO CRANIO-VISCERAL)
+        const vagusCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.85, -5.9, -0.75),
+          new THREE.Vector3(sign * 1.35, -7.8, +0.15),
+          new THREE.Vector3(sign * 1.15, -10.5, +0.45),
+          new THREE.Vector3(sign * 0.90, -13.2, +0.55),
+          new THREE.Vector3(sign * 0.65, -15.5, +0.40)
+        ]);
+        const vagusMesh = new THREE.Mesh(new THREE.TubeGeometry(vagusCurve, 32, 0.055, 8, false), vagusMat);
+        this.pnsGroup.add(vagusMesh);
+        this.pnsMeshes.push(vagusMesh);
+
+        // Ramos cardíacos, pulmonares e gástricos do Nervo Vago
+        [0.45, 0.68, 0.92].forEach((u, idx) => {
+          const origin = vagusCurve.getPointAt(u);
+          const target = origin.clone().add(new THREE.Vector3(-sign * (0.45 + idx * 0.15), -0.8, 0.45));
+          const brCurve = new THREE.CatmullRomCurve3([origin, origin.clone().lerp(target, 0.5), target]);
+          this.pnsGroup.add(new THREE.Mesh(new THREE.TubeGeometry(brCurve, 10, 0.028, 6, false), vagusMat));
+        });
+
+        // 3. PLEXO CERVICAL (C1–C4) E NERVO FRÊNICO (C3–C5 -> DIAFRAGMA)
+        const phrenicCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.55, -7.8, -0.75),
+          new THREE.Vector3(sign * 1.45, -8.8, -0.25),
+          new THREE.Vector3(sign * 1.65, -11.2, +0.20),
+          new THREE.Vector3(sign * 1.85, -13.6, +0.50),
+          new THREE.Vector3(sign * 2.45, -14.8, +0.65)
+        ]);
+        const phrenicMesh = new THREE.Mesh(new THREE.TubeGeometry(phrenicCurve, 28, 0.042, 7, false), nerveGoldMat);
+        this.pnsGroup.add(phrenicMesh);
+        this.pnsMeshes.push(phrenicMesh);
+
+        // 4. PLEXO BRAQUIAL (C5–T1) E NERVOS MEDIANO, ULNAR, RADIAL, AXILAR E MUSCULOCUTÂNEO
+        const brachialRoots = [-8.6, -9.0, -9.4, -9.8, -10.2];
+        const cordJunction = new THREE.Vector3(sign * 2.4, -10.1, -0.45);
+        brachialRoots.forEach((ry) => {
+          const rCurve = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(sign * 0.48, ry, -0.72),
+            new THREE.Vector3(sign * 1.45, ry - 0.35, -0.60),
+            cordJunction
+          ]);
+          const rMesh = new THREE.Mesh(new THREE.TubeGeometry(rCurve, 14, 0.046, 7, false), nerveGoldMat);
+          this.pnsGroup.add(rMesh);
+          this.pnsMeshes.push(rMesh);
+        });
+
+        // 5 Grandes Nervos Terminais do Membro Superior (Mediano, Ulnar, Radial, Musculocutâneo, Axilar)
+        const armNerves = [
+          { name: 'Axilar', pts: [cordJunction, new THREE.Vector3(sign * 3.6, -10.3, -0.55), new THREE.Vector3(sign * 4.6, -10.8, -0.40)], r: 0.042 },
+          { name: 'Musculocutaneo', pts: [cordJunction, new THREE.Vector3(sign * 3.8, -11.2, -0.20), new THREE.Vector3(sign * 5.2, -12.6, +0.10)], r: 0.045 },
+          { name: 'Radial', pts: [cordJunction, new THREE.Vector3(sign * 4.2, -11.6, -0.50), new THREE.Vector3(sign * 6.0, -13.8, -0.35), new THREE.Vector3(sign * 7.2, -15.6, -0.15)], r: 0.062 },
+          { name: 'Mediano', pts: [cordJunction, new THREE.Vector3(sign * 4.0, -11.8, -0.30), new THREE.Vector3(sign * 5.6, -14.2, -0.05), new THREE.Vector3(sign * 6.8, -16.4, +0.20)], r: 0.060 },
+          { name: 'Ulnar', pts: [cordJunction, new THREE.Vector3(sign * 3.7, -12.1, -0.42), new THREE.Vector3(sign * 5.2, -14.5, -0.22), new THREE.Vector3(sign * 6.4, -16.6, +0.05)], r: 0.054 }
+        ];
+        armNerves.forEach(n => {
+          const c = new THREE.CatmullRomCurve3(n.pts);
+          const m = new THREE.Mesh(new THREE.TubeGeometry(c, 22, n.r, 8, false), nerveGoldMat);
+          this.pnsGroup.add(m);
+          this.pnsMeshes.push(m);
+        });
+
+        // 5. CADEIA GANGLIONAR SIMPÁTICA PARAVERTEBRAL (T1–L2) + 12 PARES DE NERVOS INTERCOSTAIS
+        const chainPts = [];
+        for (let t = 0; t < 14; t++) {
+          const ty = -8.2 - t * 0.72;
+          const gPos = new THREE.Vector3(sign * 0.92, ty, -0.52);
+          chainPts.push(gPos);
+
+          // Gânglio Paravertebral Simpático Fusiforme
+          const gGeo = new THREE.SphereGeometry(0.075, 12, 10);
+          gGeo.scale(0.85, 1.45, 0.85);
+          const gMesh = new THREE.Mesh(gGeo, sympatheticMat);
+          gMesh.position.copy(gPos);
+          this.pnsGroup.add(gMesh);
+          this.pnsMeshes.push(gMesh);
+
+          // Ramos comunicantes branco e cinzento ligando à raiz espinhal
+          const ramoCurve = new THREE.LineCurve3(new THREE.Vector3(sign * 0.45, ty + 0.05, -0.78), gPos);
+          this.pnsGroup.add(new THREE.Mesh(new THREE.TubeGeometry(ramoCurve, 4, 0.022, 5, false), sympatheticMat));
+
+          // Nervos Intercostais arqueando na caixa torácica (T1–T12)
+          if (t >= 2 && t <= 11) {
+            const icCurve = new THREE.CatmullRomCurve3([
+              new THREE.Vector3(sign * 0.48, ty, -0.80),
+              new THREE.Vector3(sign * 2.1, ty - 0.25, -0.55),
+              new THREE.Vector3(sign * 3.4, ty - 0.65, +0.25),
+              new THREE.Vector3(sign * 2.6, ty - 0.95, +1.35)
+            ]);
+            const icMesh = new THREE.Mesh(new THREE.TubeGeometry(icCurve, 18, 0.030, 6, false), nerveGoldMat);
+            this.pnsGroup.add(icMesh);
+            this.pnsMeshes.push(icMesh);
+          }
+        }
+        const chainCurve = new THREE.CatmullRomCurve3(chainPts);
+        this.pnsGroup.add(new THREE.Mesh(new THREE.TubeGeometry(chainCurve, 36, 0.036, 7, false), sympatheticMat));
+
+        // 6. PLEXO LOMBOSSACRAL (L1–S4), NERVO FEMORAL E GRANDE NERVO CIÁTICO (ISQUIÁTICO)
+        const femoralCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.45, -16.2, -0.82),
+          new THREE.Vector3(sign * 1.65, -17.6, -0.40),
+          new THREE.Vector3(sign * 2.45, -19.8, +0.25),
+          new THREE.Vector3(sign * 2.65, -22.8, +0.55)
+        ]);
+        this.pnsGroup.add(new THREE.Mesh(new THREE.TubeGeometry(femoralCurve, 24, 0.068, 8, false), nerveGoldMat));
+
+        const obturatorCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(sign * 0.42, -16.6, -0.82),
+          new THREE.Vector3(sign * 1.15, -18.2, -0.35),
+          new THREE.Vector3(sign * 1.35, -21.2, +0.15)
+        ]);
+        this.pnsGroup.add(new THREE.Mesh(new THREE.TubeGeometry(obturatorCurve, 18, 0.045, 7, false), nerveGoldMat));
+
+        // Grande Nervo Ciático / Isquiático (L4–S3) — o mais calibroso do corpo humano
+        const sciaticOrigin = new THREE.Vector3(sign * 1.45, -19.0, -0.78);
+        [-17.2, -17.7, -18.2, -18.7].forEach(ly => {
+          const sRoot = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(sign * 0.35, ly, -0.85),
+            new THREE.Vector3(sign * 0.95, ly - 0.45, -0.82),
+            sciaticOrigin
+          ]);
+          this.pnsGroup.add(new THREE.Mesh(new THREE.TubeGeometry(sRoot, 10, 0.048, 6, false), nerveGoldMat));
+        });
+
+        const poplitealPt = new THREE.Vector3(sign * 2.15, -23.2, -0.65);
+        const sciaticTrunk = new THREE.CatmullRomCurve3([
+          sciaticOrigin,
+          new THREE.Vector3(sign * 1.95, -20.4, -0.75),
+          new THREE.Vector3(sign * 2.10, -21.8, -0.70),
+          poplitealPt
+        ]);
+        const sciaticMesh = new THREE.Mesh(new THREE.TubeGeometry(sciaticTrunk, 28, 0.105, 10, false), nerveGoldMat);
+        this.pnsGroup.add(sciaticMesh);
+        this.pnsMeshes.push(sciaticMesh);
+
+        // Divisão em Nervo Tibial e Nervo Fibular Comum na fossa poplítea
+        const tibialCurve = new THREE.CatmullRomCurve3([
+          poplitealPt,
+          new THREE.Vector3(sign * 2.05, -24.8, -0.60),
+          new THREE.Vector3(sign * 1.95, -26.4, -0.50)
+        ]);
+        const fibularCurve = new THREE.CatmullRomCurve3([
+          poplitealPt,
+          new THREE.Vector3(sign * 2.55, -24.6, -0.45),
+          new THREE.Vector3(sign * 2.70, -26.2, -0.20)
+        ]);
+        this.pnsGroup.add(new THREE.Mesh(new THREE.TubeGeometry(tibialCurve, 16, 0.065, 8, false), nerveGoldMat));
+        this.pnsGroup.add(new THREE.Mesh(new THREE.TubeGeometry(fibularCurve, 16, 0.052, 8, false), nerveGoldMat));
+      });
+
+      this.masterGroup.add(this.pnsGroup);
+    }
+
     // [PT-BR]: Destaca a região anatômica iluminando a própria malha (sem esferas ou Saturnos).
     // [EN-GB]: Highlights anatomical region directly on mesh surface (zero spheres or Saturns).
     highlightRegion(region) {
@@ -2735,6 +2959,28 @@
         if (this.vasculatureGroup) this.vasculatureGroup.visible = true;
         if (this.internalPinsGroup) this.internalPinsGroup.visible = false;
         this.setAnatomyOpacity(0.25, 0.45);
+      } else if (mode === 'spinal') {
+        if (this.cortexUniforms) this.cortexUniforms.uOpacity.value = 0.22;
+        if (this.cortexMaterial) {
+          this.cortexMaterial.transparent = true;
+          this.cortexMaterial.depthWrite = false;
+        }
+        this.setMeningesLayer('none');
+        if (this.vasculatureGroup) this.vasculatureGroup.visible = false;
+        if (this.internalPinsGroup) this.internalPinsGroup.visible = false;
+        if (this.pnsGroup) this.pnsGroup.visible = true;
+        this.setAnatomyOpacity(0.22, 0.90);
+      } else if (mode === 'pns') {
+        if (this.cortexUniforms) this.cortexUniforms.uOpacity.value = 0.35;
+        if (this.cortexMaterial) {
+          this.cortexMaterial.transparent = true;
+          this.cortexMaterial.depthWrite = false;
+        }
+        this.setMeningesLayer('none');
+        if (this.vasculatureGroup) this.vasculatureGroup.visible = false;
+        if (this.internalPinsGroup) this.internalPinsGroup.visible = false;
+        if (this.pnsGroup) this.pnsGroup.visible = true;
+        this.setAnatomyOpacity(0.35, 0.95);
       }
     }
 

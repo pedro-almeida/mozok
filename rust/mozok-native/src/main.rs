@@ -298,16 +298,21 @@ fn main() {
         web_root_raw.canonicalize().unwrap_or(web_root_raw),
     ));
 
-    let listener =
-        match TcpListener::bind("127.0.0.1:8090").or_else(|_| TcpListener::bind("127.0.0.1:0")) {
-            Ok(l) => l,
-            Err(_) => return,
-        };
+    // Vincula sempre uma porta efêmera limpa (127.0.0.1:0) para evitar conflito com processos órfãos e cache de Service Worker na porta 8090
+    let listener = match TcpListener::bind("127.0.0.1:0").or_else(|_| TcpListener::bind("127.0.0.1:8090")) {
+        Ok(l) => l,
+        Err(_) => return,
+    };
 
     let local_addr = listener.local_addr().unwrap();
+    let ts = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(400);
     let app_url = format!(
-        "http://127.0.0.1:{}/index.html?v=native3",
-        local_addr.port()
+        "http://127.0.0.1:{}/index.html?v={}",
+        local_addr.port(),
+        ts
     );
 
     if !no_launch {

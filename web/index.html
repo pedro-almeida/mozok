@@ -694,19 +694,25 @@
       <div id="lod-status-badge" class="lod-badge">⚡ AUTO: ULTRA 60 FPS</div>
     </div>
 
-    <!-- Centro: Modos Rápidos de Visão Anatômica -->
+    <!-- Centro: Modos Rápidos de Visão Anatômica (Encéfalo, Subcórtex, Medula, SNP, Vasos e Neurônios DCJ) -->
     <div class="topbar-center view-modes-group">
       <button id="btn-view-external" class="btn-action active" title="Córtex MNI152 sólido externo com sulcos e giros reais">
-        <span>🧠 Externo Real</span>
+        <span>🧠 Encéfalo</span>
       </button>
-      <button id="btn-view-xray" class="btn-action" title="Demarcação cirúrgica de estruturas internas (Fresnel rimGlow e Pins 3D)">
-        <span>👁️ Estruturas Internas</span>
+      <button id="btn-view-xray" class="btn-action" title="Demarcação cirúrgica de estruturas internas subcorticais">
+        <span>👁️ Subcórtex</span>
+      </button>
+      <button id="btn-view-spinal" class="btn-action" title="Descer diretamente para estudar a Medula Espinhal, H Medular e Cauda Equina">
+        <span>🦴 Medula Espinhal</span>
+      </button>
+      <button id="btn-view-pns" class="btn-action" title="Explorar o Sistema Nervoso Periférico (Plexos Cervical, Braquial, Lombossacral, Nervo Ciático, Frênico, Vago e Cadeia Simpática)">
+        <span>⚡ SNP (Nervos)</span>
       </button>
       <button id="btn-view-vascular" class="btn-action" title="Árvore vascular cerebral e espinhal com meninges">
         <span>🛡️ Meninges & Vasos</span>
       </button>
-      <button id="btn-view-micro" class="btn-action" title="Mergulhar nos neurônios piramidais da Camada V">
-        <span>🔬 Neurônios Camada V</span>
+      <button id="btn-view-micro" class="btn-action" title="Mergulhar nos neurônios piramidais da Camada V (Estilo DCJ)">
+        <span>🔬 Neurônios (DCJ)</span>
       </button>
     </div>
 
@@ -767,9 +773,16 @@
     <!-- PANE 2: TRACTOGRAFIA E VIAS DTI -->
     <div class="sidebar-content-pane" id="tracts-container" style="display: none;"></div>
 
-    <!-- PANE 3: SISTEMA GLIAL -->
-    <div class="sidebar-content-pane" id="glia-container" style="display: none;"></div>
   </aside>
+
+  <!-- ELEVADOR CRÂNIO-CAUDAL (DESLIZAR DO ENCÉFALO ATÉ A MEDULA E SNP) -->
+  <div id="neuroaxis-elevator" style="position: fixed; left: 348px; top: 50%; transform: translateY(-50%); z-index: 85; background: rgba(10, 16, 28, 0.92); backdrop-filter: blur(14px); border: 1px solid rgba(0, 242, 254, 0.38); border-radius: 12px; padding: 10px 8px; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 8px 28px rgba(0,0,0,0.65);">
+    <span style="font-size: 9px; font-weight: 800; color: #00f2fe; writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: 0.8px;">EIXO CRÂNIO-CAUDAL</span>
+    <button id="btn-elev-up" class="btn-action" style="padding: 4px 7px; font-size: 11px;" title="Subir para o Encéfalo (Tecla ↑ / W)">▲</button>
+    <input id="slider-neuroaxis-y" type="range" min="-24" max="3" step="0.5" value="-2.5" style="writing-mode: bt-lr; -webkit-appearance: slider-vertical; width: 18px; height: 150px; accent-color: #00f2fe; cursor: pointer;" title="Arraste para descer do Encéfalo até a Medula Espinhal e SNP">
+    <button id="btn-elev-down" class="btn-action" style="padding: 4px 7px; font-size: 11px;" title="Descer para a Medula e SNP (Tecla ↓ / S)">▼</button>
+    <span id="elev-level-label" style="font-size: 9px; font-family: 'JetBrains Mono', monospace; color: #34d399; font-weight: 700;">CÉREBRO</span>
+  </div>
 
   <!-- RIGHT HUD: SCALE, ELECTROPHYSIOLOGY & BIOMARKERS -->
   <div class="hud-right">
@@ -882,23 +895,21 @@
   </div>
 
   <!-- OFFLINE SCIENTIFIC DATA ASSETS (100% Local & Fast) -->
-  <script src="js/vendor/three.min.js"></script>
-  <script src="js/vendor/OrbitControls.js"></script>
-  <script src="js/mozok-adaptive-lod.js"></script>
-  <script src="js/mozok-database.js"></script>
-  <script src="js/swc-neurons-data.js"></script>
-  <script src="js/scientific-atlas-meshes.js"></script>
-  <script src="js/brain-mesh-data.js"></script>
-  <script src="js/mozok-i18n.js"></script>
-  <script src="js/tractography-3d.js"></script>
-  <script src="js/neural-microcosmos-3d.js"></script>
-  <script src="js/brain-3d.js"></script>
-  <script src="js/protein-3d.js"></script>
+  <script src="js/vendor/three.min.js?v=4.0"></script>
+  <script src="js/vendor/OrbitControls.js?v=4.0"></script>
+  <script src="js/mozok-adaptive-lod.js?v=4.0"></script>
+  <script src="js/mozok-database.js?v=4.0"></script>
+  <script src="js/swc-neurons-data.js?v=4.0"></script>
+  <script src="js/scientific-atlas-meshes.js?v=4.0"></script>
+  <script src="js/brain-mesh-data.js?v=4.0"></script>
+  <script src="js/mozok-i18n.js?v=4.0"></script>
+  <script src="js/tractography-3d.js?v=4.0"></script>
+  <script src="js/neural-microcosmos-3d.js?v=4.0"></script>
 
   <!-- MOZOK v2.0 ARCHITECTURAL MODULES (Comentários Triplos + VLibras + Macro SNC + Patologias) -->
-  <script src="js/mozok-ai-narrator.js"></script>
-  <script src="js/cns-anatomy-3d.js"></script>
-  <script src="js/pathology-engine.js"></script>
+  <script src="js/mozok-ai-narrator.js?v=4.0"></script>
+  <script src="js/cns-anatomy-3d.js?v=4.0"></script>
+  <script src="js/pathology-engine.js?v=4.0"></script>
 
   <!-- VLIBRAS OFFICIAL WIDGET (Acessibilidade em Língua Brasileira de Sinais) -->
   <div vw class="enabled">
@@ -963,7 +974,9 @@
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        controls.minDistance = 0.25;
+        controls.enablePan = true;
+        controls.screenSpacePanning = true;
+        controls.minDistance = 4.2;
         controls.maxDistance = 450.0;
         controls.target.set(0, -2.5, 0);
         controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
@@ -1005,17 +1018,9 @@
           });
         }
 
-        // [PT-BR]: Registro de Service Worker para PWA offline com verificação de atualização imediata
-        // [EN-GB]: Service Worker registration for offline PWA with immediate update check
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('./sw.js').then(reg => {
-            console.log('[MOZOK PWA] Service Worker registrado:', reg.scope);
-            if (reg.update) {
-              reg.update();
-            }
-          }).catch(err => {
-            console.warn('[MOZOK PWA] Falha ao registrar Service Worker:', err);
-          });
+          navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
+          if (window.caches) caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
         }
 
         // [PT-BR]: Configuração das gavetas deslizantes inferiores para telas mobile/touch
@@ -1330,11 +1335,14 @@
 
         const diveBtn = document.getElementById('btn-dive');
         const btnDiveText = document.getElementById('btn-dive-text');
-        const topbarModeBtns = ['btn-view-external', 'btn-view-xray', 'btn-view-vascular', 'btn-view-micro'];
+        const topbarModeBtns = ['btn-view-external', 'btn-view-xray', 'btn-view-spinal', 'btn-view-pns', 'btn-view-vascular', 'btn-view-micro'];
 
         if (tier.id >= 5) {
           isMicroMode = true;
-          if (scene) scene.background.set('#030914');
+          if (scene) {
+            scene.background.set('#030d18');
+            scene.fog = new THREE.FogExp2(0x030d18, 0.018);
+          }
           if (neuralMicrocosmos) neuralMicrocosmos.setVisible(true);
           if (cnsAnatomy) cnsAnatomy.setVisible(false);
 
@@ -1347,15 +1355,15 @@
             if (b) b.classList.toggle('active', id === 'btn-view-micro');
           });
 
-          // Posições calibradas para o Microcosmo Neural (Tiers 5 a 9)
+          // Posições calibradas para o Microcosmo Neural (Estilo DCJ)
           const microTargets = {
-            5: { target: [0, 0, 0], pos: [0, 2.0, 26.0] },
-            6: { target: [0, 0, 0], pos: [0, 1.5, 18.0] },
-            7: { target: [0, 0, 0], pos: [0, 0.5, 11.5] },
-            8: { target: [0, -18.5, 0], pos: [0, -17.5, 4.8] },
-            9: { target: [0.18, -6.5, -0.12], pos: [0.18, -6.2, 2.6] }
+            5: { target: [0, 0.5, 0], pos: [0, -1.2, 34.0] },
+            6: { target: [0, 0.5, 0], pos: [0, -1.2, 28.5] },
+            7: { target: [0, 1.5, 0], pos: [0, 0.5, 16.5] },
+            8: { target: [-4.5, 2.5, -1.0], pos: [-4.5, 2.5, 6.5] },
+            9: { target: [-1.2, -5.8, 0.6], pos: [-1.2, -5.5, 3.8] }
           };
-          const mCam = microTargets[tier.id] || microTargets[7];
+          const mCam = microTargets[tier.id] || microTargets[6];
           smoothFlyCameraTo(
             new THREE.Vector3(mCam.target[0], mCam.target[1], mCam.target[2]),
             new THREE.Vector3(mCam.pos[0], mCam.pos[1], mCam.pos[2]),
@@ -1363,7 +1371,10 @@
           );
         } else {
           isMicroMode = false;
-          if (scene) scene.background.set('#020617');
+          if (scene) {
+            scene.background.set('#020617');
+            scene.fog = null;
+          }
           if (neuralMicrocosmos) neuralMicrocosmos.setVisible(false);
           if (cnsAnatomy) {
             cnsAnatomy.setVisible(true);
@@ -1504,6 +1515,12 @@
         }
       }
 
+      window.mozokSelectRegionById = function (id, triggerSpeech = false) {
+        const regions = (window.MOZOK_DATABASE && window.MOZOK_DATABASE.structures) || (cnsAnatomy ? cnsAnatomy.getRegions() : []);
+        const reg = regions.find(r => r.id === id);
+        if (reg) selectRegion(reg, triggerSpeech);
+      };
+
       function smoothFlyCamera(targetLookAt, targetDist, customOffset, duration = 0.9) {
         if (flyAnimId) cancelAnimationFrame(flyAnimId);
 
@@ -1587,7 +1604,7 @@
         if (btnIsolate) btnIsolate.classList.remove('active');
         if (btnIsolateText) btnIsolateText.textContent = '🧩 Isolar Peça Real 3D';
 
-        document.querySelectorAll('#btn-view-external, #btn-view-xray, #btn-view-vascular, #btn-view-micro').forEach(b => b && b.classList.remove('active'));
+        document.querySelectorAll('#btn-view-external, #btn-view-xray, #btn-view-spinal, #btn-view-pns, #btn-view-vascular, #btn-view-micro').forEach(b => b && b.classList.remove('active'));
         const btnExt = document.getElementById('btn-view-external');
         if (btnExt) btnExt.classList.add('active');
 
@@ -1808,12 +1825,16 @@
         // [EN-GB]: Quick Anatomical View Modes Selector on Fixed Topbar
         const btnViewExt = document.getElementById('btn-view-external');
         const btnViewXray = document.getElementById('btn-view-xray');
+        const btnViewSpinal = document.getElementById('btn-view-spinal');
+        const btnViewPns = document.getElementById('btn-view-pns');
         const btnViewVasc = document.getElementById('btn-view-vascular');
         const btnViewMic = document.getElementById('btn-view-micro');
 
         const viewModeBtns = [
           { el: btnViewExt, mode: 'external' },
           { el: btnViewXray, mode: 'internal_xray' },
+          { el: btnViewSpinal, mode: 'spinal' },
+          { el: btnViewPns, mode: 'pns' },
           { el: btnViewVasc, mode: 'vascular' },
           { el: btnViewMic, mode: 'micro' }
         ];
@@ -1824,16 +1845,70 @@
               viewModeBtns.forEach(b => b.el && b.el.classList.remove('active'));
               el.classList.add('active');
               if (mode === 'micro') {
-                flyToScaleTier(6);
+                flyToScaleTier(5); // Abre os Neurônios estilo DCJ no enquadramento principal
               } else {
-                if (isMicroMode || activeScaleTierIndex >= 5) {
-                  flyToScaleTier(0);
+                isMicroMode = false;
+                if (scene) {
+                  scene.background.set('#020617');
+                  scene.fog = null;
                 }
-                if (cnsAnatomy && typeof cnsAnatomy.setViewMode === 'function') {
+                if (neuralMicrocosmos) neuralMicrocosmos.setVisible(false);
+                if (cnsAnatomy) {
+                  cnsAnatomy.setVisible(true);
                   cnsAnatomy.setViewMode(mode);
+                }
+                if (mode === 'spinal') {
+                  smoothFlyCameraTo(new THREE.Vector3(0, -13.0, -0.85), new THREE.Vector3(0, -11.5, 16.5), 0.9);
+                  window.mozokSelectRegionById(25, false);
+                } else if (mode === 'pns') {
+                  smoothFlyCameraTo(new THREE.Vector3(0, -13.5, -0.5), new THREE.Vector3(0, -11.5, 25.0), 0.9);
+                  window.mozokSelectRegionById(28, false);
+                } else if (activeScaleTierIndex >= 4) {
+                  flyToScaleTier(0);
                 }
               }
             });
+          }
+        });
+
+        // Controle do Elevador Crânio-Caudal (Descer até a Medula e SNP)
+        const sliderY = document.getElementById('slider-neuroaxis-y');
+        const elevLabel = document.getElementById('elev-level-label');
+        const btnElevUp = document.getElementById('btn-elev-up');
+        const btnElevDown = document.getElementById('btn-elev-down');
+
+        function moveNeuroaxisToY(newY) {
+          const clampedY = Math.max(-24.0, Math.min(3.0, newY));
+          const deltaY = clampedY - controls.target.y;
+          controls.target.y = clampedY;
+          camera.position.y += deltaY;
+          controls.update();
+          if (sliderY) sliderY.value = String(clampedY);
+          if (elevLabel) {
+            if (clampedY > -2.5) elevLabel.textContent = 'CÉREBRO';
+            else if (clampedY > -6.8) elevLabel.textContent = 'TRONCO';
+            else if (clampedY > -11.0) elevLabel.textContent = 'CERVICAL';
+            else if (clampedY > -15.5) elevLabel.textContent = 'TORÁCICA';
+            else if (clampedY > -19.5) elevLabel.textContent = 'LOMBAR';
+            else elevLabel.textContent = 'CIÁTICO/SNP';
+          }
+        }
+
+        if (sliderY) {
+          sliderY.addEventListener('input', (e) => {
+            if (flyAnimId) { cancelAnimationFrame(flyAnimId); flyAnimId = null; }
+            moveNeuroaxisToY(parseFloat(e.target.value));
+          });
+        }
+        if (btnElevUp) btnElevUp.addEventListener('click', () => moveNeuroaxisToY(controls.target.y + 2.5));
+        if (btnElevDown) btnElevDown.addEventListener('click', () => moveNeuroaxisToY(controls.target.y - 2.5));
+
+        window.addEventListener('keydown', (e) => {
+          if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+          if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+            moveNeuroaxisToY(controls.target.y - 1.8);
+          } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+            moveNeuroaxisToY(controls.target.y + 1.8);
           }
         });
 
