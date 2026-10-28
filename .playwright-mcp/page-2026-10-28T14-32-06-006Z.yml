@@ -1,0 +1,273 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: CÓRTEX TELENCEFÁLICO
+      - button "✕" [ref=e7] [cursor=pointer]
+    - generic [ref=e8]: Lobo Frontal
+    - generic [ref=e9]: Lobus Frontalis (Brodmann 4, 6, 8, 9–12, 44, 45)
+    - generic [ref=e10]: Sede das funções executivas superiores, planejamento, controle inibitório (Córtex Pré-Frontal Dorsolateral e Orbitofrontal), motricidade voluntária somatotópica (Giro Pré-Central / Homúnculo Motor de Penfield) e expressão motora da fala (Área de Broca).
+    - generic [ref=e11]:
+      - generic [ref=e12]: Glutamato (Piramidal)
+      - generic [ref=e13]: Dopamina (Via Mesocortical D1)
+      - generic [ref=e14]: GABA (Interneurônios)
+    - generic [ref=e15]:
+      - button "🧩 Isolar Peça 3D" [ref=e16] [cursor=pointer]
+      - button "🔬 Ver Neurônios" [ref=e17] [cursor=pointer]
+      - button "🔊 Narrar" [ref=e18] [cursor=pointer]
+  - banner [ref=e19]:
+    - generic [ref=e20]:
+      - generic [ref=e21]: 🧠
+      - generic [ref=e22]:
+        - generic [ref=e23]: MOZOK v5.0 — ATLAS NEUROFISIOLÓGICO 3D
+        - generic [ref=e24]: "SNC & SNP Completo • Córtex MNI152 Real • GPU: NVIDIA GeForce GTX 1650 (0x00001F99)"
+    - generic [ref=e25]:
+      - button "🧠 Córtex Real" [ref=e26] [cursor=pointer]
+      - button "🩻 Raio-X Subcortical" [ref=e27] [cursor=pointer]
+      - button "🩸 Árvore Vascular & LCR" [ref=e28] [cursor=pointer]
+      - button "🔬 Microcosmos Neuronal" [ref=e29] [cursor=pointer]
+      - button "🫧 Corpo Translúcido" [ref=e30] [cursor=pointer]
+      - button "🎯 Centralizar" [ref=e31] [cursor=pointer]
+      - button "🧭 Tour Guiado" [ref=e32] [cursor=pointer]
+      - button "🔊 Voz IA" [ref=e33] [cursor=pointer]
+      - button "⛶ Tela Cheia" [ref=e34] [cursor=pointer]
+  - complementary [ref=e35]:
+    - generic [ref=e36]:
+      - generic [ref=e37]:
+        - generic [ref=e38]: Atlas Anatômico SNC & SNP
+        - generic [ref=e39]: 36 / 36
+      - textbox "Buscar lobo, núcleo, nervo craniano, plexo..." [ref=e40]
+      - generic [ref=e41]:
+        - button "Todos (31)" [ref=e42] [cursor=pointer]
+        - button "Córtex & Cerebelo" [ref=e43] [cursor=pointer]
+        - button "Límbico & Núcleos" [ref=e44] [cursor=pointer]
+        - button "Tronco & Medula" [ref=e45] [cursor=pointer]
+        - button "Nervos Cranianos" [ref=e46] [cursor=pointer]
+        - button "Plexos & Nervos SNP" [ref=e47] [cursor=pointer]
+        - button "Vascular & Líquor" [ref=e48] [cursor=pointer]
+    - generic [ref=e49]:
+      - generic [ref=e50] [cursor=pointer]:
+        - generic [ref=e51]:
+          - generic [ref=e52]: Lobo Frontal
+          - generic [ref=e53]: CÓRTEX TELENCEFÁLICO
+        - generic [ref=e54]: Lobus Frontalis (Brodmann 4, 6, 8, 9–12, 44, 45)
+      - generic [ref=e55] [cursor=pointer]:
+        - generic [ref=e56]:
+          - generic [ref=e57]: Lobo Parietal
+          - generic [ref=e58]: CÓRTEX SOMATOSSENSORIAL
+        - generic [ref=e59]: Lobus Parietalis (Brodmann 1, 2, 3, 5, 7, 39, 40)
+      - generic [ref=e60] [cursor=pointer]:
+        - generic [ref=e61]:
+          - generic [ref=e62]: Lobo Temporal
+          - generic [ref=e63]: AUDIÇÃO, LINGUAGEM & MEMÓRIA
+        - generic [ref=e64]: Lobus Temporalis (Brodmann 20–22, 38, 41, 42)
+      - generic [ref=e65] [cursor=pointer]:
+        - generic [ref=e66]:
+          - generic [ref=e67]: Lobo Occipital
+          - generic [ref=e68]: PROCESSAMENTO VISUAL
+        - generic [ref=e69]: Lobus Occipitalis (Brodmann 17, 18, 19 — Córtex Calcarino)
+      - generic [ref=e70] [cursor=pointer]:
+        - generic [ref=e71]:
+          - generic [ref=e72]: Córtex Insular (Ínsula de Reil)
+          - generic [ref=e73]: INTEROCEPÇÃO & EMPATIA
+        - generic [ref=e74]: Lobus Insularis (Quinto Lobo Cerebral Profundo)
+      - generic [ref=e75] [cursor=pointer]:
+        - generic [ref=e76]:
+          - generic [ref=e77]: Cerebelo (Folia, Vérmis & Hemisférios)
+          - generic [ref=e78]: COORDENAÇÃO & APRENDIZADO MOTOR
+        - generic [ref=e79]: Cerebellum (Vestibulocerebelo, Espinocerebelo & Cerebrocerebelo)
+      - generic [ref=e80] [cursor=pointer]:
+        - generic [ref=e81]:
+          - generic [ref=e82]: Corpo Caloso
+          - generic [ref=e83]: COMISSURA INTER-HEMISFÉRICA
+        - generic [ref=e84]: Corpus Callosum (Rostro, Joelho, Tronco e Esplênio)
+      - generic [ref=e85] [cursor=pointer]:
+        - generic [ref=e86]:
+          - generic [ref=e87]: Tálamo (Diencéfalo Dorsal)
+          - generic [ref=e88]: PORTAL SENSORIAL & TALAMOCORTICAL
+        - generic [ref=e89]: Thalamus Dorsalis (Núcleos VPL, VPM, VL, VA, CGL, CGM e Pulvinar)
+      - generic [ref=e90] [cursor=pointer]:
+        - generic [ref=e91]:
+          - generic [ref=e92]: Hipotálamo & Eixo Hipofisário
+          - generic [ref=e93]: HOMEOSTASE & NEUROENDOCRINOLOGIA
+        - generic [ref=e94]: Hypothalamus & Glandula Pituitaria (Hypophysis)
+      - generic [ref=e95] [cursor=pointer]:
+        - generic [ref=e96]:
+          - generic [ref=e97]: Hipocampo & Fórnix
+          - generic [ref=e98]: MEMÓRIA EPISÓDICA & NAVEGAÇÃO
+        - generic [ref=e99]: Hippocampus (Cornu Ammonis CA1–CA4, Giro Denteado & Fórnix)
+      - generic [ref=e100] [cursor=pointer]:
+        - generic [ref=e101]:
+          - generic [ref=e102]: Amígdala Cerebral (Complexo Amigdaliano)
+          - generic [ref=e103]: EMOÇÃO, ALERTA & VALÊNCIA AFETIVA
+        - generic [ref=e104]: Corpus Amygdaloideum (Núcleos Basolateral, Central e Corticomedial)
+      - generic [ref=e105] [cursor=pointer]:
+        - generic [ref=e106]:
+          - generic [ref=e107]: Núcleos da Base (Corpo Estriado & Globo Pálido)
+          - generic [ref=e108]: SELEÇÃO DE AÇÃO & AUTOMATISMO MOTOR
+        - generic [ref=e109]: Nuclei Basales (Caudado, Putâmen, Globo Pálido, Substância Negra & NST)
+      - generic [ref=e110] [cursor=pointer]:
+        - generic [ref=e111]:
+          - generic [ref=e112]: Mesencéfalo (Tronco Encefálico Superior)
+          - generic [ref=e113]: TRONCO ENCEFÁLICO
+        - generic [ref=e114]: Mesencephalon (Pedúnculos Cerebrais, Teto/Colículos & Tegmento)
+      - generic [ref=e115] [cursor=pointer]:
+        - generic [ref=e116]:
+          - generic [ref=e117]: Ponte de Varólio (Protuberância Anular)
+          - generic [ref=e118]: TRONCO ENCEFÁLICO
+        - generic [ref=e119]: Pons Varolii (Base Pontina, Tegmento & Núcleos Pontinos)
+      - generic [ref=e120] [cursor=pointer]:
+        - generic [ref=e121]:
+          - generic [ref=e122]: Bulbo Raquidiano (Medula Oblonga)
+          - generic [ref=e123]: CENTROS VITAIS CARDIORRESPIRATÓRIOS
+        - generic [ref=e124]: Medulla Oblongata (Pirâmides, Decussação, Olivas & Centros Vitais)
+      - generic [ref=e125] [cursor=pointer]:
+        - generic [ref=e126]:
+          - generic [ref=e127]: Medula Espinhal, Cone Medular & Cauda Equina
+          - generic [ref=e128]: SNC ESPINHAL
+        - generic [ref=e129]: "Medulla Spinalis (31 Segmentos: 8C, 12T, 5L, 5S, 1Co)"
+      - generic [ref=e130] [cursor=pointer]:
+        - generic [ref=e131]:
+          - generic [ref=e132]: Nervo Olfatório (I Par Craniano)
+          - generic [ref=e133]: I PAR CRANIANO
+        - generic [ref=e134]: Nervus Olfactorius (CN I — Lâmina Cribriforme & Bulbo Olfatório)
+      - generic [ref=e135] [cursor=pointer]:
+        - generic [ref=e136]:
+          - generic [ref=e137]: Nervo Óptico, Quiasma & Trato Óptico (II Par)
+          - generic [ref=e138]: II PAR CRANIANO
+        - generic [ref=e139]: Nervus Opticus & Chiasma Opticum (CN II)
+      - generic [ref=e140] [cursor=pointer]:
+        - generic [ref=e141]:
+          - generic [ref=e142]: Nervos Oculomotor (III), Troclear (IV) & Abducente (VI)
+          - generic [ref=e143]: III, IV & VI PARES
+        - generic [ref=e144]: Nervi Oculomotorius (III), Trochlearis (IV) & Abducens (VI)
+      - generic [ref=e145] [cursor=pointer]:
+        - generic [ref=e146]:
+          - generic [ref=e147]: "Nervo Trigêmeo (V Par: Ramos V1, V2 e V3)"
+          - generic [ref=e148]: V PAR CRANIANO
+        - generic [ref=e149]: "Nervus Trigeminus (CN V — Gânglio de Gasser: Oftálmico, Maxilar e Mandibular)"
+      - generic [ref=e150] [cursor=pointer]:
+        - generic [ref=e151]:
+          - generic [ref=e152]: Nervos Facial (VII) & Vestibulococlear (VIII)
+          - generic [ref=e153]: VII & VIII PARES
+        - generic [ref=e154]: Nervi Facialis (CN VII) & Vestibulocochlearis (CN VIII)
+      - generic [ref=e155] [cursor=pointer]:
+        - generic [ref=e156]:
+          - generic [ref=e157]: Nervo Vago (X Par) & Eixo Parassimpático
+          - generic [ref=e158]: X PAR CRANIANO
+        - generic [ref=e159]: Nervus Vagus (CN X — Pneumogástrico)
+      - generic [ref=e160] [cursor=pointer]:
+        - generic [ref=e161]:
+          - generic [ref=e162]: Nervos Glossofaríngeo (IX), Acessório (XI) & Hipoglosso (XII)
+          - generic [ref=e163]: IX, XI & XII PARES
+        - generic [ref=e164]: Nervi Glossopharyngeus (IX), Accessorius (XI) & Hypoglossus (XII)
+      - generic [ref=e165] [cursor=pointer]:
+        - generic [ref=e166]:
+          - generic [ref=e167]: Plexo Cervical & Nervo Frênico (C1–C5)
+          - generic [ref=e168]: SNP CERVICAL
+        - generic [ref=e169]: Plexus Cervicalis & Nervus Phrenicus (C3–C5)
+      - generic [ref=e170] [cursor=pointer]:
+        - generic [ref=e171]:
+          - generic [ref=e172]: Plexo Braquial (Raízes C5–T1, Troncos & Fascículos)
+          - generic [ref=e173]: SNP MEMBRO SUPERIOR
+        - generic [ref=e174]: Plexus Brachialis (Raízes C5, C6, C7, C8 e T1)
+      - generic [ref=e175] [cursor=pointer]:
+        - generic [ref=e176]:
+          - generic [ref=e177]: Nervos Mediano, Ulnar & Radial (Braço, Antebraço e Mão)
+          - generic [ref=e178]: SNP BRAQUIAL
+        - generic [ref=e179]: Nervi Medianus, Ulnaris & Radialis (Membro Superior)
+      - generic [ref=e180] [cursor=pointer]:
+        - generic [ref=e181]:
+          - generic [ref=e182]: Nervos Intercostais (T1–T12) & Cadeia Simpática Toracolombar
+          - generic [ref=e183]: SNP TORÁCICO & TRONCO SIMPÁTICO
+        - generic [ref=e184]: Nervi Intercostales & Truncus Sympathicus Paravertebralis
+      - generic [ref=e185] [cursor=pointer]:
+        - generic [ref=e186]:
+          - generic [ref=e187]: Plexo Lombossacral & Nervo Femoral (L1–S4)
+          - generic [ref=e188]: SNP LOMBOSSACRAL
+        - generic [ref=e189]: Plexus Lumbosacralis & Nervus Femoralis (L2–L4)
+      - generic [ref=e190] [cursor=pointer]:
+        - generic [ref=e191]:
+          - generic [ref=e192]: Nervo Ciático (Isquiático), Tibial & Fibular Comum (L4–S3)
+          - generic [ref=e193]: MAIOR NERVO DO CORPO HUMANO
+        - generic [ref=e194]: Nervus Ischiadicus, Nervus Tibialis & Nervus Fibularis Communis
+      - generic [ref=e195] [cursor=pointer]:
+        - generic [ref=e196]:
+          - generic [ref=e197]: Artérias Carótidas Internas (Circulação Anterior)
+          - generic [ref=e198]: VASCULAR
+        - generic [ref=e199]: Arteria Carotis Interna (Segmentos Cervical, Petroso, Cavernoso e Supraclinóideo)
+      - generic [ref=e200] [cursor=pointer]:
+        - generic [ref=e201]:
+          - generic [ref=e202]: Artérias Vertebrais & Artéria Basilar (Circulação Posterior)
+          - generic [ref=e203]: VASCULAR
+        - generic [ref=e204]: Arteriae Vertebrales & Arteria Basilaris (Sistema Vertebrobasilar)
+      - generic [ref=e205] [cursor=pointer]:
+        - generic [ref=e206]:
+          - generic [ref=e207]: Polígono de Willis (Círculo Arterial do Cérebro)
+          - generic [ref=e208]: ANASTOMOSE COLATERAL DA BASE DO CRÂNIO
+        - generic [ref=e209]: Circulus Arteriosus Cerebri (Anastomose Heptagonal da Base)
+      - generic [ref=e210] [cursor=pointer]:
+        - generic [ref=e211]:
+          - generic [ref=e212]: Artérias Cerebrais Média (ACM), Anterior (ACA) & Posterior (ACP)
+          - generic [ref=e213]: TERRITÓRIOS VASCULARES CORTICAIS E PROFUNDOS
+        - generic [ref=e214]: Arteriae Cerebri Media (M1–M4), Anterior (A1–A5) & Posterior (P1–P4)
+      - generic [ref=e215] [cursor=pointer]:
+        - generic [ref=e216]:
+          - generic [ref=e217]: Seios Venosos da Dura-Máter & Veias Jugulares Internas
+          - generic [ref=e218]: DRENAGEM VENOSA ENCEFÁLICA & REABSORÇÃO DO LÍQUOR
+        - generic [ref=e219]: Sinus Durae Matris (Sagital Superior, Transverso, Sigmoide & Cavernoso)
+      - generic [ref=e220] [cursor=pointer]:
+        - generic [ref=e221]:
+          - generic [ref=e222]: Ventrículos Laterais & Plexos Corióideos
+          - generic [ref=e223]: SISTEMA VENTRICULAR
+        - generic [ref=e224]: Ventriculi Laterales (Cornos Frontal, Temporal, Occipital & Átrio)
+      - generic [ref=e225] [cursor=pointer]:
+        - generic [ref=e226]:
+          - generic [ref=e227]: Terceiro Ventrículo, Aqueduto de Sylvius & Quarto Ventrículo
+          - generic [ref=e228]: CIRCULAÇÃO LIQUÓRICA & CISTERNAS SUBARACNÓIDEAS
+        - generic [ref=e229]: Ventriculus Tertius, Aqueductus Mesencephali & Ventriculus Quartus
+  - complementary [ref=e230]:
+    - generic [ref=e231]:
+      - generic [ref=e232]: CÓRTEX TELENCEFÁLICO
+      - heading "Lobo Frontal" [level=2] [ref=e233]
+      - generic [ref=e234]: Lobus Frontalis (Brodmann 4, 6, 8, 9–12, 44, 45)
+    - generic [ref=e235]:
+      - button "🧩 Isolar Peça 3D" [ref=e236] [cursor=pointer]
+      - button "🔬 Ver Neurônios" [ref=e237] [cursor=pointer]
+      - button "🔊 Narrar Peça" [ref=e238] [cursor=pointer]
+      - button "⚡ Disparar Sinapse" [ref=e239] [cursor=pointer]
+      - button "🩸 Simular AVC (ACM)" [ref=e240] [cursor=pointer]
+      - button "💚 Restaurar Perfusão" [ref=e241] [cursor=pointer]
+    - generic [ref=e242]:
+      - generic [ref=e243]:
+        - generic [ref=e244]: ⚡ Eletrofisiologia & Potencial de Ação
+        - generic [ref=e245]: "-70.0 mV"
+      - generic [ref=e247]:
+        - generic [ref=e248]:
+          - generic [ref=e249]: Frequência
+          - generic [ref=e250]: 18.0 Hz
+        - generic [ref=e251]:
+          - generic [ref=e252]: Perfusão CBF
+          - generic [ref=e253]: 54 mL/100g
+        - generic [ref=e254]:
+          - generic [ref=e255]: Condução
+          - generic [ref=e256]: 110 m/s
+    - generic [ref=e257]:
+      - generic [ref=e258]: 📖 Síntese Morfofuncional
+      - generic [ref=e259]: Sede das funções executivas superiores, planejamento, controle inibitório (Córtex Pré-Frontal Dorsolateral e Orbitofrontal), motricidade voluntária somatotópica (Giro Pré-Central / Homúnculo Motor de Penfield) e expressão motora da fala (Área de Broca).
+    - generic [ref=e260]:
+      - generic [ref=e261]: ⚙️ Funções Neurofisiológicas Principais
+      - list [ref=e262]:
+        - listitem [ref=e263]: ▸ Execução motora voluntária contralateral via Trato Corticoespinhal Piramidal (Área 4)
+        - listitem [ref=e264]: ▸ Planejamento motor complexo, coordenação bimanual e olhar conjugado (Áreas 6 e 8)
+        - listitem [ref=e265]: ▸ Memória de trabalho, abstração, julgamento ético e regulação da conduta social (Áreas 9–12)
+        - listitem [ref=e266]: ▸ Programação fonológica e sintática da linguagem falada e escrita (Área de Broca — 44 e 45)
+    - generic [ref=e267]:
+      - generic [ref=e268]: 🧪 Neurotransmissores & Receptores
+      - generic [ref=e269]:
+        - generic [ref=e270]: Glutamato (Piramidal)
+        - generic [ref=e271]: Dopamina (Via Mesocortical D1)
+        - generic [ref=e272]: GABA (Interneurônios)
+        - generic [ref=e273]: Noradrenalina
+    - generic [ref=e274]:
+      - generic [ref=e275]: 🏥 Correlação Anatomoclínica & Semiologia
+      - generic [ref=e276]: Afasia motora de Broca (fala não-fluente com compreensão preservada), hemiparesia/hemiplegia contralateral, Síndrome Disexecutiva ou apatia/desinibição frontal (Síndrome de Phineas Gage) e Demência Frontotemporal.

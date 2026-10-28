@@ -1,24 +1,24 @@
-// [PT-BR]: Aplicativo Desktop Nativo Win32 do MOZOK v2.0 com Aceleração de GPU Dedicada (NVIDIA Optimus / AMD Enduro) e Janela Nativa sem Navegador Externo.
-// [EN-GB]: MOZOK v2.0 Native Win32 Desktop Application with Dedicated GPU Acceleration (NVIDIA Optimus / AMD Enduro) and Browserless Native Window.
-// [AI-CTX]: @llm-context: Native desktop runtime using tao + wry on Windows with embedded multithreaded static asset server and GPU driver exports.
-
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::fs::File;
+use std::env;
+use std::fs;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::process::Command;
 use std::thread;
 
-use mozok_atlas::OntologyTree;
-use mozok_core::Point3D;
-use mozok_navigation::NeuroCamera;
-use mozok_pathology::CjdSimulator;
-use mozok_physiology::CsfHydrodynamics;
+use tao::{
+    dpi::LogicalSize,
+    event::{Event, WindowEvent},
+    event_loop::{ControlFlow, EventLoop},
+    window::{Fullscreen, WindowBuilder},
+};
+use wry::WebViewBuilder;
 
-// [PT-BR]: Símbolos nativos C que forçam o driver NVIDIA Optimus e AMD PowerXpress a usar a GPU dedicada (ex: GTX 1650) no executável.
-// [EN-GB]: Native C symbols forcing NVIDIA Optimus and AMD PowerXpress drivers to use the dedicated GPU on this executable.
+const PORT: u16 = 8192;
+
+// Força a execução em placa de vídeo dedicada (NVIDIA Optimus / AMD PowerXpress) em nível de binário PE no Windows
 #[cfg(target_os = "windows")]
 #[no_mangle]
 pub static NvOptimusEnablement: u32 = 0x00000001;
@@ -27,340 +27,232 @@ pub static NvOptimusEnablement: u32 = 0x00000001;
 #[no_mangle]
 pub static AmdPowerXpressRequestHighPerformance: i32 = 1;
 
+fn force_windows_high_performance_gpu() {
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+
+        // 1. Registra mozok-native.exe em DirectX UserGpuPreferences (GpuPreference=2 = High Performance Dedicated GPU)
+        if let Ok(exe_path) = env::current_exe() {
+            if let Some(exe_str) = exe_path.to_str() {
+                let _ = Command::new("reg")
+                    .args([
+                        "add",
+                        r"HKCU\Software\Microsoft\DirectX\UserGpuPreferences",
+                        "/v",
+                        exe_str,
+                        "/t",
+                        "REG_SZ",
+                        "/d",
+                        "GpuPreference=2;",
+                        "/f",
+                    ])
+                    .creation_flags(CREATE_NO_WINDOW)
+                    .status();
+            }
+        }
+
+        // 2. Localiza e registra msedgewebview2.exe (processo real que renderiza o WebGL2/D3D11) para SEMPRE usar GPU Dedicada
+        let program_files_x86 = env::var("ProgramFiles(x86)").unwrap_or_else(|_| r"C:\Program Files (x86)".to_string());
+        let webview_base = Path::new(&program_files_x86).join(r"Microsoft\EdgeWebView\Application");
+        if let Ok(entries) = fs::read_dir(&webview_base) {
+            for entry in entries.flatten() {
+                let candidate = entry.path().join("msedgewebview2.exe");
+                if candidate.exists() {
+                    if let Some(cand_str) = candidate.to_str() {
+                        let _ = Command::new("reg")
+                            .args([
+                                "add",
+                                r"HKCU\Software\Microsoft\DirectX\UserGpuPreferences",
+                                "/v",
+                                cand_str,
+                                "/t",
+                                "REG_SZ",
+                                "/d",
+                                "GpuPreference=2;",
+                                "/f",
+                            ])
+                            .creation_flags(CREATE_NO_WINDOW)
+                            .status();
+                    }
+                }
+            }
+        }
+    }
+
+    // 3. Flags agressivas do Chromium / WebView2 para forçar GPU dedicada, Direct3D11, MSAA 8x e WebGL2 sem limite de FPS
+    let gpu_flags = [
+        "--force-high-performance-gpu",
+        "--enable-gpu-rasterization",
+        "--enable-zero-copy",
+        "--ignore-gpu-blocklist",
+        "--enable-webgl2-compute-context",
+        "--enable-accelerated-2d-canvas",
+        "--use-angle=d3d11",
+        "--enable-features=VaapiVideoDecoder,CanvasOopRasterization,WebGLDeveloperExtensions,UseSkiaRenderer",
+        "--disable-frame-rate-limit",
+        "--disable-gpu-vsync",
+        "--disable-renderer-backgrounding",
+        "--disable-background-timer-throttling",
+        "--autoplay-policy=no-user-gesture-required",
+    ]
+    .join(" ");
+
+    env::set_var("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", &gpu_flags);
+    env::set_var("SHIM_MCCOMPAT", "0x800000001");
+}
+
+fn find_web_root() -> PathBuf {
+    if let Ok(exe_path) = env::current_exe() {
+        if let Some(exe_dir) = exe_path.parent() {
+            let candidates = [
+                exe_dir.join("web"),
+                exe_dir.join("../web"),
+                exe_dir.join("../../web"),
+                exe_dir.join("../../../web"),
+            ];
+            for candidate in candidates {
+                if candidate.join("index.html").exists() {
+                    return candidate;
+                }
+            }
+        }
+    }
+    let cwd = env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+    if cwd.join("web/index.html").exists() {
+        return cwd.join("web");
+    }
+    if cwd.join("../../web/index.html").exists() {
+        return cwd.join("../../web");
+    }
+    cwd.join("web")
+}
+
 fn get_mime_type(path: &Path) -> &'static str {
-    match path.extension().and_then(|s| s.to_str()) {
-        Some("html") | Some("htm") => "text/html; charset=utf-8",
-        Some("js") => "application/javascript; charset=utf-8",
+    match path.extension().and_then(|e| e.to_str()) {
+        Some("html") => "text/html; charset=utf-8",
+        Some("js") | Some("mjs") => "application/javascript; charset=utf-8",
         Some("css") => "text/css; charset=utf-8",
-        Some("json") => "application/json",
+        Some("wasm") => "application/wasm",
+        Some("json") => "application/json; charset=utf-8",
+        Some("svg") => "image/svg+xml",
         Some("png") => "image/png",
         Some("jpg") | Some("jpeg") => "image/jpeg",
         Some("ico") => "image/x-icon",
-        Some("svg") => "image/svg+xml",
-        Some("mp3") => "audio/mpeg",
-        Some("wasm") => "application/wasm",
         _ => "application/octet-stream",
     }
 }
 
-fn strip_windows_verbatim(p: PathBuf) -> PathBuf {
-    #[cfg(target_os = "windows")]
-    {
-        let s = p.to_string_lossy();
-        if let Some(stripped) = s.strip_prefix(r"\\?\UNC\") {
-            return PathBuf::from(format!(r"\\{}", stripped));
-        } else if let Some(stripped) = s.strip_prefix(r"\\?\") {
-            return PathBuf::from(stripped);
-        }
-    }
-    p
-}
-
-fn handle_client(mut stream: TcpStream, web_root: Arc<PathBuf>) {
-    let mut buffer = [0u8; 16384];
-    let bytes_read = match stream.read(&mut buffer) {
+fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf) {
+    let mut buffer = [0u8; 8192];
+    let n = match stream.read(&mut buffer) {
         Ok(n) if n > 0 => n,
         _ => return,
     };
 
-    let request_str = String::from_utf8_lossy(&buffer[..bytes_read]);
-    let request_line = match request_str.lines().next() {
-        Some(l) => l,
-        None => return,
-    };
+    let req_str = String::from_utf8_lossy(&buffer[..n]);
+    let first_line = req_str.lines().next().unwrap_or("GET / HTTP/1.1");
+    let raw_url = first_line.split_whitespace().nth(1).unwrap_or("/");
+    let path_only = raw_url.split('?').next().unwrap_or("/");
+    let clean_rel = path_only.trim_start_matches('/').replace("..", "");
+    let rel_path = if clean_rel.is_empty() { "index.html" } else { &clean_rel };
+    let file_path = web_root.join(rel_path);
 
-    let mut parts = request_line.split_whitespace();
-    let _method = parts.next().unwrap_or("GET");
-    let mut raw_path = parts.next().unwrap_or("/").to_string();
-
-    if let Some(pos) = raw_path.find('?') {
-        raw_path.truncate(pos);
-    }
-
-    if raw_path == "/api/status" {
-        let json = concat!(
-            r#"{"status":"ok","engine":"MOZOK v1.0 Beta Native GPU","#,
-            r#""rust_crates":["mozok-core","mozok-atlas","mozok-navigation","#,
-            r#""mozok-physiology","mozok-pathology"]}"#
-        );
-        let response = format!(
-            concat!(
-                "HTTP/1.1 200 OK\r\n",
-                "Content-Type: application/json\r\n",
-                "Content-Length: {}\r\n",
-                "Cache-Control: no-store\r\n",
-                "Connection: close\r\n\r\n{}"
-            ),
-            json.len(),
-            json
-        );
-        let _ = stream.write_all(response.as_bytes());
-        return;
-    }
-
-    let mut rel_path = PathBuf::new();
-    let path_str = if raw_path == "/" {
-        "index.html"
-    } else {
-        raw_path.trim_start_matches('/')
-    };
-
-    for part in path_str.split('/') {
-        if part.is_empty() || part == "." {
-            continue;
-        }
-        if part == ".." {
-            let forbidden = "403 Forbidden";
-            let resp = format!(
-                "HTTP/1.1 403 FORBIDDEN\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
-                forbidden.len(),
-                forbidden
-            );
-            let _ = stream.write_all(resp.as_bytes());
-            return;
-        }
-        rel_path.push(part);
-    }
-
-    if rel_path.as_os_str().is_empty() {
-        rel_path.push("index.html");
-    }
-
-    let target_file = strip_windows_verbatim(web_root.join(&rel_path));
-
-    if target_file.exists() && target_file.is_file() {
-        let mime = get_mime_type(&target_file);
-        if let Ok(mut file) = File::open(&target_file) {
-            let mut contents = Vec::new();
-            if file.read_to_end(&mut contents).is_ok() {
+    if file_path.exists() && file_path.is_file() {
+        if let Ok(mut file) = fs::File::open(&file_path) {
+            let mut buf = Vec::new();
+            if file.read_to_end(&mut buf).is_ok() {
+                let mime = get_mime_type(&file_path);
                 let header = format!(
-                    concat!(
-                        "HTTP/1.1 200 OK\r\n",
-                        "Content-Type: {}\r\n",
-                        "Content-Length: {}\r\n",
-                        "Access-Control-Allow-Origin: *\r\n",
-                        "Cache-Control: no-store\r\n",
-                        "Connection: close\r\n\r\n"
-                    ),
+                    "HTTP/1.1 200 OK\r\nContent-Type: {}\r\nContent-Length: {}\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache\r\nConnection: close\r\n\r\n",
                     mime,
-                    contents.len()
+                    buf.len()
                 );
                 let _ = stream.write_all(header.as_bytes());
-                let _ = stream.write_all(&contents);
+                let _ = stream.write_all(&buf);
                 return;
             }
         }
     }
 
-    let not_found = "404 Not Found";
-    let resp = format!(
-        concat!(
-            "HTTP/1.1 404 NOT FOUND\r\n",
-            "Content-Length: {}\r\n",
-            "Cache-Control: no-store\r\n",
-            "Connection: close\r\n\r\n{}"
-        ),
-        not_found.len(),
-        not_found
+    let body = b"404 Not Found";
+    let header = format!(
+        "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+        body.len()
     );
-    let _ = stream.write_all(resp.as_bytes());
+    let _ = stream.write_all(header.as_bytes());
+    let _ = stream.write_all(body);
 }
 
-#[cfg(target_os = "windows")]
-const CREATE_NO_WINDOW: u32 = 0x08000000;
+fn start_embedded_server(web_root: PathBuf, port: u16) -> u16 {
+    let bind_addr = format!("127.0.0.1:{}", port);
+    let listener = TcpListener::bind(&bind_addr)
+        .or_else(|_| TcpListener::bind("127.0.0.1:0"))
+        .expect("Falha ao iniciar servidor HTTP local do Mozok.");
 
-#[cfg(target_os = "windows")]
-fn enforce_nvidia_high_performance_registry() {
-    use std::os::windows::process::CommandExt;
-    use std::process::Command;
+    let actual_port = listener.local_addr().map(|a| a.port()).unwrap_or(port);
 
-    // 1. Remove chrome.exe e msedge.exe da chave UserGpuPreferences para que o navegador comum do usuário NÃO ligue a GTX 1650 à toa
-    let browsers_to_unforce = [
-        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
-        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
-        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
-    ];
-    for b in browsers_to_unforce {
-        let _ = Command::new("reg")
-            .args([
-                "delete",
-                r"HKCU\Software\Microsoft\DirectX\UserGpuPreferences",
-                "/v",
-                b,
-                "/f",
-            ])
-            .creation_flags(CREATE_NO_WINDOW)
-            .status();
-    }
-
-    // 2. Registra EXCLUSIVAMENTE o executável nativo mozok-native.exe para rodar na GPU dedicada NVIDIA GeForce GTX 1650
-    if let Ok(exe_path) = std::env::current_exe() {
-        let exe_str = strip_windows_verbatim(exe_path).display().to_string();
-        let _ = Command::new("reg")
-            .args([
-                "add",
-                r"HKCU\Software\Microsoft\DirectX\UserGpuPreferences",
-                "/v",
-                &exe_str,
-                "/t",
-                "REG_SZ",
-                "/d",
-                "GpuPreference=2;",
-                "/f",
-            ])
-            .creation_flags(CREATE_NO_WINDOW)
-            .status();
-    }
-}
-
-#[cfg(not(target_os = "windows"))]
-#[allow(dead_code)]
-fn enforce_nvidia_high_performance_registry() {}
-
-#[cfg(target_os = "windows")]
-fn run_native_windows_gui(app_url: String, web_root: PathBuf) {
-    use tao::{
-        dpi::LogicalSize,
-        event::{Event, WindowEvent},
-        event_loop::{ControlFlow, EventLoop},
-        window::{Icon, WindowBuilder},
-    };
-    use wry::WebViewBuilder;
-
-    enforce_nvidia_high_performance_registry();
-
-    // Configura flags de GPU de alta performance para o motor gráfico nativo
-    let gpu_args = concat!(
-        "--ignore-gpu-blocklist --enable-gpu-rasterization ",
-        "--enable-zero-copy --enable-webgl2-compute-context ",
-        "--use-angle=d3d11 --autoplay-policy=no-user-gesture-required"
-    );
-    std::env::set_var("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", gpu_args);
-
-    let event_loop = EventLoop::new();
-
-    let win_title =
-        "MOZOK v1.0 Beta — Atlas e Simulador Neuroanatômico 3D Multiescala (GPU Nativo)";
-    let mut win_builder = WindowBuilder::new()
-        .with_title(win_title)
-        .with_inner_size(LogicalSize::new(1440.0, 900.0))
-        .with_maximized(true);
-
-    let icon_candidate = web_root.join("assets").join("icon.png");
-    if let Ok(img) = image::open(&icon_candidate) {
-        let rgba = img
-            .resize_exact(64, 64, image::imageops::FilterType::Lanczos3)
-            .to_rgba8();
-        let (w, h) = rgba.dimensions();
-        if let Ok(win_icon) = Icon::from_rgba(rgba.into_raw(), w, h) {
-            win_builder = win_builder.with_window_icon(Some(win_icon));
-        }
-    }
-
-    let window = match win_builder.build(&event_loop) {
-        Ok(w) => w,
-        Err(_) => return,
-    };
-
-    let _webview = match WebViewBuilder::new()
-        .with_url(&app_url)
-        .with_devtools(true)
-        .build(&window)
-    {
-        Ok(wv) => wv,
-        Err(_) => {
-            // Fallback caso o runtime WebView2 não esteja presente na máquina
-            let _ = std::process::Command::new("cmd")
-                .args(["/C", "start", "", &app_url])
-                .spawn();
-            return;
-        }
-    };
-
-    event_loop.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Wait;
-        if let Event::WindowEvent {
-            event: WindowEvent::CloseRequested,
-            ..
-        } = event
-        {
-            *control_flow = ControlFlow::Exit;
+    thread::spawn(move || {
+        for stream in listener.incoming().flatten() {
+            let root_clone = web_root.clone();
+            thread::spawn(move || {
+                handle_http_stream(stream, root_clone);
+            });
         }
     });
+
+    actual_port
 }
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    let no_launch = args.iter().any(|arg| arg == "--no-launch");
+    force_windows_high_performance_gpu();
 
-    let _ontology = OntologyTree::new();
-    let _camera = NeuroCamera::new(Point3D::new(0.0, 3.5, 24.0));
-    let _csf = CsfHydrodynamics::default();
-    let _cjd = CjdSimulator::new();
+    let web_root = find_web_root();
+    let actual_port = start_embedded_server(web_root, PORT);
+    let app_url = format!("http://127.0.0.1:{}/index.html", actual_port);
 
-    let exe_dir = std::env::current_exe()
-        .ok()
-        .and_then(|p| p.parent().map(|d| d.to_path_buf()))
-        .unwrap_or_else(|| PathBuf::from("."));
+    let event_loop = EventLoop::new();
+    let window = WindowBuilder::new()
+        .with_title("MOZOK v5.0 — Simulacro Neurofisiológico e Clínico 3D (SNC & SNP Completo | GPU High-Perf)")
+        .with_inner_size(LogicalSize::new(1600.0, 940.0))
+        .with_min_inner_size(LogicalSize::new(1120.0, 700.0))
+        .with_maximized(true)
+        .build(&event_loop)
+        .expect("Falha ao criar janela nativa do Mozok.");
 
-    let possible_web_paths = [
-        PathBuf::from("web"),
-        exe_dir.join("web"),
-        exe_dir.join("../web"),
-        exe_dir.join("../../web"),
-    ];
+    let window_proxy = event_loop.create_proxy();
 
-    let web_root_raw = possible_web_paths
-        .into_iter()
-        .find(|p| p.exists() && p.join("index.html").exists())
-        .unwrap_or_else(|| PathBuf::from("web"));
+    let _webview = WebViewBuilder::new()
+        .with_url(&app_url)
+        .with_devtools(true)
+        .with_ipc_handler(move |req| {
+            let cmd = req.body();
+            if cmd == "TOGGLE_FULLSCREEN" || cmd == "F11" {
+                let _ = window_proxy.send_event(());
+            }
+        })
+        .build(&window)
+        .expect("Falha ao inicializar WebView2 do Mozok.");
 
-    let web_root = Arc::new(strip_windows_verbatim(
-        web_root_raw.canonicalize().unwrap_or(web_root_raw),
-    ));
+    event_loop.run(move |event, _, control_flow| {
+        *control_flow = ControlFlow::Wait;
 
-    // Vincula sempre uma porta efêmera limpa (127.0.0.1:0) para evitar conflito com processos órfãos e cache de Service Worker na porta 8090
-    let listener =
-        match TcpListener::bind("127.0.0.1:0").or_else(|_| TcpListener::bind("127.0.0.1:8090")) {
-            Ok(l) => l,
-            Err(_) => return,
-        };
-
-    let local_addr = listener.local_addr().unwrap();
-    let ts = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_secs())
-        .unwrap_or(400);
-    let app_url = format!("http://127.0.0.1:{}/index.html?v={}", local_addr.port(), ts);
-
-    if !no_launch {
-        #[cfg(target_os = "windows")]
-        {
-            let server_root = Arc::clone(&web_root);
-            thread::spawn(move || {
-                for stream in listener.incoming().flatten() {
-                    let root = Arc::clone(&server_root);
-                    thread::spawn(move || {
-                        handle_client(stream, root);
-                    });
+        match event {
+            Event::UserEvent(()) => {
+                if window.fullscreen().is_some() {
+                    window.set_fullscreen(None);
+                } else {
+                    window.set_fullscreen(Some(Fullscreen::Borderless(None)));
                 }
-            });
-            run_native_windows_gui(app_url, (*web_root).clone());
-            return;
+            }
+            Event::WindowEvent {
+                event: WindowEvent::CloseRequested,
+                ..
+            } => {
+                *control_flow = ControlFlow::Exit;
+            }
+            _ => {}
         }
-
-        #[cfg(target_os = "linux")]
-        let _ = std::process::Command::new("xdg-open").arg(&app_url).spawn();
-
-        #[cfg(target_os = "macos")]
-        let _ = std::process::Command::new("open").arg(&app_url).spawn();
-    }
-
-    for stream in listener.incoming().flatten() {
-        let root = Arc::clone(&web_root);
-        thread::spawn(move || {
-            handle_client(stream, root);
-        });
-    }
+    });
 }

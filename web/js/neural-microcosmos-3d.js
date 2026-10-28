@@ -1,903 +1,735 @@
 /**
- * ============================================================================
- * MOZOK v4.0 / DCJ — PHOTOREALISTIC FIREFLY LAYER V MOTOR CORTEX NEUROBIOLOGY
- * RECONSTRUÇÃO IDÊNTICA AO SLIDE DA DCJ: NEURÔNIO PIRAMIDAL ÂMBAR-DOURADO,
- * AXÔNIO MIELINIZADO, NÓDULOS DE RANVIER (#00f2fe), 16 VIZINHOS ESPAÇADOS,
- * 24 SINAPSES FÍSICAS BIDIRECIONAIS, PLACAS KURU, VACÚOLOS E HODGKIN-HUXLEY
- * ============================================================================
+ * MOZOK v5.0 — Neural Microcosmos 3D (Rede de Neurônios Conectados + Anatomia Celular Completa + Sinapses Químicas)
+ * Fidelidade total ao diagrama anatômico do neurônio (image_639597.jpg):
+ *  1. Corpo Celular (Soma) translúcido permitindo ver claramente o interior celular
+ *  2. Núcleo (Esfera laranja-dourada vibrante + Nucléolo brilhante + Corpúsculos de Nissl no pericário)
+ *  3. Dendritos ramificados em múltiplos níveis + Espinhas Dendríticas pós-sinápticas
+ *  4. Cone de Implantação (Axon Hillock) e Axônio longo condutor
+ *  5. Bainha de Mielina segmentada (translúcida dourada/amarela) + Núcleo da Célula de Schwann / Oligodendrócito (verde-esmeralda na bainha)
+ *  6. Nódulos de Ranvier expostos entre cada internodo de mielina (Condução Saltatória de alta velocidade)
+ *  7. Terminal do Axônio (Telodendro & Botões Sinápticos) conectando fisicamente AXÔNIO-COM-DENDRITO (Sinapse Axodendrítica) e AXÔNIO-COM-AXÔNIO (Sinapse Axoaxônica)
+ *  8. Transmissão Sináptica ao vivo (vesículas e nuvens de neurotransmissores atravessando a fenda sináptica a cada potencial de ação)
+ *  9. Sub-peças clicáveis com Âncoras 3D exatas para abrir Caixas Pop-up (HUD Callouts) de cada componente do neurônio
  */
 
-(function (window) {
-  'use strict';
-
-  function fbm3D(x, y, z) {
-    const o1 = Math.sin(x * 1.0 + y * 0.8) * Math.cos(z * 0.9 + x * 0.35);
-    const o2 = Math.sin(x * 2.1 - z * 1.9) * Math.cos(y * 2.0 + z * 1.1) * 0.5;
-    const o3 = Math.sin(y * 4.2 + z * 3.8) * Math.cos(x * 4.1 - y * 3.1) * 0.25;
-    const o4 = Math.sin(x * 8.3 + y * 7.9) * Math.cos(z * 8.1 + x * 4.5) * 0.125;
-    return (o1 + o2 + o3 + o4) / 1.875;
-  }
-
-  class HodgkinHuxleyModel {
-    constructor() {
-      this.Cm = 1.0;
-      this.gNa = 120.0;
-      this.gK = 36.0;
-      this.gL = 0.3;
-      this.ENa = 55.0;
-      this.EK = -85.0;
-      this.EL = -65.0;
-      this.V = -70.0;
-      this.m = 0.0529;
-      this.h = 0.5961;
-      this.n = 0.3177;
-      this.stimulus = 0.0;
-      this.phase = 'POTENCIAL DE REPOUSO (-70 mV)';
-      this.time = 0.0;
-      this.history = [];
-      this.maxHistory = 140;
-    }
-
-    alphaM(V) { const v = V + 40.0; return Math.abs(v) < 1e-4 ? 1.0 : (0.1 * v) / (1.0 - Math.exp(-v / 10.0)); }
-    betaM(V) { return 4.0 * Math.exp(-(V + 65.0) / 18.0); }
-    alphaH(V) { return 0.07 * Math.exp(-(V + 65.0) / 20.0); }
-    betaH(V) { return 1.0 / (1.0 + Math.exp(-(V + 35.0) / 10.0)); }
-    alphaN(V) { const v = V + 55.0; return Math.abs(v) < 1e-4 ? 0.1 : (0.01 * v) / (1.0 - Math.exp(-v / 10.0)); }
-    betaN(V) { return 0.125 * Math.exp(-(V + 65.0) / 80.0); }
-
-    triggerStimulus(current = 18.0) {
-      this.stimulus = current;
-    }
-
-    step(dtMs = 0.8) {
-      this.time += dtMs;
-      const subSteps = 20;
-      const dt = dtMs / subSteps;
-      for (let s = 0; s < subSteps; s++) {
-        const aM = this.alphaM(this.V), bM = this.betaM(this.V);
-        const aH = this.alphaH(this.V), bH = this.betaH(this.V);
-        const aN = this.alphaN(this.V), bN = this.betaN(this.V);
-        this.m = Math.max(0, Math.min(1, this.m + (aM * (1.0 - this.m) - bM * this.m) * dt));
-        this.h = Math.max(0, Math.min(1, this.h + (aH * (1.0 - this.h) - bH * this.h) * dt));
-        this.n = Math.max(0, Math.min(1, this.n + (aN * (1.0 - this.n) - bN * this.n) * dt));
-        const INa = this.gNa * Math.pow(this.m, 3) * this.h * (this.V - this.ENa);
-        const IK = this.gK * Math.pow(this.n, 4) * (this.V - this.EK);
-        const IL = this.gL * (this.V - this.EL);
-        const dV = (this.stimulus - (INa + IK + IL)) / this.Cm;
-        this.V = Math.max(-95.0, Math.min(55.0, this.V + dV * dt));
-        if (this.stimulus > 0) this.stimulus = Math.max(0, this.stimulus - 8.0 * dt);
-      }
-      if (this.V > 15.0) this.phase = 'DESPOLARIZAÇÃO PICO (+30 mV)';
-      else if (this.V > -55.0) this.phase = 'DESPOLARIZAÇÃO (Influxo Na+)';
-      else if (this.V <= -72.0) this.phase = 'HIPERPOLARIZAÇÃO / REFRATÁRIO';
-      else this.phase = 'POTENCIAL DE REPOUSO (-70 mV)';
-
-      this.history.push({ t: this.time, v: this.V, phase: this.phase });
-      if (this.history.length > this.maxHistory) this.history.shift();
-      return this.V;
-    }
-  }
-
-  class NeuralMicrocosmos3D {
+class NeuralMicrocosmos3D {
     constructor(scene) {
-      this.scene = scene;
-      this.masterGroup = new THREE.Group();
-      this.masterGroup.name = 'NEURAL_MICROCOSMOS_DCJ_FIREFLY_MASTER';
-      this.masterGroup.visible = false;
-      this.scene.add(this.masterGroup);
+        this.scene = scene;
+        this.microGroup = new THREE.Group();
+        this.microGroup.visible = false;
+        this.scene.add(this.microGroup);
 
-      this.connectomeGroup = new THREE.Group();
-      this.confocalGroup = new THREE.Group();
-      this.gliaGroup = new THREE.Group();
-      this.masterGroup.add(this.connectomeGroup);
-      this.masterGroup.add(this.confocalGroup);
-      this.masterGroup.add(this.gliaGroup);
+        this.neurons = [];
+        this.synapseConnections = [];
+        this.actionPotentials = [];
+        this.interactiveParts = [];
+        this.partAnchors = new Map();
+        this.selectedPartId = 'NEURON_SOMA';
 
-      // Iluminação Confocal Two-Photon dedicada do Microcosmo DCJ
-      const rimLight = new THREE.PointLight(0x00f2fe, 2.8, 120);
-      rimLight.position.set(0, 28, -25);
-      this.masterGroup.add(rimLight);
+        this.activeTargetStructure = 'FRONTAL_LOBE';
+        this.firingRateHz = 18.0;
+        this.membranePotentialMv = -70.0;
+        this.spikePhase = 0.0;
 
-      const goldLight = new THREE.PointLight(0xfef08a, 2.2, 120);
-      goldLight.position.set(22, 35, 28);
-      this.masterGroup.add(goldLight);
+        // Dicionário Anatômico e Fisiológico Completo de Cada Peça do Neurônio (para as Caixas Pop-up)
+        this.neuronPartsOntology = {
+            'NEURON_SOMA': {
+                id: 'NEURON_SOMA',
+                name: 'Corpo Celular (Soma / Pericário)',
+                latin: 'Soma Neuronale / Perikaryon',
+                category: 'Citoarquitetura Neuronal',
+                badge: 'CENTRO METABÓLICO E INTEGRADOR',
+                summary: 'Centro trófico e metabólico do neurônio que integra todos os potenciais pós-sinápticos excitatórios (PEPS) e inibitórios (PIPS) vindos dos dendritos.',
+                functions: ['Integração espacial e temporal de potenciais pós-sinápticos', 'Síntese proteica intensa nos Corpúsculos de Nissl (retículo endoplasmático rugoso)', 'Manutenção do potencial de repouso em -70 mV via bomba Na+/K+ ATPase'],
+                neurotransmitters: ['Glutamato (Síntese)', 'GABA', 'Acetilcolina', 'Dopamina'],
+                clinical: 'Cromatólise central após lesão axonal; acúmulo de corpos de inclusão (Corpos de Lewy no Parkinson, emaranhados neurofibrilares de proteína Tau no Alzheimer).'
+            },
+            'NEURON_NUCLEUS': {
+                id: 'NEURON_NUCLEUS',
+                name: 'Núcleo Neuronal & Nucléolo',
+                latin: 'Nucleus Neuronalis & Nucleolus',
+                category: 'Citoarquitetura Neuronal',
+                badge: 'GENOMA E PLASTICIDADE',
+                summary: 'Grande núcleo esférico central de cromatina frouxa (eucromatina ativa) com nucléolo proeminente, comandando a transcrição de canais iônicos, receptores e proteínas sinápticas.',
+                functions: ['Transcrição de genes imediatos (c-Fos, BDNF, Arc) durante a Potenciação de Longa Duração (LTP)', 'Produção intensa de subunidades ribossomais no nucléolo para sustentar o axônio', 'Regulação epigenética da memória de longo prazo'],
+                neurotransmitters: ['CREB (Fator de Transcrição)', 'BDNF (Neurotrofina)'],
+                clinical: 'Alterações nucleares e nucleolares precoces em doenças neurodegenerativas por expansão de poliglutaminas (Doença de Huntington e Ataxias Espinocerebelares).'
+            },
+            'NEURON_DENDRITES': {
+                id: 'NEURON_DENDRITES',
+                name: 'Dendritos & Espinhas Dendríticas',
+                latin: 'Dendriti & Spinae Dendriticae',
+                category: 'Recepção Sináptica (Input)',
+                badge: 'ÁRVORE RECEPTORA DE SINAIS',
+                summary: 'Arborizações citoplasmáticas ricamente ramificadas cobertas por milhares de espinhas dendríticas que funcionam como antenas receptoras de sinapses excitatórias e inibitórias.',
+                functions: ['Recepção de neurotransmissores em receptores AMPA, NMDA e GABA-A', 'Geração de potenciais graduados (PEPS e PIPS) conduzidos eletrotonicamente até o soma', 'Remodelamento estrutural das espinhas dendríticas (base física do aprendizado e memória)'],
+                neurotransmitters: ['Glutamato (Receptores AMPA/NMDA)', 'GABA (Receptores GABA-A/B)'],
+                clinical: 'Poda sináptica excessiva ou dismorfia de espinhas dendríticas na Esquizofrenia, Transtorno do Espectro Autista (TEA) e Doença de Alzheimer.'
+            },
+            'NEURON_AXON': {
+                id: 'NEURON_AXON',
+                name: 'Axônio & Cone de Implantação',
+                latin: 'Axon & Collis Axonis',
+                category: 'Condução Bioelétrica (Output)',
+                badge: 'CABO DE TRANSMISSÃO BIOELÉTRICA',
+                summary: 'Prolongamento cilíndrico único que nasce no Cone de Implantação (zona de gatilho com altíssima densidade de canais Nav1.6) e conduz o Potencial de Ação tudo-ou-nada.',
+                functions: ['Disparo do Potencial de Ação quando o Cone de Implantação atinge o limiar de -55 mV', 'Condução bioelétrica unidirecional (ortodrômica) de +40 mV sem perda de amplitude', 'Transporte axonal anterógrado (cinesina) e retrógrado (dineína) sobre microtúbulos'],
+                neurotransmitters: ['Íons Na+ (Influxo Rápido)', 'Íons K+ (Efluxo Repolarizante)'],
+                clinical: 'Lesão Axonal Difusa (LAD) por cisalhamento em traumatismo cranioencefálico (TCE) e neuropatias axonais tóxicas ou metabólicas (diabetes).'
+            },
+            'NEURON_MYELIN': {
+                id: 'NEURON_MYELIN',
+                name: 'Bainha de Mielina',
+                latin: 'Vagina Myelinica',
+                category: 'Isolamento Elétrico & Velocidade',
+                badge: 'ISOLANTE LIPOPROTEICO MULTILAMELAR',
+                summary: 'Envoltório espiralado de múltiplas camadas lipoproteicas (80% lipídios, 20% proteínas como MBP e PLP) que reduz a capacitância da membrana axonal e impede o vazamento iônico.',
+                functions: ['Isolamento elétrico de alta resistência ao longo dos segmentos internodais', 'Aumento da velocidade de condução nervosa de ~1 m/s (fibras amielínicas) para até 120 m/s', 'Economia drástica de ATP pela restrição do fluxo de íons aos Nódulos de Ranvier'],
+                neurotransmitters: ['Proteína Básica da Mielina (MBP)', 'Esfingomielina & Galactocerebrosídeo'],
+                clinical: 'Desmielinização autoimune no SNC na Esclerose Múltipla (placas desmielinizantes) e no SNP na Síndrome de Guillain-Barré.'
+            },
+            'NEURON_SCHWANN': {
+                id: 'NEURON_SCHWANN',
+                name: 'Célula de Schwann / Oligodendrócito',
+                latin: 'Neurolemmocytus / Oligodendrocytus',
+                category: 'Glia Mielinizante',
+                badge: 'CÉLULA GLIAL PRODUTORA DE MIELINA',
+                summary: 'No SNP, cada Célula de Schwann envolve um único internodo axonal (exibindo seu núcleo periférico no neurilema); no SNC, cada Oligodendrócito mieliniza até 50 axônios simultaneamente.',
+                functions: ['Síntese e manutenção contínua das lamelas da bainha de mielina', 'Suporte metabólico ao axônio via transporte de lactato e piruvato', 'Guiamento da regeneração axonal pós-lesão no Sistema Nervoso Periférico (Bandas de Büngner)'],
+                neurotransmitters: ['Neuregulina-1 (NRG1)', 'Fator de Crescimento Nervoso (NGF)'],
+                clinical: 'Schwannomas (ex.: Schwannoma Vestibular do VIII par craniano), Doença de Charcot-Marie-Tooth e Leucodistrofias.'
+            },
+            'NEURON_RANVIER': {
+                id: 'NEURON_RANVIER',
+                name: 'Nódulo de Ranvier',
+                latin: 'Nodus Neurofibrae (Ranvieri)',
+                category: 'Condução Saltatória',
+                badge: 'REGENERADOR DE POTENCIAL DE AÇÃO',
+                summary: 'Interrupção periódica nua entre dois segmentos de mielina onde se concentram mais de 1.000 canais de Na+ dependentes de voltagem por µm², permitindo a Condução Saltatória.',
+                functions: ['Regeneração explosiva do Potencial de Ação a cada internodo (Condução Saltatória)', 'Influxo rápido de Na+ seguido de repolarização por canais de K+ paranodais', 'Aceleração da transmissão sináptica em tratos corticoespinhais e nervos periféricos'],
+                neurotransmitters: ['Canais Nav1.6', 'Canais Kv1.1 / Kv1.2', 'Caspr / Contactina'],
+                clinical: 'Nodopatias e paranodopatias autoimunes (anticorpos anti-NF155 e anti-Contactina-1) que bloqueiam a condução saltatória reversivelmente.'
+            },
+            'NEURON_TERMINAL': {
+                id: 'NEURON_TERMINAL',
+                name: 'Terminal do Axônio (Telodendro)',
+                latin: 'Telodendria & Terminatio Axonis',
+                category: 'Transmissão Pré-Sináptica',
+                badge: 'ARBORIZAÇÃO TERMINAL E BOTÕES SINÁPTICOS',
+                summary: 'Ramificação distal do axônio (telodendro) cujas extremidades dilatadas (botões sinápticos) contêm mitocôndrias, canais de Ca2+ dependentes de voltagem e centenas de vesículas sinápticas.',
+                functions: ['Conversão do sinal elétrico (Potencial de Ação) em sinal químico (Exocitose)', 'Abertura de canais Cav2.1/2.2 pelo potencial de ação com influxo de Ca2+', 'Fusão vesicular mediada pelo complexo proteico SNARE (Sinaptobrevina, Sintaxina, SNAP-25) e Sinaptotagmina'],
+                neurotransmitters: ['Íons Ca2+ (Gatilho de Exocitose)', 'Complexo SNARE'],
+                clinical: 'Alvo das neurotoxinas clostridiais (Toxina Botulínica e Toxina Tetânica, que clivam proteínas SNARE) e da Síndrome Miastênica de Lambert-Eaton (anticorpos contra canais de Ca2+).'
+            },
+            'NEURON_SYNAPSE': {
+                id: 'NEURON_SYNAPSE',
+                name: 'Sinapse (Axodendrítica & Axoaxônica)',
+                latin: 'Synapsis Chimica (Axodendritica & Axoaxonica)',
+                category: 'Comunicação Interneuronal',
+                badge: 'FENDA SINÁPTICA E NEUROTRANSMISSÃO',
+                summary: 'Junção funcional especializada (~20 nm) onde o terminal axonal pré-sináptico libera neurotransmissores sobre os dendritos (axodendrítica) ou sobre o axônio/terminal (axoaxônica) do neurônio seguinte.',
+                functions: ['Sinapse Axodendrítica: excitação (Glutamato -> despolarização) ou inibição (GABA -> hiperpolarização) direta da árvore dendrítica pós-sináptica', 'Sinapse Axoaxônica: modulação pré-sináptica (facilitação ou inibição pré-sináptica da quantidade de neurotransmissor liberado)', 'Recaptação e degradação enzimática na fenda sináptica para encerrar o sinal com precisão de milissegundos'],
+                neurotransmitters: ['Glutamato', 'GABA', 'Dopamina', 'Serotonina', 'Acetilcolina', 'Noradrenalina'],
+                clinical: 'Principal sítio de ação da psicofarmacologia e neurologia clínica: ISRS (fluoxetina/sertralina), benzodiazepínicos, antipsicóticos, anticonvulsivantes e antiparkinsonianos.'
+            }
+        };
 
-      this.hhSimulator = new HodgkinHuxleyModel();
-      this.neurons = [];
-      this.myelinSheaths = [];
-      this.ranvierNodes = [];
-      this.dendriticSpines = [];
-      this.synapseBridges = [];
-      this.synapticVesicles = [];
-      this.retrogradeParticles = [];
-      this.actionPulses = [];
-      this.amyloidPlaques = [];
-      this.vacuoles = [];
-      this.elapsedTime = 0.0;
-      this.damageRatio = 0.0;
-      this.currentPathology = 'NORMAL';
-
-      this.gliaVisibility = {
-        ASTROCYTE: true,
-        OLIGODENDROCYTE: true,
-        MICROGLIA: true,
-        EPENDYMAL: true
-      };
-
-      this.buildSoftGlowTexture();
-      this.buildFireflyLayerVConnectome();
-      this.build24PhysicalSynapsesAndNeurotransmitters();
-      this.buildActionPotentialPulses();
-      this.buildAmyloidPlaques();
-      this.buildSpongiformVacuoles();
-      this.buildGliaOverlays();
-
-      this.heroNeuron = this.neurons[0] || null;
+        this.buildCompleteConnectedNeuronNetwork();
     }
 
-    buildSoftGlowTexture() {
-      const size = 128;
-      const canvas = document.createElement('canvas');
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext('2d');
-      if (ctx && typeof ctx.createRadialGradient === 'function') {
-        const grad = ctx.createRadialGradient(size / 2, size / 2, 2, size / 2, size / 2, size / 2);
-        grad.addColorStop(0.0, 'rgba(255, 255, 255, 1.0)');
-        grad.addColorStop(0.25, 'rgba(125, 211, 252, 0.85)');
-        grad.addColorStop(0.6, 'rgba(2, 132, 199, 0.28)');
-        grad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, size, size);
-      }
-      this.glowTexture = new THREE.CanvasTexture(canvas);
-      this.glowTexture.generateMipmaps = true;
-    }
-
-    buildFireflyLayerVNeuronMesh(config) {
-      const {
-        id,
-        isHero = false,
-        isAmber = true,
-        position = new THREE.Vector3(0, 0, 0),
-        scale = 1.0,
-        axonTarget = null,
-        hasVisibleMyelin = false
-      } = config;
-
-      const group = new THREE.Group();
-      group.position.copy(position);
-      group.scale.set(scale, scale, scale);
-
-      const somaRadius = isHero ? 2.35 : 1.75;
-
-      const dendritePoles = [
-        new THREE.Vector3(0.0, 1.0, 0.1).normalize(),
-        new THREE.Vector3(-0.78, 0.72, 0.35).normalize(),
-        new THREE.Vector3(0.82, 0.68, 0.28).normalize(),
-        new THREE.Vector3(-0.92, 0.32, -0.25).normalize(),
-        new THREE.Vector3(0.95, 0.28, -0.22).normalize(),
-        new THREE.Vector3(-0.55, -0.42, 0.52).normalize(),
-        new THREE.Vector3(0.58, -0.38, 0.48).normalize(),
-        new THREE.Vector3(0.05, -0.52, -0.62).normalize()
-      ];
-
-      const axonHillockDir = isHero
-        ? new THREE.Vector3(-0.18, -1.0, 0.08).normalize()
-        : (axonTarget ? axonTarget.clone().sub(position).normalize() : new THREE.Vector3(0.15, -1.0, -0.1).normalize());
-
-      // a) SOMA PIRAMIDAL COM ROOT-FLARES HIPERBÓLICOS E MICRO-TEXTURA FBM 3D (IDÊNTICO AO DCJ)
-      const somaGeo = new THREE.SphereGeometry(somaRadius, 64, 48);
-      const posAttr = somaGeo.attributes.position;
-      const v = new THREE.Vector3();
-
-      for (let i = 0; i < posAttr.count; i++) {
-        v.fromBufferAttribute(posAttr, i);
-        const u = v.clone().normalize();
-        let flare = 0;
-        for (let p = 0; p < dendritePoles.length; p++) {
-          const dot = Math.max(0, u.dot(dendritePoles[p]));
-          flare += Math.pow(dot, 3.4) * (somaRadius * 0.58);
+    registerNeuronPart(partId, meshOrGroup, anchorVec = null) {
+        meshOrGroup.userData.neuronPartId = partId;
+        meshOrGroup.userData.structureId = partId;
+        if (meshOrGroup.isMesh) {
+            this.interactiveParts.push(meshOrGroup);
         }
-        const dotAxon = Math.max(0, u.dot(axonHillockDir));
-        flare += Math.pow(dotAxon, 2.35) * (somaRadius * 0.95);
-        const noise = fbm3D(v.x * 3.5, v.y * 3.5, v.z * 3.5) * 0.085;
-        v.addScaledVector(u, flare + noise);
-        posAttr.setXYZ(i, v.x, v.y, v.z);
-      }
-      somaGeo.computeVertexNormals();
-
-      const matBaseColor = isAmber ? new THREE.Color(0xf59e0b) : new THREE.Color(0x0369a1);
-      const matEmissive = isAmber ? new THREE.Color(0xf59e0b) : new THREE.Color(0x0284c7);
-      const fresnelColor = isAmber ? new THREE.Color(0xfef08a) : new THREE.Color(0x7dd3fc);
-
-      const somaMat = new THREE.MeshPhysicalMaterial({
-        color: matBaseColor,
-        emissive: matEmissive,
-        emissiveIntensity: isHero ? 0.65 : 0.48,
-        roughness: 0.28,
-        metalness: 0.05,
-        transmission: 0.42,
-        transparent: true,
-        opacity: 0.88,
-        depthWrite: true
-      });
-
-      somaMat.onBeforeCompile = (shader) => {
-        shader.fragmentShader = shader.fragmentShader.replace(
-          '#include <dithering_fragment>',
-          `
-          #include <dithering_fragment>
-          #ifdef USE_NORMAL
-          vec3 fNorm = normalize(vNormal);
-          vec3 fVDir = normalize(-vViewPosition);
-          float fresnel = pow(clamp(1.0 - abs(dot(fNorm, fVDir)), 0.0, 1.0), 2.2);
-          vec3 fCol = vec3(${fresnelColor.r.toFixed(3)}, ${fresnelColor.g.toFixed(3)}, ${fresnelColor.b.toFixed(3)});
-          gl_FragColor.rgb += fCol * fresnel * 0.95;
-          #endif
-          `
-        );
-      };
-
-      const somaMesh = new THREE.Mesh(somaGeo, somaMat);
-      group.add(somaMesh);
-
-      // NÚCLEO CELULAR ESFÉRICO ESCURO + HALO PERINUCLEAR LUMINOSO + BOKEH SPRITE
-      const nucleusRadius = somaRadius * 0.46;
-      const nucleusGeo = new THREE.SphereGeometry(nucleusRadius, 32, 28);
-      const nucleusMat = new THREE.MeshStandardMaterial({
-        color: isAmber ? 0x78350f : 0x0c4a6e,
-        emissive: isAmber ? 0x92400e : 0x075985,
-        emissiveIntensity: 0.65,
-        roughness: 0.45
-      });
-      const nucleusMesh = new THREE.Mesh(nucleusGeo, nucleusMat);
-      nucleusMesh.position.set(0, 0.08 * somaRadius, 0);
-      group.add(nucleusMesh);
-
-      const haloGeo = new THREE.SphereGeometry(nucleusRadius * 1.15, 24, 20);
-      const haloMat = new THREE.MeshBasicMaterial({
-        color: isAmber ? 0xfbbf24 : 0x38bdf8,
-        transparent: true,
-        opacity: 0.28,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false
-      });
-      const haloMesh = new THREE.Mesh(haloGeo, haloMat);
-      haloMesh.position.copy(nucleusMesh.position);
-      group.add(haloMesh);
-
-      const spriteMat = new THREE.SpriteMaterial({
-        map: this.glowTexture,
-        color: isAmber ? 0xf59e0b : 0x0284c7,
-        transparent: true,
-        opacity: isHero ? 0.52 : 0.35,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false
-      });
-      const sprite = new THREE.Sprite(spriteMat);
-      sprite.scale.setScalar(somaRadius * 4.2);
-      group.add(sprite);
-
-      // b) ÁRVORES DENDRÍTICAS TUBULARES DE 5ª ORDEM (LEI DE RALL)
-      const tubePositions = [];
-      const tubeNormals = [];
-      const tubeColors = [];
-      const tubeIndices = [];
-      const terminalTips = [];
-
-      const appendTubeSegment = (curve, tubularSegs, radialSegs, rStart, rEnd, branchColor) => {
-        const frames = curve.computeFrenetFrames(tubularSegs, false);
-        const baseVertex = tubePositions.length / 3;
-
-        for (let i = 0; i <= tubularSegs; i++) {
-          const u = i / tubularSegs;
-          const pt = curve.getPointAt(u);
-          const N = frames.normals[i];
-          const B = frames.binormals[i];
-          const r = rStart * Math.pow(Math.max(0.002, rEnd) / Math.max(0.002, rStart), u);
-
-          for (let j = 0; j <= radialSegs; j++) {
-            const phi = (j / radialSegs) * Math.PI * 2;
-            const sinP = Math.sin(phi);
-            const cosP = -Math.cos(phi);
-            const nx = cosP * N.x + sinP * B.x;
-            const ny = cosP * N.y + sinP * B.y;
-            const nz = cosP * N.z + sinP * B.z;
-            const noiseVal = fbm3D(pt.x * 3.2, pt.y * 3.2, pt.z * 3.2) * 0.045;
-            const rFin = r * (1.0 + noiseVal);
-
-            tubePositions.push(pt.x + rFin * nx, pt.y + rFin * ny, pt.z + rFin * nz);
-            tubeNormals.push(nx, ny, nz);
-            tubeColors.push(branchColor.r, branchColor.g, branchColor.b);
-          }
-        }
-
-        const stride = radialSegs + 1;
-        for (let i = 0; i < tubularSegs; i++) {
-          for (let j = 0; j < radialSegs; j++) {
-            const a = baseVertex + i * stride + j;
-            const b = baseVertex + (i + 1) * stride + j;
-            const c = baseVertex + (i + 1) * stride + (j + 1);
-            const d = baseVertex + i * stride + (j + 1);
-            tubeIndices.push(a, b, d, b, c, d);
-          }
-        }
-      };
-
-      // Semente pseudoaleatória determinística para morfologia idêntica e limpa
-      let seedVal = (id + 1) * 1337;
-      const nextRand = () => {
-        seedVal = (seedVal * 16807) % 2147483647;
-        return (seedVal - 1) / 2147483646;
-      };
-
-      const growBranchTree = (startPt, startDir, length, rStart, order, maxOrder) => {
-        const rEnd = Math.max(0.025, rStart * 0.63);
-        const segCount = 4;
-        const pts = [startPt.clone()];
-        let cur = startPt.clone();
-        let curDir = startDir.clone();
-
-        for (let s = 1; s <= segCount; s++) {
-          const segLen = length / segCount;
-          const jitter = new THREE.Vector3(
-            (Math.sin(cur.x * 2.5 + s * 1.8) - 0.5) * 0.32,
-            (Math.cos(cur.y * 2.3 + s * 1.5) - 0.5) * 0.28,
-            (Math.sin(cur.z * 2.7 + s * 1.6) - 0.5) * 0.32
-          );
-          cur = cur.clone().addScaledVector(curDir, segLen).add(jitter);
-          pts.push(cur);
-          curDir.add(new THREE.Vector3((nextRand() - 0.5) * 0.3, (nextRand() - 0.5) * 0.3, (nextRand() - 0.5) * 0.3)).normalize();
-
-          if (order >= 2 && s % 2 === 0 && nextRand() < 0.65) {
-            const spGeo = new THREE.SphereGeometry(0.09, 8, 8);
-            const spMat = new THREE.MeshStandardMaterial({
-              color: isAmber ? 0xf59e0b : 0x0ea5e9,
-              emissive: isAmber ? 0xd97706 : 0x0284c7,
-              emissiveIntensity: 0.45,
-              roughness: 0.32
+        if (meshOrGroup.children) {
+            meshOrGroup.children.forEach(c => {
+                c.userData.neuronPartId = partId;
+                c.userData.structureId = partId;
+                if (c.isMesh) this.interactiveParts.push(c);
             });
-            const spMesh = new THREE.Mesh(spGeo, spMat);
-            const orthoJitter = new THREE.Vector3(nextRand() - 0.5, nextRand() - 0.5, nextRand() - 0.5).normalize().multiplyScalar(rEnd * 2.2);
-            spMesh.position.copy(cur).add(orthoJitter);
-            group.add(spMesh);
-            this.dendriticSpines.push({ mesh: spMesh, baseScale: 1.0 });
-          }
         }
-
-        const curve = new THREE.CatmullRomCurve3(pts);
-        const tubSegs = (order === 1) ? 10 : 6;
-        const radSegs = (order === 1) ? 8 : 6;
-        appendTubeSegment(curve, tubSegs, radSegs, rStart, rEnd, matBaseColor);
-
-        const endPt = pts[pts.length - 1];
-        if (order < maxOrder) {
-          for (let c = 0; c < 2; c++) {
-            const spread = 0.42 + order * 0.08;
-            const ortho = new THREE.Vector3(
-              Math.sin(order * 3.1 + c * 2.4),
-              Math.cos(order * 2.7 + c * 1.8),
-              Math.sin(order * 1.9 + c * 3.3)
-            ).cross(curDir).normalize();
-            const sign = (c === 0 ? 1 : -1);
-            const nextDir = curDir.clone().addScaledVector(ortho, spread * sign).normalize();
-            growBranchTree(endPt, nextDir, length * 0.74, rEnd, order + 1, maxOrder);
-          }
-        } else {
-          const worldEndPt = endPt.clone().multiplyScalar(scale).add(position);
-          terminalTips.push({ localPt: endPt, worldPt: worldEndPt, dir: curDir, neuronId: id, isAmber });
+        if (anchorVec && !this.partAnchors.has(partId)) {
+            this.partAnchors.set(partId, anchorVec.clone());
         }
-      };
+    }
 
-      dendritePoles.forEach((dir, pIdx) => {
-        const trunkStart = dir.clone().multiplyScalar(somaRadius * 0.95);
-        const trunkLen = (pIdx === 0) ? (isHero ? 7.8 : 5.4) : (isHero ? 5.8 : 4.2);
-        const rInitial = isHero ? 0.42 : 0.32;
-        growBranchTree(trunkStart, dir, trunkLen, rInitial, 1, 5);
-      });
+    getPartWorldAnchor(partId) {
+        if (this.partAnchors.has(partId)) {
+            return this.partAnchors.get(partId).clone();
+        }
+        return new THREE.Vector3(0, 0, 0);
+    }
 
-      const tubeGeo = new THREE.BufferGeometry();
-      tubeGeo.setAttribute('position', new THREE.Float32BufferAttribute(tubePositions, 3));
-      tubeGeo.setAttribute('normal', new THREE.Float32BufferAttribute(tubeNormals, 3));
-      tubeGeo.setAttribute('color', new THREE.Float32BufferAttribute(tubeColors, 3));
-      tubeGeo.setIndex(tubeIndices);
-
-      const dendriteMat = new THREE.MeshStandardMaterial({
-        color: matBaseColor,
-        emissive: matEmissive,
-        emissiveIntensity: isHero ? 0.45 : 0.35,
-        roughness: 0.34,
-        metalness: 0.06
-      });
-      const dendriteMesh = new THREE.Mesh(tubeGeo, dendriteMat);
-      group.add(dendriteMesh);
-
-      // c) AXÔNIO DESCENDENTE COM 5 BAINHAS DE MIELINA BOLEADAS E NÓDULOS DE RANVIER (#00f2fe)
-      let axonCurveGlobal = null;
-      const axonSheaths = [];
-      const axonRanvierMeshes = [];
-
-      if (isHero || hasVisibleMyelin) {
-        const axonP0 = axonHillockDir.clone().multiplyScalar(somaRadius * 0.98);
-        const axonTargetPt = isHero
-          ? new THREE.Vector3(-2.6, -13.5, 1.2).sub(position).divideScalar(scale)
-          : (axonTarget ? axonTarget.clone().sub(position).divideScalar(scale) : axonP0.clone().add(new THREE.Vector3(0.5, -12.0, -0.2)));
-
-        const aMid1 = axonP0.clone().lerp(axonTargetPt, 0.33).add(new THREE.Vector3(-0.4, -0.6, 0.3));
-        const aMid2 = axonP0.clone().lerp(axonTargetPt, 0.66).add(new THREE.Vector3(0.3, -0.4, -0.2));
-        const axonCurve = new THREE.CatmullRomCurve3([axonP0, aMid1, aMid2, axonTargetPt]);
-        axonCurveGlobal = axonCurve;
-
-        const axTubeGeo = new THREE.TubeGeometry(axonCurve, 32, 0.16, 8, false);
-        const axTubeMat = new THREE.MeshStandardMaterial({
-          color: matBaseColor,
-          emissive: matEmissive,
-          emissiveIntensity: 0.5,
-          roughness: 0.28
-        });
-        group.add(new THREE.Mesh(axTubeGeo, axTubeMat));
-
-        const myelinCount = 5;
-        const axonR = 0.16;
-
-        for (let m = 0; m < myelinCount; m++) {
-          const uStart = (m / myelinCount) + 0.028;
-          const uEnd = ((m + 1) / myelinCount) - 0.028;
-          const segSteps = 12;
-          const internodePts = [];
-          for (let s = 0; s <= segSteps; s++) {
-            const uG = uStart + (s / segSteps) * (uEnd - uStart);
-            internodePts.push(axonCurve.getPointAt(uG));
-          }
-
-          const cInt = new THREE.CatmullRomCurve3(internodePts);
-          const frames = cInt.computeFrenetFrames(segSteps, false);
-          const mPos = [];
-          const mNorm = [];
-          const mIdx = [];
-          const radSegs = 10;
-
-          for (let s = 0; s <= segSteps; s++) {
-            const uL = s / segSteps;
-            const pt = cInt.getPointAt(uL);
-            const N = frames.normals[s];
-            const B = frames.binormals[s];
-            const sinTerm = Math.pow(Math.max(0, Math.sin(Math.PI * uL)), 0.38);
-            const noiseTerm = fbm3D(pt.x * 3.5, pt.y * 3.5, pt.z * 3.5) * 0.06;
-            const rMyelin = axonR * (1.0 + 0.62 * sinTerm) * (1.0 + noiseTerm);
-
-            for (let j = 0; j <= radSegs; j++) {
-              const phi = (j / radSegs) * Math.PI * 2;
-              const sinP = Math.sin(phi);
-              const cosP = -Math.cos(phi);
-              const nx = cosP * N.x + sinP * B.x;
-              const ny = cosP * N.y + sinP * B.y;
-              const nz = cosP * N.z + sinP * B.z;
-              mPos.push(pt.x + rMyelin * nx, pt.y + rMyelin * ny, pt.z + rMyelin * nz);
-              mNorm.push(nx, ny, nz);
-            }
-          }
-
-          const stride = radSegs + 1;
-          for (let s = 0; s < segSteps; s++) {
-            for (let j = 0; j < radSegs; j++) {
-              const a = s * stride + j;
-              const b = (s + 1) * stride + j;
-              const c = (s + 1) * stride + (j + 1);
-              const d = s * stride + (j + 1);
-              mIdx.push(a, b, d, b, c, d);
-            }
-          }
-
-          const mGeo = new THREE.BufferGeometry();
-          mGeo.setAttribute('position', new THREE.Float32BufferAttribute(mPos, 3));
-          mGeo.setAttribute('normal', new THREE.Float32BufferAttribute(mNorm, 3));
-          mGeo.setIndex(mIdx);
-
-          const mMat = new THREE.MeshPhysicalMaterial({
-            color: isAmber ? 0xfef3c7 : 0xe0f2fe,
-            emissive: isAmber ? 0xd97706 : 0x0284c7,
+    buildCompleteConnectedNeuronNetwork() {
+        // =====================================================================
+        // Materiais de Alta Fidelidade Biológica (inspirados diretamente na imagem de referência image_639597.jpg)
+        // =====================================================================
+        // 1. Soma Translúcido Roxo-Ametista / Lilás Bioluminescente (permite ver o Núcleo Laranja lá dentro!)
+        const somaMat = new THREE.MeshPhysicalMaterial({
+            color: 0xa855f7,
+            emissive: 0x581c87,
             emissiveIntensity: 0.35,
-            roughness: 0.30,
-            metalness: 0.06,
-            transmission: 0.48,
+            roughness: 0.18,
+            metalness: 0.02,
+            transmission: 0.68,
             transparent: true,
-            opacity: 0.88
-          });
+            opacity: 0.54,
+            depthWrite: false,
+            clearcoat: 0.9,
+            side: THREE.DoubleSide
+        });
 
-          const mMesh = new THREE.Mesh(mGeo, mMat);
-          group.add(mMesh);
-          axonSheaths.push(mMesh);
-          this.myelinSheaths.push({ mesh: mMesh, baseScale: mMesh.scale.clone(), neuronId: id });
+        // 2. Núcleo Neuronal Laranja-Dourado Vibrante + Nucléolo Amarelo-Brilhante (visível dentro do Soma)
+        const nucleusMat = new THREE.MeshPhysicalMaterial({
+            color: 0xff6b00,
+            emissive: 0xea580c,
+            emissiveIntensity: 0.65,
+            roughness: 0.25,
+            clearcoat: 0.85
+        });
 
-          if (m < myelinCount - 1) {
-            const tNode = (m + 1.0) / myelinCount;
-            const nodePos = axonCurve.getPointAt(tNode);
-            const nodeTan = axonCurve.getTangentAt(tNode).normalize();
+        const nucleolusMat = new THREE.MeshBasicMaterial({
+            color: 0xfef08a
+        });
 
-            const ranvierRingGeo = new THREE.TorusGeometry(axonR * 1.45, 0.048, 8, 16);
-            const ranvierRingMat = new THREE.MeshBasicMaterial({ color: 0x00f2fe });
-            const rRingMesh = new THREE.Mesh(ranvierRingGeo, ranvierRingMat);
-            rRingMesh.position.copy(nodePos);
-            rRingMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), nodeTan);
-            group.add(rRingMesh);
+        // 3. Dendritos e Espinhas Dendríticas (Violeta-Rosado luminoso)
+        const dendriteMat = new THREE.MeshPhysicalMaterial({
+            color: 0xc084fc,
+            emissive: 0x6b21a8,
+            emissiveIntensity: 0.32,
+            roughness: 0.26,
+            clearcoat: 0.75
+        });
 
-            const rSpriteMat = new THREE.SpriteMaterial({
-              map: this.glowTexture,
-              color: 0x00f2fe,
-              transparent: true,
-              opacity: 0.95,
-              blending: THREE.AdditiveBlending,
-              depthWrite: false
+        // 4. Axônio Condutor Central (Feixe Axoplasmático Ciano-Prateado visível nos Nódulos de Ranvier e sob a Mielina)
+        const axonCoreMat = new THREE.MeshPhysicalMaterial({
+            color: 0xe2e8f0,
+            emissive: 0x38bdf8,
+            emissiveIntensity: 0.38,
+            roughness: 0.22,
+            clearcoat: 0.8
+        });
+
+        // 5. Bainha de Mielina Dourada/Amarela Translúcida (exatamente como no diagrama image_639597.jpg)
+        const myelinMat = new THREE.MeshPhysicalMaterial({
+            color: 0xfacc15,
+            emissive: 0xca8a04,
+            emissiveIntensity: 0.32,
+            roughness: 0.22,
+            transmission: 0.45,
+            transparent: true,
+            opacity: 0.82,
+            clearcoat: 0.85
+        });
+
+        // 6. Núcleo da Célula de Schwann / Oligodendrócito (Verde-Esmeralda vivo sobre cada bainha de mielina)
+        const schwannNucleusMat = new THREE.MeshPhysicalMaterial({
+            color: 0x10b981,
+            emissive: 0x059669,
+            emissiveIntensity: 0.55,
+            roughness: 0.25,
+            clearcoat: 0.8
+        });
+
+        // 7. Anéis dos Nódulos de Ranvier (Ciano Elétrico onde o impulso salta)
+        const ranvierMat = new THREE.MeshBasicMaterial({
+            color: 0x00f2fe,
+            transparent: true,
+            opacity: 0.92
+        });
+
+        // 8. Terminais do Axônio e Botões Sinápticos (Rosa-Coral / Âmbar Brilhante)
+        const terminalMat = new THREE.MeshPhysicalMaterial({
+            color: 0xf472b6,
+            emissive: 0xdb2777,
+            emissiveIntensity: 0.45,
+            roughness: 0.25,
+            clearcoat: 0.8
+        });
+
+        // =====================================================================
+        // DEFINIÇÃO DA REDE DE 3 NEURÔNIOS INTERCONECTADOS:
+        // - Neurônio 0 (Principal / Em Foco Central): Soma em (-6.2, 0.4, 0.0) -> Axônio longo horizontal até (+2.6, 0.2, 0.0)
+        // - Neurônio 1 (Pós-Sináptico Alvo — Conexão AXÔNIO-DENDRITO): Soma em (+6.8, 1.2, -0.4), cujos dendritos recebem diretamente os botões terminais do Neurônio 0!
+        // - Neurônio 2 (Interneurônio Modulador — Conexão AXÔNIO-AXÔNIO): Soma em (-1.8, 4.8, -1.6), cujo axônio desce e faz sinapse axoaxônica direta sobre o segmento inicial/terminal axonal do Neurônio 0!
+        // =====================================================================
+        this.buildSingleDetailedNeuron({
+            index: 0,
+            isPrimary: true,
+            somaPos: new THREE.Vector3(-6.2, 0.4, 0.0),
+            axonPoints: [
+                new THREE.Vector3(-5.1, 0.35, 0.0),
+                new THREE.Vector3(-3.2, 0.15, 0.25),
+                new THREE.Vector3(-1.1, 0.28, -0.15),
+                new THREE.Vector3(1.0, 0.12, 0.18),
+                new THREE.Vector3(2.8, 0.22, 0.0)
+            ],
+            dendriteTargets: [
+                new THREE.Vector3(-8.6, 2.8, 1.2),
+                new THREE.Vector3(-9.1, 1.1, -1.4),
+                new THREE.Vector3(-8.8, -1.6, 0.9),
+                new THREE.Vector3(-7.4, -2.5, -1.1),
+                new THREE.Vector3(-6.6, 3.1, -0.8),
+                new THREE.Vector3(-5.8, -2.4, 1.4)
+            ],
+            terminalBranches: [
+                {
+                    type: 'AXODENDRITIC',
+                    points: [
+                        new THREE.Vector3(2.8, 0.22, 0.0),
+                        new THREE.Vector3(3.85, 1.15, 0.35),
+                        new THREE.Vector3(4.65, 1.65, 0.22) // Toca o dendrito superior do Neurônio 1
+                    ]
+                },
+                {
+                    type: 'AXODENDRITIC',
+                    points: [
+                        new THREE.Vector3(2.8, 0.22, 0.0),
+                        new THREE.Vector3(3.95, 0.35, -0.35),
+                        new THREE.Vector3(4.82, 0.55, -0.28) // Toca o dendrito médio do Neurônio 1
+                    ]
+                },
+                {
+                    type: 'AXODENDRITIC',
+                    points: [
+                        new THREE.Vector3(2.8, 0.22, 0.0),
+                        new THREE.Vector3(3.75, -0.65, 0.25),
+                        new THREE.Vector3(4.58, -0.45, 0.12) // Toca o dendrito inferior do Neurônio 1
+                    ]
+                }
+            ],
+            materials: { somaMat, nucleusMat, nucleolusMat, dendriteMat, axonCoreMat, myelinMat, schwannNucleusMat, ranvierMat, terminalMat }
+        });
+
+        // Neurônio 1: Pós-Sináptico (seus dendritos esquerdos se encontram exatamente nos botões sinápticos do Neurônio 0!)
+        this.buildSingleDetailedNeuron({
+            index: 1,
+            isPrimary: false,
+            somaPos: new THREE.Vector3(6.8, 0.65, -0.15),
+            axonPoints: [
+                new THREE.Vector3(7.85, 0.60, -0.15),
+                new THREE.Vector3(9.45, 0.35, 0.25),
+                new THREE.Vector3(11.15, 0.15, -0.10)
+            ],
+            dendriteTargets: [
+                new THREE.Vector3(4.68, 1.65, 0.22),  // Sinapse Axodendrítica 1 com Neurônio 0!
+                new THREE.Vector3(4.85, 0.55, -0.28), // Sinapse Axodendrítica 2 com Neurônio 0!
+                new THREE.Vector3(4.61, -0.45, 0.12), // Sinapse Axodendrítica 3 com Neurônio 0!
+                new THREE.Vector3(6.95, 3.15, 0.95),
+                new THREE.Vector3(6.55, -2.05, -0.85)
+            ],
+            terminalBranches: [
+                {
+                    type: 'AXODENDRITIC',
+                    points: [
+                        new THREE.Vector3(11.15, 0.15, -0.10),
+                        new THREE.Vector3(12.05, 0.85, 0.35)
+                    ]
+                },
+                {
+                    type: 'AXODENDRITIC',
+                    points: [
+                        new THREE.Vector3(11.15, 0.15, -0.10),
+                        new THREE.Vector3(12.10, -0.55, -0.35)
+                    ]
+                }
+            ],
+            materials: { somaMat, nucleusMat, nucleolusMat, dendriteMat, axonCoreMat, myelinMat, schwannNucleusMat, ranvierMat, terminalMat }
+        });
+
+        // Neurônio 2: Interneurônio Superior fazendo SINAPSE AXOAXÔNICA (Axônio com Axônio) sobre o Neurônio 0!
+        this.buildSingleDetailedNeuron({
+            index: 2,
+            isPrimary: false,
+            somaPos: new THREE.Vector3(-1.4, 4.65, -1.05),
+            axonPoints: [
+                new THREE.Vector3(-0.85, 3.85, -0.85),
+                new THREE.Vector3(0.45, 2.55, -0.45),
+                new THREE.Vector3(1.65, 1.35, -0.15)
+            ],
+            dendriteTargets: [
+                new THREE.Vector3(-3.25, 6.15, -0.45),
+                new THREE.Vector3(-1.55, 6.45, -2.15),
+                new THREE.Vector3(0.25, 5.95, -0.75)
+            ],
+            terminalBranches: [
+                {
+                    type: 'AXOAXONIC',
+                    points: [
+                        new THREE.Vector3(1.65, 1.35, -0.15),
+                        new THREE.Vector3(2.25, 0.72, -0.05),
+                        new THREE.Vector3(2.55, 0.32, 0.0) // Sinapse Axoaxônica direta sobre o Axônio/Terminal do Neurônio 0!
+                    ]
+                }
+            ],
+            materials: { somaMat, nucleusMat, nucleolusMat, dendriteMat, axonCoreMat, myelinMat, schwannNucleusMat, ranvierMat, terminalMat }
+        });
+    }
+
+    buildSingleDetailedNeuron(cfg) {
+        const { index, isPrimary, somaPos, axonPoints, dendriteTargets, terminalBranches, materials } = cfg;
+        const nGroup = new THREE.Group();
+
+        // 1. CORPO CELULAR (SOMA) TRANSLÚCIDO + CONE DE IMPLANTAÇÃO (AXON HILLOCK)
+        const somaGroup = new THREE.Group();
+        const somaGeo = new THREE.SphereGeometry(1.18, 48, 48);
+        const sPos = somaGeo.attributes.position;
+        for (let i = 0; i < sPos.count; i++) {
+            let x = sPos.getX(i);
+            let y = sPos.getY(i);
+            let z = sPos.getZ(i);
+            // Alonga suavemente em direção ao Cone de Implantação (Axon Hillock) à direita
+            if (x > 0.25) {
+                x *= 1.28;
+                y *= (1.0 - (x / 2.2) * 0.25);
+                z *= (1.0 - (x / 2.2) * 0.25);
+            }
+            sPos.setXYZ(i, x, y, z);
+        }
+        somaGeo.computeVertexNormals();
+        const somaMesh = new THREE.Mesh(somaGeo, materials.somaMat);
+        somaMesh.position.copy(somaPos);
+        somaGroup.add(somaMesh);
+        nGroup.add(somaGroup);
+        this.registerNeuronPart('NEURON_SOMA', somaGroup, isPrimary ? somaPos.clone().add(new THREE.Vector3(0, 1.25, 0)) : null);
+
+        // 2. NÚCLEO (ESFERA LARANJA-DOURADA VIBRANTE) + NUCLÉOLO + CORPÚSCULOS DE NISSL (Visíveis através do Soma!)
+        const nucGroup = new THREE.Group();
+        const nucleusMesh = new THREE.Mesh(new THREE.SphereGeometry(0.54, 36, 36), materials.nucleusMat);
+        nucleusMesh.position.copy(somaPos);
+        nucGroup.add(nucleusMesh);
+
+        const nucleolusMesh = new THREE.Mesh(new THREE.SphereGeometry(0.20, 24, 24), materials.nucleolusMat);
+        nucleolusMesh.position.copy(somaPos).add(new THREE.Vector3(0.12, 0.10, 0.18));
+        nucGroup.add(nucleolusMesh);
+
+        // Corpúsculos de Nissl (Retículo Endoplasmático Rugoso) e Mitocôndrias ao redor do núcleo
+        const nisslMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75 });
+        for (let k = 0; k < 10; k++) {
+            const angle = (k / 10) * Math.PI * 2;
+            const nissl = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 12), nisslMat);
+            nissl.scale.set(1.6, 0.7, 0.9);
+            nissl.position.copy(somaPos).add(new THREE.Vector3(
+                Math.cos(angle) * 0.75,
+                Math.sin(angle) * 0.68,
+                Math.sin(angle * 2.0) * 0.45
+            ));
+            nucGroup.add(nissl);
+        }
+        nGroup.add(nucGroup);
+        this.registerNeuronPart('NEURON_NUCLEUS', nucGroup, isPrimary ? somaPos.clone() : null);
+
+        // 3. DENDRITOS ARBORIZADOS EM 3 NÍVEIS + ESPINHAS DENDRÍTICAS
+        const dendGroup = new THREE.Group();
+        dendriteTargets.forEach((targetPt, dIdx) => {
+            const dir = targetPt.clone().sub(somaPos);
+            const mid1 = somaPos.clone().add(dir.clone().multiplyScalar(0.38)).add(new THREE.Vector3(0, (dIdx % 2 === 0 ? 0.35 : -0.35), 0.2));
+            const mid2 = somaPos.clone().add(dir.clone().multiplyScalar(0.72)).add(new THREE.Vector3(0, (dIdx % 2 === 0 ? -0.22 : 0.25), -0.18));
+
+            const dCurve = new THREE.CatmullRomCurve3([somaPos.clone(), mid1, mid2, targetPt.clone()]);
+            const dGeo = new THREE.TubeGeometry(dCurve, 32, 0.14, 14, false);
+            // Afila suavemente do Soma até a ponta dendrítica
+            const dPos = dGeo.attributes.position;
+            for (let i = 0; i < dPos.count; i++) {
+                const vx = dPos.getX(i), vy = dPos.getY(i), vz = dPos.getZ(i);
+                const distFromSoma = somaPos.distanceTo(new THREE.Vector3(vx, vy, vz));
+                const maxLen = somaPos.distanceTo(targetPt);
+                const t = Math.min(1.0, distFromSoma / Math.max(0.1, maxLen));
+                const ptOnCurve = dCurve.getPointAt(t);
+                const shrink = 1.0 - t * 0.65;
+                dPos.setXYZ(
+                    i,
+                    ptOnCurve.x + (vx - ptOnCurve.x) * shrink,
+                    ptOnCurve.y + (vy - ptOnCurve.y) * shrink,
+                    ptOnCurve.z + (vz - ptOnCurve.z) * shrink
+                );
+            }
+            dGeo.computeVertexNormals();
+            dendGroup.add(new THREE.Mesh(dGeo, materials.dendriteMat));
+
+            // Ramificações Dendríticas Secundárias + Espinhas Dendríticas
+            [0.45, 0.72].forEach((branchT, bSub) => {
+                const startSub = dCurve.getPointAt(branchT);
+                const subEnd = startSub.clone().add(new THREE.Vector3(
+                    (bSub === 0 ? -0.65 : -0.45),
+                    (dIdx % 2 === 0 ? 0.75 : -0.75) * (bSub === 0 ? 1 : -0.7),
+                    (bSub === 0 ? 0.55 : -0.55)
+                ));
+                const subCurve = new THREE.CatmullRomCurve3([startSub, subEnd]);
+                dendGroup.add(new THREE.Mesh(new THREE.TubeGeometry(subCurve, 14, 0.055, 8, false), materials.dendriteMat));
+
+                // Espinhas Dendríticas (pequenos botões pós-sinápticos)
+                const spine = new THREE.Mesh(new THREE.SphereGeometry(0.075, 10, 10), materials.dendriteMat);
+                spine.position.copy(subEnd);
+                dendGroup.add(spine);
             });
-            const rSprite = new THREE.Sprite(rSpriteMat);
-            rSprite.position.copy(nodePos);
-            rSprite.scale.set(1.75, 1.75, 1.75);
-            group.add(rSprite);
-
-            const worldNodePos = nodePos.clone().multiplyScalar(scale).add(position);
-            axonRanvierMeshes.push({ mesh: rRingMesh, sprite: rSprite, worldPos: worldNodePos, tNode, neuronId: id });
-            this.ranvierNodes.push({ mesh: rRingMesh, sprite: rSprite, worldPos: worldNodePos, neuronId: id });
-          }
-        }
-      }
-
-      this.connectomeGroup.add(group);
-      const record = {
-        id, isHero, isAmber, position, scale, group, somaMesh, somaMat,
-        nucleusMesh, nucleusMat, haloMesh, sprite, dendriteMesh, dendriteMat,
-        terminalTips, axonSheaths, axonRanvierMeshes, axonCurveGlobal, health: 1.0
-      };
-      this.neurons.push(record);
-      return record;
-    }
-
-    buildFireflyLayerVConnectome() {
-      // 1. Neurônio 0: Hero Central (Âmbar-Dourado)
-      this.buildFireflyLayerVNeuronMesh({ id: 0, isHero: true, isAmber: true, position: new THREE.Vector3(0.0, 2.2, 0.0), scale: 1.0, hasVisibleMyelin: true });
-      // 2. Neurônios 1 a 7 (Vizinhos Próximos Interligados)
-      this.buildFireflyLayerVNeuronMesh({ id: 1, isHero: false, isAmber: false, position: new THREE.Vector3(-9.8, 3.6, -2.5), scale: 0.68, hasVisibleMyelin: true });
-      this.buildFireflyLayerVNeuronMesh({ id: 2, isHero: false, isAmber: false, position: new THREE.Vector3(-7.5, -5.8, 2.2), scale: 0.78, axonTarget: new THREE.Vector3(2.5, -7.5, 1.0), hasVisibleMyelin: true });
-      this.buildFireflyLayerVNeuronMesh({ id: 3, isHero: false, isAmber: true, position: new THREE.Vector3(-8.2, -1.6, -5.5), scale: 0.52, hasVisibleMyelin: true });
-      this.buildFireflyLayerVNeuronMesh({ id: 4, isHero: false, isAmber: true, position: new THREE.Vector3(1.8, -4.5, -5.2), scale: 0.58, hasVisibleMyelin: true });
-      this.buildFireflyLayerVNeuronMesh({ id: 5, isHero: false, isAmber: false, position: new THREE.Vector3(9.4, 4.2, -3.0), scale: 0.68, hasVisibleMyelin: true });
-      this.buildFireflyLayerVNeuronMesh({ id: 6, isHero: false, isAmber: true, position: new THREE.Vector3(7.8, 3.0, -2.2), scale: 0.50, hasVisibleMyelin: true });
-      this.buildFireflyLayerVNeuronMesh({ id: 7, isHero: false, isAmber: true, position: new THREE.Vector3(8.4, -4.8, -2.0), scale: 0.56, hasVisibleMyelin: true });
-
-      // 3. Neurônios 8 a 16 (Anel Intermediário)
-      const midPositions = [
-        new THREE.Vector3(-14.5, 6.5, -9.0),
-        new THREE.Vector3(-12.0, -7.2, -10.5),
-        new THREE.Vector3(-5.5, 8.5, -11.0),
-        new THREE.Vector3(-2.0, -9.0, -9.5),
-        new THREE.Vector3(4.5, 8.0, -12.5),
-        new THREE.Vector3(12.5, 7.5, -10.0),
-        new THREE.Vector3(13.8, -1.5, -11.0),
-        new THREE.Vector3(11.5, -8.5, -9.0),
-        new THREE.Vector3(0.0, 10.5, -14.0)
-      ];
-      for (let d = 0; d < 9; d++) {
-        this.buildFireflyLayerVNeuronMesh({
-          id: 8 + d,
-          isHero: false,
-          isAmber: (d % 2 === 0),
-          position: midPositions[d],
-          scale: 0.44 + (d % 3) * 0.08,
-          hasVisibleMyelin: (d % 2 === 0)
         });
-      }
+        nGroup.add(dendGroup);
+        this.registerNeuronPart('NEURON_DENDRITES', dendGroup, isPrimary ? dendriteTargets[0].clone() : null);
 
-      // 4. Neurônios 17 a 64 (+48 Neurônios Piramidais formando uma Floresta Cortical Densa em 360° na Camada V)
-      for (let k = 0; k < 48; k++) {
-        const ring = k % 3;
-        const angle = (k / 48) * Math.PI * 2 * 2.0 + ring * 0.55;
-        const radius = 12.5 + ring * 6.5 + (k % 5) * 1.8;
-        const yPos = -14.0 + ((k * 7) % 28);
-        const zOffset = Math.sin(angle) * radius * 0.75 - 4.0;
-        const xOffset = Math.cos(angle) * radius;
+        // 4. AXÔNIO CENTRAL + BAINHAS DE MIELINA + CÉLULAS DE SCHWANN + NÓDULOS DE RANVIER
+        const axonCurve = new THREE.CatmullRomCurve3(axonPoints);
+        const axonGroup = new THREE.Group();
+        const axonMesh = new THREE.Mesh(new THREE.TubeGeometry(axonCurve, 64, 0.12, 16, false), materials.axonCoreMat);
+        axonGroup.add(axonMesh);
+        nGroup.add(axonGroup);
+        this.registerNeuronPart('NEURON_AXON', axonGroup, isPrimary ? axonCurve.getPointAt(0.12) : null);
 
-        this.buildFireflyLayerVNeuronMesh({
-          id: 17 + k,
-          isHero: false,
-          isAmber: (k % 5 === 0 || k % 5 === 2),
-          position: new THREE.Vector3(xOffset, yPos, zOffset),
-          scale: 0.34 + (k % 4) * 0.07,
-          hasVisibleMyelin: (k % 3 === 0)
+        const myelinGroup = new THREE.Group();
+        const schwannGroup = new THREE.Group();
+        const ranvierGroup = new THREE.Group();
+
+        const numSegments = isPrimary ? 5 : 3;
+        const segSpan = 0.80 / numSegments;
+        const gapSpan = 0.045;
+
+        for (let s = 0; s < numSegments; s++) {
+            const tStart = 0.12 + s * (segSpan + gapSpan);
+            const tEnd = Math.min(0.94, tStart + segSpan);
+            if (tEnd <= tStart) continue;
+
+            const subPts = [];
+            for (let k = 0; k <= 12; k++) {
+                subPts.push(axonCurve.getPointAt(tStart + (tEnd - tStart) * (k / 12)));
+            }
+            const segCurve = new THREE.CatmullRomCurve3(subPts);
+            const segGeo = new THREE.TubeGeometry(segCurve, 24, 0.28, 20, false);
+            const segMesh = new THREE.Mesh(segGeo, materials.myelinMat);
+            myelinGroup.add(segMesh);
+
+            // Núcleo Verde-Esmeralda da Célula de Schwann / Oligodendrócito aderido à superfície da Bainha de Mielina
+            const midT = (tStart + tEnd) * 0.5;
+            const midPt = axonCurve.getPointAt(midT);
+            const schwannNuc = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 16), materials.schwannNucleusMat);
+            schwannNuc.scale.set(1.65, 0.85, 0.95);
+            schwannNuc.position.copy(midPt).add(new THREE.Vector3(0, (s % 2 === 0 ? 0.25 : -0.25), 0.14));
+            schwannGroup.add(schwannNuc);
+
+            // Nódulo de Ranvier entre este internodo e o próximo
+            if (s < numSegments - 1) {
+                const nodeT = tEnd + gapSpan * 0.5;
+                const nodePt = axonCurve.getPointAt(Math.min(0.98, nodeT));
+                const tangent = axonCurve.getTangentAt(Math.min(0.98, nodeT));
+                const nodeRing = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.045, 12, 24), materials.ranvierMat);
+                nodeRing.position.copy(nodePt);
+                nodeRing.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), tangent.normalize());
+                ranvierGroup.add(nodeRing);
+
+                if (isPrimary && s === 1) {
+                    this.partAnchors.set('NEURON_RANVIER', nodePt.clone());
+                }
+            }
+
+            if (isPrimary && s === 2) {
+                this.partAnchors.set('NEURON_MYELIN', midPt.clone().add(new THREE.Vector3(0, 0.32, 0)));
+                this.partAnchors.set('NEURON_SCHWANN', schwannNuc.position.clone());
+            }
+        }
+
+        nGroup.add(myelinGroup);
+        nGroup.add(schwannGroup);
+        nGroup.add(ranvierGroup);
+        this.registerNeuronPart('NEURON_MYELIN', myelinGroup);
+        this.registerNeuronPart('NEURON_SCHWANN', schwannGroup);
+        this.registerNeuronPart('NEURON_RANVIER', ranvierGroup);
+
+        // 5. TERMINAL DO AXÔNIO (TELODENDRO) + BOTÕES SINÁPTICOS + FENDAS SINÁPTICAS (Axodendríticas e Axoaxônicas)
+        const terminalGroup = new THREE.Group();
+        const synapseGroup = new THREE.Group();
+
+        terminalBranches.forEach((branch, bIdx) => {
+            const bCurve = new THREE.CatmullRomCurve3(branch.points);
+            const bGeo = new THREE.TubeGeometry(bCurve, 24, 0.085, 12, false);
+            terminalGroup.add(new THREE.Mesh(bGeo, materials.terminalMat));
+
+            const tipPt = branch.points[branch.points.length - 1];
+            // Botão Terminal Pré-Sináptico
+            const bouton = new THREE.Mesh(new THREE.SphereGeometry(0.19, 20, 20), materials.terminalMat);
+            bouton.scale.set(1.25, 0.95, 0.95);
+            bouton.position.copy(tipPt);
+            terminalGroup.add(bouton);
+
+            // Halo da Fenda Sináptica + Vesículas de Neurotransmissores atravessando a sinapse
+            const cleftHalo = new THREE.Mesh(
+                new THREE.RingGeometry(0.12, 0.34, 24),
+                new THREE.MeshBasicMaterial({
+                    color: branch.type === 'AXOAXONIC' ? 0x38bdf8 : 0xfacc15,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.78
+                })
+            );
+            cleftHalo.position.copy(tipPt);
+            cleftHalo.rotation.y = Math.PI / 2;
+            synapseGroup.add(cleftHalo);
+
+            // Cria nuvem de 14 vesículas/moléculas de neurotransmissores animadas nesta fenda sináptica
+            const vCount = 14;
+            const vPos = new Float32Array(vCount * 3);
+            for (let v = 0; v < vCount; v++) {
+                vPos[v * 3] = tipPt.x + (Math.random() - 0.5) * 0.35;
+                vPos[v * 3 + 1] = tipPt.y + (Math.random() - 0.5) * 0.35;
+                vPos[v * 3 + 2] = tipPt.z + (Math.random() - 0.5) * 0.35;
+            }
+            const vGeo = new THREE.BufferGeometry();
+            vGeo.setAttribute('position', new THREE.BufferAttribute(vPos, 3));
+            const vPoints = new THREE.Points(vGeo, new THREE.PointsMaterial({
+                color: branch.type === 'AXOAXONIC' ? 0x00f2fe : 0xfde047,
+                size: 0.14,
+                transparent: true,
+                opacity: 0.92,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            }));
+            synapseGroup.add(vPoints);
+
+            this.synapseConnections.push({
+                type: branch.type,
+                center: tipPt.clone(),
+                halo: cleftHalo,
+                vesicles: vPoints,
+                burstIntensity: 0.0
+            });
+
+            if (isPrimary && bIdx === 0) {
+                this.partAnchors.set('NEURON_TERMINAL', branch.points[1].clone());
+                this.partAnchors.set('NEURON_SYNAPSE', tipPt.clone());
+            }
         });
-      }
+
+        nGroup.add(terminalGroup);
+        nGroup.add(synapseGroup);
+        this.registerNeuronPart('NEURON_TERMINAL', terminalGroup);
+        this.registerNeuronPart('NEURON_SYNAPSE', synapseGroup);
+
+        // 6. Pulso Luminoso do Potencial de Ação Saltatório ao longo do Axônio deste Neurônio
+        const apGlow = new THREE.Mesh(
+            new THREE.SphereGeometry(0.26, 20, 20),
+            new THREE.MeshBasicMaterial({
+                color: 0x00f2fe,
+                transparent: true,
+                opacity: 0.95,
+                blending: THREE.AdditiveBlending
+            })
+        );
+        apGlow.position.copy(axonPoints[0]);
+        nGroup.add(apGlow);
+
+        this.neurons.push({
+            index,
+            isPrimary,
+            group: nGroup,
+            axonCurve,
+            apGlow,
+            apProgress: index === 0 ? 0.0 : (index === 2 ? 0.45 : 0.72),
+            apSpeed: index === 0 ? 0.58 : 0.48
+        });
+
+        this.microGroup.add(nGroup);
     }
 
-    build24PhysicalSynapsesAndNeurotransmitters() {
-      const hero = this.neurons[0];
-      const neighbors = this.neurons.slice(1, 25);
-
-      const boutonGeo = new THREE.SphereGeometry(0.22, 10, 8);
-      boutonGeo.scale(1.2, 0.85, 0.85);
-      const cleftDiskGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.04, 12);
-      const spineGeo = new THREE.SphereGeometry(0.18, 8, 8);
-      spineGeo.scale(0.9, 1.25, 0.9);
-
-      let bridgeCount = 0;
-      const targetBridges = 60;
-
-      for (let n = 0; n < neighbors.length && bridgeCount < targetBridges; n++) {
-        const neighbor = neighbors[n];
-        const connectionsPerNeighbor = (n < 3) ? 4 : 3;
-
-        for (let c = 0; c < connectionsPerNeighbor && bridgeCount < targetBridges; c++) {
-          const heroTip = hero.terminalTips[(bridgeCount * 3 + c) % hero.terminalTips.length];
-          const neighTip = neighbor.terminalTips[(c * 4 + bridgeCount) % neighbor.terminalTips.length];
-          if (!heroTip || !neighTip) continue;
-
-          const pPre = heroTip.worldPt;
-          const pPost = neighTip.worldPt;
-          const cleftCenter = pPre.clone().lerp(pPost, 0.5);
-          const cleftDir = pPost.clone().sub(pPre).normalize();
-
-          const boutonMesh = new THREE.Mesh(boutonGeo, new THREE.MeshStandardMaterial({
-            color: 0x0284c7, emissive: 0x0369a1, emissiveIntensity: 0.6, roughness: 0.25
-          }));
-          boutonMesh.position.copy(cleftCenter).addScaledVector(cleftDir, -0.22);
-          boutonMesh.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), cleftDir);
-          this.connectomeGroup.add(boutonMesh);
-
-          const cleftMesh = new THREE.Mesh(cleftDiskGeo, new THREE.MeshBasicMaterial({
-            color: 0x00f2fe, transparent: true, opacity: 0.72, blending: THREE.AdditiveBlending, depthWrite: false
-          }));
-          cleftMesh.position.copy(cleftCenter);
-          cleftMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), cleftDir);
-          this.connectomeGroup.add(cleftMesh);
-
-          const spineMesh = new THREE.Mesh(spineGeo, new THREE.MeshStandardMaterial({
-            color: 0xd97706, emissive: 0xf59e0b, emissiveIntensity: 0.55, roughness: 0.3
-          }));
-          spineMesh.position.copy(cleftCenter).addScaledVector(cleftDir, 0.22);
-          spineMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), cleftDir);
-          this.connectomeGroup.add(spineMesh);
-
-          const bridgeCurve = new THREE.CatmullRomCurve3([pPre, cleftCenter, pPost]);
-          const bridgeTubeMesh = new THREE.Mesh(
-            new THREE.TubeGeometry(bridgeCurve, 8, 0.045, 6, false),
-            new THREE.MeshStandardMaterial({ color: 0x0284c7, emissive: 0x0369a1, emissiveIntensity: 0.4, transparent: true, opacity: 0.75 })
-          );
-          this.connectomeGroup.add(bridgeTubeMesh);
-
-          this.synapseBridges.push({
-            id: bridgeCount, prePt: pPre, postPt: pPost, cleftCenter, cleftDir,
-            boutonMesh, cleftMesh, spineMesh, bridgeTubeMesh,
-            isGlutamate: (bridgeCount % 3 !== 0)
-          });
-          bridgeCount++;
+    setVisible(visible, targetStructureId = null) {
+        this.microGroup.visible = visible;
+        if (targetStructureId) {
+            this.activeTargetStructure = targetStructureId;
         }
-      }
-
-      // Fluxo Anterógrado (Glutamato #fbbf24 / GABA #38bdf8)
-      const anteroCount = bridgeCount * 22;
-      const anteroPos = new Float32Array(anteroCount * 3);
-      const anteroCol = new Float32Array(anteroCount * 3);
-      const colGlutamate = new THREE.Color(0xfbbf24);
-      const colGABA = new THREE.Color(0x38bdf8);
-
-      for (let i = 0; i < anteroCount; i++) {
-        const bIdx = Math.floor(i / 22);
-        const bridge = this.synapseBridges[bIdx];
-        const prog = Math.random();
-        const baseCol = bridge.isGlutamate ? colGlutamate : colGABA;
-        const p = bridge.prePt.clone().lerp(bridge.postPt, prog);
-        anteroPos[i * 3] = p.x; anteroPos[i * 3 + 1] = p.y; anteroPos[i * 3 + 2] = p.z;
-        anteroCol[i * 3] = baseCol.r; anteroCol[i * 3 + 1] = baseCol.g; anteroCol[i * 3 + 2] = baseCol.b;
-        this.synapticVesicles.push({ bridgeIndex: bIdx, progress: prog, speed: 0.65 + Math.random() * 0.65 });
-      }
-      const anteroGeo = new THREE.BufferGeometry();
-      anteroGeo.setAttribute('position', new THREE.BufferAttribute(anteroPos, 3));
-      anteroGeo.setAttribute('color', new THREE.BufferAttribute(anteroCol, 3));
-      this.anteroPoints = new THREE.Points(anteroGeo, new THREE.PointsMaterial({
-        size: 0.55, map: this.glowTexture, vertexColors: true, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false
-      }));
-      this.confocalGroup.add(this.anteroPoints);
-
-      // Fluxo Retrógrado (2-AG/NO #34d399 + EAAT2 #fef08a)
-      const retroCount = bridgeCount * 14;
-      const retroPos = new Float32Array(retroCount * 3);
-      const retroCol = new Float32Array(retroCount * 3);
-      const colEndo = new THREE.Color(0x34d399);
-      const colEAAT2 = new THREE.Color(0xfef08a);
-
-      for (let i = 0; i < retroCount; i++) {
-        const bIdx = Math.floor(i / 14);
-        const bridge = this.synapseBridges[bIdx];
-        const prog = Math.random();
-        const curCol = (i % 2 === 0) ? colEndo : colEAAT2;
-        const p = bridge.postPt.clone().lerp(bridge.prePt, prog);
-        retroPos[i * 3] = p.x; retroPos[i * 3 + 1] = p.y; retroPos[i * 3 + 2] = p.z;
-        retroCol[i * 3] = curCol.r; retroCol[i * 3 + 1] = curCol.g; retroCol[i * 3 + 2] = curCol.b;
-        this.retrogradeParticles.push({ bridgeIndex: bIdx, progress: prog, speed: 0.55 + Math.random() * 0.55 });
-      }
-      const retroGeo = new THREE.BufferGeometry();
-      retroGeo.setAttribute('position', new THREE.BufferAttribute(retroPos, 3));
-      retroGeo.setAttribute('color', new THREE.BufferAttribute(retroCol, 3));
-      this.retroPoints = new THREE.Points(retroGeo, new THREE.PointsMaterial({
-        size: 0.48, map: this.glowTexture, vertexColors: true, transparent: true, opacity: 0.92, blending: THREE.AdditiveBlending, depthWrite: false
-      }));
-      this.confocalGroup.add(this.retroPoints);
     }
 
-    buildActionPotentialPulses() {
-      const pulseCount = 420;
-      const positions = new Float32Array(pulseCount * 3);
-      const colors = new Float32Array(pulseCount * 3);
-      const myelinatedNeurons = this.neurons.filter(n => n.axonCurveGlobal !== null);
-
-      for (let i = 0; i < pulseCount; i++) {
-        const nr = myelinatedNeurons[i % myelinatedNeurons.length];
-        this.actionPulses.push({ neuron: nr, t: Math.random(), speed: 0.45 + Math.random() * 0.65 });
-        colors[i * 3] = 0.0; colors[i * 3 + 1] = 0.95; colors[i * 3 + 2] = 1.0;
-      }
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-      this.pulsePoints = new THREE.Points(geo, new THREE.PointsMaterial({
-        size: 1.45, map: this.glowTexture, vertexColors: true, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false
-      }));
-      this.connectomeGroup.add(this.pulsePoints);
+    getPartMetadata(partId) {
+        return this.neuronPartsOntology[partId] || this.neuronPartsOntology['NEURON_SOMA'];
     }
 
-    buildAmyloidPlaques() {
-      const needleGeo = new THREE.CylinderGeometry(0.012, 0.038, 0.92, 5);
-      needleGeo.translate(0, 0.46, 0);
-      const matRuby = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xdc2626, emissiveIntensity: 0.95, roughness: 0.28 });
-      const matAmber = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xea580c, emissiveIntensity: 0.92, roughness: 0.26 });
-
-      for (let i = 0; i < 18; i++) {
-        const plaqueGroup = new THREE.Group();
-        for (let k = 0; k < 16; k++) {
-          const mesh = new THREE.Mesh(needleGeo, (k % 3 === 0) ? matAmber : matRuby);
-          const theta = Math.random() * Math.PI * 2;
-          const phi = Math.acos(2 * Math.random() - 1);
-          mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(Math.sin(phi) * Math.cos(theta), Math.sin(phi) * Math.sin(theta), Math.cos(phi)));
-          plaqueGroup.add(mesh);
+    resolveRaycastHit(intersection) {
+        if (!intersection || !intersection.object) return null;
+        let curr = intersection.object;
+        while (curr) {
+            if (curr.userData && curr.userData.neuronPartId) {
+                return curr.userData.neuronPartId;
+            }
+            curr = curr.parent;
         }
-        if (this.synapseBridges[i % Math.max(1, this.synapseBridges.length)]) {
-          plaqueGroup.position.copy(this.synapseBridges[i % this.synapseBridges.length].cleftCenter);
+        return 'NEURON_SOMA';
+    }
+
+    triggerManualSpike() {
+        this.spikePhase = 0.01;
+        this.firingRateHz = Math.min(85.0, this.firingRateHz + 18.0);
+        if (this.neurons.length > 0) {
+            this.neurons[0].apProgress = 0.02;
         }
-        plaqueGroup.visible = false;
-        this.connectomeGroup.add(plaqueGroup);
-        this.amyloidPlaques.push(plaqueGroup);
-      }
+        this.synapseConnections.forEach(syn => {
+            syn.burstIntensity = 1.0;
+        });
     }
 
-    buildSpongiformVacuoles() {
-      const cystGeo = new THREE.SphereGeometry(0.42, 20, 16);
-      const cystMat = new THREE.MeshPhysicalMaterial({
-        color: 0xe2e8f0, emissive: 0x38bdf8, emissiveIntensity: 0.18,
-        transparent: true, opacity: 0.45, roughness: 0.06, transmission: 0.92, ior: 1.333, depthWrite: false
-      });
-      for (let i = 0; i < 20; i++) {
-        const m = new THREE.Mesh(cystGeo, cystMat);
-        const r = 2.0 + (i % 6) * 1.8;
-        const theta = (i / 20) * Math.PI * 2;
-        m.position.set(Math.cos(theta) * r, (i % 5 - 2) * 1.8, Math.sin(theta) * (r * 0.5));
-        m.visible = false;
-        this.connectomeGroup.add(m);
-        this.vacuoles.push(m);
-      }
-    }
+    update(dt, elapsed) {
+        if (!this.microGroup.visible) return;
 
-    buildGliaOverlays() {
-      this.gliaCollections = {
-        ASTROCYTE: new THREE.Group(),
-        OLIGODENDROCYTE: new THREE.Group(),
-        MICROGLIA: new THREE.Group(),
-        EPENDYMAL: new THREE.Group()
-      };
-      this.gliaGroup.add(this.gliaCollections.ASTROCYTE);
-      this.gliaGroup.add(this.gliaCollections.OLIGODENDROCYTE);
-      this.gliaGroup.add(this.gliaCollections.MICROGLIA);
-      this.gliaGroup.add(this.gliaCollections.EPENDYMAL);
-    }
+        // 1. Anima a Condução Saltatória do Potencial de Ação ao longo dos axônios e Nódulos de Ranvier
+        this.neurons.forEach(n => {
+            n.apProgress += dt * n.apSpeed;
+            if (n.apProgress >= 1.0) {
+                n.apProgress = 0.0;
+                // Quando o potencial de ação chega ao Terminal do Axônio, dispara liberação sináptica!
+                this.synapseConnections.forEach(syn => {
+                    syn.burstIntensity = 1.0;
+                });
+                if (n.isPrimary) {
+                    this.spikePhase = 0.01;
+                }
+            }
+            const pt = n.axonCurve.getPointAt(n.apProgress);
+            n.apGlow.position.copy(pt);
+            // Efeito saltatório: pulsa mais forte ao passar pelos Nódulos de Ranvier
+            const saltatoryPulse = 1.0 + 0.45 * Math.abs(Math.sin(n.apProgress * Math.PI * 5.0));
+            n.apGlow.scale.setScalar(saltatoryPulse);
+        });
 
-    applyLOD() {}
+        // 2. Anima as Vesículas de Neurotransmissores atravessando as Fendas Sinápticas (Axodendríticas e Axoaxônicas)
+        this.synapseConnections.forEach((syn, idx) => {
+            syn.burstIntensity = Math.max(0.18, syn.burstIntensity - dt * 1.4);
+            const haloScale = 0.85 + 0.55 * syn.burstIntensity + 0.15 * Math.sin(elapsed * 8.0 + idx);
+            syn.halo.scale.setScalar(haloScale);
 
-    triggerActionPotential(stimulusStrength = 22.0) {
-      this.hhSimulator.triggerStimulus(stimulusStrength);
-    }
+            const posAttr = syn.vesicles.geometry.attributes.position;
+            for (let v = 0; v < posAttr.count; v++) {
+                const angle = elapsed * 4.5 + v * 1.1;
+                const radius = (0.08 + ((elapsed * 0.45 + v * 0.07) % 0.38)) * (0.7 + 0.6 * syn.burstIntensity);
+                posAttr.setXYZ(
+                    v,
+                    syn.center.x + Math.cos(angle) * radius,
+                    syn.center.y + Math.sin(angle * 1.3) * radius,
+                    syn.center.z + Math.sin(angle * 0.8) * radius
+                );
+            }
+            posAttr.needsUpdate = true;
+        });
 
-    setGliaVisibility(type, isVisible) {
-      if (this.gliaVisibility[type] !== undefined) {
-        this.gliaVisibility[type] = !!isVisible;
-        if (this.gliaCollections && this.gliaCollections[type]) {
-          this.gliaCollections[type].visible = this.gliaVisibility[type];
+        // 3. Atualiza a curva fisiológica do Potencial de Ação (mV) para o Osciloscópio
+        if (this.spikePhase > 0.0) {
+            this.spikePhase += dt * 3.8;
+            if (this.spikePhase < 0.25) {
+                // Fase 1: Despolarização rápida (Influxo de Na+) de -70 mV até +40 mV
+                this.membranePotentialMv = -70.0 + (this.spikePhase / 0.25) * 110.0;
+            } else if (this.spikePhase < 0.60) {
+                // Fase 2: Repolarização (Efluxo de K+) de +40 mV até -85 mV
+                const tRep = (this.spikePhase - 0.25) / 0.35;
+                this.membranePotentialMv = 40.0 - tRep * 125.0;
+            } else if (this.spikePhase < 1.0) {
+                // Fase 3: Hiperpolarização pós-potencial e retorno ao repouso (-70 mV via Na+/K+ ATPase)
+                const tRest = (this.spikePhase - 0.60) / 0.40;
+                this.membranePotentialMv = -85.0 + tRest * 15.0;
+            } else {
+                this.membranePotentialMv = -70.0;
+                this.spikePhase = 0.0;
+            }
+        } else {
+            this.membranePotentialMv = -70.0 + Math.sin(elapsed * 4.0) * 1.5;
         }
-      }
+        this.firingRateHz = Math.max(14.0, this.firingRateHz - dt * 2.5);
     }
+}
 
-    applyPathologyMode(pathologyKey) {
-      this.currentPathology = (pathologyKey || 'NORMAL').toUpperCase();
-      const isPrionOrAD = (this.currentPathology === 'PRION' || this.currentPathology === 'CJD' || this.currentPathology === 'ALZHEIMER');
-      const isMS = (this.currentPathology === 'MS');
-
-      this.amyloidPlaques.forEach(p => { p.visible = isPrionOrAD; });
-      this.vacuoles.forEach(v => { v.visible = (this.currentPathology === 'PRION' || this.currentPathology === 'CJD'); });
-
-      this.myelinSheaths.forEach(m => {
-        m.mesh.scale.setScalar(isMS ? 0.45 : 1.0);
-        m.mesh.material.opacity = isMS ? 0.35 : 0.88;
-      });
-    }
-
-    update(dt) {
-      if (!this.masterGroup.visible) return;
-      this.elapsedTime += dt;
-
-      const dtMs = dt * 1000.0 * 0.05;
-      this.hhSimulator.step(dtMs);
-
-      const fireInterval = (this.currentPathology === 'EPILEPSY') ? 0.12 : 0.55;
-      if (Math.sin(this.elapsedTime * (Math.PI * 2 / fireInterval)) > 0.985) {
-        this.hhSimulator.triggerStimulus(18.0);
-      }
-
-      // 1. Animar Pulsos Saltatórios nos Axônios Mielinizados
-      if (this.pulsePoints && this.actionPulses.length > 0) {
-        const posAttr = this.pulsePoints.geometry.getAttribute('position');
-        for (let i = 0; i < this.actionPulses.length; i++) {
-          const pulse = this.actionPulses[i];
-          pulse.t = (pulse.t + dt * pulse.speed) % 1.0;
-          const nr = pulse.neuron;
-          if (nr && nr.axonCurveGlobal) {
-            const localPt = nr.axonCurveGlobal.getPointAt(pulse.t);
-            const worldPt = localPt.clone().multiplyScalar(nr.scale).add(nr.position);
-            posAttr.setXYZ(i, worldPt.x, worldPt.y, worldPt.z);
-          }
-        }
-        posAttr.needsUpdate = true;
-      }
-
-      // 2. Animar Neurotransmissores Anterógrados e Retrógrados nas 24 Sinapses
-      if (this.anteroPoints && this.synapseBridges.length > 0) {
-        const aAttr = this.anteroPoints.geometry.getAttribute('position');
-        for (let i = 0; i < this.synapticVesicles.length; i++) {
-          const v = this.synapticVesicles[i];
-          v.progress = (v.progress + dt * v.speed) % 1.0;
-          const b = this.synapseBridges[v.bridgeIndex];
-          if (b) {
-            const p = b.prePt.clone().lerp(b.postPt, v.progress);
-            aAttr.setXYZ(i, p.x, p.y, p.z);
-          }
-        }
-        aAttr.needsUpdate = true;
-      }
-
-      if (this.retroPoints && this.synapseBridges.length > 0) {
-        const rAttr = this.retroPoints.geometry.getAttribute('position');
-        for (let i = 0; i < this.retrogradeParticles.length; i++) {
-          const v = this.retrogradeParticles[i];
-          v.progress = (v.progress + dt * v.speed) % 1.0;
-          const b = this.synapseBridges[v.bridgeIndex];
-          if (b) {
-            const p = b.postPt.clone().lerp(b.prePt, v.progress);
-            rAttr.setXYZ(i, p.x, p.y, p.z);
-          }
-        }
-        rAttr.needsUpdate = true;
-      }
-    }
-
-    setVisible(isVisible) {
-      this.masterGroup.visible = !!isVisible;
-    }
-
-    getElectrophysiologyState() {
-      return {
-        V: this.hhSimulator.V,
-        phase: this.hhSimulator.phase,
-        history: this.hhSimulator.history
-      };
-    }
-  }
-
-  window.NeuralMicrocosmos3D = NeuralMicrocosmos3D;
-  window.HodgkinHuxleyModel = HodgkinHuxleyModel;
-
-})(window);
+window.NeuralMicrocosmos3D = NeuralMicrocosmos3D;

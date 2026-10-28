@@ -1,0 +1,702 @@
+{
+  "1": {
+    "id": 1,
+    "code": "WB_CNS",
+    "name": "Sistema Nervoso Central Completo (Encéfalo + Medula Espinhal)",
+    "cat": "VISÃO GLOBAL",
+    "desc": "Eixo neuraxial biológico fundamental que integra o encéfalo anterior, tronco encefálico e medula espinhal até a cauda equina.",
+    "funcoes": [
+      "Comando e coordenação motora somática e visceral",
+      "Integração sensitivo-sensorial ascendente e descendente",
+      "Homeostase neuroendócrina e autonômica",
+      "Cognição de alta ordem, memória, linguagem e consciência"
+    ],
+    "doencas": [
+      "Encefalopatias Espongiformes (DCJ)",
+      "Esclerose Múltipla",
+      "AVC",
+      "Traumatismo Raquimedular",
+      "ELA"
+    ],
+    "neuro": [
+      "Glutamato",
+      "GABA",
+      "Dopamina",
+      "Serotonina",
+      "Acetilcolina",
+      "Noradrenalina"
+    ],
+    "audio": "Você está contemplando a totalidade do Sistema Nervoso Central Humano: o encéfalo esculpido a partir da média MNI152, diencéfalo, tronco encefálico, cerebelo anatômico e a medula espinhal contínua descendo até a cauda equina."
+  },
+  "2": {
+    "id": 2,
+    "code": "DLPFC_LEFT",
+    "name": "Córtex Pré-Frontal Dorsolateral Esquerdo (DLPFC — BA 9/46)",
+    "cat": "TELENCÉFALO",
+    "desc": "Região cortical do giro frontal médio e superior com alta densidade de neurônios piramidais da Camada III e V.",
+    "funcoes": [
+      "Funções executivas centrais e controle inibitório",
+      "Memória de trabalho operacional visuoespacial e verbal",
+      "Flexibilidade cognitiva e planejamento abstrato",
+      "Tomada de decisão baseada em metas"
+    ],
+    "doencas": [
+      "Esquizofrenia",
+      "Depressão Maior Refratária",
+      "TDAH",
+      "Demência Frontotemporal"
+    ],
+    "neuro": [
+      "Dopamina (receptores D1)",
+      "L-Glutamato",
+      "GABA"
+    ],
+    "audio": "O Córtex Pré-Frontal Dorsolateral Esquerdo orquestra o planejamento superior e o raciocínio executivo, inibindo respostas automáticas e mantendo metas cognitivas ativas."
+  },
+  "3": {
+    "id": 3,
+    "code": "BROCA_LEFT",
+    "name": "Área de Broca (Giro Frontal Inferior Esquerdo — BA 44/45)",
+    "cat": "TELENCÉFALO",
+    "desc": "Composta pela pars opercularis (BA 44) e pars triangularis (BA 45) no hemisfério cerebral dominante para linguagem.",
+    "funcoes": [
+      "Programação motora da fala e fonação articulada",
+      "Processamento sintático e morfossintaxe hierárquica",
+      "Movimentos orofaciais e planejamento dos músculos laríngeos"
+    ],
+    "doencas": [
+      "Afasia de Broca",
+      "Apraxia da Fala",
+      "AVC Isquêmico da ACM Esquerda"
+    ],
+    "neuro": [
+      "Acetilcolina",
+      "Glutamato",
+      "GABA"
+    ],
+    "audio": "A Área de Broca, situada estritamente no hemisfério esquerdo anatômico nos giros opercular e triangular, converte formulações linguísticas abstratas em comandos motores coordenados para as pregas vocais e lábios."
+  },
+  "4": {
+    "id": 4,
+    "code": "M1_LEFT",
+    "name": "Córtex Motor Primário M1 (Giro Pré-Central Esquerdo — BA 4)",
+    "cat": "TELENCÉFALO",
+    "desc": "Organização somatotópica de Penfield (homúnculo motor); abriga as células piramidais gigantes de Betz na Camada V.",
+    "funcoes": [
+      "Geração do comando motor voluntário fracionado distal",
+      "Início do Trato Corticoespinhal lateral",
+      "Modulação fina de força e velocidade de contração muscular"
+    ],
+    "doencas": [
+      "Hemiplegia Espástica Contralateral",
+      "Esclerose Lateral Amiotrófica (ELA)",
+      "AVC Motor"
+    ],
+    "neuro": [
+      "L-Glutamato",
+      "GABA"
+    ],
+    "audio": "O Giro Pré-Central Esquerdo abriga o Córtex Motor Primário. Aqui residem os neurônios piramidais de Betz da Camada V, cujos axônios descem ininterruptamente pela cápsula interna até a medula espinhal."
+  },
+  "5": {
+    "id": 5,
+    "code": "S1_LEFT",
+    "name": "Córtex Somatossensorial Primário S1 (Giro Pós-Central Esquerdo — BA 3/1/2)",
+    "cat": "TELENCÉFALO",
+    "desc": "Receptor das radiações tálamo-corticais originadas no núcleo ventral posterolateral (VPL) e posteromedial (VPM).",
+    "funcoes": [
+      "Discriminação táctil epicrítica entre dois pontos",
+      "Propriocepção consciente cinestésica articular",
+      "Localização e intensidade de dor e temperatura"
+    ],
+    "doencas": [
+      "Astereognosia",
+      "Hipoestesia Contralateral",
+      "Dor Talâmica Central"
+    ],
+    "neuro": [
+      "L-Glutamato",
+      "GABA"
+    ],
+    "audio": "O Giro Pós-Central Esquerdo recebe pelo leminisco medial e trato espinotalâmico todas as sensações do corpo contralateral mapeadas no homúnculo sensitivo."
+  },
+  "6": {
+    "id": 6,
+    "code": "WERNICKE_LEFT",
+    "name": "Área de Wernicke e Fascículo Arqueado (Giro Temporal Superior — BA 22)",
+    "cat": "TELENCÉFALO",
+    "desc": "Zona perissilviana posterior no hemisfério esquerdo fundamental para decodificação da linguagem auditiva.",
+    "funcoes": [
+      "Compreensão semântica e decodificação fonológica",
+      "Acesso ao léxico mental e representação de palavras",
+      "Transmissão para a Área de Broca para repetição verbal"
+    ],
+    "doencas": [
+      "Afasia de Wernicke (Sensitiva Fluente)",
+      "Afasia de Condução",
+      "Surdez Verbal Pura"
+    ],
+    "neuro": [
+      "Glutamato",
+      "GABA"
+    ],
+    "audio": "A Área de Wernicke no hemisfério esquerdo interpreta os fonemas e o sentido semântico da fala, projetando axônios mielinizados até Broca através do fascículo arqueado."
+  },
+  "7": {
+    "id": 7,
+    "code": "V1_CALCARINE",
+    "name": "Córtex Visual Primário V1 (Sulco Calcarino Occipital — BA 17 / Área Estriada)",
+    "cat": "TELENCÉFALO",
+    "desc": "Localizado nos lábios superior (cúneus) e inferior (giro lingual) do sulco calcarino; linha proeminente de Gennari.",
+    "funcoes": [
+      "Mapeamento retinotópico de alta fidelidade do campo visual",
+      "Detecção de orientação de bordas (células simples e complexas)",
+      "Frequência espacial e disparidade ocular para estereopsia 3D"
+    ],
+    "doencas": [
+      "Hemianopsia Homônima Contralateral com Preservação Macular",
+      "Cegueira Cortical (Síndrome de Anton)"
+    ],
+    "neuro": [
+      "L-Glutamato",
+      "GABA"
+    ],
+    "audio": "No polo occipital posterior, o Córtex Visual Primário às margens do sulco calcarino decifra os impulsos elétricos originados nos fotorreceptores da retina."
+  },
+  "8": {
+    "id": 8,
+    "code": "A1_LEFT",
+    "name": "Córtex Auditivo Primário A1 (Giros Transversos de Heschl — BA 41/42)",
+    "cat": "TELENCÉFALO",
+    "desc": "Profundo ao sulco lateral na face superior do lobo temporal; organização tonotópica iso-frequencial em bandas.",
+    "funcoes": [
+      "Recepção e discriminação de frequências sonoras cocleares",
+      "Localização espacial de fontes sonoras por diferença de tempo interaural",
+      "Processamento temporal rápido de transientes acústicos"
+    ],
+    "doencas": [
+      "Agnosia Auditiva Cortical",
+      "Amusia",
+      "Alucinações Auditivas"
+    ],
+    "neuro": [
+      "L-Glutamato",
+      "GABA"
+    ],
+    "audio": "Profundo ao sulco lateral, o giro transverso anterior de Heschl processa as frequências acústicas com arquitetura tonotópica precisa."
+  },
+  "9": {
+    "id": 9,
+    "code": "INSULA_LEFT",
+    "name": "Córtex da Ínsula Esquerda (Lobo Insular / Lobo Oculto de Reil)",
+    "cat": "TELENCÉFALO",
+    "desc": "Oculta sob os opérculos frontal, parietal e temporal; contém giros curtos anteriores e giros longos posteriores.",
+    "funcoes": [
+      "Interocepção e consciência do estado fisiológico interno visceral",
+      "Percepção gustativa primária e sensações viscerais",
+      "Empatia, nojo consciente e valência afetiva da dor",
+      "Regulação autônoma simpática e parassimpática cardíaca"
+    ],
+    "doencas": [
+      "Disautonomia Cardíaca Pós-AVC",
+      "Perda da Empatia",
+      "Agnosia Gustativa",
+      "Adição Química"
+    ],
+    "neuro": [
+      "GABA",
+      "Serotonina",
+      "Noradrenalina",
+      "Peptídeos Opioides"
+    ],
+    "audio": "A Ínsula, oculta sob os opérculos frontal, parietal e temporal, é o centro da percepção visceral, da interocepção e do processamento emocional consciente."
+  },
+  "10": {
+    "id": 10,
+    "code": "PARIETAL_LEFT",
+    "name": "Lobo Parietal Superior Esquerdo (BA 7 / Área de Associação Sensitiva)",
+    "cat": "TELENCÉFALO",
+    "desc": "Localizado dorsalmente ao sulco intraparietal; polo de convergência de múltiplos mapas espaciais corporais.",
+    "funcoes": [
+      "Integração sensoriomotora visuoespacial em tempo real",
+      "Transformação de coordenadas do alvo para alcance manual guiado visualmente",
+      "Esquema corporal proprioceptivo e orientação tridimensional"
+    ],
+    "doencas": [
+      "Apraxia Ideomotora",
+      "Síndrome de Balint (Ataxia Óptica)",
+      "Desorientação Espacial"
+    ],
+    "neuro": [
+      "L-Glutamato",
+      "Acetilcolina"
+    ],
+    "audio": "O Lobo Parietal Superior sintetiza estímulos visuais e somatossensoriais para gerar o mapa do corpo no espaço tridimensional."
+  },
+  "11": {
+    "id": 11,
+    "code": "HIPPOCAMPUS",
+    "name": "Hipocampo (Corno de Amon CA1–CA4 e Giro Denteado)",
+    "cat": "SISTEMA LÍMBICO",
+    "desc": "Estrutura arqueada trilaminar (arquicórtex) no lobo temporal medial conectada ao fórnix; células de lugar (place cells).",
+    "funcoes": [
+      "Consolidação de memória declarativa episódica e semântica",
+      "Navegação espacial e mapa cognitivo do ambiente",
+      "Neurogênese hipocampal adulta na zona subgranular do giro denteado"
+    ],
+    "doencas": [
+      "Doença de Alzheimer (Atrofia precoce de CA1)",
+      "Epilepsia de Lobo Temporal Mesial com Esclerose Hipocampal",
+      "Amnésia Global"
+    ],
+    "neuro": [
+      "L-Glutamato",
+      "GABA",
+      "Acetilcolina (projeções septais)",
+      "BDNF"
+    ],
+    "audio": "O Hipocampo, situado medialmente no lobo temporal e contínuo ao fórnix, consolida memórias recentes em memórias de longo prazo e codifica a navegação espacial."
+  },
+  "12": {
+    "id": 12,
+    "code": "AMYGDALA",
+    "name": "Complexo Amigdaloidiano (Amígdala — Núcleos BLA e CeA)",
+    "cat": "SISTEMA LÍMBICO",
+    "desc": "Estrutura ovóide em forma de amêndoa rostral à cauda do hipocampo; núcleo basolateral (BLA) e núcleo central (CeA).",
+    "funcoes": [
+      "Processamento de valência emocional e detecção de ameaças",
+      "Condicionamento aversivo ao medo (fear conditioning)",
+      "Modulação adrenérgica da consolidação de memórias vívidas",
+      "Ativação autonômica e endócrina do estresse agudo"
+    ],
+    "doencas": [
+      "Transtorno de Estresse Pós-Traumático (TEPT)",
+      "Síndrome de Klüver-Bucy",
+      "Transtornos de Pânico"
+    ],
+    "neuro": [
+      "GABA",
+      "L-Glutamato",
+      "Noradrenalina",
+      "Serotonina",
+      "CRH"
+    ],
+    "audio": "A Amígdala, localizada logo à frente da cabeça do hipocampo, avalia instantaneamente estímulos de perigo e ativa o eixo do estresse antes mesmo da percepção consciente."
+  },
+  "13": {
+    "id": 13,
+    "code": "STRIATUM",
+    "name": "Corpo Estriado (Núcleo Caudado e Putâmen)",
+    "cat": "NÚCLEOS DA BASE",
+    "desc": "Principal núcleo de entrada dos gânglios da base; neurônios espinhosos médios (MSNs) GABAérgicos com receptores D1 e D2.",
+    "funcoes": [
+      "Seleção e iniciação de programas motores adequados",
+      "Aprendizado procedural por reforço e consolidação de hábitos",
+      "Flexibilidade comportamental e inibição de respostas motoras concorrentes"
+    ],
+    "doencas": [
+      "Doença de Parkinson (desaferentação dopaminérgica)",
+      "Doença de Huntington (morte dos MSNs)",
+      "Síndrome de Tourette"
+    ],
+    "neuro": [
+      "GABA",
+      "Dopamina (receptores D1 excitatórios e D2 inibitórios)",
+      "Acetilcolina (interneurônios gigantes)"
+    ],
+    "audio": "O Corpo Estriado integra os comandos motores corticais com os disparos dopaminérgicos da substância negra para autorizar ou inibir movimentos voluntários."
+  },
+  "14": {
+    "id": 14,
+    "code": "GLOBUS_PALLIDUS",
+    "name": "Globo Pálido (Segmentos Interno GPi e Externo GPe)",
+    "cat": "NÚCLEOS DA BASE",
+    "desc": "Núcleo cuneiforme medial ao putâmen, dividido pela lâmina medular medial em GPe (via indireta) e GPi (estação de saída motora).",
+    "funcoes": [
+      "Saída inibitória tônica dos gânglios da base para o tálamo motor (GPi)",
+      "Filtro de movimento voluntário através da via indireta (GPe)",
+      "Controle do tônus postural e da fluidez cinética"
+    ],
+    "doencas": [
+      "Distonia Primária",
+      "Bradicinesia no Parkinson",
+      "Hemibalismo"
+    ],
+    "neuro": [
+      "GABA",
+      "Substância P",
+      "Encefalina"
+    ],
+    "audio": "O Globo Pálido atua como o freio e acelerador motor dos gânglios da base, emitindo disparos GABAérgicos tônicos para modular a atividade talâmica."
+  },
+  "15": {
+    "id": 15,
+    "code": "CORPUS_CALLOSUM",
+    "name": "Corpo Caloso (Esplênio, Tronco, Joelho e Rostro)",
+    "cat": "SUBSTÂNCIA BRANCA",
+    "desc": "Maior trato de substância branca do cérebro, contendo mais de 200 milhões de axônios mielinizados cruzando a fissura longitudinal.",
+    "funcoes": [
+      "Comunicação e integração inter-hemisférica direta",
+      "Transferência de informações táteis, visuais e auditivas entre hemisférios",
+      "Sincronização cortical bilateral para coordenação bimanual"
+    ],
+    "doencas": [
+      "Síndrome do Cérebro Dividido (Split-Brain)",
+      "Apraxia Calosal",
+      "Agênese de Corpo Caloso",
+      "Epilepsia Refratária (calosotomia)"
+    ],
+    "neuro": [
+      "L-Glutamato axonal com condução saltatória mielinizada"
+    ],
+    "audio": "O Corpo Caloso é a grande ponte inter-hemisférica com mais de 200 milhões de axônios mielinizados conectando os dois lados do cérebro."
+  },
+  "16": {
+    "id": 16,
+    "code": "THALAMUS",
+    "name": "Tálamo (Núcleos de Relé e Pulvinar Posterior)",
+    "cat": "DIENCÉFALO",
+    "desc": "Massa ovóide de substância cinzenta diencefálica; comutador sensorial com núcleos específicos (VPL, VPM, CGL, CGM, VL) e associativos (Pulvinar).",
+    "funcoes": [
+      "Relé obrigatório de todas as vias sensoriais para o córtex (exceto o olfato)",
+      "Portão atencional de entrada da consciência perceptiva",
+      "Sincronização dos ritmos oscilatórios eletroencefalográficos (ritmo gama 40 Hz)",
+      "Relé motor dos gânglios da base e cerebelo para o córtex motor"
+    ],
+    "doencas": [
+      "Síndrome de Dejerine-Roussy (Dor Talâmica Central)",
+      "Sinal do Taco de Hóquei Pulvinar na DCJ",
+      "Insônia Familiar Fatal"
+    ],
+    "neuro": [
+      "L-Glutamato",
+      "GABA"
+    ],
+    "audio": "O Tálamo atua como o grande comutador central do encéfalo. Todas as vias sensitivas — exceto o olfato — fazem sinapse nos seus núcleos antes de alcançarem a consciência cortical."
+  },
+  "17": {
+    "id": 17,
+    "code": "HYPOTHALAMUS_PITUITARY",
+    "name": "Hipotálamo, Infundíbulo e Glândula Hipófise",
+    "cat": "DIENCÉFALO / ENDÓCRINO",
+    "desc": "Estrutura integradora neuroendócrina; núcleos pré-óptico, supraquiasmático, paraventricular, supraóptico, arqueado e mamilares.",
+    "funcoes": [
+      "Centro mestre da homeostase fisiológica (temperatura, sede, fome e osmolaridade)",
+      "Relógio circadiano mestre no núcleo supraquiasmático",
+      "Secreção hormonal trófica (CRH, TRH, GnRH, GHRH, Somatostatina)",
+      "Síntese e liberação de Oxitocina e Vasopressina (ADH) pela neuro-hipófise"
+    ],
+    "doencas": [
+      "Diabetes Insipidus",
+      "Adenomas Hipofisários",
+      "Síndrome de Cushing",
+      "Narcolepsia (perda de orexina)"
+    ],
+    "neuro": [
+      "Oxitocina",
+      "Vasopressina (ADH)",
+      "Dopamina (PIF)",
+      "GABA",
+      "Orexina / Hipocretina"
+    ],
+    "audio": "O Hipotálamo e a Hipófise formam a ponte entre o sistema neural e o sistema endócrino, regulando temperatura, hormônios e equilíbrio hídrico."
+  },
+  "18": {
+    "id": 18,
+    "code": "OPTIC_CHIASM",
+    "name": "Quiasma Óptico e Tratos Ópticos",
+    "cat": "VIA VISUAL",
+    "desc": "Cruzamento em X das fibras retinianas nasais na base do cérebro, imediatamente anterior ao infundíbulo e superior à sela túrcica.",
+    "funcoes": [
+      "Decussação de 53% das fibras axonais ganglionares retinianas (axônios das hemirretinas nasais)",
+      "Separação dos hemicampos visuais direito e esquerdo para processamento no hemisfério contralateral"
+    ],
+    "doencas": [
+      "Hemianopsia Heterônima Bitemporal (por compressão tumoral hipofisária)",
+      "Neurite Óptica"
+    ],
+    "neuro": [
+      "L-Glutamato axonal retiniano"
+    ],
+    "audio": "No Quiasma Óptico, as fibras da retina nasal cruzam a linha média, permitindo que todo o campo visual de um lado seja direcionado ao hemisfério cerebral oposto."
+  },
+  "19": {
+    "id": 19,
+    "code": "VENTRICULAR_SYSTEM",
+    "name": "Sistema Ventricular Completo (Laterais, III, Aqueduto e IV Ventrículo)",
+    "cat": "SISTEMA LIQUÓRICO",
+    "desc": "Sistema hidrodinâmico contínuo contendo cerca de 150 mL de Líquido Cefalorraquidiano (LCR) produzido nos plexos coróideos.",
+    "funcoes": [
+      "Amortecimento mecânico e sustentação hidrostática de flutuação para o encéfalo",
+      "Drenagem de escórias metabólicas e proteínas amiloides pelo sistema glinfático",
+      "Homeostase iônica e circulação de sinalizadores neuropeptídicos"
+    ],
+    "doencas": [
+      "Hidrocefalia Obstrutiva / Comunicante",
+      "Hidrocefalia de Pressão Normal (HPN)",
+      "Estenose de Aqueduto"
+    ],
+    "neuro": [
+      "LCR acelular isotônico com glicose (60 mg/dL), proteínas (30 mg/dL) e eletrólitos"
+    ],
+    "audio": "O Sistema Ventricular banha e protege o cérebro em líquido cefalorraquidiano. O fluxo contínuo dos ventrículos laterais ao quarto ventrículo lava as escórias moleculares metabólicas."
+  },
+  "20": {
+    "id": 20,
+    "code": "MIDBRAIN_SN",
+    "name": "Mesencéfalo e Substância Negra (Pars Compacta e Pars Reticulata)",
+    "cat": "TRONCO ENCEFÁLICO",
+    "desc": "Contém a substância negra pigmentada rica em neuromelanina, núcleo rubro, colículos superiores/inferiores e tegmento mesencefálico.",
+    "funcoes": [
+      "Síntese e secreção de Dopamina pela Via Nigroestriatal (Pars Compacta)",
+      "Reflexos visuais de rastreio (Colículo Superior) e reflexos auditivos (Colículo Inferior)",
+      "Controle de motricidade extrapiramidal e postura pelo Núcleo Rubro",
+      "Origem dos nervos cranianos Oculomotor (III) e Troclear (IV)"
+    ],
+    "doencas": [
+      "Doença de Parkinson (perda >60% dos neurônios dopaminérgicos)",
+      "Paralisia Supranuclear Progressiva",
+      "Síndrome de Weber"
+    ],
+    "neuro": [
+      "Dopamina",
+      "GABA",
+      "Glutamato"
+    ],
+    "audio": "O Mesencéfalo abriga a Substância Negra, rica em neuromelanina. A perda dessas células produtoras de dopamina é a causa patológica direta da rigidez e tremor no Parkinson."
+  },
+  "21": {
+    "id": 21,
+    "code": "PONS_VAROLII",
+    "name": "Ponte de Varólio (Protuberância Anular)",
+    "cat": "TRONCO ENCEFÁLICO",
+    "desc": "Volume abaulado ventral de fibras transversais córtico-ponto-cerebelares; contém núcleos dos nervos cranianos V, VI, VII e VIII.",
+    "funcoes": [
+      "Revezamento de comandos motores córtico-cerebelares via pedúnculo cerebelar médio",
+      "Centro pneumotáxico e apnêustico de regulação respiratória",
+      "Vigilância, sono REM e noradrenalina no Núcleo Locus Coeruleus"
+    ],
+    "doencas": [
+      "Síndrome do Encarceramento (Locked-in Syndrome)",
+      "Mielinólise Pontina Central",
+      "Neuralgia do Trigêmeo"
+    ],
+    "neuro": [
+      "Noradrenalina (Locus Coeruleus)",
+      "Glutamato",
+      "Acetilcolina"
+    ],
+    "audio": "A Ponte de Varólio possui um volumoso abaulamento ventral de fibras transversais que levam ordens motoras ao cerebelo e contém núcleos de nervos cranianos vitais."
+  },
+  "22": {
+    "id": 22,
+    "code": "MEDULLA_OBLONGATA",
+    "name": "Bulbo (Medula Oblonga) e Decussação das Pirâmides",
+    "cat": "TRONCO ENCEFÁLICO",
+    "desc": "Transição entre tronco e medula espinhal; apresenta fissura mediana anterior, pirâmides bulbares, olivas inferiores e decussação motora.",
+    "funcoes": [
+      "Centro vital cardiorrespiratório e controle vasomotor autônomo",
+      "Decussação motora de 85-90% das fibras do trato corticoespinhal",
+      "Reflexos de deglutição, vômito, tosse e espirro",
+      "Núcleos dos nervos cranianos IX, X, XI e XII"
+    ],
+    "doencas": [
+      "Síndrome de Wallenberg (Bulbar Lateral)",
+      "Herniação Tonsilar (Morte Encefálica)",
+      "Parada Respiratória Bulbar"
+    ],
+    "neuro": [
+      "Serotonina (Núcleos da Rafe bulbar)",
+      "Noradrenalina",
+      "Acetilcolina"
+    ],
+    "audio": "O Bulbo é o centro da sobrevivência humana. Em sua porção anterior, as fibras motoras cruzam para o lado oposto na decussação das pirâmides, enquanto seu interior regula o coração e a respiração."
+  },
+  "23": {
+    "id": 23,
+    "code": "CRANIAL_NERVES",
+    "name": "Nervos Cranianos (I ao XII: Olfatório ao Hipoglosso)",
+    "cat": "NERVOS CRANIANOS",
+    "desc": "Doze pares de nervos que emergem diretamente do encéfalo e tronco encefálico para inervação sensitiva, motora e autônoma da cabeça e vísceras.",
+    "funcoes": [
+      "Sensibilidade especial: Olfato (I), Visão (II), Audição e Equilíbrio (VIII), Gustação (VII, IX, X)",
+      "Motricidade ocular: Oculomotor (III), Troclear (IV), Abducente (VI)",
+      "Sensibilidade da face e mastigação: Trigêmeo (V)",
+      "Mímica facial: Facial (VII); Deglutição e fonação: Glossofaríngeo (IX), Vago (X), Hipoglosso (XII)",
+      "Motricidade cervical: Acessório (XI)"
+    ],
+    "doencas": [
+      "Paralisia de Bell (NC VII)",
+      "Neuralgia do Trigêmeo (NC V)",
+      "Diplopia",
+      "Disfagia Neurogênica"
+    ],
+    "neuro": [
+      "Acetilcolina",
+      "L-Glutamato",
+      "GABA",
+      "Substância P"
+    ],
+    "audio": "Os doze pares de nervos cranianos conectam o cérebro aos órgãos dos sentidos, à musculatura facial e às vísceras torácicas através do longo nervo vago."
+  },
+  "24": {
+    "id": 24,
+    "code": "CEREBELLUM_FOLIA",
+    "name": "Cerebelo (Fólias, Vérmis e Árvore da Vida)",
+    "cat": "CEREBELO",
+    "desc": "Contém mais de 50 bilhões de neurônios (cerca de 60-80% do encéfalo); córtex em 3 camadas com células gigantes de Purkinje e células granulares densas.",
+    "funcoes": [
+      "Cronometria e precisão milissegúndica de movimentos voluntários",
+      "Correção de erros motores em tempo real através de feedback proprioceptivo",
+      "Coordenação motora fina bimanual e equilíbrio postural",
+      "Aprendizado motor (adaptação visuo-motora)"
+    ],
+    "doencas": [
+      "Ataxia Cerebelar da Marcha",
+      "Dismetria e Tremor Intencional",
+      "Disdiadococinesia",
+      "Ataxias Espinocerebelares (SCA)"
+    ],
+    "neuro": [
+      "GABA (Células de Purkinje)",
+      "L-Glutamato (Células granulares e fibras paralelas)"
+    ],
+    "audio": "O Cerebelo contém mais de metade de todos os neurônios do cérebro. Suas fólias delgadas e as células de Purkinje corrigem em milissegundos qualquer erro de execução motora."
+  },
+  "25": {
+    "id": 25,
+    "code": "SPINAL_CERVICAL_THORACIC",
+    "name": "Medula Espinhal Cervical e Torácica (C1–T12)",
+    "cat": "MEDULA ESPINHAL",
+    "desc": "Coluna neural cilíndrica contínua protegida no canal vertebral; apresenta a intumescência cervical (C4–T1) com substância cinzenta em H.",
+    "funcoes": [
+      "Condução somatotópica de tratos motores piramidais descendentes",
+      "Condução ascendente de dor, tato e temperatura (fascículos grácil/cuneiforme e espinotalâmicos)",
+      "Arco reflexo miotático espinhal involuntário rápido",
+      "Controle autônomo simpático nos cornos laterais torácicos (T1–L2)"
+    ],
+    "doencas": [
+      "Tetraplegia Traumática",
+      "Esclerose Múltipla Medular",
+      "Siringomielia",
+      "Mielite Transversa",
+      "ELA"
+    ],
+    "neuro": [
+      "L-Glutamato axonal",
+      "GABA / Glicina nos interneurônios inibitórios espinhais",
+      "Acetilcolina"
+    ],
+    "audio": "A Medula Espinhal Cervical e Torácica estende-se como a rodovia elétrica primordial do organismo, apresentando a intumescência cervical para o controle refinado das mãos."
+  },
+  "26": {
+    "id": 26,
+    "code": "SPINAL_LUMBAR_CAUDA",
+    "name": "Medula Espinhal Lombossacral, Cone Medular e Cauda Equina",
+    "cat": "MEDULA ESPINHAL",
+    "desc": "Intumescência lombar (L1–S1) que se afunila no cone medular ao nível vertebral L1/L2, prolongando-se nas raízes nervosas descendentes da cauda equina e filo terminal.",
+    "funcoes": [
+      "Inervação motora voluntária e sensibilidade dos membros inferiores",
+      "Centros medulares miccionais, defecatórios e da função sexual erétil (S2–S4)",
+      "Amortecimento elástico do saco dural lombar"
+    ],
+    "doencas": [
+      "Síndrome da Cauda Equina",
+      "Hérnia Discal Lombar com Ciatalgia",
+      "Paraplegia Espástica"
+    ],
+    "neuro": [
+      "L-Glutamato",
+      "Acetilcolina",
+      "GABA"
+    ],
+    "audio": ""
+  },
+  "27": {
+    "id": 27,
+    "code": "PNS_CERVICAL_PHRENIC",
+    "name": "SNP — Plexo Cervical (C1–C4) e Nervo Frênico (C3–C5)",
+    "cat": "SISTEMA NERVOSO PERIFÉRICO (SNP)",
+    "desc": "Formado pelos ramos ventrais de C1 a C4; origina a alça cervical e o Nervo Frênico (C3, C4, C5), responsável único pelo comando motor do músculo diafragma.",
+    "funcoes": [
+      "Inervação motora diafragmática (respiração automática e voluntária)",
+      "Sensibilidade cutânea cervical, auricular e supraclavicular",
+      "Inervação dos músculos infra-hióideos via alça cervical"
+    ],
+    "doencas": [
+      "Paralisia Diafragmática por Trauma Raquimedular Alto (C1–C4)",
+      "Soluço Intratável",
+      "Nevralgia Occipital"
+    ],
+    "neuro": [
+      "Acetilcolina (placa motora nicotínica diafragmática)",
+      "Glutamato aferente"
+    ],
+    "audio": "O Plexo Cervical emerge das raízes C1 a C4 e origina o Nervo Frênico, que desce pelo mediastino para comandar cada contração inspiratória do músculo diafragma."
+  },
+  "28": {
+    "id": 28,
+    "code": "PNS_BRACHIAL_PLEXUS",
+    "name": "SNP — Plexo Braquial (C5–T1) e Nervos Mediano, Ulnar, Radial e Axilar",
+    "cat": "SISTEMA NERVOSO PERIFÉRICO (SNP)",
+    "desc": "Rede nervosa periférica organizada em Raízes (C5–T1), Troncos (Superior, Médio, Inferior), Divisões e Fascículos (Lateral, Medial, Posterior), originando os nervos do membro superior.",
+    "funcoes": [
+      "Motricidade fina da mão e dedos (Nervos Mediano e Ulnar)",
+      "Extensão do braço, antebraço e punho (Nervo Radial)",
+      "Abdução do ombro (Nervo Axilar) e flexão do cotovelo (Nervo Musculocutâneo)"
+    ],
+    "doencas": [
+      "Paralisia de Erb-Duchenne (C5–C6)",
+      "Paralisia de Klumpke (C8–T1)",
+      "Síndrome do Túnel do Carpo (Nervo Mediano)"
+    ],
+    "neuro": [
+      "Acetilcolina neuromuscular",
+      "Substância P e CGRP sensitivos"
+    ],
+    "audio": "O Plexo Braquial nasce na intumescência cervical entre C5 e T1, entrelaçando troncos e fascículos para formar os nervos Mediano, Ulnar, Radial, Musculocutâneo e Axilar que movem o braço e a mão."
+  },
+  "29": {
+    "id": 29,
+    "code": "PNS_SYMPATHETIC_CHAIN",
+    "name": "SNP Autônomo — Cadeia Ganglionar Simpática Paravertebral e Nervos Intercostais (T1–L2)",
+    "cat": "SISTEMA NERVOSO PERIFÉRICO (SNP)",
+    "desc": "Dupla cadeia bilateral de gânglios simpáticos paravertebrais interligados aos ramos ventrais torácicos por ramos comunicantes brancos (pré-ganglionares mielinizados) e cinzentos (pós-ganglionares).",
+    "funcoes": [
+      "Resposta autonômica de luta ou fuga (taquicardia, broncodilatação, midríase)",
+      "Controle vasomotor sistêmico e sudorese",
+      "Inervação sensitivo-motora da parede torácica pelos 12 pares de Nervos Intercostais"
+    ],
+    "doencas": [
+      "Síndrome de Horner (lesão simpática T1/gânglio estrelado)",
+      "Neuralgia Pós-Herpética Intercostal",
+      "Disautonomia"
+    ],
+    "neuro": [
+      "Acetilcolina (sinapse pré-ganglionar nicotínica)",
+      "Noradrenalina (fibra pós-ganglionar adrenérgica)"
+    ],
+    "audio": "Ao longo de toda a coluna torácica, a Cadeia Ganglionar Simpática Paravertebral recebe fibras da coluna lateral da medula e distribui noradrenalina para acelerar o coração e preparar o corpo para ação."
+  },
+  "30": {
+    "id": 30,
+    "code": "PNS_VAGUS_PARASYMPATHETIC",
+    "name": "SNP Autônomo — Nervo Vago (NC X) e Eixo Parassimpático Cranio-Sacral",
+    "cat": "SISTEMA NERVOSO PERIFÉRICO (SNP)",
+    "desc": "Principal via parassimpática do organismo; emerge do sulco posterolateral do bulbo (núcleo dorsal do vago e núcleo ambíguo) e desce pelo pescoço, tórax e abdome.",
+    "funcoes": [
+      "Redução da frequência cardíaca (reflexo vagal bradicárdico)",
+      "Estímulo do peristaltismo e secreção digestiva (eixo intestino-cérebro)",
+      "Reflexo inflamatório colinérgico e fonação laríngea"
+    ],
+    "doencas": [
+      "Síncope Vasovagal",
+      "Gastroparesia Vagal",
+      "Rouquidão por Paralisia do Nervo Laríngeo Recorrente"
+    ],
+    "neuro": [
+      "Acetilcolina (receptores muscarínicos M2 cardíacos e M3 viscerais)"
+    ],
+    "audio": "O Nervo Vago é o grande maestro do sistema parassimpático. Emergindo do bulbo, ele viaja até o coração, pulmões e trato gastrointestinal para promover repouso, digestão e equilíbrio homeostático."
+  }
+}
