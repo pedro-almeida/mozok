@@ -30,6 +30,12 @@ class NeuralMicrocosmos3D {
         this.firingRateHz = 18.0;
         this.membranePotentialMv = -70.0;
         this.spikePhase = 0.0;
+        this.activeDiseaseKey = 'HEALTHY';
+        this.diseaseSeverity = 0.0;
+        this.myelinMeshes = [];
+        this.somaMeshes = [];
+        this.pathologyMarkersGroup = new THREE.Group();
+        this.microGroup.add(this.pathologyMarkersGroup);
 
         // Dicionário Anatômico e Fisiológico Completo de Cada Peça do Neurônio (para as Caixas Pop-up)
         this.neuronPartsOntology = {
@@ -392,6 +398,7 @@ class NeuralMicrocosmos3D {
         const somaMesh = new THREE.Mesh(somaGeo, materials.somaMat);
         somaMesh.position.copy(somaPos);
         somaGroup.add(somaMesh);
+        this.somaMeshes.push(somaMesh);
         nGroup.add(somaGroup);
         this.registerNeuronPart('NEURON_SOMA', somaGroup, isPrimary ? somaPos.clone().add(new THREE.Vector3(0, 1.25, 0)) : null);
 
@@ -496,8 +503,9 @@ class NeuralMicrocosmos3D {
             }
             const segCurve = new THREE.CatmullRomCurve3(subPts);
             const segGeo = new THREE.TubeGeometry(segCurve, 24, 0.28, 20, false);
-            const segMesh = new THREE.Mesh(segGeo, materials.myelinMat);
+            const segMesh = new THREE.Mesh(segGeo, materials.myelinMat.clone());
             myelinGroup.add(segMesh);
+            this.myelinMeshes.push(segMesh);
 
             // Núcleo Verde-Esmeralda da Célula de Schwann / Oligodendrócito aderido à superfície da Bainha de Mielina
             const midT = (tStart + tEnd) * 0.5;
@@ -662,6 +670,112 @@ class NeuralMicrocosmos3D {
         this.synapseConnections.forEach(syn => {
             syn.burstIntensity = 1.0;
         });
+    }
+
+    setPathologySimulation(diseaseKey, severity = 0.75) {
+        this.activeDiseaseKey = diseaseKey || 'HEALTHY';
+        this.diseaseSeverity = this.activeDiseaseKey === 'HEALTHY' ? 0.0 : severity;
+
+        // Limpa marcadores patológicos extracelulares/intracelulares anteriores
+        while (this.pathologyMarkersGroup.children.length > 0) {
+            this.pathologyMarkersGroup.remove(this.pathologyMarkersGroup.children[0]);
+        }
+
+        // Restaura estado basal das bainhas de mielina e velocidades axonais
+        this.myelinMeshes.forEach(m => {
+            m.scale.setScalar(1.0);
+            m.material.opacity = 0.82;
+            m.material.color.setHex(0xfacc15);
+        });
+        this.neurons.forEach(n => {
+            n.apSpeed = n.index === 0 ? 0.58 : 0.48;
+            n.apGlow.material.color.setHex(0x00f2fe);
+        });
+
+        if (this.activeDiseaseKey === 'HEALTHY' || this.diseaseSeverity <= 0.01) {
+            this.firingRateHz = 18.0;
+            return;
+        }
+
+        if (this.activeDiseaseKey === 'ALZHEIMER') {
+            // Placas senis extracelulares de Beta-Amiloide (Aβ42) e emaranhados neurofibrilares de Tau
+            const plaqueMat = new THREE.MeshPhysicalMaterial({
+                color: 0xd97706,
+                emissive: 0x92400e,
+                emissiveIntensity: 0.45,
+                roughness: 0.65
+            });
+            for (let i = 0; i < 16; i++) {
+                const p = new THREE.Mesh(new THREE.DodecahedronGeometry(0.22 + (i % 3) * 0.08, 1), plaqueMat);
+                p.position.set(-6.5 + (i * 1.15) % 14.0, -1.8 + Math.sin(i * 2.1) * 2.4, -0.8 + Math.cos(i * 1.7) * 1.2);
+                this.pathologyMarkersGroup.add(p);
+            }
+            this.neurons.forEach(n => { n.apSpeed *= (1.0 - 0.35 * this.diseaseSeverity); });
+            this.firingRateHz = 11.5;
+        } else if (this.activeDiseaseKey === 'PARKINSON') {
+            // Corpúsculos de inclusão intracitoplasmáticos de Alfa-Sinucleína (Corpos de Lewy) dentro do Soma
+            const lewyMat = new THREE.MeshPhysicalMaterial({
+                color: 0xe11d48,
+                emissive: 0x9f1239,
+                emissiveIntensity: 0.65,
+                roughness: 0.25
+            });
+            [new THREE.Vector3(-6.2, 0.4, 0.0), new THREE.Vector3(6.8, 0.65, -0.15)].forEach(sPos => {
+                const lewy = new THREE.Mesh(new THREE.SphereGeometry(0.32, 20, 20), lewyMat);
+                lewy.position.copy(sPos).add(new THREE.Vector3(-0.35, -0.25, 0.32));
+                this.pathologyMarkersGroup.add(lewy);
+            });
+            this.neurons.forEach(n => { n.apSpeed *= (1.0 - 0.40 * this.diseaseSeverity); });
+            this.firingRateHz = 9.8;
+        } else if (this.activeDiseaseKey === 'MULTIPLE_SCLEROSIS') {
+            // Desmielinização autoimune das bainhas de mielina com lentificação da condução saltatória
+            this.myelinMeshes.forEach((m, idx) => {
+                if (idx % 2 === 0) {
+                    m.scale.setScalar(1.0 - 0.55 * this.diseaseSeverity);
+                    m.material.opacity = 0.28;
+                    m.material.color.setHex(0x64748b);
+                }
+            });
+            this.neurons.forEach(n => { n.apSpeed *= (1.0 - 0.65 * this.diseaseSeverity); });
+            this.firingRateHz = 8.4;
+        } else if (this.activeDiseaseKey === 'PRION_DCJ') {
+            // Vacúolos de espongiose priônica PrPSc e perda neuronal acelerada
+            const vacMat = new THREE.MeshPhysicalMaterial({
+                color: 0xc084fc,
+                transmission: 0.85,
+                transparent: true,
+                opacity: 0.48,
+                roughness: 0.1
+            });
+            for (let i = 0; i < 14; i++) {
+                const v = new THREE.Mesh(new THREE.SphereGeometry(0.28 + (i % 3) * 0.1, 18, 18), vacMat);
+                v.position.set(-7.0 + i * 1.1, Math.sin(i * 1.5) * 1.8, Math.cos(i * 2.0) * 0.9);
+                this.pathologyMarkersGroup.add(v);
+            }
+            this.firingRateHz = 6.5;
+        } else if (this.activeDiseaseKey === 'ALS_ELA') {
+            // Degeneração axonal motora com esferoides axonais
+            this.myelinMeshes.forEach(m => {
+                m.material.color.setHex(0xf97316);
+                m.material.opacity = 0.45;
+            });
+            this.neurons.forEach(n => { n.apSpeed *= (1.0 - 0.55 * this.diseaseSeverity); });
+            this.firingRateHz = 7.2;
+        } else if (this.activeDiseaseKey === 'EPILEPSY') {
+            // Hipersincronia paroxística epiléptica de alta frequência
+            this.neurons.forEach(n => {
+                n.apSpeed = (n.index === 0 ? 0.58 : 0.48) * (1.0 + 1.35 * this.diseaseSeverity);
+                n.apGlow.material.color.setHex(0xfacc15);
+            });
+            this.firingRateHz = 64.0;
+        } else if (this.activeDiseaseKey === 'ISCHEMIC_STROKE') {
+            // Falência energética de ATP / Bomba Na+/K+ por hipóxia isquêmica
+            this.neurons.forEach(n => {
+                n.apSpeed *= (1.0 - 0.72 * this.diseaseSeverity);
+                n.apGlow.material.color.setHex(0xf43f5e);
+            });
+            this.firingRateHz = 4.2;
+        }
     }
 
     update(dt, elapsed) {

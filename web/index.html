@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MOZOK v5.0 — Simulacro Neurofisiológico e Clínico 3D (SNC & SNP Completo)</title>
+    <title>MOZOK v6.0 — Simulacro Neurofisiológico e Clínico 3D (SNC, SNP, Meninges & 7 Patologias)</title>
     <style>
         :root {
             --bg-void: #030712;
@@ -662,6 +662,125 @@
             color: var(--accent-cyan);
             margin-top: 2px;
         }
+
+        /* ═══ NAVIGATION PAN & DIRECTIONAL HUD (BOTÕES + SLIDERS + TECLADO) ═══ */
+        #nav-pan-hud {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 26;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 14px;
+            background: rgba(8, 13, 25, 0.88);
+            border: 1px solid rgba(56, 189, 248, 0.32);
+            border-radius: 12px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65);
+            user-select: none;
+        }
+        .nav-dpad-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .nav-dpad-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            background: rgba(15, 23, 42, 0.85);
+            color: #e2e8f0;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+        .nav-dpad-btn:hover {
+            border-color: #00f2fe;
+            color: #00f2fe;
+            background: rgba(0, 242, 254, 0.14);
+        }
+        .nav-dpad-btn.active {
+            background: rgba(0, 242, 254, 0.22);
+            border-color: #00f2fe;
+            color: #00f2fe;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+        }
+        .nav-slider-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #94a3b8;
+            letter-spacing: 0.04em;
+        }
+        .nav-slider-wrap input[type="range"] {
+            width: 78px;
+            accent-color: #00f2fe;
+            cursor: pointer;
+            height: 4px;
+        }
+        .nav-hint-badge {
+            font-size: 9.5px;
+            color: #cbd5e1;
+            background: rgba(30, 41, 59, 0.75);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            padding: 3px 7px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+        .pathology-sim-card {
+            background: linear-gradient(145deg, rgba(24, 15, 38, 0.85), rgba(15, 23, 42, 0.92));
+            border: 1px solid rgba(244, 63, 94, 0.32);
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+        .pathology-select {
+            width: 100%;
+            background: rgba(9, 13, 24, 0.95);
+            color: #f8fafc;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 7px;
+            padding: 6px 8px;
+            font-size: 11.5px;
+            font-weight: 600;
+            margin-top: 5px;
+            margin-bottom: 7px;
+            outline: none;
+            cursor: pointer;
+        }
+        .biomarker-mini-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin-top: 7px;
+        }
+        .biomarker-pill {
+            background: rgba(9, 13, 24, 0.78);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 6px;
+            padding: 4px 6px;
+            text-align: center;
+        }
+        .biomarker-pill .bm-label {
+            font-size: 8.5px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            display: block;
+        }
+        .biomarker-pill .bm-val {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #38bdf8;
+            font-family: 'JetBrains Mono', monospace;
+        }
     </style>
 </head>
 <body>
@@ -696,8 +815,8 @@
         <div class="brand-block">
             <div class="brand-logo">🧠</div>
             <div>
-                <div class="brand-title">MOZOK v5.0 — ATLAS NEUROFISIOLÓGICO 3D</div>
-                <div class="brand-subtitle" id="gpu-status-subtitle">SNC & SNP Completo • Córtex MNI152 Real • Corpo Bioluminescente</div>
+                <div class="brand-title">MOZOK v6.0 — ATLAS NEUROFISIOLÓGICO 3D</div>
+                <div class="brand-subtitle" id="gpu-status-subtitle">SNC, SNP & Meninges • Córtex MNI152 Real • 7 Doenças</div>
             </div>
         </div>
 
@@ -705,6 +824,7 @@
             <button class="hud-btn active" id="btn-view-external">🧠 Córtex Real</button>
             <button class="hud-btn" id="btn-view-xray">🩻 Raio-X Subcortical</button>
             <button class="hud-btn" id="btn-view-vascular">🩸 Árvore Vascular & LCR</button>
+            <button class="hud-btn" id="btn-meninges" title="Exibir/Ocultar as 3 Meninges 3D (Dura-Máter, Foice, Tentório, Aracnoide e Pia-Máter)">🛡️ Meninges</button>
             <button class="hud-btn gold" id="btn-view-micro">🔬 Microcosmos Neuronal</button>
             <button class="hud-btn active" id="btn-body-shell">🫧 Corpo Translúcido</button>
             <button class="hud-btn" id="btn-home-view">🎯 Centralizar</button>
@@ -714,16 +834,36 @@
         </div>
     </header>
 
-    <!-- SIDEBAR ESQUERDA: ATLAS ONTOLÓGICO DE 31 PEÇAS + SUB-PEÇAS DO NEURÔNIO -->
+    <!-- HUD DE NAVEGAÇÃO LATERAL / VERTICAL + BOTÕES DIRECIONAIS + TECLADO -->
+    <div id="nav-pan-hud">
+        <div class="nav-dpad-group">
+            <button class="nav-dpad-btn" id="btn-pan-left" title="Mover Câmera para a Esquerda (Tecla A ou ←)">◀</button>
+            <button class="nav-dpad-btn" id="btn-pan-up" title="Mover Câmera para o Crânio / Cima (Tecla W ou ↑)">▲</button>
+            <button class="nav-dpad-btn" id="btn-pan-down" title="Mover Câmera para os Pés / Baixo (Tecla S ou ↓)">▼</button>
+            <button class="nav-dpad-btn" id="btn-pan-right" title="Mover Câmera para a Direita (Tecla D ou →)">▶</button>
+            <button class="nav-dpad-btn" id="btn-pan-reset" title="Centralizar Eixo X/Y (Tecla R)">🎯</button>
+        </div>
+        <div class="nav-slider-wrap">
+            <span>↔ Esq–Dir</span>
+            <input type="range" id="slider-pan-x" min="-8" max="8" step="0.1" value="0" />
+        </div>
+        <div class="nav-slider-wrap">
+            <span>↕ Crânio–Pés</span>
+            <input type="range" id="slider-pan-y" min="-28" max="6" step="0.2" value="-1.5" />
+        </div>
+        <span class="nav-hint-badge">⌨️ WASD / Setas ou Espaço+Arrastar</span>
+    </div>
+
+    <!-- SIDEBAR ESQUERDA: ATLAS ONTOLÓGICO DE 32 PEÇAS + SUB-PEÇAS DO NEURÔNIO -->
     <aside class="left-sidebar">
         <div class="sidebar-header">
             <div class="sidebar-title-row">
                 <span class="sidebar-title">Atlas Anatômico SNC & SNP</span>
-                <span class="count-pill" id="structure-count-pill">31 / 31</span>
+                <span class="count-pill" id="structure-count-pill">37 / 37</span>
             </div>
-            <input type="text" id="search-input" class="search-box" placeholder="Buscar lobo, núcleo, nervo craniano, plexo..." />
+            <input type="text" id="search-input" class="search-box" placeholder="Buscar lobo, meninges, núcleo, nervo, plexo..." />
             <div class="category-filter-bar" id="category-filter-bar">
-                <button class="cat-chip active" data-cat="ALL">Todos (31)</button>
+                <button class="cat-chip active" data-cat="ALL">Todos (37)</button>
                 <button class="cat-chip" data-cat="CORTEX_CEREBELLUM">Córtex & Cerebelo</button>
                 <button class="cat-chip" data-cat="LIMBIC_DIENCEPHALON">Límbico & Núcleos</button>
                 <button class="cat-chip" data-cat="BRAINSTEM_SPINAL">Tronco & Medula</button>
@@ -769,6 +909,46 @@
             <button class="hud-btn" id="btn-stimulate-neuron">⚡ Disparar Sinapse</button>
             <button class="hud-btn danger" id="btn-trigger-stroke-card">🩸 Simular AVC (ACM)</button>
             <button class="hud-btn" id="btn-restore-tissue-card">💚 Restaurar Perfusão</button>
+        </div>
+
+        <!-- SIMULADOR CLÍNICO DE 7 DOENÇAS NEUROLÓGICAS + BIOMARCADORES LCR -->
+        <div class="pathology-sim-card">
+            <div class="section-card-title" style="margin-bottom: 4px;">
+                <span>🧬 Simulador Clínico de 7 Patologias</span>
+                <span id="pathology-stage-badge" style="color: #10b981; font-size: 10px;">FISIOLÓGICO</span>
+            </div>
+            <select id="pathology-select" class="pathology-select">
+                <option value="HEALTHY">🟢 Estado Fisiológico Saudável (Sem Patologia)</option>
+                <option value="ISCHEMIC_STROKE">🩸 AVC Isquêmico Agudo (Oclusão da ACM Esquerda)</option>
+                <option value="ALZHEIMER">🟣 Doença de Alzheimer (Placas Aβ42 & Tau + Atrofia)</option>
+                <option value="PARKINSON">🟠 Doença de Parkinson (Depleção SNpc & Corpos de Lewy)</option>
+                <option value="MULTIPLE_SCLEROSIS">🔵 Esclerose Múltipla (Desmielinização Autoimune)</option>
+                <option value="PRION_DCJ">☣️ Doença Priônica de Creutzfeldt-Jakob (PrPSc Espongiforme)</option>
+                <option value="ALS_ELA">⚡ Esclerose Lateral Amiotrófica — ELA (Motoneurônios M1)</option>
+                <option value="EPILEPSY">🌩️ Epilepsia Focal Mesial Temporal (Hipersincronia Ictal)</option>
+            </select>
+            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: #cbd5e1; margin-bottom: 4px;">
+                <span>Severidade / Estágio Clínico:</span>
+                <strong id="pathology-sev-label" style="color: #f43f5e;">75%</strong>
+            </div>
+            <input type="range" id="pathology-severity-slider" min="0.1" max="1.0" step="0.05" value="0.75" style="width: 100%; accent-color: #f43f5e; cursor: pointer;" />
+            <div id="pathology-clinical-note" style="font-size: 11px; color: #e2e8f0; margin-top: 6px; line-height: 1.4;">
+                Perfusão cerebral normóxica (54 mL/100g/min), condução saltatória íntegra e equilíbrio excitatório/inibitório preservado.
+            </div>
+            <div class="biomarker-mini-grid">
+                <div class="biomarker-pill">
+                    <span class="bm-label">LCR Aβ42 / Tau</span>
+                    <span class="bm-val" id="bm-abeta-tau">Normal</span>
+                </div>
+                <div class="biomarker-pill">
+                    <span class="bm-label">NfL / 14-3-3</span>
+                    <span class="bm-val" id="bm-nfl-prion">Basal</span>
+                </div>
+                <div class="biomarker-pill">
+                    <span class="bm-label">Bandas BOC</span>
+                    <span class="bm-val" id="bm-ocb">Ausentes</span>
+                </div>
+            </div>
         </div>
 
         <div class="section-card">
@@ -818,15 +998,29 @@
     <script src="js/vendor/three.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'"></script>
     <script src="js/vendor/OrbitControls.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js'"></script>
     <script src="js/brain-mesh-data.js"></script>
-    <script src="js/mozok-i18n.js"></script>
     <script src="js/cns-anatomy-3d.js"></script>
     <script src="js/neural-microcosmos-3d.js"></script>
-    <script src="js/pathology-engine.js"></script>
     <script>
         // =========================================================================
-        // ONTOLOGIA COMPLETA DE 31 ESTRUTURAS MACROSCÓPICAS DO SNC & SNP
+        // ONTOLOGIA COMPLETA DE 32 ESTRUTURAS MACROSCÓPICAS DO SNC & SNP
         // =========================================================================
         const MOZOK_ONTOLOGY = [
+            {
+                id: 'MENINGES_DURA_ARACHNOID_PIA',
+                name: 'Meninges (Dura-Máter, Aracnoide e Pia-Máter)',
+                latin: 'Meninges Encephali et Medullae Spinalis (Falx Cerebri & Tentorium)',
+                category: 'CORTEX_CEREBELLUM',
+                badge: 'MENINGES & SEPTOS DURAIS • PROTEÇÃO SNC',
+                summary: 'Três membranas concêntricas que revestem e protegem o Sistema Nervoso Central: (1) Dura-máter (paquimeninge fibrosa externa com Foice do Cérebro na fissura inter-hemisférica e Tentório do Cerebelo), (2) Membrana Aracnoide trabecular no espaço subaracnóideo preenchido por Líquor (LCR) e Granulações Aracnoideas de Pacchioni junto ao Seio Sagital Superior, e (3) Pia-máter vascular íntima aderida aos giros e sulcos corticais.',
+                functions: [
+                    'Proteção mecânica contra traumas cranioencefálicos e compartimentalização craniana (Foice do Cérebro e Tentório do Cerebelo)',
+                    'Sustentação hidrostática do encéfalo flutuante no líquor subaracnóideo (reduzindo o peso efetivo de 1.400g para ~50g)',
+                    'Reabsorção unidirecional do Líquor (LCR) pelas Granulações Aracnoideas de Pacchioni para o Seio Sagital Superior',
+                    'Barreira hematoliquórica e revestimento pial perivascular (Espaços de Virchow-Robin / Sistema Glinfático)'
+                ],
+                neurotransmitters: ['CGRP & Substância P (Inervação Meníngea Trigeminovascular V1/V2/V3)', 'Óxido Nítrico'],
+                clinical: 'Meningite bacteriana ou viral (rigidez de nuca, sinais de Kernig e Brudzinski), Hematoma Epidural (ruptura da artéria meníngea média), Hematoma Subdural (ruptura de veias-ponte corticais) e Hemorragia Subaracnóidea.'
+            },
             {
                 id: 'FRONTAL_LOBE',
                 name: 'Lobo Frontal',
@@ -1430,10 +1624,9 @@
             controls.maxDistance = 85.0;
             controls.target.set(0, -1.5, 0);
 
-            // Instancia Anatomia SNC/SNP + Microcosmos Neuronal + Motor de Patologia
+            // Instancia Anatomia SNC/SNP + Microcosmos Neuronal
             const cnsAnatomy = new window.CNSAnatomy3D(scene, camera, renderer);
             const neuralMicro = new window.NeuralMicrocosmos3D(scene);
-            const pathologyEngine = window.PathologyEngine ? new window.PathologyEngine(cnsAnatomy, neuralMicro) : null;
 
             window.cnsAnatomy = cnsAnatomy;
             window.neuralMicro = neuralMicro;
@@ -1838,6 +2031,16 @@
                 cnsAnatomy.setViewMode('VASCULAR');
             });
 
+            document.getElementById('btn-meninges').addEventListener('click', (e) => {
+                if (isMicroMode) setMicrocosmosMode(false);
+                const nextState = !cnsAnatomy.meningesVisible;
+                cnsAnatomy.setMeningesVisible(nextState);
+                e.currentTarget.classList.toggle('active', nextState);
+                if (nextState) {
+                    selectMacroStructure('MENINGES_DURA_ARACHNOID_PIA', true);
+                }
+            });
+
             document.getElementById('btn-view-micro').addEventListener('click', () => {
                 setMicrocosmosMode(!isMicroMode);
             });
@@ -1846,6 +2049,94 @@
                 const nextState = !cnsAnatomy.bodyShellVisible;
                 cnsAnatomy.setBodyShellVisible(nextState);
                 e.currentTarget.classList.toggle('active', nextState);
+            });
+
+            // =====================================================================
+            // NAVEGAÇÃO LATERAL/VERTICAL (PAN X/Y), BOTÕES DIRECIONAIS E TECLADO
+            // =====================================================================
+            const sliderPanX = document.getElementById('slider-pan-x');
+            const sliderPanY = document.getElementById('slider-pan-y');
+
+            function panCameraBy(dx, dy) {
+                if (camAnimId) {
+                    cancelAnimationFrame(camAnimId);
+                    camAnimId = null;
+                }
+                controls.target.x = Math.max(-12.0, Math.min(12.0, controls.target.x + dx));
+                controls.target.y = Math.max(-28.0, Math.min(8.0, controls.target.y + dy));
+                camera.position.x += dx;
+                camera.position.y += dy;
+                controls.update();
+                if (sliderPanX) sliderPanX.value = String(controls.target.x.toFixed(1));
+                if (sliderPanY) sliderPanY.value = String(controls.target.y.toFixed(1));
+            }
+
+            function setPanTargetXY(targetX, targetY) {
+                if (camAnimId) {
+                    cancelAnimationFrame(camAnimId);
+                    camAnimId = null;
+                }
+                const dx = targetX - controls.target.x;
+                const dy = targetY - controls.target.y;
+                controls.target.x = targetX;
+                controls.target.y = targetY;
+                camera.position.x += dx;
+                camera.position.y += dy;
+                controls.update();
+            }
+
+            window.panCameraBy = panCameraBy;
+            window.setPanTargetXY = setPanTargetXY;
+
+            document.getElementById('btn-pan-left').addEventListener('click', () => panCameraBy(-1.4, 0));
+            document.getElementById('btn-pan-right').addEventListener('click', () => panCameraBy(1.4, 0));
+            document.getElementById('btn-pan-up').addEventListener('click', () => panCameraBy(0, 1.8));
+            document.getElementById('btn-pan-down').addEventListener('click', () => panCameraBy(0, -1.8));
+            document.getElementById('btn-pan-reset').addEventListener('click', () => {
+                setPanTargetXY(0, -1.5);
+                if (sliderPanX) sliderPanX.value = '0';
+                if (sliderPanY) sliderPanY.value = '-1.5';
+            });
+
+            sliderPanX.addEventListener('input', (e) => {
+                const valX = parseFloat(e.target.value) || 0;
+                setPanTargetXY(valX, controls.target.y);
+            });
+
+            sliderPanY.addEventListener('input', (e) => {
+                const valY = parseFloat(e.target.value) || 0;
+                setPanTargetXY(controls.target.x, valY);
+            });
+
+            // Suporte a Teclado (WASD / Setas para mover nos lados e cima/baixo + Espaço para modo Pan com botão esquerdo)
+            let spacePanActive = false;
+            window.addEventListener('keydown', (e) => {
+                if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+                if (e.code === 'Space' && !spacePanActive) {
+                    spacePanActive = true;
+                    controls.mouseButtons.LEFT = THREE.MOUSE.PAN;
+                    renderer.domElement.style.cursor = 'move';
+                } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                    panCameraBy(-1.1, 0);
+                } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                    panCameraBy(1.1, 0);
+                } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+                    panCameraBy(0, 1.4);
+                } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+                    panCameraBy(0, -1.4);
+                } else if (e.key === 'r' || e.key === 'R') {
+                    setPanTargetXY(0, -1.5);
+                    sliderPanX.value = '0';
+                    sliderPanY.value = '-1.5';
+                }
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if (e.code === 'Space') {
+                    spacePanActive = false;
+                    controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
+                    renderer.domElement.style.cursor = 'grab';
+                }
             });
 
             document.getElementById('btn-home-view').addEventListener('click', () => {
@@ -1972,24 +2263,130 @@
                 neuralMicro.triggerManualSpike();
             });
 
-            document.getElementById('btn-trigger-stroke-card').addEventListener('click', (e) => {
-                isStrokeActive = true;
-                hypoxiaProgress = Math.max(0.35, hypoxiaProgress);
-                e.currentTarget.classList.add('active');
-                cnsAnatomy.setStrokeState(true, hypoxiaProgress);
-                if (pathologyEngine && typeof pathologyEngine.triggerStroke === 'function') {
-                    pathologyEngine.triggerStroke(selectedStructureId);
+            // =====================================================================
+            // SIMULADOR CLÍNICO DAS 7 PATOLOGIAS NEUROLÓGICAS + BIOMARCADORES LCR
+            // =====================================================================
+            const PATHOLOGY_PROFILES = {
+                'HEALTHY': {
+                    stage: 'FISIOLÓGICO',
+                    color: '#10b981',
+                    note: 'Perfusão cerebral normóxica (54 mL/100g/min), condução saltatória íntegra e equilíbrio excitatório/inibitório preservado.',
+                    abetaTau: 'Normal',
+                    nflPrion: 'Basal',
+                    ocb: 'Ausentes',
+                    targetStructure: null
+                },
+                'ISCHEMIC_STROKE': {
+                    stage: 'EMERGÊNCIA VASCULAR',
+                    color: '#f43f5e',
+                    note: 'Oclusão tromboembólica do segmento M1 da Artéria Cerebral Média Esquerda: core necrótico rodeado por penumbra isquêmica e falha da Na+/K+ ATPase.',
+                    abetaTau: 'Tau ↑ Agudo',
+                    nflPrion: 'NfL ↑↑↑',
+                    ocb: 'Ausentes',
+                    targetStructure: 'MIDDLE_CEREBRAL_ARTERY'
+                },
+                'ALZHEIMER': {
+                    stage: 'BRAK V–VI • DEMÊNCIA',
+                    color: '#c084fc',
+                    note: 'Deposição extracelular de placas senis de Beta-Amiloide (Aβ42) e emaranhados neurofibrilares intracelulares de Tau hiperfosforilada com atrofia hipocampal e cortical.',
+                    abetaTau: 'Aβ42↓ pTau↑↑',
+                    nflPrion: 'NfL ↑↑',
+                    ocb: 'Ausentes',
+                    targetStructure: 'HIPPOCAMPUS'
+                },
+                'PARKINSON': {
+                    stage: 'BRAAK 4 • HIPOCINESIA',
+                    color: '#fb923c',
+                    note: 'Degeneração >70% dos neurônios dopaminérgicos da Substância Negra pars compacta (SNpc) com inclusões de Alfa-Sinucleína (Corpos de Lewy) e hiperatividade da Via Indireta.',
+                    abetaTau: 'α-Syn RT-QuIC+',
+                    nflPrion: 'NfL Normal/↑',
+                    ocb: 'Ausentes',
+                    targetStructure: 'BASAL_GANGLIA'
+                },
+                'MULTIPLE_SCLEROSIS': {
+                    stage: 'SURTO-REMISSÃO (EMRR)',
+                    color: '#38bdf8',
+                    note: 'Ataque autoimune linfocitário T/B contra oligodendrócitos e Proteína Básica da Mielina (MBP), formando placas desmielinizantes periventriculares (Dedos de Dawson).',
+                    abetaTau: 'Normal',
+                    nflPrion: 'NfL ↑↑ (Surto)',
+                    ocb: 'Positivas (>2)',
+                    targetStructure: 'CORPUS_CALLOSUM'
+                },
+                'PRION_DCJ': {
+                    stage: 'ESPONGIFORME RÁPIDA',
+                    color: '#e879f9',
+                    note: 'Conversão conformacional autocatalítica de PrPC em PrPSc insolúvel, gerando vacúolos microscópicos (espongiose cortical), cortical ribboning na difusão e mioclonias.',
+                    abetaTau: 't-Tau >2000',
+                    nflPrion: '14-3-3 & RT-QuIC+',
+                    ocb: 'Ausentes',
+                    targetStructure: 'FRONTAL_LOBE'
+                },
+                'ALS_ELA': {
+                    stage: 'MOTONEURÔNIO SUP/INF',
+                    color: '#f97316',
+                    note: 'Degeneração combinada dos neurônios motores superiores (Células de Betz no Giro Pré-Central M1) e inferiores (Corno Anterior da Medula Espinhal) por agregados de TDP-43.',
+                    abetaTau: 'Normal',
+                    nflPrion: 'NfL ↑↑↑ Máximo',
+                    ocb: 'Ausentes',
+                    targetStructure: 'SPINAL_CORD'
+                },
+                'EPILEPSY': {
+                    stage: 'CRISE ICTAL HIPERSINCRÔNICA',
+                    color: '#facc15',
+                    note: 'Despolarização paroxística sustentada (PDS) por hiperexcitabilidade glutamatérgica NMDA/AMPA e perda da inibição GABAérgica no foco mesial temporal.',
+                    abetaTau: 'Normal',
+                    nflPrion: 'Lactato ↑',
+                    ocb: 'Ausentes',
+                    targetStructure: 'TEMPORAL_LOBE'
                 }
+            };
+
+            const pathologySelect = document.getElementById('pathology-select');
+            const pathologySeveritySlider = document.getElementById('pathology-severity-slider');
+
+            function applyPathologySelection(diseaseKey, severityVal) {
+                const profile = PATHOLOGY_PROFILES[diseaseKey] || PATHOLOGY_PROFILES['HEALTHY'];
+                const sev = diseaseKey === 'HEALTHY' ? 0.0 : severityVal;
+
+                isStrokeActive = (diseaseKey === 'ISCHEMIC_STROKE');
+                hypoxiaProgress = isStrokeActive ? sev : 0.0;
+                document.getElementById('btn-trigger-stroke-card').classList.toggle('active', isStrokeActive);
+
+                cnsAnatomy.setPathologySimulation(diseaseKey, sev);
+                neuralMicro.setPathologySimulation(diseaseKey, sev);
+
+                const stageBadge = document.getElementById('pathology-stage-badge');
+                stageBadge.textContent = profile.stage;
+                stageBadge.style.color = profile.color;
+
+                document.getElementById('pathology-sev-label').textContent = `${Math.round(sev * 100)}%`;
+                document.getElementById('pathology-clinical-note').textContent = profile.note;
+                document.getElementById('bm-abeta-tau').textContent = profile.abetaTau;
+                document.getElementById('bm-nfl-prion').textContent = profile.nflPrion;
+                document.getElementById('bm-ocb').textContent = profile.ocb;
+            }
+
+            pathologySelect.addEventListener('change', () => {
+                const key = pathologySelect.value;
+                const sev = parseFloat(pathologySeveritySlider.value) || 0.75;
+                applyPathologySelection(key, sev);
+            });
+
+            pathologySeveritySlider.addEventListener('input', () => {
+                const key = pathologySelect.value;
+                const sev = parseFloat(pathologySeveritySlider.value) || 0.75;
+                applyPathologySelection(key, sev);
+            });
+
+            document.getElementById('btn-trigger-stroke-card').addEventListener('click', () => {
+                pathologySelect.value = 'ISCHEMIC_STROKE';
+                pathologySeveritySlider.value = '0.85';
+                applyPathologySelection('ISCHEMIC_STROKE', 0.85);
             });
 
             document.getElementById('btn-restore-tissue-card').addEventListener('click', () => {
-                isStrokeActive = false;
-                hypoxiaProgress = 0.0;
-                document.getElementById('btn-trigger-stroke-card').classList.remove('active');
-                cnsAnatomy.setStrokeState(false, 0.0);
-                if (pathologyEngine && typeof pathologyEngine.restoreHealthyState === 'function') {
-                    pathologyEngine.restoreHealthyState();
-                }
+                pathologySelect.value = 'HEALTHY';
+                applyPathologySelection('HEALTHY', 0.0);
             });
 
             // =====================================================================
