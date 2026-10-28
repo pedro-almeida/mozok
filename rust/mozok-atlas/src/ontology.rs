@@ -67,19 +67,30 @@ impl OntologyTree {
         let mut tree = Self::new();
 
         // 1. Whole Human Brain (Мозок)
-        let whole_brain = AnatomicalRegion::new(1, "WB", "Whole Human Brain (Мозок)", Hemisphere::Bilateral)
-            .with_coordinates(Point3D::new(0.0, 0.0, 0.0), 90.0, SpatialScale::MacroWholeBrain)
-            .with_optimal_distance(220.0)
-            .with_color(180, 190, 210)
-            .with_provenance(ScientificProvenance {
-                doi: Some("10.1016/j.neuroimage.2009.04.041".into()),
-                authors: "Fonov et al. (ICBM / MNI Consortium)".into(),
-                year: 2011,
-                citation: "Unbiased average, symmetric atlas for multi-spectral human brain MRI in MNI152-space".into(),
-                license: "CC-BY-4.0".into(),
-                specimen_context: "MNI152 nonlinear 6th generation average MRI template".into(),
-                is_peer_reviewed: true,
-            });
+        let whole_brain = AnatomicalRegion::new(
+            1,
+            "WB",
+            "Whole Human Brain (Мозок)",
+            Hemisphere::Bilateral,
+        )
+        .with_coordinates(
+            Point3D::new(0.0, 0.0, 0.0),
+            90.0,
+            SpatialScale::MacroWholeBrain,
+        )
+        .with_optimal_distance(220.0)
+        .with_color(180, 190, 210)
+        .with_provenance(ScientificProvenance {
+            doi: Some("10.1016/j.neuroimage.2009.04.041".into()),
+            authors: "Fonov et al. (ICBM / MNI Consortium)".into(),
+            year: 2011,
+            citation:
+                "Unbiased average, symmetric atlas for multi-spectral human brain MRI in MNI152-space"
+                    .into(),
+            license: "CC-BY-4.0".into(),
+            specimen_context: "MNI152 nonlinear 6th generation average MRI template".into(),
+            is_peer_reviewed: true,
+        });
         tree.insert_region(whole_brain, None);
 
         // 2. Frontal Lobe (Parent: 1)
@@ -195,19 +206,31 @@ impl OntologyTree {
         tree.insert_region(betz_cell, Some(7));
 
         // 9. Corticospinal Glutamatergic Synapse (Parent: 8)
-        let synapse = AnatomicalRegion::new(9, "SYN-M1", "Corticospinal Glutamatergic Synapse", Hemisphere::Left)
-            .with_coordinates(Point3D::new(-38.102, -14.001, 52.101), 0.001, SpatialScale::MicroSynapses)
-            .with_optimal_distance(0.002)
-            .with_color(255, 215, 0)
-            .with_provenance(ScientificProvenance {
-                doi: Some("10.1126/science.adk4858".into()),
-                authors: "Shapson-Coe et al. (Harvard / Google Connectomics)".into(),
-                year: 2024,
-                citation: "A petavoxel fragment of human cerebral cortex reconstructed at nanoscale resolution".into(),
-                license: "CC-BY-4.0".into(),
-                specimen_context: "Post-synaptic density and vesicle pools at 4nm voxel EM resolution".into(),
-                is_peer_reviewed: true,
-            });
+        let synapse = AnatomicalRegion::new(
+            9,
+            "SYN-M1",
+            "Corticospinal Glutamatergic Synapse",
+            Hemisphere::Left,
+        )
+        .with_coordinates(
+            Point3D::new(-38.102, -14.001, 52.101),
+            0.001,
+            SpatialScale::MicroSynapses,
+        )
+        .with_optimal_distance(0.002)
+        .with_color(255, 215, 0)
+        .with_provenance(ScientificProvenance {
+            doi: Some("10.1126/science.adk4858".into()),
+            authors: "Shapson-Coe et al. (Harvard / Google Connectomics)".into(),
+            year: 2024,
+            citation:
+                "A petavoxel fragment of human cerebral cortex reconstructed at nanoscale resolution"
+                    .into(),
+            license: "CC-BY-4.0".into(),
+            specimen_context:
+                "Post-synaptic density and vesicle pools at 4nm voxel EM resolution".into(),
+            is_peer_reviewed: true,
+        });
         tree.insert_region(synapse, Some(8));
 
         // 10. Lateral Ventricles & Choroid Plexus (CSF) (Parent: 1)

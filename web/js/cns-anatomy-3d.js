@@ -101,7 +101,7 @@
       audioScript: 'Cadeia Ganglionar Simpática Paravertebral e Nervos Intercostais. Os gânglios simpáticos correm ao lado da coluna vertebral distribuindo o tônus adrenérgico visceral, enquanto os nervos intercostais seguem as costelas.'
     },
     {
-      id: 30,
+      id: 31,
       code: 'PNS_LUMBOSACRAL_SCIATIC',
       estrutura: 'Plexo Lombossacral e Nervo Isquiático / Ciático (L1–S4)',
       name: 'Plexo Lombossacral e Nervo Isquiático / Ciático (L1–S4)',
@@ -128,7 +128,7 @@
       audioScript: 'Plexo Lombossacral e Nervo Isquiático, de L1 a S4. Desta rede emergem os nervos femoral, obturatório e o calibroso nervo ciático, essencial para a marcha, postura bípede e sensibilidade dos membros inferiores.'
     },
     {
-      id: 31,
+      id: 30,
       code: 'PNS_VAGUS_PARASYMPATHETIC',
       estrutura: 'Nervo Vago (NC X) e Eixo Parassimpático Craniossacral',
       name: 'Nervo Vago (NC X) e Eixo Parassimpático Craniossacral',
@@ -235,44 +235,55 @@
       if (window.Tractography3D) {
         this.tractography = new window.Tractography3D(this.masterGroup);
       }
+
+      // Inicia no modo 'external' limpo (córtex MNI152 sólido + cerebelo + tronco + medula + SNP, ocultando pinos/tratos internos até o modo Raio-X ou seleção subcortical)
+      this.setViewMode('external');
     }
 
     // =========================================================================
     // 1. CÓRTEX MNI152 REAL COM MICRO-SULCOS (dFdx/dFdy), AO E REDE PIAL
     // =========================================================================
     buildPhotorealisticMNICortex() {
-      const meshData = window.BRAIN_MESH_DATA;
-      if (!meshData || !meshData.vertices || !meshData.faces) return;
+      const meshData = window.REAL_MNI_BRAIN || window.BRAIN_MESH_DATA;
+      if (!meshData || !meshData.vertices) return;
+      const fFlat = meshData.indices || meshData.faces;
+      if (!fFlat) return;
 
+      const isRealMni = !!window.REAL_MNI_BRAIN;
       const vFlat = meshData.vertices;
-      const fFlat = meshData.faces;
+      const gFlat = meshData.gyrus || null;
       const numVerts = Math.floor(vFlat.length / 3);
       const positions = new Float32Array(numVerts * 3);
       const colors = new Float32Array(numVerts * 3);
 
       for (let i = 0; i < numVerts; i++) {
-        const vx = vFlat[i * 3] / 14.5;
-        const vy = vFlat[i * 3 + 2] / 14.5;
-        const vz = vFlat[i * 3 + 1] / 14.5;
+        // window.REAL_MNI_BRAIN já está normalizado no espaço MNI da cena (X:[-5.4,5.4], Y:[-5.1,5.1], Z:[-6.9,6.9])
+        const vx = isRealMni ? vFlat[i * 3] : (vFlat[i * 3] / 14.5);
+        const vy = isRealMni ? vFlat[i * 3 + 1] : (vFlat[i * 3 + 2] / 14.5);
+        const vz = isRealMni ? vFlat[i * 3 + 2] : (vFlat[i * 3 + 1] / 14.5);
 
         positions[i * 3] = vx;
         positions[i * 3 + 1] = vy;
         positions[i * 3 + 2] = vz;
 
-        const r = Math.hypot(vx, vy * 1.12, vz * 0.92);
-        const foldNoise =
-          Math.sin(vx * 5.8 + Math.cos(vz * 5.2)) *
-          Math.cos(vy * 5.8 + Math.sin(vx * 4.8)) * 0.5 +
-          Math.sin(vx * 13.5 - vz * 12.8) * Math.cos(vy * 13.2) * 0.35 +
-          Math.cos(vx * 24.0 + vy * 22.0 - vz * 23.0) * 0.15;
+        let sulcalDepth;
+        if (gFlat && i < gFlat.length) {
+          sulcalDepth = Math.max(0.0, Math.min(1.0, gFlat[i]));
+        } else {
+          const r = Math.hypot(vx, vy * 1.12, vz * 0.92);
+          const foldNoise =
+            Math.sin(vx * 5.8 + Math.cos(vz * 5.2)) *
+            Math.cos(vy * 5.8 + Math.sin(vx * 4.8)) * 0.5 +
+            Math.sin(vx * 13.5 - vz * 12.8) * Math.cos(vy * 13.2) * 0.35;
+          sulcalDepth = Math.max(0.0, Math.min(1.0, (r - 3.6) / 1.9 + foldNoise * 0.30));
+        }
 
-        const sulcalDepth = Math.max(0.0, Math.min(1.0, (r - 3.6) / 1.9 + foldNoise * 0.30));
         colors[i * 3] = 0.56 + 0.36 * sulcalDepth;
         colors[i * 3 + 1] = 0.44 + 0.32 * sulcalDepth;
         colors[i * 3 + 2] = 0.45 + 0.33 * sulcalDepth;
       }
 
-      const indices = new Uint32Array(fFlat);
+      const indices = (fFlat instanceof Uint32Array) ? fFlat : new Uint32Array(fFlat);
       const geometry = new THREE.BufferGeometry();
       geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
       geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
@@ -309,11 +320,10 @@
           vColor = color;
           vec3 pos = position;
 
-          // Relevo físico micro-girificado nos vértices para sulcos profundos e giros bem demarcados
           float g1 = sin(pos.x * 5.6 + cos(pos.z * 5.2)) * cos(pos.y * 5.6 + sin(pos.x * 5.0));
           float g2 = sin(pos.x * 13.0 - pos.z * 12.5) * cos(pos.y * 12.8) * 0.45;
           float g3 = cos(pos.x * 23.0 + pos.y * 21.0 - pos.z * 22.0) * 0.18;
-          float sulcalDisp = (g1 + g2 + g3) * 0.048;
+          float sulcalDisp = (g1 + g2 + g3) * 0.025;
           pos += normal * sulcalDisp;
 
           if (uDiseaseMode == 3 && uDiseaseSeverity > 0.01) {
@@ -340,7 +350,6 @@
       `;
 
       const fragmentShader = `
-        #extension GL_OES_standard_derivatives : enable
         varying vec3 vNormal;
         varying vec3 vWorldPos;
         varying vec3 vObjPos;
@@ -371,20 +380,18 @@
           vec3 viewDir = normalize(vViewPosition);
           float h = gyralHeightField(vObjPos);
 
-          // Perturbação normal via derivadas de tela para sulcos e giros hiper-detalhados
           vec3 dPdx = dFdx(vViewPosition);
           vec3 dPdy = dFdy(vViewPosition);
           float dHdx = dFdx(h);
           float dHdy = dFdy(h);
-          vec3 surfGrad = normalize(cross(dPdx, vNormal) * dHdy + cross(vNormal, dPdy) * dHdx);
-          vec3 normal = normalize(vNormal - surfGrad * 0.28);
+          vec3 surfGrad = normalize(cross(dPdx, vNormal) * dHdy + cross(vNormal, dPdy) * dHdx + vec3(1e-5));
+          vec3 normal = normalize(vNormal - surfGrad * 0.24);
 
           float sulcalFactor = clamp(0.5 + 0.5 * h, 0.0, 1.0);
           vec3 sulcusDark = vec3(0.28, 0.16, 0.18);
           vec3 gyrusCrown = vec3(0.92, 0.77, 0.75);
           vec3 baseTissue = mix(sulcusDark, gyrusCrown, smoothstep(0.12, 0.88, sulcalFactor)) * (0.72 + 0.34 * vColor);
 
-          // Rede microvascular subpial sutil nos sulcos
           float vesselWave = abs(sin(vObjPos.x * 16.0 + sin(vObjPos.y * 9.0) * 2.2) * cos(vObjPos.z * 15.0 + cos(vObjPos.x * 8.0) * 2.0));
           float capillaryMask = smoothstep(0.05, 0.0, vesselWave) * (1.0 - sulcalFactor * 0.45);
           baseTissue = mix(baseTissue, vec3(0.76, 0.12, 0.18), capillaryMask * 0.52);
@@ -401,7 +408,6 @@
           float spec = pow(max(dot(normal, halfVec), 0.0), 48.0) * (0.28 + 0.25 * sulcalFactor);
           float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.0);
 
-          // Demarcação cirúrgica suave da área selecionada
           float roiMask = 0.0;
           float roiBorder = 0.0;
           if (uHighlightRadius > 0.05) {
@@ -419,7 +425,6 @@
             baseTissue += uHighlightColor * roiBorder * 1.35;
           }
 
-          // Simulador de Patologias (DCJ, AVC, Alzheimer, EM)
           if (uDiseaseMode == 1 && uDiseaseSeverity > 0.01) {
             float vNoise = fract(sin(dot(floor(vObjPos * 15.0), vec3(12.9898, 78.233, 45.164))) * 43758.5453);
             if (vNoise < 0.34 * uDiseaseSeverity) {
@@ -456,6 +461,7 @@
         uniforms: this.cortexUniforms,
         vertexShader,
         fragmentShader,
+        extensions: { derivatives: true },
         vertexColors: true,
         transparent: true,
         side: THREE.DoubleSide,
@@ -600,8 +606,7 @@
       `;
 
       const fragmentShader = `
-        #extension GL_OES_standard_derivatives : enable
-        varying vec3 vNormal;
+                varying vec3 vNormal;
         varying vec3 vObjPos;
         varying vec3 vViewPos;
         uniform float uTime;
@@ -624,7 +629,7 @@
           vec3 dPdy = dFdy(vViewPos);
           float dFdxVal = dFdx(foliaPattern);
           float dFdyVal = dFdy(foliaPattern);
-          vec3 grad = normalize(cross(dPdx, vNormal) * dFdyVal + cross(vNormal, dPdy) * dFdxVal);
+          vec3 grad = normalize(cross(dPdx, vNormal) * dFdyVal + cross(vNormal, dPdy) * dFdxVal + vec3(1e-5));
           vec3 norm = normalize(vNormal - grad * 0.22);
 
           float diff1 = max(dot(norm, lightDir1), 0.0);
@@ -659,6 +664,7 @@
         uniforms: this.cerebellumUniforms,
         vertexShader,
         fragmentShader,
+        extensions: { derivatives: true },
         transparent: true,
         side: THREE.DoubleSide
       });
@@ -757,12 +763,27 @@
         });
       };
 
-      const registerSubMesh = (code, mesh) => {
-        mesh.userData = { structureCode: code, baseEmissive: mesh.material.emissive.getHex() };
+      const registerSubMesh = (codes, mesh, ids) => {
+        const codeList = Array.isArray(codes) ? codes : [codes];
+        const idList = ids ? (Array.isArray(ids) ? ids : [ids]) : [];
+        mesh.userData = {
+          structureCode: codeList[0],
+          structureCodes: codeList,
+          structureId: idList[0] || null,
+          structureIds: idList,
+          baseEmissive: (mesh.material && mesh.material.emissive) ? mesh.material.emissive.getHex() : 0x000000
+        };
         this.subcorticalGroup.add(mesh);
         this.subcorticalMeshes.push(mesh);
-        if (!this.subcorticalMeshMap[code]) this.subcorticalMeshMap[code] = [];
-        this.subcorticalMeshMap[code].push(mesh);
+        codeList.forEach(c => {
+          if (!this.subcorticalMeshMap[c]) this.subcorticalMeshMap[c] = [];
+          this.subcorticalMeshMap[c].push(mesh);
+        });
+        idList.forEach(id => {
+          const idKey = String(id);
+          if (!this.subcorticalMeshMap[idKey]) this.subcorticalMeshMap[idKey] = [];
+          this.subcorticalMeshMap[idKey].push(mesh);
+        });
       };
 
       // 1. Corpo Caloso (Joelho, Tronco e Esplênio com estrias transversais)
@@ -798,7 +819,7 @@
       hypoGeo.scale(0.9, 0.85, 1.05);
       const hypoMesh = new THREE.Mesh(hypoGeo, createOrganicMat(0x22d3ee, 0.92, 0x06b6d4));
       hypoMesh.position.set(0.0, -1.48, 0.28);
-      registerSubMesh('HYPOTHALAMUS', hypoMesh);
+      registerSubMesh(['HYPOTHALAMUS_PITUITARY', 'HYPOTHALAMUS'], hypoMesh);
 
       const stalkMesh = new THREE.Mesh(
         new THREE.CylinderGeometry(0.10, 0.07, 0.55, 12),
@@ -806,7 +827,7 @@
       );
       stalkMesh.position.set(0.0, -1.92, 0.42);
       stalkMesh.rotation.x = 0.25;
-      registerSubMesh('HYPOTHALAMUS', stalkMesh);
+      registerSubMesh(['HYPOTHALAMUS_PITUITARY', 'HYPOTHALAMUS'], stalkMesh);
 
       const pitMesh = new THREE.Mesh(
         new THREE.SphereGeometry(0.26, 20, 16),
@@ -814,7 +835,7 @@
       );
       pitMesh.scale.set(1.25, 0.85, 1.05);
       pitMesh.position.set(0.0, -2.22, 0.50);
-      registerSubMesh('HYPOTHALAMUS', pitMesh);
+      registerSubMesh(['HYPOTHALAMUS_PITUITARY', 'HYPOTHALAMUS'], pitMesh);
 
       // 4. Glândula Pineal (Epífise)
       const pinealMesh = new THREE.Mesh(
@@ -823,7 +844,7 @@
       );
       pinealMesh.rotation.x = -Math.PI * 0.5;
       pinealMesh.position.set(0.0, -0.82, -1.78);
-      registerSubMesh('PINEAL_GLAND', pinealMesh);
+      registerSubMesh(['PINEAL_GLAND', 'EPITHALAMUS'], pinealMesh);
 
       // 5. Hipocampo (Corno de Ammon) + Fórnix Bilateral
       [-1, 1].forEach(side => {
@@ -853,13 +874,20 @@
           new THREE.Vector3(side * 1.78, -0.35, -1.35)
         ]);
         const caudGeo = new THREE.TubeGeometry(caudCurve, 36, 0.27, 16, false);
-        registerSubMesh('BASAL_GANGLIA', new THREE.Mesh(caudGeo, createOrganicMat(0x8b5cf6, 0.92, 0x6d28d9)));
+        registerSubMesh(['STRIATUM', 'BASAL_GANGLIA'], new THREE.Mesh(caudGeo, createOrganicMat(0x8b5cf6, 0.92, 0x6d28d9)));
 
         const putGeo = new THREE.SphereGeometry(0.68, 24, 20);
         putGeo.scale(0.58, 0.88, 1.42);
         const putMesh = new THREE.Mesh(putGeo, createOrganicMat(0xa855f7, 0.90, 0x7e22ce));
         putMesh.position.set(side * 1.92, -0.25, 0.32);
-        registerSubMesh('BASAL_GANGLIA', putMesh);
+        registerSubMesh(['STRIATUM', 'BASAL_GANGLIA'], putMesh, 13);
+
+        // Malha anatômica dedicada para o Globo Pálido (GPi/GPe)
+        const gpGeo = new THREE.SphereGeometry(0.50, 22, 18);
+        gpGeo.scale(0.52, 0.76, 1.15);
+        const gpMesh = new THREE.Mesh(gpGeo, createOrganicMat(0xd97706, 0.94, 0xb45309));
+        gpMesh.position.set(side * 1.52, -0.32, 0.20);
+        registerSubMesh(['GLOBUS_PALLIDUS', 'BASAL_GANGLIA'], gpMesh, 14);
       });
 
       // 8. Sistema Ventricular (Ventrículos Laterais, III e IV Ventrículo)
@@ -872,6 +900,15 @@
         ]);
         const ventGeo = new THREE.TubeGeometry(ventCurve, 36, 0.30, 16, false);
         registerSubMesh('VENTRICULAR_SYSTEM', new THREE.Mesh(ventGeo, createOrganicMat(0x38bdf8, 0.68, 0x0284c7)));
+
+        // 9. Quiasma Óptico e Tratos Ópticos (NC II)
+        const opticCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(side * 0.95, -1.35, 2.25),
+          new THREE.Vector3(0.0, -1.40, 1.45),
+          new THREE.Vector3(-side * 1.15, -1.10, 0.15)
+        ]);
+        const opticGeo = new THREE.TubeGeometry(opticCurve, 20, 0.12, 10, false);
+        registerSubMesh('OPTIC_CHIASM', new THREE.Mesh(opticGeo, createOrganicMat(0x38bdf8, 0.95, 0x0284c7)), 18);
       });
     }
 
@@ -895,8 +932,15 @@
         clearcoat: 0.35
       });
 
-      const registerSpinalMesh = (code, mesh) => {
-        mesh.userData = { structureCode: code };
+      const registerSpinalMesh = (codes, mesh, ids) => {
+        const codeList = Array.isArray(codes) ? codes : [codes];
+        const idList = ids ? (Array.isArray(ids) ? ids : [ids]) : [];
+        mesh.userData = {
+          structureCode: codeList[0],
+          structureCodes: codeList,
+          structureId: idList[0] || null,
+          structureIds: idList
+        };
         this.spinalGroup.add(mesh);
         this.spinalMeshes.push(mesh);
       };
@@ -909,18 +953,18 @@
         pedMesh.position.set(xPed, -2.42, -0.58);
         pedMesh.rotation.z = xPed > 0 ? -0.14 : 0.14;
         pedMesh.rotation.x = 0.18;
-        registerSpinalMesh('BRAINSTEM_MIDBRAIN', pedMesh);
+        registerSpinalMesh(['MIDBRAIN_SN', 'BRAINSTEM_MIDBRAIN', 'CRANIAL_NERVES'], pedMesh);
       });
 
       // Colículos Superiores e Inferiores (Lâmina Quadrigêmea)
       [-0.26, 0.26].forEach(xCol => {
         const supCol = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 14), stemMat.clone());
         supCol.position.set(xCol, -2.18, -1.18);
-        registerSpinalMesh('BRAINSTEM_MIDBRAIN', supCol);
+        registerSpinalMesh(['MIDBRAIN_SN', 'BRAINSTEM_MIDBRAIN', 'CRANIAL_NERVES'], supCol);
 
         const infCol = new THREE.Mesh(new THREE.SphereGeometry(0.19, 16, 14), stemMat.clone());
         infCol.position.set(xCol, -2.55, -1.24);
-        registerSpinalMesh('BRAINSTEM_MIDBRAIN', infCol);
+        registerSpinalMesh(['MIDBRAIN_SN', 'BRAINSTEM_MIDBRAIN', 'CRANIAL_NERVES'], infCol);
       });
 
       // 4.2 PONTE DE VARÓLIO: Abaulada com Fibras Pontocerebelares Transversais, Sulco Basilar e Pedúnculos Cerebelares Médios
@@ -945,7 +989,7 @@
       ponsGeo.computeVertexNormals();
       const ponsMesh = new THREE.Mesh(ponsGeo, stemMat.clone());
       ponsMesh.position.set(0.0, -3.55, -0.78);
-      registerSpinalMesh('BRAINSTEM_PONS', ponsMesh);
+      registerSpinalMesh(['PONS_VAROLII', 'BRAINSTEM_PONS', 'CRANIAL_NERVES'], ponsMesh);
 
       // Pedúnculos Cerebelares Médios conectando a Ponte ao Cerebelo
       [-1, 1].forEach(side => {
@@ -955,7 +999,7 @@
           new THREE.Vector3(side * 1.48, -3.90, -2.05)
         ]);
         const mcpMesh = new THREE.Mesh(new THREE.TubeGeometry(mcpCurve, 18, 0.36, 16, false), stemMat.clone());
-        registerSpinalMesh('BRAINSTEM_PONS', mcpMesh);
+        registerSpinalMesh(['PONS_VAROLII', 'BRAINSTEM_PONS', 'CRANIAL_NERVES'], mcpMesh);
       });
 
       // 4.3 BULBO RAQUIDIANO (MEDULLA OBLONGATA): Pirâmides Bulbares, Decussação e Olivas Inferiores
@@ -981,7 +1025,43 @@
       const medullaMesh = new THREE.Mesh(medGeo, stemMat.clone());
       medullaMesh.position.set(0.0, -4.85, -1.02);
       medullaMesh.rotation.x = -0.14;
-      registerSpinalMesh('BRAINSTEM_MEDULLA', medullaMesh);
+      registerSpinalMesh(['MEDULLA_OBLONGATA', 'BRAINSTEM_MEDULLA'], medullaMesh, 22);
+
+      // Malhas anatômicas 3D dedicadas para os Nervos Cranianos (CRANIAL_NERVES, ID 23)
+      const cnMat = new THREE.MeshPhysicalMaterial({ color: 0x34d399, emissive: 0x059669, emissiveIntensity: 0.35, roughness: 0.32 });
+      [-1, 1].forEach(side => {
+        // NC III (Oculomotor)
+        const nc3Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(side * 0.18, -2.45, -0.25),
+          new THREE.Vector3(side * 0.38, -2.48, 0.45),
+          new THREE.Vector3(side * 0.55, -2.35, 1.15)
+        ]);
+        registerSpinalMesh('CRANIAL_NERVES', new THREE.Mesh(new THREE.TubeGeometry(nc3Curve, 12, 0.05, 8, false), cnMat.clone()), 23);
+
+        // NC V (Trigêmeo calibroso na ponte)
+        const nc5Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(side * 1.05, -3.45, -0.65),
+          new THREE.Vector3(side * 1.55, -3.35, -0.25),
+          new THREE.Vector3(side * 1.95, -3.20, 0.25)
+        ]);
+        registerSpinalMesh('CRANIAL_NERVES', new THREE.Mesh(new THREE.TubeGeometry(nc5Curve, 12, 0.075, 8, false), cnMat.clone()), 23);
+
+        // NC VII/VIII (Facial e Vestibulococlear no ângulo pontocerebelar)
+        const nc7Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(side * 0.95, -4.15, -0.85),
+          new THREE.Vector3(side * 1.48, -4.20, -0.65),
+          new THREE.Vector3(side * 1.85, -4.15, -0.35)
+        ]);
+        registerSpinalMesh('CRANIAL_NERVES', new THREE.Mesh(new THREE.TubeGeometry(nc7Curve, 10, 0.048, 8, false), cnMat.clone()), 23);
+
+        // NC XII (Hipoglosso no bulbo)
+        const nc12Curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(side * 0.32, -4.85, -0.82),
+          new THREE.Vector3(side * 0.65, -4.92, -0.55),
+          new THREE.Vector3(side * 0.95, -4.88, -0.22)
+        ]);
+        registerSpinalMesh('CRANIAL_NERVES', new THREE.Mesh(new THREE.TubeGeometry(nc12Curve, 10, 0.042, 8, false), cnMat.clone()), 23);
+      });
 
       // 4.4 MEDULA ESPINHAL CONTÍNUA (C1 a L2, Y = -5.50 até Y = -20.5)
       // Com Intumescências Cervical (C4–T1) e Lombossacral (L1–S3), Fissura Mediana Anterior e Sulcos
@@ -1092,7 +1172,7 @@
 
       const cordMesh = new THREE.Mesh(cordGeo, cordShaderMat);
       cordMesh.name = 'Spinal_Cord_Main_3D';
-      registerSpinalMesh('SPINAL_CORD_CERVICAL', cordMesh);
+      registerSpinalMesh(['SPINAL_CERVICAL_THORACIC', 'SPINAL_CORD_CERVICAL'], cordMesh);
 
       // 4.5 H MEDULAR INTERNO 3D (Colunas Cinzentas Dorsais, Ventrais e Intermédio-Laterais)
       const greyHornMat = new THREE.MeshPhysicalMaterial({
@@ -1108,7 +1188,7 @@
           cordCurvePts.map(pt => new THREE.Vector3(pt.x + xHorn, pt.y, pt.z))
         );
         const hornMesh = new THREE.Mesh(new THREE.TubeGeometry(hornCurve, 80, 0.085, 10, false), greyHornMat);
-        registerSpinalMesh('SPINAL_CORD_THORACIC', hornMesh);
+        registerSpinalMesh(['SPINAL_CERVICAL_THORACIC', 'SPINAL_CORD_THORACIC'], hornMesh);
       });
 
       // 4.6 31 PARES DE RAÍZES ESPINHAIS (Dorsais e Ventrais), GÂNGLIOS DA RAIZ DORSAL (DRG) E LIGAMENTOS DENTICULADOS
@@ -1134,7 +1214,7 @@
       for (let s = 0; s < 31; s++) {
         const frac = s / 30.0;
         const pt = cordCurve.getPointAt(frac);
-        const segCode = s < 8 ? 'SPINAL_CORD_CERVICAL' : (s < 20 ? 'SPINAL_CORD_THORACIC' : 'SPINAL_CORD_LUMBOSACRAL');
+        const segCode = s < 20 ? ['SPINAL_CERVICAL_THORACIC', 'SPINAL_CORD_CERVICAL', 'SPINAL_CORD_THORACIC'] : ['SPINAL_LUMBAR_CAUDA', 'SPINAL_CORD_LUMBOSACRAL'];
         const spreadX = 0.72 + 0.25 * Math.sin(frac * Math.PI);
         const dropY = -0.12 - frac * 0.42;
 
@@ -1186,7 +1266,7 @@
           new THREE.Vector3(side * (0.48 + spread), -22.65 - idx * 0.22, -1.20)
         ]);
         const ceMesh = new THREE.Mesh(new THREE.TubeGeometry(ceCurve, 16, 0.026, 6, false), rootMat);
-        registerSpinalMesh('SPINAL_CORD_LUMBOSACRAL', ceMesh);
+        registerSpinalMesh(['SPINAL_LUMBAR_CAUDA', 'SPINAL_CORD_LUMBOSACRAL'], ceMesh);
       }
 
       // Filum Terminale Interno (Pia-máter brilhante descendo no centro da Cauda Equina)
@@ -1196,7 +1276,7 @@
         new THREE.Vector3(0.0, -23.90, -1.22)
       ]);
       const filumMat = new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.4 });
-      registerSpinalMesh('SPINAL_CORD_LUMBOSACRAL', new THREE.Mesh(new THREE.TubeGeometry(filumCurve, 16, 0.032, 8, false), filumMat));
+      registerSpinalMesh(['SPINAL_LUMBAR_CAUDA', 'SPINAL_CORD_LUMBOSACRAL'], new THREE.Mesh(new THREE.TubeGeometry(filumCurve, 16, 0.032, 8, false), filumMat));
     }
 
     // =========================================================================
@@ -1522,12 +1602,19 @@
 
     highlightRegion(reg) {
       if (!reg) return;
+      if (typeof reg === 'number') {
+        reg = this.getRegions().find(r => r.id === reg) || { id: reg };
+      } else if (typeof reg === 'string') {
+        reg = this.getRegions().find(r => r.code === reg || String(r.id) === reg) || { code: reg };
+      }
       this.activeStructureCode = reg.code || 'WB_CNS';
       const coords = reg.center || reg.coordenadas || [0, -2.5, 0];
       const col = new THREE.Color(reg.color || '#00f2fe');
+      const codeStr = String(reg.code || '');
+      const regId = reg.id;
 
       if (this.cortexUniforms) {
-        if (reg.id === 1) {
+        if (regId === 1 || codeStr === 'WB_CNS') {
           this.cortexUniforms.uHighlightRadius.value = 0.0;
         } else {
           this.cortexUniforms.uHighlightCenter.value.set(coords[0], coords[1], coords[2]);
@@ -1537,11 +1624,19 @@
       }
 
       if (this.cerebellumUniforms) {
-        this.cerebellumUniforms.uHighlight.value = (reg.code === 'CEREBELLUM') ? 1.0 : 0.0;
+        this.cerebellumUniforms.uHighlight.value = (codeStr === 'CEREBELLUM' || codeStr === 'CEREBELLUM_FOLIA' || regId === 24) ? 1.0 : 0.0;
       }
 
       if (this.spinalUniforms) {
-        if (String(reg.code).startsWith('SPINAL_') || String(reg.code).startsWith('PNS_')) {
+        if (
+          codeStr.startsWith('SPINAL_') ||
+          codeStr.startsWith('PNS_') ||
+          codeStr.includes('MIDBRAIN') ||
+          codeStr.includes('PONS') ||
+          codeStr.includes('MEDULLA') ||
+          codeStr.includes('CRANIAL') ||
+          (regId && [20, 21, 22, 23, 25, 26, 27, 28, 29, 30, 31].includes(regId))
+        ) {
           this.spinalUniforms.uHighlightY.value = coords[1];
           this.spinalUniforms.uHighlightRange.value = 2.8;
         } else {
@@ -1549,41 +1644,53 @@
         }
       }
 
-      // Realce emissivo seletivo nos núcleos subcorticais, medula e SNP
       this.subcorticalMeshes.forEach(m => {
         if (m.material && m.material.emissive) {
-          const isMatch = m.userData && m.userData.structureCode === reg.code;
+          const codes = (m.userData && m.userData.structureCodes) || [m.userData && m.userData.structureCode];
+          const ids = (m.userData && m.userData.structureIds) || [m.userData && m.userData.structureId];
+          const isMatch = codes.includes(codeStr) || (regId && ids.includes(regId));
           m.material.emissiveIntensity = isMatch ? 0.85 : 0.22;
         }
       });
 
       this.pnsMeshes.forEach(m => {
         if (m.material && m.material.emissive) {
-          const isMatch = m.userData && m.userData.structureCode === reg.code;
+          const codes = (m.userData && m.userData.structureCodes) || [m.userData && m.userData.structureCode];
+          const ids = (m.userData && m.userData.structureIds) || [m.userData && m.userData.structureId];
+          const isMatch = codes.includes(codeStr) || (regId && ids.includes(regId));
           m.material.emissiveIntensity = isMatch ? 0.92 : 0.25;
         }
       });
 
       this.markerMeshes.forEach(pin => {
-        const isCurrent = pin.userData && pin.userData.regionId === reg.id;
+        const isCurrent = (pin.userData && pin.userData.regionId === regId) || (pin.userData && pin.userData.structureCode === codeStr);
         pin.scale.setScalar(isCurrent ? 1.85 : 1.0);
       });
     }
 
-    /**
-     * [PT-BR]: Isola qualquer uma das 31 peças anatômicas (Córtex, Subcortical, Cerebelo, Tronco, Medula ou SNP)
-     *          e centraliza seu BoundingBox (THREE.Box3) exatamente em (0, 0, 0), eliminando 100% o bug de tela preta.
-     */
-    isolatePiece(structureCode) {
+    isolatePiece(structureIdentifier) {
       while (this.isolatedPieceGroup.children.length > 0) {
         this.isolatedPieceGroup.remove(this.isolatedPieceGroup.children[0]);
       }
 
       const regions = this.getRegions();
-      const reg = regions.find(r => r.code === structureCode) || regions[0];
+      let reg = null;
+      if (typeof structureIdentifier === 'number') {
+        reg = regions.find(r => r.id === structureIdentifier);
+      } else if (typeof structureIdentifier === 'string') {
+        reg = regions.find(r => r.code === structureIdentifier || String(r.id) === structureIdentifier);
+        if (!reg && window.MOZOK_I18N && window.MOZOK_I18N.codeToIdMap) {
+          const mappedId = window.MOZOK_I18N.codeToIdMap[structureIdentifier];
+          if (mappedId) reg = regions.find(r => r.id === mappedId);
+        }
+      } else if (structureIdentifier && typeof structureIdentifier === 'object') {
+        reg = structureIdentifier;
+      }
+      if (!reg) reg = regions[0];
       const code = reg ? reg.code : 'WB_CNS';
+      const regId = reg ? reg.id : 1;
 
-      if (code === 'WB_CNS') {
+      if (code === 'WB_CNS' || regId === 1) {
         this.restoreFullCNS();
         return null;
       }
@@ -1595,18 +1702,21 @@
       const wrapper = new THREE.Group();
 
       // 1. Cerebelo completo (Folia 3D + Arbor Vitae interna)
-      if (code === 'CEREBELLUM' && this.cerebellumMesh) {
-        wrapper.add(this.cerebellumMesh.clone());
+      if ((code === 'CEREBELLUM' || code === 'CEREBELLUM_FOLIA' || regId === 24) && this.cerebellumMesh) {
+        const cbClone = this.cerebellumMesh.clone();
+        if (this.cerebellumUniforms) this.cerebellumUniforms.uOpacity.value = 1.0;
+        wrapper.add(cbClone);
         if (this.arborVitaeGroup) wrapper.add(this.arborVitaeGroup.clone(true));
       }
       // 2. Estruturas do Sistema Nervoso Periférico (SNP)
-      else if (code.startsWith('PNS_')) {
+      else if (code.startsWith('PNS_') || (regId && regId >= 27) || code === 'BRACHIAL_PLEXUS' || code === 'SCIATIC_LUMBOSACRAL') {
         this.pnsMeshes.forEach(m => {
-          if (m.userData && m.userData.structureCode === code) {
+          const mCode = m.userData && m.userData.structureCode;
+          const mId = m.userData && m.userData.structureId;
+          if (mCode === code || (mId && mId === regId)) {
             wrapper.add(m.clone());
           }
         });
-        // Inclui a medula espinhal translúcida como referência anatômica das raízes do SNP
         this.spinalMeshes.forEach(m => {
           const cloneS = m.clone();
           if (cloneS.material) {
@@ -1621,15 +1731,33 @@
           wrapper.add(cloneS);
         });
       }
-      // 3. Tronco Encefálico ou Medula Espinhal
-      else if (code.startsWith('BRAINSTEM_') || code.startsWith('SPINAL_')) {
-        const matched = this.spinalMeshes.filter(m => m.userData && m.userData.structureCode === code);
+      // 3. Tronco Encefálico, Nervos Cranianos ou Medula Espinhal
+      else if (
+        code.startsWith('BRAINSTEM_') ||
+        code.startsWith('SPINAL_') ||
+        code === 'MIDBRAIN_SN' ||
+        code === 'PONS_VAROLII' ||
+        code === 'MEDULLA_OBLONGATA' ||
+        code === 'CRANIAL_NERVES' ||
+        [20, 21, 22, 23, 25, 26].includes(regId)
+      ) {
+        const matched = this.spinalMeshes.filter(m => {
+          const codes = (m.userData && m.userData.structureCodes) || [m.userData && m.userData.structureCode];
+          const ids = (m.userData && m.userData.structureIds) || [m.userData && m.userData.structureId];
+          return codes.includes(code) || (regId && ids.includes(regId));
+        });
         const listToClone = matched.length > 0 ? matched : this.spinalMeshes;
         listToClone.forEach(m => wrapper.add(m.clone()));
       }
       // 4. Núcleos Subcorticais, Límbico e Ventrículos
-      else if (this.subcorticalMeshMap[code] && this.subcorticalMeshMap[code].length > 0) {
-        this.subcorticalMeshMap[code].forEach(m => wrapper.add(m.clone()));
+      else if (
+        (this.subcorticalMeshMap[code] && this.subcorticalMeshMap[code].length > 0) ||
+        (this.subcorticalMeshMap[String(regId)] && this.subcorticalMeshMap[String(regId)].length > 0)
+      ) {
+        const list = (this.subcorticalMeshMap[code] && this.subcorticalMeshMap[code].length > 0)
+          ? this.subcorticalMeshMap[code]
+          : this.subcorticalMeshMap[String(regId)];
+        list.forEach(m => wrapper.add(m.clone()));
       }
       // 5. Áreas Corticais de Brodmann / Giros Reais MNI152 (Recorte Cirúrgico 3D da Malha MNI152)
       else if (this.cortexMesh) {
@@ -1672,7 +1800,6 @@
         }
       }
 
-      // Centralização universal por Bounding Box 3D (Garante que a peça apareça sempre no centro da tela!)
       const box = new THREE.Box3().setFromObject(wrapper);
       if (!box.isEmpty()) {
         const centerVec = new THREE.Vector3();
@@ -1703,13 +1830,28 @@
       this.viewMode = mode;
       if (mode === 'external') {
         this.setAnatomyOpacity(1.0, 1.0);
+        this.subcorticalGroup.visible = false;
+        this.markersGroup.visible = false;
         this.vascularGroup.visible = false;
+        if (this.tractography && this.tractography.masterGroup) {
+          this.tractography.masterGroup.visible = false;
+        }
       } else if (mode === 'internal_xray') {
         this.setAnatomyOpacity(0.18, 0.28);
+        this.subcorticalGroup.visible = true;
+        this.markersGroup.visible = true;
         this.vascularGroup.visible = false;
+        if (this.tractography && this.tractography.masterGroup) {
+          this.tractography.masterGroup.visible = true;
+        }
       } else if (mode === 'vascular') {
         this.setAnatomyOpacity(0.22, 0.35);
+        this.subcorticalGroup.visible = true;
+        this.markersGroup.visible = false;
         this.vascularGroup.visible = true;
+        if (this.tractography && this.tractography.masterGroup) {
+          this.tractography.masterGroup.visible = false;
+        }
       }
     }
 

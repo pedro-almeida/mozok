@@ -78,9 +78,19 @@ fn handle_client(mut stream: TcpStream, web_root: Arc<PathBuf>) {
     }
 
     if raw_path == "/api/status" {
-        let json = r#"{"status":"ok","engine":"MOZOK v1.0 Beta Native GPU","rust_crates":["mozok-core","mozok-atlas","mozok-navigation","mozok-physiology","mozok-pathology"]}"#;
+        let json = concat!(
+            r#"{"status":"ok","engine":"MOZOK v1.0 Beta Native GPU","#,
+            r#""rust_crates":["mozok-core","mozok-atlas","mozok-navigation","#,
+            r#""mozok-physiology","mozok-pathology"]}"#
+        );
         let response = format!(
-            "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n{}",
+            concat!(
+                "HTTP/1.1 200 OK\r\n",
+                "Content-Type: application/json\r\n",
+                "Content-Length: {}\r\n",
+                "Cache-Control: no-store\r\n",
+                "Connection: close\r\n\r\n{}"
+            ),
             json.len(),
             json
         );
@@ -124,7 +134,14 @@ fn handle_client(mut stream: TcpStream, web_root: Arc<PathBuf>) {
             let mut contents = Vec::new();
             if file.read_to_end(&mut contents).is_ok() {
                 let header = format!(
-                    "HTTP/1.1 200 OK\r\nContent-Type: {}\r\nContent-Length: {}\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n",
+                    concat!(
+                        "HTTP/1.1 200 OK\r\n",
+                        "Content-Type: {}\r\n",
+                        "Content-Length: {}\r\n",
+                        "Access-Control-Allow-Origin: *\r\n",
+                        "Cache-Control: no-store\r\n",
+                        "Connection: close\r\n\r\n"
+                    ),
                     mime,
                     contents.len()
                 );
@@ -137,7 +154,12 @@ fn handle_client(mut stream: TcpStream, web_root: Arc<PathBuf>) {
 
     let not_found = "404 Not Found";
     let resp = format!(
-        "HTTP/1.1 404 NOT FOUND\r\nContent-Length: {}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n{}",
+        concat!(
+            "HTTP/1.1 404 NOT FOUND\r\n",
+            "Content-Length: {}\r\n",
+            "Cache-Control: no-store\r\n",
+            "Connection: close\r\n\r\n{}"
+        ),
         not_found.len(),
         not_found
     );
@@ -209,15 +231,19 @@ fn run_native_windows_gui(app_url: String, web_root: PathBuf) {
     enforce_nvidia_high_performance_registry();
 
     // Configura flags de GPU de alta performance para o motor gráfico nativo
-    std::env::set_var(
-        "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS",
-        "--ignore-gpu-blocklist --enable-gpu-rasterization --enable-zero-copy --enable-webgl2-compute-context --use-angle=d3d11 --autoplay-policy=no-user-gesture-required",
+    let gpu_args = concat!(
+        "--ignore-gpu-blocklist --enable-gpu-rasterization ",
+        "--enable-zero-copy --enable-webgl2-compute-context ",
+        "--use-angle=d3d11 --autoplay-policy=no-user-gesture-required"
     );
+    std::env::set_var("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", gpu_args);
 
     let event_loop = EventLoop::new();
 
+    let win_title =
+        "MOZOK v1.0 Beta — Atlas e Simulador Neuroanatômico 3D Multiescala (GPU Nativo)";
     let mut win_builder = WindowBuilder::new()
-        .with_title("MOZOK v1.0 Beta — Atlas e Simulador Neuroanatômico 3D Multiescala (GPU Nativo)")
+        .with_title(win_title)
         .with_inner_size(LogicalSize::new(1440.0, 900.0))
         .with_maximized(true);
 
@@ -295,21 +321,18 @@ fn main() {
     ));
 
     // Vincula sempre uma porta efêmera limpa (127.0.0.1:0) para evitar conflito com processos órfãos e cache de Service Worker na porta 8090
-    let listener = match TcpListener::bind("127.0.0.1:0").or_else(|_| TcpListener::bind("127.0.0.1:8090")) {
-        Ok(l) => l,
-        Err(_) => return,
-    };
+    let listener =
+        match TcpListener::bind("127.0.0.1:0").or_else(|_| TcpListener::bind("127.0.0.1:8090")) {
+            Ok(l) => l,
+            Err(_) => return,
+        };
 
     let local_addr = listener.local_addr().unwrap();
     let ts = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs())
         .unwrap_or(400);
-    let app_url = format!(
-        "http://127.0.0.1:{}/index.html?v={}",
-        local_addr.port(),
-        ts
-    );
+    let app_url = format!("http://127.0.0.1:{}/index.html?v={}", local_addr.port(), ts);
 
     if !no_launch {
         #[cfg(target_os = "windows")]

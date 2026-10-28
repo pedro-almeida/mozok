@@ -215,8 +215,28 @@
         }
       }
 
-      if (this.neuralMicrocosmos && typeof this.neuralMicrocosmos.setPathologyState === 'function') {
-        this.neuralMicrocosmos.setPathologyState(diseaseKey, severity);
+      const microMap = {
+        HEALTHY: 'NORMAL',
+        ISCHEMIC_STROKE: 'STROKE',
+        PRION_DCJ: 'CJD',
+        ALZHEIMER: 'ALZHEIMER',
+        PARKINSON: 'PARKINSON',
+        MULTIPLE_SCLEROSIS: 'MS',
+        ALS_ELA: 'ALS',
+        EPILEPSY: 'EPILEPSY'
+      };
+      const mappedKey = microMap[diseaseKey] || 'NORMAL';
+
+      if (this.neuralMicrocosmos) {
+        if (typeof this.neuralMicrocosmos.applyPathologyMode === 'function') {
+          this.neuralMicrocosmos.applyPathologyMode(mappedKey, severity);
+        } else if (typeof this.neuralMicrocosmos.setPathologyState === 'function') {
+          this.neuralMicrocosmos.setPathologyState(mappedKey, severity);
+        }
+      }
+
+      if (this.cnsAnatomy && this.cnsAnatomy.tractography && typeof this.cnsAnatomy.tractography.setPathologyImpact === 'function') {
+        this.cnsAnatomy.tractography.setPathologyImpact(mappedKey);
       }
     }
 
@@ -254,8 +274,15 @@
       if (this.cnsAnatomy && typeof this.cnsAnatomy.restoreHealthyTissue === 'function') {
         this.cnsAnatomy.restoreHealthyTissue();
       }
-      if (this.neuralMicrocosmos && typeof this.neuralMicrocosmos.setPathologyState === 'function') {
-        this.neuralMicrocosmos.setPathologyState('HEALTHY', 0.0);
+      if (this.neuralMicrocosmos) {
+        if (typeof this.neuralMicrocosmos.applyPathologyMode === 'function') {
+          this.neuralMicrocosmos.applyPathologyMode('NORMAL', 0.0);
+        } else if (typeof this.neuralMicrocosmos.setPathologyState === 'function') {
+          this.neuralMicrocosmos.setPathologyState('NORMAL', 0.0);
+        }
+      }
+      if (this.cnsAnatomy && this.cnsAnatomy.tractography && typeof this.cnsAnatomy.tractography.setPathologyImpact === 'function') {
+        this.cnsAnatomy.tractography.setPathologyImpact('NORMAL');
       }
     }
 
