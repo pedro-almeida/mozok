@@ -5,20 +5,10 @@ use std::fs;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::path::{Path, PathBuf};
-use std::process::Command;
 use std::thread;
-
-use tao::{
-    dpi::LogicalSize,
-    event::{Event, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
-    window::{Fullscreen, WindowBuilder},
-};
-use wry::WebViewBuilder;
 
 const PORT: u16 = 8192;
 
-// Força a execução em placa de vídeo dedicada (NVIDIA Optimus / AMD PowerXpress) em nível de binário PE no Windows
 #[cfg(target_os = "windows")]
 #[no_mangle]
 pub static NvOptimusEnablement: u32 = 0x00000001;
@@ -31,15 +21,17 @@ fn force_windows_high_performance_gpu() {
     #[cfg(target_os = "windows")]
     {
         use std::os::windows::process::CommandExt;
-        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        use std::process::Command;
 
-        // 1. Registra mozok-native.exe em DirectX UserGpuPreferences (GpuPreference=2 = High Performance Dedicated GPU)
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        let reg_key = r"HKCU\Software\Microsoft\DirectX\UserGpuPreferences";
+
         if let Ok(exe_path) = env::current_exe() {
             if let Some(exe_str) = exe_path.to_str() {
                 let _ = Command::new("reg")
                     .args([
                         "add",
-                        r"HKCU\Software\Microsoft\DirectX\UserGpuPreferences",
+                        reg_key,
                         "/v",
                         exe_str,
                         "/t",
@@ -53,10 +45,10 @@ fn force_windows_high_performance_gpu() {
             }
         }
 
-        // 2. Localiza e registra msedgewebview2.exe (processo real que renderiza o WebGL2/D3D11) para SEMPRE usar GPU Dedicada
-        let program_files_x86 = env::var("ProgramFiles(x86)").unwrap_or_else(|_| r"C:\Program Files (x86)".to_string());
-        let webview_base = Path::new(&program_files_x86).join(r"Microsoft\EdgeWebView\Application");
-        if let Ok(entries) = fs::read_dir(&webview_base) {
+        let pf_x86 =
+            env::var("ProgramFiles(x86)").unwrap_or_else(|_| r"C:\Program Files (x86)".to_string());
+        let webview_base = Path::new(&pf_x86).join(r"Microsoft\EdgeWebView\Application");
+        if let Ok(entries) = fs::read_dir(webview_base) {
             for entry in entries.flatten() {
                 let candidate = entry.path().join("msedgewebview2.exe");
                 if candidate.exists() {
@@ -64,7 +56,7 @@ fn force_windows_high_performance_gpu() {
                         let _ = Command::new("reg")
                             .args([
                                 "add",
-                                r"HKCU\Software\Microsoft\DirectX\UserGpuPreferences",
+                                reg_key,
                                 "/v",
                                 cand_str,
                                 "/t",
@@ -81,7 +73,6 @@ fn force_windows_high_performance_gpu() {
         }
     }
 
-    // 3. Flags agressivas do Chromium / WebView2 para forçar GPU dedicada, Direct3D11, MSAA 8x e WebGL2 sem limite de FPS
     let gpu_flags = [
         "--force-high-performance-gpu",
         "--enable-gpu-rasterization",
@@ -90,7 +81,10 @@ fn force_windows_high_performance_gpu() {
         "--enable-webgl2-compute-context",
         "--enable-accelerated-2d-canvas",
         "--use-angle=d3d11",
-        "--enable-features=VaapiVideoDecoder,CanvasOopRasterization,WebGLDeveloperExtensions,UseSkiaRenderer",
+        concat!(
+            "--enable-features=VaapiVideoDecoder,",
+            "CanvasOopRasterization,WebGLDeveloperExtensions,UseSkiaRenderer"
+        ),
         "--disable-frame-rate-limit",
         "--disable-gpu-vsync",
         "--disable-renderer-backgrounding",
@@ -156,7 +150,11 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf) {
     let raw_url = first_line.split_whitespace().nth(1).unwrap_or("/");
     let path_only = raw_url.split('?').next().unwrap_or("/");
     let clean_rel = path_only.trim_start_matches('/').replace("..", "");
-    let rel_path = if clean_rel.is_empty() { "index.html" } else { &clean_rel };
+    let rel_path = if clean_rel.is_empty() {
+        "index.html"
+    } else {
+        &clean_rel
+    };
     let file_path = web_root.join(rel_path);
 
     if file_path.exists() && file_path.is_file() {
@@ -165,7 +163,14 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf) {
             if file.read_to_end(&mut buf).is_ok() {
                 let mime = get_mime_type(&file_path);
                 let header = format!(
-                    "HTTP/1.1 200 OK\r\nContent-Type: {}\r\nContent-Length: {}\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache\r\nConnection: close\r\n\r\n",
+                    concat!(
+                        "HTTP/1.1 200 OK\r\n",
+                        "Content-Type: {}\r\n",
+                        "Content-Length: {}\r\n",
+                        "Access-Control-Allow-Origin: *\r\n",
+                        "Cache-Control: no-cache\r\n",
+                        "Connection: close\r\n\r\n"
+                    ),
                     mime,
                     buf.len()
                 );
@@ -178,7 +183,12 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf) {
 
     let body = b"404 Not Found";
     let header = format!(
-        "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+        concat!(
+            "HTTP/1.1 404 Not Found\r\n",
+            "Content-Type: text/plain\r\n",
+            "Content-Length: {}\r\n",
+            "Connection: close\r\n\r\n"
+        ),
         body.len()
     );
     let _ = stream.write_all(header.as_bytes());
@@ -205,16 +215,21 @@ fn start_embedded_server(web_root: PathBuf, port: u16) -> u16 {
     actual_port
 }
 
-fn main() {
-    force_windows_high_performance_gpu();
+#[cfg(target_os = "windows")]
+fn launch_native_window(app_url: &str) {
+    use tao::{
+        dpi::LogicalSize,
+        event::{Event, WindowEvent},
+        event_loop::{ControlFlow, EventLoop},
+        window::{Fullscreen, WindowBuilder},
+    };
+    use wry::WebViewBuilder;
 
-    let web_root = find_web_root();
-    let actual_port = start_embedded_server(web_root, PORT);
-    let app_url = format!("http://127.0.0.1:{}/index.html", actual_port);
-
+    let win_title =
+        "MOZOK v7.0 — Simulacro Neurofisiológico 3D (SNC, SNP & Conectoma | GPU High-Perf)";
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
-        .with_title("MOZOK v5.0 — Simulacro Neurofisiológico e Clínico 3D (SNC & SNP Completo | GPU High-Perf)")
+        .with_title(win_title)
         .with_inner_size(LogicalSize::new(1600.0, 940.0))
         .with_min_inner_size(LogicalSize::new(1120.0, 700.0))
         .with_maximized(true)
@@ -224,7 +239,7 @@ fn main() {
     let window_proxy = event_loop.create_proxy();
 
     let _webview = WebViewBuilder::new()
-        .with_url(&app_url)
+        .with_url(app_url)
         .with_devtools(true)
         .with_ipc_handler(move |req| {
             let cmd = req.body();
@@ -255,4 +270,19 @@ fn main() {
             _ => {}
         }
     });
+}
+
+#[cfg(not(target_os = "windows"))]
+fn launch_native_window(app_url: &str) {
+    println!("MOZOK HTTP server running at {}", app_url);
+}
+
+fn main() {
+    force_windows_high_performance_gpu();
+
+    let web_root = find_web_root();
+    let actual_port = start_embedded_server(web_root, PORT);
+    let app_url = format!("http://127.0.0.1:{}/index.html", actual_port);
+
+    launch_native_window(&app_url);
 }

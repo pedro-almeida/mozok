@@ -781,6 +781,196 @@
             color: #38bdf8;
             font-family: 'JetBrains Mono', monospace;
         }
+
+        .action-grid-2x2 .hud-btn {
+            justify-content: center;
+            min-height: 34px;
+            padding: 6px 8px;
+            font-size: 11.5px;
+            text-align: center;
+        }
+        .hud-btn.emerald-flash {
+            background: rgba(16, 185, 129, 0.28) !important;
+            border-color: #10b981 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+        }
+        .neuron-density-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+            padding: 5px 7px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            border-radius: 7px;
+            margin-bottom: 4px;
+        }
+        .neuron-density-btn {
+            flex: 1;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            color: #cbd5e1;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .neuron-density-btn.active, .neuron-density-btn:hover {
+            background: rgba(0, 242, 254, 0.22);
+            border-color: #00f2fe;
+            color: #ffffff;
+        }
+        .mobile-drawer-close-bar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid rgba(0, 242, 254, 0.25);
+            font-size: 11px;
+            font-weight: 800;
+            color: #00f2fe;
+        }
+        .mobile-drawer-close-btn {
+            background: rgba(244, 63, 94, 0.2);
+            border: 1px solid rgba(244, 63, 94, 0.5);
+            color: #fda4af;
+            border-radius: 6px;
+            padding: 3px 9px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        #mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            height: 50px;
+            background: rgba(8, 15, 30, 0.94);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(0, 242, 254, 0.35);
+            border-radius: 13px;
+            z-index: 35;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 6px;
+            gap: 5px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75);
+        }
+        .mobile-nav-btn {
+            flex: 1;
+            height: 36px;
+            background: rgba(15, 28, 55, 0.85);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: 9px;
+            color: #f8fafc;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .mobile-nav-btn.active {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.28), rgba(56, 189, 248, 0.2));
+            border-color: #00f2fe;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
+        }
+
+        /* ═══ RESPONSIVIDADE COMPLETA PARA CELULARES E TABLETS ═══ */
+        @media (max-width: 1024px) {
+            .topbar {
+                top: 6px;
+                left: 8px;
+                right: 8px;
+                height: auto;
+                min-height: 48px;
+                padding: 6px 10px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            .brand-block {
+                justify-content: space-between;
+            }
+            .brand-title {
+                font-size: 12.5px;
+            }
+            .brand-subtitle {
+                font-size: 9.5px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 72vw;
+            }
+            .topbar-controls {
+                overflow-x: auto;
+                padding-bottom: 2px;
+                scrollbar-width: none;
+            }
+            .topbar-controls::-webkit-scrollbar {
+                display: none;
+            }
+            .hud-btn {
+                padding: 5px 9px;
+                font-size: 11px;
+            }
+            .left-sidebar, .right-sidebar {
+                top: auto !important;
+                left: 8px !important;
+                right: 8px !important;
+                bottom: 64px !important;
+                width: auto !important;
+                height: 60vh !important;
+                max-height: 60vh !important;
+                z-index: 32;
+                transform: translateY(120%);
+                opacity: 0;
+                pointer-events: none;
+                transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease;
+            }
+            .left-sidebar.mobile-open, .right-sidebar.mobile-open {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: auto;
+            }
+            .mobile-drawer-close-bar {
+                display: flex;
+            }
+            #mobile-bottom-nav {
+                display: flex;
+            }
+            #nav-pan-hud {
+                bottom: 64px;
+                width: calc(100vw - 16px);
+                max-width: 460px;
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 6px 10px;
+                gap: 6px;
+                display: none;
+            }
+            #nav-pan-hud.mobile-visible {
+                display: flex;
+            }
+            .nav-hint-badge {
+                display: none;
+            }
+            .popup-callout-3d {
+                width: calc(100vw - 20px);
+                max-width: 340px;
+                padding: 10px 12px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -815,7 +1005,7 @@
         <div class="brand-block">
             <div class="brand-logo">🧠</div>
             <div>
-                <div class="brand-title">MOZOK v6.0 — ATLAS NEUROFISIOLÓGICO 3D</div>
+                <div class="brand-title">MOZOK v7.0 — ATLAS NEUROFISIOLÓGICO 3D</div>
                 <div class="brand-subtitle" id="gpu-status-subtitle">SNC, SNP & Meninges • Córtex MNI152 Real • 7 Doenças</div>
             </div>
         </div>
@@ -855,7 +1045,8 @@
     </div>
 
     <!-- SIDEBAR ESQUERDA: ATLAS ONTOLÓGICO DE 32 PEÇAS + SUB-PEÇAS DO NEURÔNIO -->
-    <aside class="left-sidebar">
+    <aside class="left-sidebar" id="left-sidebar-drawer">
+        <div class="mobile-drawer-close-bar"><span>📚 ATLAS ANATÔMICO SNC & SNP</span><button class="mobile-drawer-close-btn" id="btn-close-left-drawer">✕ Fechar</button></div>
         <div class="sidebar-header">
             <div class="sidebar-title-row">
                 <span class="sidebar-title">Atlas Anatômico SNC & SNP</span>
@@ -873,10 +1064,19 @@
             </div>
         </div>
 
-        <!-- Barra de Sub-Peças do Neurônio (Visível no modo Microcosmos Neuronal) -->
+        <!-- Barra de Sub-Peças do Neurônio + Seletor Adaptativo de 50 a 180 Neurônios Conectados -->
         <div class="neuron-parts-bar" id="neuron-parts-bar">
-            <div style="font-size: 10.5px; font-weight: 800; color: #f0abfc; text-transform: uppercase; letter-spacing: 0.8px;">
-                🔬 Inspecionar Peças do Neurônio (Pop-up 3D):
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+                <span style="font-size: 10px; font-weight: 800; color: #f0abfc; text-transform: uppercase; letter-spacing: 0.6px;">
+                    🔬 Rede Conectada (<span id="neuron-count-label">90</span> Neurônios):
+                </span>
+                <span id="gpu-tier-pill" style="font-size:9px; color:#00f2fe; font-weight:700;">GPU Auto</span>
+            </div>
+            <div class="neuron-density-row" id="neuron-density-row">
+                <button class="neuron-density-btn" data-count="54" title="Mínimo garantido (54 Neurônios Conectados)">54 (Mín)</button>
+                <button class="neuron-density-btn active" data-count="90" title="Densidade Padrão (90 Neurônios Conectados)">90 (Méd)</button>
+                <button class="neuron-density-btn" data-count="135" title="Alta Densidade GPU Dedicada (135 Neurônios Conectados)">135 (Ultra)</button>
+                <button class="neuron-density-btn" data-count="180" title="Densidade Máxima (180 Neurônios Conectados)">180 (Máx)</button>
             </div>
             <div class="neuron-parts-grid" id="neuron-parts-grid">
                 <button class="neuron-part-btn active" data-part="NEURON_SOMA">🟣 Corpo Celular (Soma)</button>
@@ -895,7 +1095,8 @@
     </aside>
 
     <!-- SIDEBAR DIREITA: FICHA NEUROANATÔMICA, SIMULADOR DE AVC E OSCILOSCÓPIO SINÁPTICO -->
-    <aside class="right-sidebar">
+    <aside class="right-sidebar" id="right-sidebar-drawer">
+        <div class="mobile-drawer-close-bar"><span>🧬 FICHA CLÍNICA & SIMULADOR DE DOENÇAS</span><button class="mobile-drawer-close-btn" id="btn-close-right-drawer">✕ Fechar</button></div>
         <div>
             <span class="clinical-header-badge" id="card-category-badge">TELENCÉFALO • CÓRTEX CEREBRAL</span>
             <h2 class="clinical-title" id="card-title">Lobo Frontal</h2>
@@ -993,6 +1194,15 @@
             <div class="section-card-body" id="card-clinical"></div>
         </div>
     </aside>
+
+
+    <!-- BARRA INFERIOR RESPONSIVA PARA CELULARES E TABLETS -->
+    <nav id="mobile-bottom-nav" aria-label="Navegação Mobile">
+        <button class="mobile-nav-btn" id="mob-btn-atlas">📚 Atlas (37)</button>
+        <button class="mobile-nav-btn" id="mob-btn-clinical">🧬 Doenças & EEG</button>
+        <button class="mobile-nav-btn" id="mob-btn-neurons">🔬 Neurônios</button>
+        <button class="mobile-nav-btn" id="mob-btn-pan">🧭 Mover 3D</button>
+    </nav>
 
     <!-- SCRIPTS THREE.JS E MÓDULOS DO MOZOK -->
     <script src="js/vendor/three.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'"></script>
@@ -1626,7 +1836,7 @@
 
             // Instancia Anatomia SNC/SNP + Microcosmos Neuronal
             const cnsAnatomy = new window.CNSAnatomy3D(scene, camera, renderer);
-            const neuralMicro = new window.NeuralMicrocosmos3D(scene);
+            const neuralMicro = new window.NeuralMicrocosmos3D(scene, renderer);
 
             window.cnsAnatomy = cnsAnatomy;
             window.neuralMicro = neuralMicro;
@@ -1780,6 +1990,7 @@
                 }
 
                 cnsAnatomy.selectStructure(structureId);
+                document.getElementById('btn-meninges').classList.toggle('active', !!cnsAnatomy.meningesVisible);
                 updateHUDAndPopup(meta);
 
                 document.querySelectorAll('.structure-item').forEach(el => {
@@ -1924,17 +2135,23 @@
                 pinDotEl.style.left = `${screenX}px`;
                 pinDotEl.style.top = `${screenY}px`;
 
-                // Posiciona a caixa pop-up na área central livre entre as duas sidebars
-                const minX = 368;
-                const maxX = Math.max(minX + 20, window.innerWidth - 392 - 340);
-                let boxX = screenX + 46;
-                if (boxX > maxX) {
-                    boxX = screenX - 330 - 46;
+                // Posiciona a caixa pop-up responsivamente (Desktop entre sidebars; Mobile no topo central seguro)
+                const isMobileLayout = window.innerWidth <= 1024;
+                const popupWidth = popupEl.offsetWidth || 320;
+                let boxX, boxY;
+                if (isMobileLayout) {
+                    boxX = Math.max(10, Math.min(window.innerWidth - popupWidth - 10, (window.innerWidth - popupWidth) * 0.5));
+                    boxY = 96;
+                } else {
+                    const minX = 368;
+                    const maxX = Math.max(minX + 20, window.innerWidth - 392 - 340);
+                    boxX = screenX + 46;
+                    if (boxX > maxX) {
+                        boxX = screenX - 330 - 46;
+                    }
+                    boxX = Math.max(minX, Math.min(maxX, boxX));
+                    boxY = Math.max(86, Math.min(window.innerHeight - 255, screenY - 95));
                 }
-                boxX = Math.max(minX, Math.min(maxX, boxX));
-
-                let boxY = screenY - 95;
-                boxY = Math.max(86, Math.min(window.innerHeight - 255, boxY));
 
                 popupEl.style.left = `${boxX}px`;
                 popupEl.style.top = `${boxY}px`;
@@ -2007,7 +2224,16 @@
             // =====================================================================
             // EVENT LISTENERS DE TODOS OS BOTÕES DA INTERFACE
             // =====================================================================
+            function resetIsolateButtonsUI() {
+                document.getElementById('btn-isolate-piece').classList.remove('active');
+                document.getElementById('btn-isolate-piece').textContent = '🧩 Isolar Peça 3D';
+                if (!isMicroMode) {
+                    btnPopupIsolate.textContent = '🧩 Isolar Peça 3D';
+                }
+            }
+
             function setActiveTopViewBtn(activeBtnId) {
+                resetIsolateButtonsUI();
                 ['btn-view-external', 'btn-view-xray', 'btn-view-vascular', 'btn-view-micro'].forEach(id => {
                     document.getElementById(id).classList.toggle('active', id === activeBtnId);
                 });
@@ -2348,9 +2574,15 @@
                 const profile = PATHOLOGY_PROFILES[diseaseKey] || PATHOLOGY_PROFILES['HEALTHY'];
                 const sev = diseaseKey === 'HEALTHY' ? 0.0 : severityVal;
 
-                isStrokeActive = (diseaseKey === 'ISCHEMIC_STROKE');
+                isStrokeActive = (diseaseKey === 'ISCHEMIC_STROKE' && sev > 0.01);
                 hypoxiaProgress = isStrokeActive ? sev : 0.0;
                 document.getElementById('btn-trigger-stroke-card').classList.toggle('active', isStrokeActive);
+
+                const restoreBtn = document.getElementById('btn-restore-tissue-card');
+                if (diseaseKey === 'HEALTHY') {
+                    restoreBtn.classList.add('emerald-flash');
+                    setTimeout(() => restoreBtn.classList.remove('emerald-flash'), 650);
+                }
 
                 cnsAnatomy.setPathologySimulation(diseaseKey, sev);
                 neuralMicro.setPathologySimulation(diseaseKey, sev);
@@ -2364,6 +2596,16 @@
                 document.getElementById('bm-abeta-tau').textContent = profile.abetaTau;
                 document.getElementById('bm-nfl-prion').textContent = profile.nflPrion;
                 document.getElementById('bm-ocb').textContent = profile.ocb;
+
+                // Se estiver no modo Macro SNC/SNP e a doença tiver uma estrutura-alvo primária, destaca os dados clínicos sem perder o foco
+                if (!isMicroMode && profile.targetStructure && ontologyMap.has(profile.targetStructure)) {
+                    selectedStructureId = profile.targetStructure;
+                    cnsAnatomy.selectStructure(selectedStructureId);
+                    updateHUDAndPopup(ontologyMap.get(selectedStructureId));
+                    document.querySelectorAll('.structure-item').forEach(el => {
+                        el.classList.toggle('active', el.dataset.id === selectedStructureId);
+                    });
+                }
             }
 
             pathologySelect.addEventListener('change', () => {
@@ -2389,8 +2631,88 @@
                 applyPathologySelection('HEALTHY', 0.0);
             });
 
+            // Controle de Densidade de Neurônios Conectados (54 a 180 Neurônios) + Status GPU
+            const neuronCountLabel = document.getElementById('neuron-count-label');
+            const gpuTierPill = document.getElementById('gpu-tier-pill');
+            if (neuralMicro.gpuTierInfo) {
+                if (neuronCountLabel) neuronCountLabel.textContent = String(neuralMicro.targetNeuronCount);
+                if (gpuTierPill) gpuTierPill.textContent = neuralMicro.gpuTierInfo.tier;
+                document.querySelectorAll('.neuron-density-btn').forEach(btn => {
+                    btn.classList.toggle('active', Number(btn.dataset.count) === neuralMicro.targetNeuronCount);
+                });
+            }
+            document.querySelectorAll('.neuron-density-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const newCount = neuralMicro.setNeuronCount(Number(btn.dataset.count));
+                    if (neuronCountLabel) neuronCountLabel.textContent = String(newCount);
+                    document.querySelectorAll('.neuron-density-btn').forEach(b => {
+                        b.classList.toggle('active', Number(b.dataset.count) === newCount);
+                    });
+                });
+            });
+
+            // Gavetas Responsivas Mobile / Tablet
+            const leftDrawer = document.getElementById('left-sidebar-drawer');
+            const rightDrawer = document.getElementById('right-sidebar-drawer');
+            const navPanHud = document.getElementById('nav-pan-hud');
+            const mobBtnAtlas = document.getElementById('mob-btn-atlas');
+            const mobBtnClinical = document.getElementById('mob-btn-clinical');
+            const mobBtnNeurons = document.getElementById('mob-btn-neurons');
+            const mobBtnPan = document.getElementById('mob-btn-pan');
+
+            function closeMobileDrawers() {
+                if (leftDrawer) leftDrawer.classList.remove('mobile-open');
+                if (rightDrawer) rightDrawer.classList.remove('mobile-open');
+                if (mobBtnAtlas) mobBtnAtlas.classList.remove('active');
+                if (mobBtnClinical) mobBtnClinical.classList.remove('active');
+            }
+
+            if (mobBtnAtlas) {
+                mobBtnAtlas.addEventListener('click', () => {
+                    const willOpen = !leftDrawer.classList.contains('mobile-open');
+                    closeMobileDrawers();
+                    if (willOpen) {
+                        leftDrawer.classList.add('mobile-open');
+                        mobBtnAtlas.classList.add('active');
+                    }
+                });
+            }
+            if (mobBtnClinical) {
+                mobBtnClinical.addEventListener('click', () => {
+                    const willOpen = !rightDrawer.classList.contains('mobile-open');
+                    closeMobileDrawers();
+                    if (willOpen) {
+                        rightDrawer.classList.add('mobile-open');
+                        mobBtnClinical.classList.add('active');
+                    }
+                });
+            }
+            if (mobBtnNeurons) {
+                mobBtnNeurons.addEventListener('click', () => {
+                    closeMobileDrawers();
+                    setMicrocosmosMode(!isMicroMode);
+                    mobBtnNeurons.classList.toggle('active', isMicroMode);
+                });
+            }
+            if (mobBtnPan) {
+                mobBtnPan.addEventListener('click', () => {
+                    closeMobileDrawers();
+                    const vis = navPanHud.classList.toggle('mobile-visible');
+                    mobBtnPan.classList.toggle('active', vis);
+                });
+            }
+            const btnCloseLeft = document.getElementById('btn-close-left-drawer');
+            if (btnCloseLeft) btnCloseLeft.addEventListener('click', closeMobileDrawers);
+            const btnCloseRight = document.getElementById('btn-close-right-drawer');
+            if (btnCloseRight) btnCloseRight.addEventListener('click', closeMobileDrawers);
+
+            // Fecha gaveta mobile automaticamente ao escolher uma estrutura na lista em telas pequenas
+            document.getElementById('structure-list').addEventListener('click', () => {
+                if (window.innerWidth <= 1024) closeMobileDrawers();
+            });
+
             // =====================================================================
-            // OSCILOSCÓPIO ELETROFISIOLÓGICO EM TEMPO REAL (2D CANVAS)
+            // OSCILOSCÓPIO ELETROFISIOLÓGICO EM TEMPO REAL (2D CANVAS — TODAS AS 7 DOENÇAS)
             // =====================================================================
             const oscCanvas = document.getElementById('oscilloscope-canvas');
             const oscCtx = oscCanvas.getContext('2d');
@@ -2398,21 +2720,18 @@
 
             function updateOscilloscopeAndTelemetry(dt) {
                 neuralMicro.update(dt, clock.getElapsedTime());
-                const mv = isStrokeActive
-                    ? (-25.0 + Math.sin(clock.getElapsedTime() * 6.0) * 4.0)
-                    : neuralMicro.membranePotentialMv;
+                const mv = neuralMicro.membranePotentialMv;
 
                 voltageHistory.push(mv);
                 if (voltageHistory.length > 110) voltageHistory.shift();
 
-                document.getElementById('spike-mv-readout').textContent = `${mv.toFixed(1)} mV`;
-                const hz = isStrokeActive ? Math.max(2.0, 18.0 * (1.0 - hypoxiaProgress)) : neuralMicro.firingRateHz;
-                const cbf = isStrokeActive ? Math.round(54 * (1.0 - hypoxiaProgress * 0.78)) : 54;
-                const cond = isStrokeActive ? Math.round(110 * (1.0 - hypoxiaProgress * 0.65)) : 110;
+                const activeDisease = pathologySelect.value || 'HEALTHY';
+                const prof = PATHOLOGY_PROFILES[activeDisease] || PATHOLOGY_PROFILES['HEALTHY'];
 
-                document.getElementById('tel-firing-rate').textContent = `${hz.toFixed(1)} Hz`;
-                document.getElementById('tel-cbf').textContent = `${cbf} mL/100g`;
-                document.getElementById('tel-conduction').textContent = `${cond} m/s`;
+                document.getElementById('spike-mv-readout').textContent = `${mv.toFixed(1)} mV`;
+                document.getElementById('tel-firing-rate').textContent = `${neuralMicro.firingRateHz.toFixed(1)} Hz`;
+                document.getElementById('tel-cbf').textContent = `${neuralMicro.cbfPerfusion} mL/100g`;
+                document.getElementById('tel-conduction').textContent = `${neuralMicro.conductionVelocityMs} m/s`;
 
                 const w = oscCanvas.width;
                 const h = oscCanvas.height;
@@ -2434,13 +2753,13 @@
                     oscCtx.stroke();
                 }
 
-                // Traçado do Potencial de Ação
+                // Traçado colorido conforme a condição fisiológica/patológica ativa
                 oscCtx.beginPath();
-                oscCtx.strokeStyle = isStrokeActive ? '#f43f5e' : '#00f2fe';
-                oscCtx.lineWidth = 2.0;
+                oscCtx.strokeStyle = activeDisease === 'HEALTHY' ? '#00f2fe' : prof.color;
+                oscCtx.lineWidth = 2.1;
                 for (let i = 0; i < voltageHistory.length; i++) {
                     const x = (i / (voltageHistory.length - 1)) * w;
-                    const normY = (voltageHistory[i] - (-90.0)) / (50.0 - (-90.0));
+                    const normY = (voltageHistory[i] - (-90.0)) / (55.0 - (-90.0));
                     const y = h - Math.max(0.05, Math.min(0.95, normY)) * h;
                     if (i === 0) oscCtx.moveTo(x, y);
                     else oscCtx.lineTo(x, y);

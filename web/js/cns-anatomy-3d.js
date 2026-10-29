@@ -245,12 +245,13 @@ class CNSAnatomy3D {
             geometry.setAttribute('aGyrus', new THREE.BufferAttribute(gyrusAttr, 1));
         }
 
-        // Shader GLSL de Alta Definição Cirúrgica para o Córtex MNI152 (com dFdx/dFdy para esculpir sulcos, giros, limites lobares e patologias)
+        // Shader GLSL de Alta Definição Cirúrgica para o Córtex MNI152 (81.924 vértices reais, depthWrite dinâmico, zero buracos pretos, microvasculatura pial e 7 patologias)
         this.cortexMaterial = new THREE.ShaderMaterial({
             uniforms: this.uniforms,
             extensions: { derivatives: true },
             transparent: true,
-            side: THREE.DoubleSide,
+            depthWrite: true,
+            side: THREE.FrontSide,
             vertexShader: `
                 attribute float aLobeId;
                 attribute float aGyrus;
@@ -269,15 +270,10 @@ class CNSAnatomy3D {
                     vGyrus = aGyrus;
                     vec3 pos = position;
 
-                    // Realça o relevo anatômico tridimensional dos giros (aGyrus > 0.5) e a profundidade dos sulcos (aGyrus < 0.45)
-                    float sulcalRelief = (aGyrus - 0.46) * 0.14;
-                    pos += normal * sulcalRelief;
-
-                    // Atrofia cortical e alargamento de sulcos na Doença de Alzheimer (modo 2) ou DCJ Priônica (modo 5)
+                    // Atrofia cortical difusa na Doença de Alzheimer (modo 2) ou DCJ Priônica (modo 5) sem auto-interseção de giros
                     if ((abs(uDiseaseMode - 2.0) < 0.2 || abs(uDiseaseMode - 5.0) < 0.2) && uDiseaseSeverity > 0.01) {
-                        float shrink = 1.0 - (0.09 * uDiseaseSeverity);
+                        float shrink = 1.0 - (0.055 * uDiseaseSeverity);
                         pos *= shrink;
-                        pos -= normal * (1.0 - aGyrus) * 0.12 * uDiseaseSeverity;
                     }
 
                     vObjPos = pos;
@@ -309,6 +305,26 @@ class CNSAnatomy3D {
                 varying float vLobeId;
                 varying float vGyrus;
 
+                // Ruído orgânico tridimensional contínuo para micro-textura cortical e vasos piais
+                float hash31(vec3 p) {
+                    p = fract(p * 0.1031);
+                    p += dot(p, p.yzx + 33.33);
+                    return fract((p.x + p.y) * p.z);
+                }
+
+                float noise3D(vec3 p) {
+                    vec3 i = floor(p);
+                    vec3 f = fract(p);
+                    f = f * f * (3.0 - 2.0 * f);
+                    return mix(
+                        mix(mix(hash31(i + vec3(0,0,0)), hash31(i + vec3(1,0,0)), f.x),
+                            mix(hash31(i + vec3(0,1,0)), hash31(i + vec3(1,1,0)), f.x), f.y),
+                        mix(mix(hash31(i + vec3(0,0,1)), hash31(i + vec3(1,0,1)), f.x),
+                            mix(hash31(i + vec3(0,1,1)), hash31(i + vec3(1,1,1)), f.x), f.y),
+                        f.z
+                    );
+                }
+
                 void main() {
                     if (uClipSagittal > 0.5 && vObjPos.x < -0.05) {
                         discard;
@@ -317,67 +333,71 @@ class CNSAnatomy3D {
                     vec3 V = normalize(vViewPos);
                     vec3 L1 = normalize(vec3(18.0, 24.0, 22.0));
                     vec3 L2 = normalize(vec3(-20.0, 10.0, -16.0));
+                    vec3 L3 = normalize(vec3(0.0, -18.0, 12.0));
 
-                    // Curvatura anatômica real (aGyrus: percentil 25 = 0.35 [fundo do sulco], percentil 75 = 0.61 [crista do giro])
-                    float gyrusFactor = smoothstep(0.24, 0.66, vGyrus);
-                    float deepSulcusMask = 1.0 - smoothstep(0.20, 0.44, vGyrus);
+                    // Curvatura anatômica real (aGyrus da malha McGill MNI152) + micro-relevo secundário de Brodmann
+                    float gyrusFactor = smoothstep(0.22, 0.68, vGyrus);
+                    float deepSulcusMask = 1.0 - smoothstep(0.24, 0.46, vGyrus);
+                    float microSulci = (noise3D(vObjPos * 6.5) - 0.5) * 0.08 + (noise3D(vObjPos * 14.0) - 0.5) * 0.04;
+                    float combinedHeight = clamp(gyrusFactor + microSulci, 0.0, 1.0);
 
-                    // Perturbação de normal via derivadas parciais dFdx/dFdy de vGyrus para dar nitidez cirúrgica às bordas de cada giro!
+                    // Perturbação de normal via derivadas parciais dFdx/dFdy para esculpir cada giro e sulco com nitidez cirúrgica
                     vec3 dPdx = dFdx(vViewPos);
                     vec3 dPdy = dFdy(vViewPos);
-                    float dGdx = dFdx(gyrusFactor);
-                    float dGdy = dFdy(gyrusFactor);
+                    float dGdx = dFdx(combinedHeight);
+                    float dGdy = dFdy(combinedHeight);
                     vec3 surfGrad = normalize(cross(dPdx, vNormal) * dGdy + cross(vNormal, dPdy) * dGdx + vec3(1e-5));
-                    vec3 N = normalize(vNormal - surfGrad * 0.34);
+                    vec3 N = normalize(vNormal - surfGrad * 0.28);
 
-                    // Delimitação anatômica sutil de cada Lobo Cortical (permite distinguir claramente Frontal, Parietal, Temporal, Occipital e Ínsula)
+                    // Delimitação anatômica de cada Lobo Cortical (Frontal, Parietal, Temporal, Occipital e Ínsula)
                     vec3 lobeTint = vec3(1.00, 0.96, 0.95);
                     vec3 lobeHighlight = vec3(1.0, 0.85, 0.65);
                     if (abs(vLobeId - 1.0) < 0.2) {
-                        lobeTint = vec3(1.02, 0.96, 0.94); // Frontal: rosa-coral vivo sutil
+                        lobeTint = vec3(1.03, 0.95, 0.93); // Lobo Frontal
                         lobeHighlight = vec3(1.00, 0.52, 0.42);
                     } else if (abs(vLobeId - 2.0) < 0.2) {
-                        lobeTint = vec3(1.00, 0.98, 0.92); // Parietal: bege-dourado quente sutil
+                        lobeTint = vec3(1.00, 0.98, 0.91); // Lobo Parietal
                         lobeHighlight = vec3(0.98, 0.80, 0.32);
                     } else if (abs(vLobeId - 3.0) < 0.2) {
-                        lobeTint = vec3(0.96, 0.99, 0.96); // Temporal: nuance pérola-rosada
+                        lobeTint = vec3(0.95, 0.99, 0.95); // Lobo Temporal
                         lobeHighlight = vec3(0.28, 0.92, 0.68);
                     } else if (abs(vLobeId - 4.0) < 0.2) {
-                        lobeTint = vec3(0.95, 0.96, 1.02); // Occipital: nuance lilás-rosada
+                        lobeTint = vec3(0.94, 0.95, 1.03); // Lobo Occipital
                         lobeHighlight = vec3(0.42, 0.74, 1.00);
                     } else if (abs(vLobeId - 5.0) < 0.2) {
-                        lobeTint = vec3(1.02, 0.92, 0.98); // Ínsula: rosa-profundo
+                        lobeTint = vec3(1.02, 0.91, 0.98); // Córtex Insular
                         lobeHighlight = vec3(0.88, 0.48, 0.98);
                     }
 
-                    // Fronteira interlobar fina (Sulco Central de Rolando, Sulco Lateral de Sylvius e Sulco Parieto-Occipital)
-                    float lobeEdge = clamp((abs(dFdx(vLobeId)) + abs(dFdy(vLobeId))) * 2.5, 0.0, 1.0);
+                    // Demarcação anatômica suave dos grandes sulcos interlobares (Rolando, Sylvius, Parieto-Occipital)
+                    float lobeEdge = clamp((abs(dFdx(vLobeId)) + abs(dFdy(vLobeId))) * 1.8, 0.0, 1.0);
 
-                    // Coloração biológica real de córtex humano vivo:
-                    vec3 crownColor = vec3(0.94, 0.79, 0.75) * lobeTint;
-                    vec3 wallColor  = vec3(0.79, 0.52, 0.49) * lobeTint;
-                    vec3 sulcusDark = vec3(0.28, 0.11, 0.13); // Fundo escuro vascularizado dos sulcos
+                    // Coloração biológica real de córtex humano in vivo (sem buracos pretos no fundo dos sulcos!)
+                    vec3 crownColor = vec3(0.95, 0.80, 0.76) * lobeTint;
+                    vec3 wallColor  = vec3(0.83, 0.58, 0.55) * lobeTint;
+                    vec3 sulcusRich = vec3(0.48, 0.23, 0.25); // Sulco vascularizado rico, nunca preto oco
 
-                    vec3 baseTissue = mix(sulcusDark, wallColor, smoothstep(0.0, 0.48, gyrusFactor));
+                    vec3 baseTissue = mix(sulcusRich, wallColor, smoothstep(0.0, 0.48, gyrusFactor));
                     baseTissue = mix(baseTissue, crownColor, smoothstep(0.42, 1.0, gyrusFactor));
 
-                    // Arteríolas e vênulas piais correndo estritamente no fundo e nas paredes dos sulcos (onde a pia-máter mergulha)
-                    baseTissue = mix(baseTissue, vec3(0.62, 0.12, 0.16), deepSulcusMask * 0.42);
-                    // Demarcação nítida nos sulcos que separam os lobos cerebrais
-                    baseTissue = mix(baseTissue, vec3(0.24, 0.08, 0.11), lobeEdge * 0.55);
+                    // Rede microvascular pial (arteríolas e vênulas piais ramificadas nos sulcos e encostas dos giros)
+                    float vArtery = smoothstep(0.038, 0.0, abs(sin(vObjPos.x * 9.5 + noise3D(vObjPos * 3.2) * 2.4) * cos(vObjPos.y * 8.8 + vObjPos.z * 7.5)));
+                    baseTissue = mix(baseTissue, vec3(0.74, 0.15, 0.19), (deepSulcusMask * 0.35 + vArtery * 0.28));
+                    baseTissue = mix(baseTissue, vec3(0.38, 0.14, 0.17), lobeEdge * 0.45);
 
-                    // Iluminação física + Subsurface Scattering (SSS) + Oclusão Ambiental (AO) nos sulcos
-                    float wrap1 = max((dot(N, L1) + 0.52) / 1.52, 0.0);
-                    float diff2 = max(dot(N, L2), 0.0) * 0.35;
-                    float sss = pow(clamp(1.0 - max(dot(N, V), 0.0), 0.0, 1.0), 2.2) * 0.30;
-                    float ambientOcclusion = mix(0.28, 1.0, gyrusFactor);
+                    // Iluminação física trifásica + Subsurface Scattering (SSS) + Oclusão Ambiental (AO) equilibrada
+                    float wrap1 = max((dot(N, L1) + 0.55) / 1.55, 0.0);
+                    float diff2 = max(dot(N, L2), 0.0) * 0.38;
+                    float diff3 = max(dot(N, L3), 0.0) * 0.22;
+                    float sss = pow(clamp(1.0 - max(dot(N, V), 0.0), 0.0, 1.0), 2.2) * 0.32;
+                    float ambientOcclusion = mix(0.52, 1.0, gyrusFactor);
 
-                    // Brilho especular úmido da membrana Pia-Máter / Aracnoide banhada por Líquor
+                    // Brilho especular úmido da Pia-Máter banhada por Líquor
                     vec3 H1 = normalize(L1 + V);
-                    float spec = pow(max(dot(N, H1), 0.0), 62.0) * 0.42 * (0.25 + 0.75 * gyrusFactor);
+                    float spec = pow(max(dot(N, H1), 0.0), 58.0) * 0.38 * (0.30 + 0.70 * gyrusFactor);
 
-                    vec3 color = baseTissue * ambientOcclusion * (0.34 + 0.72 * wrap1 + diff2);
-                    color += vec3(0.96, 0.36, 0.32) * sss * ambientOcclusion;
+                    vec3 color = baseTissue * ambientOcclusion * (0.38 + 0.68 * wrap1 + diff2 + diff3);
+                    color += vec3(0.96, 0.38, 0.34) * sss * ambientOcclusion;
                     color += vec3(1.0, 0.97, 0.95) * spec;
 
                     // =========================================================
@@ -390,39 +410,47 @@ class CNSAnatomy3D {
                         if (distToCore < uStrokeRadius) {
                             float coreFactor = smoothstep(uStrokeRadius * 0.62, 0.0, distToCore) * sev;
                             float penumbraFactor = smoothstep(uStrokeRadius, uStrokeRadius * 0.38, distToCore) * sev;
-                            vec3 penumbraCol = vec3(0.68, 0.16, 0.82) * (0.65 + 0.35 * sin(uTime * 5.5));
-                            vec3 necroticCol = vec3(0.12, 0.09, 0.13);
-                            color = mix(color, penumbraCol, penumbraFactor * 0.78);
+                            vec3 penumbraCol = vec3(0.75, 0.18, 0.88) * (0.65 + 0.35 * sin(uTime * 6.0));
+                            vec3 necroticCol = vec3(0.16, 0.11, 0.18);
+                            color = mix(color, penumbraCol, penumbraFactor * 0.82);
                             color = mix(color, necroticCol, coreFactor * 0.94);
                         }
                     }
-                    // 2. Doença de Alzheimer (Placas Senis Beta-Amiloide + Atrofia Temporoparietal)
+                    // 2. Doença de Alzheimer (Placas Senis Beta-Amiloide + Atrofia Temporoparietal/Hipocampal)
                     else if (abs(uDiseaseMode - 2.0) < 0.2 && uDiseaseSeverity > 0.01) {
-                        float plaquePattern = smoothstep(0.72, 0.95, sin(vObjPos.x * 7.5) * cos(vObjPos.y * 7.5) * sin(vObjPos.z * 7.5));
-                        color = mix(color, vec3(0.58, 0.48, 0.65), uDiseaseSeverity * 0.45);
-                        color = mix(color, vec3(0.78, 0.55, 0.95), plaquePattern * uDiseaseSeverity * 0.75);
+                        float plaquePattern = smoothstep(0.62, 0.88, noise3D(vObjPos * 4.2));
+                        color = mix(color, vec3(0.62, 0.50, 0.68), uDiseaseSeverity * 0.48);
+                        color = mix(color, vec3(0.95, 0.62, 0.18), plaquePattern * uDiseaseSeverity * 0.82);
                     }
-                    // 4. Esclerose Múltipla (Placas Desmielinizantes multifocais)
+                    // 3. Doença de Parkinson (Hipoatividade Dopaminérgica Frontomotora + Tremor 5 Hz)
+                    else if (abs(uDiseaseMode - 3.0) < 0.2 && uDiseaseSeverity > 0.01) {
+                        float motorZone = exp(-pow((vObjPos.z - (0.55 - vObjPos.y * 0.22)) / 1.45, 2.0));
+                        float tremorPulse = 0.5 + 0.5 * sin(uTime * 31.4); // ~5 Hz tremor rhythm
+                        color = mix(color, vec3(0.98, 0.55, 0.15) * (0.75 + 0.25 * tremorPulse), motorZone * uDiseaseSeverity * 0.72);
+                    }
+                    // 4. Esclerose Múltipla (Placas Desmielinizantes Multifocais)
                     else if (abs(uDiseaseMode - 4.0) < 0.2 && uDiseaseSeverity > 0.01) {
-                        float msPlaque = smoothstep(0.68, 0.92, sin(vObjPos.x * 4.5 + 1.2) * cos(vObjPos.y * 5.2) * cos(vObjPos.z * 4.8));
-                        color = mix(color, vec3(0.22, 0.78, 1.0), msPlaque * uDiseaseSeverity * 0.70);
+                        float msPlaque = smoothstep(0.64, 0.86, noise3D(vObjPos * 3.4 + vec3(1.7)));
+                        color = mix(color, vec3(0.15, 0.82, 1.0), msPlaque * uDiseaseSeverity * 0.78);
                     }
                     // 5. Doença Priônica de Creutzfeldt-Jakob (DCJ — Cortical Ribboning & Espongiose)
                     else if (abs(uDiseaseMode - 5.0) < 0.2 && uDiseaseSeverity > 0.01) {
                         float ribbon = gyrusFactor * (0.6 + 0.4 * sin(uTime * 4.5 + vObjPos.z * 3.0));
-                        color = mix(color, vec3(0.85, 0.28, 0.92), ribbon * uDiseaseSeverity * 0.65);
+                        float vacuoles = smoothstep(0.70, 0.90, noise3D(vObjPos * 8.5));
+                        color = mix(color, vec3(0.88, 0.25, 0.96), ribbon * uDiseaseSeverity * 0.68);
+                        color = mix(color, vec3(0.22, 0.08, 0.30), vacuoles * uDiseaseSeverity * 0.75);
                     }
-                    // 6. ELA / ALS (Degeneração seletiva do Giro Pré-Central / Córtex Motor M1)
+                    // 6. ELA / ALS (Degeneração seletiva do Giro Pré-Central / Córtex Motor Primário M1)
                     else if (abs(uDiseaseMode - 6.0) < 0.2 && uDiseaseSeverity > 0.01) {
-                        float motorStrip = exp(-pow((vObjPos.z - (0.65 - vObjPos.y * 0.22)) / 0.95, 2.0));
-                        color = mix(color, vec3(0.95, 0.38, 0.12), motorStrip * uDiseaseSeverity * 0.82);
+                        float motorStrip = exp(-pow((vObjPos.z - (0.65 - vObjPos.y * 0.22)) / 0.88, 2.0));
+                        color = mix(color, vec3(0.98, 0.32, 0.08), motorStrip * uDiseaseSeverity * 0.88);
                     }
                     // 7. Epilepsia Focal (Ondas Paroxísticas Hipersincrônicas irradiando do Lobo Temporal)
                     else if (abs(uDiseaseMode - 7.0) < 0.2 && uDiseaseSeverity > 0.01) {
                         float distFocus = distance(vObjPos, vec3(3.8, -1.2, 0.6));
-                        float wave = 0.5 + 0.5 * sin(distFocus * 5.5 - uTime * 14.0);
-                        float focusMask = smoothstep(5.5, 0.0, distFocus) * wave;
-                        color += vec3(1.0, 0.85, 0.15) * focusMask * uDiseaseSeverity * 0.95;
+                        float wave = 0.5 + 0.5 * sin(distFocus * 5.5 - uTime * 15.0);
+                        float focusMask = smoothstep(6.0, 0.0, distFocus) * wave;
+                        color += vec3(1.0, 0.88, 0.18) * focusMask * uDiseaseSeverity * 0.95;
                     }
 
                     // Destaque quando um lobo está em Hover ou Selecionado
@@ -441,7 +469,7 @@ class CNSAnatomy3D {
                     float alpha = uXRayAlpha;
                     if (uXRayAlpha < 0.5) {
                         float fresnel = pow(1.0 - max(dot(N, V), 0.0), 2.2);
-                        alpha = clamp(uXRayAlpha + fresnel * 0.42, 0.08, 0.78);
+                        alpha = clamp(uXRayAlpha + fresnel * 0.42, 0.10, 0.78);
                         color += vec3(0.25, 0.75, 1.0) * fresnel * 0.38;
                     }
 
@@ -534,11 +562,15 @@ class CNSAnatomy3D {
             aPos.setXYZ(i, aPos.getX(i) * 5.52, aPos.getY(i) * 5.16 + 0.12, aPos.getZ(i) * 6.96 - 0.1);
         }
         arachGeo.computeVertexNormals();
-        const arachMat = new THREE.MeshBasicMaterial({
+        const arachMat = new THREE.MeshPhysicalMaterial({
             color: 0x38bdf8,
-            wireframe: true,
+            emissive: 0x0284c7,
+            emissiveIntensity: 0.18,
+            roughness: 0.22,
+            transmission: 0.55,
             transparent: true,
-            opacity: 0.24,
+            opacity: 0.22,
+            side: THREE.DoubleSide,
             depthWrite: false
         });
         meningesWrapper.add(new THREE.Mesh(arachGeo, arachMat));
@@ -1866,12 +1898,23 @@ class CNSAnatomy3D {
     // =========================================================================
     // 9. MODOS DE VISUALIZAÇÃO, ISOLAMENTO DE PEÇAS 3D E SIMULADOR DE PATOLOGIAS
     // =========================================================================
+    setCortexAlpha(alpha) {
+        this.uniforms.uXRayAlpha.value = alpha;
+        if (this.cortexMaterial) {
+            this.cortexMaterial.depthWrite = (alpha > 0.65);
+            this.cortexMaterial.side = (alpha > 0.65) ? THREE.FrontSide : THREE.DoubleSide;
+        }
+        if (this.cerebellumMaterial) {
+            this.cerebellumMaterial.depthWrite = (alpha > 0.65);
+        }
+    }
+
     setViewMode(mode) {
         this.viewMode = mode;
         this.isolatedId = null;
 
         if (mode === 'EXTERNAL') {
-            this.uniforms.uXRayAlpha.value = 1.0;
+            this.setCortexAlpha(1.0);
             this.uniforms.uClipSagittal.value = 0.0;
             this.cortexGroup.visible = true;
             this.cerebellumGroup.visible = true;
@@ -1882,7 +1925,7 @@ class CNSAnatomy3D {
             this.vascularGroup.visible = true;
             this.csfGroup.visible = false;
         } else if (mode === 'XRAY') {
-            this.uniforms.uXRayAlpha.value = 0.20;
+            this.setCortexAlpha(0.20);
             this.uniforms.uClipSagittal.value = 0.0;
             this.cortexGroup.visible = true;
             this.cerebellumGroup.visible = true;
@@ -1893,7 +1936,7 @@ class CNSAnatomy3D {
             this.vascularGroup.visible = true;
             this.csfGroup.visible = true;
         } else if (mode === 'VASCULAR') {
-            this.uniforms.uXRayAlpha.value = 0.14;
+            this.setCortexAlpha(0.14);
             this.uniforms.uClipSagittal.value = 0.0;
             this.cortexGroup.visible = true;
             this.cerebellumGroup.visible = true;
@@ -1925,7 +1968,7 @@ class CNSAnatomy3D {
         this.selectStructure(structureId);
 
         const isCorticalLobe = !!this.lobeNumericMap[structureId];
-        this.uniforms.uXRayAlpha.value = isCorticalLobe ? 0.92 : 0.10;
+        this.setCortexAlpha(isCorticalLobe ? 0.96 : 0.12);
         this.cortexGroup.visible = true;
         this.subcorticalGroup.visible = true;
         this.cerebellumGroup.visible = true;
@@ -1934,8 +1977,9 @@ class CNSAnatomy3D {
         this.pnsGroup.visible = true;
         this.vascularGroup.visible = true;
         this.csfGroup.visible = true;
+
         if (structureId === 'MENINGES_DURA_ARACHNOID_PIA') {
-            this.meningesGroup.visible = true;
+            this.setMeningesVisible(true);
         }
 
         this.structureMeshes.forEach((meshes, id) => {
@@ -1991,17 +2035,19 @@ class CNSAnatomy3D {
                 const isSel = (id === structureId);
                 meshes.forEach(m => {
                     if (m.material && m.material.emissive) {
-                        m.material.emissiveIntensity = isSel ? 0.68 : 0.22;
+                        m.material.emissiveIntensity = isSel ? 0.72 : 0.22;
                     }
                 });
             }
         });
 
-        if (structureId && ['THALAMUS', 'HYPOTHALAMUS', 'HIPPOCAMPUS', 'AMYGDALA', 'BASAL_GANGLIA', 'CORPUS_CALLOSUM', 'LATERAL_VENTRICLES', 'THIRD_FOURTH_VENTRICLES'].includes(structureId)) {
+        if (structureId && ['THALAMUS', 'HYPOTHALAMUS', 'HIPPOCAMPUS', 'AMYGDALA', 'BASAL_GANGLIA', 'CORPUS_CALLOSUM', 'LATERAL_VENTRICLES', 'THIRD_FOURTH_VENTRICLES', 'MIDBRAIN', 'PONS', 'MEDULLA_OBLONGATA', 'CIRCLE_OF_WILLIS'].includes(structureId)) {
             if (this.viewMode === 'EXTERNAL' && !this.isolatedId) {
-                this.uniforms.uXRayAlpha.value = 0.24;
+                this.setCortexAlpha(0.22);
                 this.csfGroup.visible = true;
             }
+        } else if (structureId && this.lobeNumericMap[structureId] && this.viewMode === 'EXTERNAL' && !this.isolatedId) {
+            this.setCortexAlpha(1.0);
         }
     }
 
@@ -2034,7 +2080,7 @@ class CNSAnatomy3D {
         if (active) {
             this.uniforms.uDiseaseMode.value = 1.0;
             this.uniforms.uDiseaseSeverity.value = hypoxiaLevel;
-        } else {
+        } else if (this.activeDiseaseMode === 1.0) {
             this.uniforms.uDiseaseMode.value = 0.0;
             this.uniforms.uDiseaseSeverity.value = 0.0;
         }
@@ -2058,6 +2104,36 @@ class CNSAnatomy3D {
         this.uniforms.uDiseaseSeverity.value = this.diseaseSeverity;
         this.uniforms.uStrokeActive.value = (code === 1.0) ? 1.0 : 0.0;
         this.uniforms.uHypoxiaLevel.value = (code === 1.0) ? severity : 0.0;
+
+        // Realça visualmente em 3D a estrutura subcortical/tronco/medula primariamente afetada pela doença!
+        const targetStructureByDisease = {
+            'ISCHEMIC_STROKE': ['MIDDLE_CEREBRAL_ARTERY', 'CIRCLE_OF_WILLIS'],
+            'ALZHEIMER': ['HIPPOCAMPUS', 'LATERAL_VENTRICLES'],
+            'PARKINSON': ['MIDBRAIN', 'BASAL_GANGLIA'],
+            'MULTIPLE_SCLEROSIS': ['CORPUS_CALLOSUM', 'OPTIC_NERVE_CN2', 'SPINAL_CORD'],
+            'PRION_DCJ': ['THALAMUS', 'CEREBELLUM'],
+            'ALS_ELA': ['SPINAL_CORD', 'MEDULLA_OBLONGATA'],
+            'EPILEPSY': ['HIPPOCAMPUS', 'AMYGDALA', 'TEMPORAL_LOBE']
+        };
+
+        const highlightedSet = new Set(targetStructureByDisease[diseaseKey] || []);
+        if (highlightedSet.size > 0 && ['ALZHEIMER', 'PARKINSON', 'MULTIPLE_SCLEROSIS', 'PRION_DCJ'].includes(diseaseKey)) {
+            this.setCortexAlpha(0.28);
+            this.subcorticalGroup.visible = true;
+        } else if (code === 0.0 && this.viewMode === 'EXTERNAL' && !this.isolatedId) {
+            this.setCortexAlpha(1.0);
+        }
+
+        this.structureMeshes.forEach((meshes, id) => {
+            if (!this.lobeNumericMap[id]) {
+                const isPathTarget = highlightedSet.has(id);
+                meshes.forEach(m => {
+                    if (m.material && m.material.emissive) {
+                        m.material.emissiveIntensity = isPathTarget ? (0.85 * severity + 0.25) : (id === this.selectedId ? 0.65 : 0.22);
+                    }
+                });
+            }
+        });
     }
 
     update(dt, elapsed) {
@@ -2065,7 +2141,7 @@ class CNSAnatomy3D {
 
         if (this.pnsPulses && this.pnsPulseMeta && this.pnsGroup.visible) {
             const posAttr = this.pnsPulses.geometry.attributes.position;
-            const speedMod = this.activeDiseaseMode === 4.0 ? (1.0 - 0.65 * this.diseaseSeverity) : (this.activeDiseaseMode === 7.0 ? 2.2 : 1.0);
+            const speedMod = this.activeDiseaseMode === 4.0 ? (1.0 - 0.68 * this.diseaseSeverity) : (this.activeDiseaseMode === 7.0 ? 2.4 : (this.activeDiseaseMode === 6.0 ? 0.35 : 1.0));
             for (let i = 0; i < this.pnsPulseMeta.length; i++) {
                 const meta = this.pnsPulseMeta[i];
                 meta.t = (meta.t + dt * meta.speed * speedMod) % 1.0;
