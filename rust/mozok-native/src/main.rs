@@ -4,10 +4,10 @@ use std::env;
 use std::fs;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 use std::thread;
 
-const PORT: u16 = 8192;
+const PORT: u16 = 8090;
 
 #[cfg(target_os = "windows")]
 #[no_mangle]
@@ -26,6 +26,7 @@ fn force_windows_high_performance_gpu() {
         const CREATE_NO_WINDOW: u32 = 0x08000000;
         let reg_key = r"HKCU\Software\Microsoft\DirectX\UserGpuPreferences";
 
+        // Vincula GpuPreference=2 exclusivamente ao executável mozok-native.exe
         if let Ok(exe_path) = env::current_exe() {
             if let Some(exe_str) = exe_path.to_str() {
                 let _ = Command::new("reg")
@@ -45,6 +46,7 @@ fn force_windows_high_performance_gpu() {
             }
         }
 
+        // Remove qualquer vínculo global anterior em msedgewebview2.exe para preservar a VRAM da GTX 1650 para o Zorya
         let pf_x86 =
             env::var("ProgramFiles(x86)").unwrap_or_else(|_| r"C:\Program Files (x86)".to_string());
         let webview_base = Path::new(&pf_x86).join(r"Microsoft\EdgeWebView\Application");
@@ -54,17 +56,7 @@ fn force_windows_high_performance_gpu() {
                 if candidate.exists() {
                     if let Some(cand_str) = candidate.to_str() {
                         let _ = Command::new("reg")
-                            .args([
-                                "add",
-                                reg_key,
-                                "/v",
-                                cand_str,
-                                "/t",
-                                "REG_SZ",
-                                "/d",
-                                "GpuPreference=2;",
-                                "/f",
-                            ])
+                            .args(["delete", reg_key, "/v", cand_str, "/f"])
                             .creation_flags(CREATE_NO_WINDOW)
                             .status();
                     }
@@ -129,16 +121,49 @@ fn get_mime_type(path: &Path) -> &'static str {
         Some("js") | Some("mjs") => "application/javascript; charset=utf-8",
         Some("css") => "text/css; charset=utf-8",
         Some("wasm") => "application/wasm",
-        Some("json") => "application/json; charset=utf-8",
+        Some("json") | Some("webmanifest") => "application/json; charset=utf-8",
         Some("svg") => "image/svg+xml",
         Some("png") => "image/png",
         Some("jpg") | Some("jpeg") => "image/jpeg",
+        Some("webp") => "image/webp",
         Some("ico") => "image/x-icon",
+        Some("mp3") => "audio/mpeg",
+        Some("wav") => "audio/wav",
+        Some("ogg") => "audio/ogg",
+        Some("woff2") => "font/woff2",
+        Some("woff") => "font/woff",
+        Some("ttf") => "font/ttf",
         _ => "application/octet-stream",
     }
 }
 
-fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf) {
+fn resolve_safe_path(web_root: &Path, raw_url_path: &str) -> Option<PathBuf> {
+    let trimmed = raw_url_path.trim_start_matches('/');
+    let rel_str = if trimmed.is_empty() {
+        "index.html"
+    } else {
+        trimmed
+    };
+
+    let rel_path = Path::new(rel_str);
+    let mut candidate = web_root.to_path_buf();
+    for comp in rel_path.components() {
+        match comp {
+            Component::Normal(part) => candidate.push(part),
+            _ => return None,
+        }
+    }
+
+    let canon_root = web_root.canonicalize().ok()?;
+    let canon_file = candidate.canonicalize().ok()?;
+    if canon_file.starts_with(&canon_root) && canon_file.is_file() {
+        Some(canon_file)
+    } else {
+        None
+    }
+}
+
+fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf, port: u16) {
     let mut buffer = [0u8; 8192];
     let n = match stream.read(&mut buffer) {
         Ok(n) if n > 0 => n,
@@ -149,15 +174,19 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf) {
     let first_line = req_str.lines().next().unwrap_or("GET / HTTP/1.1");
     let raw_url = first_line.split_whitespace().nth(1).unwrap_or("/");
     let path_only = raw_url.split('?').next().unwrap_or("/");
-    let clean_rel = path_only.trim_start_matches('/').replace("..", "");
-    let rel_path = if clean_rel.is_empty() {
-        "index.html"
-    } else {
-        &clean_rel
-    };
-    let file_path = web_root.join(rel_path);
 
-    if file_path.exists() && file_path.is_file() {
+    if path_only == "/health" {
+        let body = br#"{"status":"ok","engine":"mozok-native","port":8090}"#;
+        let header = format!(
+            "HTTP/1.1 200 OK\r\nContent-Type: application/json; charset=utf-8\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+            body.len()
+        );
+        let _ = stream.write_all(header.as_bytes());
+        let _ = stream.write_all(body);
+        return;
+    }
+
+    if let Some(file_path) = resolve_safe_path(&web_root, path_only) {
         if let Ok(mut file) = fs::File::open(&file_path) {
             let mut buf = Vec::new();
             if file.read_to_end(&mut buf).is_ok() {
@@ -167,12 +196,15 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf) {
                         "HTTP/1.1 200 OK\r\n",
                         "Content-Type: {}\r\n",
                         "Content-Length: {}\r\n",
-                        "Access-Control-Allow-Origin: *\r\n",
+                        "Accept-Ranges: bytes\r\n",
+                        "Access-Control-Allow-Origin: http://127.0.0.1:{}\r\n",
+                        "X-Content-Type-Options: nosniff\r\n",
                         "Cache-Control: no-cache\r\n",
                         "Connection: close\r\n\r\n"
                     ),
                     mime,
-                    buf.len()
+                    buf.len(),
+                    port
                 );
                 let _ = stream.write_all(header.as_bytes());
                 let _ = stream.write_all(&buf);
@@ -185,8 +217,9 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf) {
     let header = format!(
         concat!(
             "HTTP/1.1 404 Not Found\r\n",
-            "Content-Type: text/plain\r\n",
+            "Content-Type: text/plain; charset=utf-8\r\n",
             "Content-Length: {}\r\n",
+            "X-Content-Type-Options: nosniff\r\n",
             "Connection: close\r\n\r\n"
         ),
         body.len()
@@ -207,7 +240,7 @@ fn start_embedded_server(web_root: PathBuf, port: u16) -> u16 {
         for stream in listener.incoming().flatten() {
             let root_clone = web_root.clone();
             thread::spawn(move || {
-                handle_http_stream(stream, root_clone);
+                handle_http_stream(stream, root_clone, actual_port);
             });
         }
     });
@@ -226,7 +259,7 @@ fn launch_native_window(app_url: &str) {
     use wry::WebViewBuilder;
 
     let win_title =
-        "MOZOK v7.0 — Simulacro Neurofisiológico 3D (SNC, SNP & Conectoma | GPU High-Perf)";
+        "MOZOK v7.1 — Simulacro Neurofisiológico 3D (SNC, SNP & Conectoma | GPU High-Perf :8090)";
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
         .with_title(win_title)
