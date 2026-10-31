@@ -51,7 +51,8 @@
             top: 12px;
             left: 16px;
             right: 16px;
-            height: 58px;
+            min-height: 56px;
+            height: auto;
             background: var(--bg-panel);
             backdrop-filter: blur(18px);
             border: 1px solid var(--border-cyan);
@@ -59,7 +60,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 18px;
+            padding: 6px 14px;
+            gap: 12px;
             z-index: 20;
             box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
         }
@@ -68,6 +70,9 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            flex-shrink: 0;
+            max-width: 340px;
+            overflow: hidden;
         }
 
         .brand-logo {
@@ -94,6 +99,9 @@
             font-size: 11px;
             color: var(--accent-cyan);
             letter-spacing: 0.6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .topbar-controls {
@@ -101,6 +109,10 @@
             align-items: center;
             gap: 8px;
             flex-wrap: nowrap;
+            overflow-x: auto;
+            scrollbar-width: none;
+            flex: 1;
+            justify-content: flex-end;
         }
 
         .hud-btn {
@@ -885,43 +897,111 @@
             box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
         }
 
-        /* ═══ RESPONSIVIDADE COMPLETA PARA CELULARES E TABLETS ═══ */
-        @media (max-width: 1024px) {
+        /* ═══ SISTEMA DE DESIGN RESPONSIVO UNIVERSAL (320px MOBILE A 4K DESKTOP) ═══ */
+        .topbar {
+            min-height: 56px;
+            height: auto !important;
+            padding: 6px 14px !important;
+            gap: 12px;
+        }
+        .brand-block {
+            flex-shrink: 0;
+            min-width: 0;
+            max-width: 340px;
+        }
+        .brand-block > div {
+            min-width: 0;
+            overflow: hidden;
+        }
+        .brand-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .brand-subtitle {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+        .topbar-controls {
+            flex: 1;
+            min-width: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            justify-content: flex-end;
+            padding-bottom: 2px;
+        }
+        .topbar-controls::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Faixa 1: Notebooks e Telas Médias (1181px a 1440px) — Sidebars enxutas sem colisão */
+        @media (max-width: 1440px) and (min-width: 1181px) {
+            .left-sidebar {
+                width: 280px;
+                left: 10px;
+                top: 76px;
+            }
+            .right-sidebar {
+                width: 310px;
+                right: 10px;
+                top: 76px;
+            }
+            .popup-callout-3d {
+                width: 280px;
+                padding: 10px 12px;
+            }
+            #nav-pan-hud {
+                padding: 6px 12px;
+                gap: 10px;
+                max-width: calc(100vw - 620px);
+                overflow-x: auto;
+            }
+            .nav-hint-badge {
+                display: none;
+            }
+        }
+
+        /* Faixa 2: Tablets, Split-Screen e Janelas Estreitas (<= 1180px) — Modo Gavetas + Dock Inferior */
+        @media (max-width: 1180px) {
             .topbar {
                 top: 6px;
                 left: 8px;
                 right: 8px;
-                height: auto;
-                min-height: 48px;
-                padding: 6px 10px;
+                padding: 6px 10px !important;
                 flex-direction: column;
                 align-items: stretch;
                 gap: 6px;
+                border-radius: 12px;
             }
             .brand-block {
-                justify-content: space-between;
+                max-width: 100%;
+                justify-content: flex-start;
+            }
+            .brand-logo {
+                width: 30px;
+                height: 30px;
+                font-size: 15px;
+                flex-shrink: 0;
             }
             .brand-title {
                 font-size: 12.5px;
+                letter-spacing: 0.8px;
             }
             .brand-subtitle {
                 font-size: 9.5px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 72vw;
+                max-width: 82vw;
             }
             .topbar-controls {
-                overflow-x: auto;
-                padding-bottom: 2px;
-                scrollbar-width: none;
-            }
-            .topbar-controls::-webkit-scrollbar {
-                display: none;
+                justify-content: flex-start;
+                gap: 6px;
             }
             .hud-btn {
                 padding: 5px 9px;
                 font-size: 11px;
+                flex-shrink: 0;
             }
             .left-sidebar, .right-sidebar {
                 top: auto !important;
@@ -929,9 +1009,9 @@
                 right: 8px !important;
                 bottom: 64px !important;
                 width: auto !important;
-                height: 60vh !important;
-                max-height: 60vh !important;
-                z-index: 32;
+                height: min(64dvh, 520px) !important;
+                max-height: calc(100dvh - 150px) !important;
+                z-index: 40;
                 transform: translateY(120%);
                 opacity: 0;
                 pointer-events: none;
@@ -944,19 +1024,28 @@
             }
             .mobile-drawer-close-bar {
                 display: flex;
+                flex-shrink: 0;
             }
             #mobile-bottom-nav {
                 display: flex;
+                z-index: 45;
+                height: 48px;
+                bottom: max(6px, env(safe-area-inset-bottom, 6px));
             }
             #nav-pan-hud {
-                bottom: 64px;
-                width: calc(100vw - 16px);
-                max-width: 460px;
+                bottom: 62px !important;
+                left: 8px !important;
+                right: 8px !important;
+                transform: none !important;
+                width: auto !important;
+                max-width: 480px;
+                margin: 0 auto;
                 flex-wrap: wrap;
                 justify-content: center;
                 padding: 6px 10px;
                 gap: 6px;
                 display: none;
+                z-index: 38;
             }
             #nav-pan-hud.mobile-visible {
                 display: flex;
@@ -965,9 +1054,84 @@
                 display: none;
             }
             .popup-callout-3d {
-                width: calc(100vw - 20px);
-                max-width: 340px;
+                width: min(360px, calc(100vw - 20px)) !important;
+                max-height: 42dvh;
+                overflow-y: auto;
                 padding: 10px 12px;
+                z-index: 25;
+            }
+        }
+
+        /* Faixa 3: Smartphones (<= 640px, até 320px) — Card Pop-up Ancorado e Controles Compactos */
+        @media (max-width: 640px) {
+            .topbar {
+                top: 4px;
+                left: 6px;
+                right: 6px;
+                padding: 5px 8px !important;
+                gap: 4px;
+            }
+            .brand-title {
+                font-size: 11px;
+                letter-spacing: 0.4px;
+            }
+            .brand-subtitle {
+                font-size: 8.5px;
+            }
+            .hud-btn {
+                padding: 4px 8px;
+                font-size: 10.5px;
+                border-radius: 7px;
+            }
+            .popup-leader-svg, .popup-pin-dot {
+                display: none !important;
+            }
+            .popup-callout-3d {
+                left: 8px !important;
+                right: 8px !important;
+                top: auto !important;
+                bottom: 60px !important;
+                width: auto !important;
+                max-width: none !important;
+                max-height: 36dvh !important;
+                overflow-y: auto;
+                padding: 9px 11px;
+                border-radius: 12px;
+                background: rgba(6, 12, 26, 0.94);
+            }
+            .popup-title {
+                font-size: 13.5px;
+            }
+            .popup-summary {
+                font-size: 10.5px;
+                line-height: 1.35;
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .popup-btn {
+                padding: 5px 7px;
+                font-size: 10px;
+            }
+            .left-sidebar, .right-sidebar {
+                left: 6px !important;
+                right: 6px !important;
+                bottom: 58px !important;
+                height: 68dvh !important;
+                max-height: calc(100dvh - 120px) !important;
+            }
+            #mobile-bottom-nav {
+                left: 6px;
+                right: 6px;
+                height: 44px;
+                gap: 4px;
+                padding: 0 4px;
+            }
+            .mobile-nav-btn {
+                font-size: 10px;
+                height: 34px;
+                padding: 0 4px;
             }
         }
 
@@ -2105,7 +2269,9 @@
             const tempProjVec = new THREE.Vector3();
 
             function updateFloatingPopupPosition() {
-                if (!popupVisible) {
+                const drawerOpen = (typeof leftDrawer !== 'undefined' && leftDrawer && leftDrawer.classList.contains('mobile-open')) ||
+                                   (typeof rightDrawer !== 'undefined' && rightDrawer && rightDrawer.classList.contains('mobile-open'));
+                if (!popupVisible || drawerOpen) {
                     popupEl.classList.add('hidden');
                     pinDotEl.classList.add('hidden');
                     leaderLineEl.style.display = 'none';
@@ -2126,38 +2292,54 @@
                 }
 
                 popupEl.classList.remove('hidden');
+
+                const vw = window.innerWidth;
+                const vh = window.innerHeight;
+                const isPhoneLayout = vw <= 640;
+                const isTabletOrCompact = vw <= 1180;
+
+                if (isPhoneLayout) {
+                    pinDotEl.classList.add('hidden');
+                    leaderLineEl.style.display = 'none';
+                    popupEl.style.left = '';
+                    popupEl.style.top = '';
+                    return;
+                }
+
                 pinDotEl.classList.remove('hidden');
                 leaderLineEl.style.display = 'block';
 
-                const screenX = (tempProjVec.x * 0.5 + 0.5) * window.innerWidth;
-                const screenY = (-tempProjVec.y * 0.5 + 0.5) * window.innerHeight;
+                const screenX = (tempProjVec.x * 0.5 + 0.5) * vw;
+                const screenY = (-tempProjVec.y * 0.5 + 0.5) * vh;
 
                 pinDotEl.style.left = `${screenX}px`;
                 pinDotEl.style.top = `${screenY}px`;
 
-                // Posiciona a caixa pop-up responsivamente (Desktop entre sidebars; Mobile no topo central seguro)
-                const isMobileLayout = window.innerWidth <= 1024;
-                const popupWidth = popupEl.offsetWidth || 320;
+                const popupWidth = popupEl.offsetWidth || 300;
+                const popupHeight = popupEl.offsetHeight || 220;
                 let boxX, boxY;
-                if (isMobileLayout) {
-                    boxX = Math.max(10, Math.min(window.innerWidth - popupWidth - 10, (window.innerWidth - popupWidth) * 0.5));
-                    boxY = 96;
+
+                if (isTabletOrCompact) {
+                    boxX = Math.max(10, Math.min(vw - popupWidth - 10, (vw - popupWidth) * 0.5));
+                    boxY = Math.max(92, Math.min(vh - popupHeight - 74, vh - popupHeight - 78));
                 } else {
-                    const minX = 368;
-                    const maxX = Math.max(minX + 20, window.innerWidth - 392 - 340);
-                    boxX = screenX + 46;
+                    const leftPad = vw <= 1440 ? 296 : 368;
+                    const rightPad = vw <= 1440 ? 326 : 392;
+                    const minX = leftPad;
+                    const maxX = Math.max(minX + 16, vw - rightPad - popupWidth - 12);
+                    boxX = screenX + 42;
                     if (boxX > maxX) {
-                        boxX = screenX - 330 - 46;
+                        boxX = screenX - popupWidth - 42;
                     }
                     boxX = Math.max(minX, Math.min(maxX, boxX));
-                    boxY = Math.max(86, Math.min(window.innerHeight - 255, screenY - 95));
+                    boxY = Math.max(82, Math.min(vh - popupHeight - 76, screenY - 90));
                 }
 
                 popupEl.style.left = `${boxX}px`;
                 popupEl.style.top = `${boxY}px`;
 
-                const attachX = (boxX > screenX) ? boxX : (boxX + 330);
-                const attachY = boxY + 42;
+                const attachX = (boxX > screenX) ? boxX : (boxX + popupWidth);
+                const attachY = boxY + Math.min(42, popupHeight * 0.3);
 
                 leaderLineEl.setAttribute('x1', String(screenX));
                 leaderLineEl.setAttribute('y1', String(screenY));
@@ -2708,7 +2890,7 @@
 
             // Fecha gaveta mobile automaticamente ao escolher uma estrutura na lista em telas pequenas
             document.getElementById('structure-list').addEventListener('click', () => {
-                if (window.innerWidth <= 1024) closeMobileDrawers();
+                if (window.innerWidth <= 1180) closeMobileDrawers();
             });
 
             // =====================================================================

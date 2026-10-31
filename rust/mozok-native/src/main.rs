@@ -264,7 +264,7 @@ fn launch_native_window(app_url: &str) {
     let window = WindowBuilder::new()
         .with_title(win_title)
         .with_inner_size(LogicalSize::new(1600.0, 940.0))
-        .with_min_inner_size(LogicalSize::new(1120.0, 700.0))
+        .with_min_inner_size(LogicalSize::new(320.0, 480.0))
         .with_maximized(true)
         .build(&event_loop)
         .expect("Falha ao criar janela nativa do Mozok.");
