@@ -47,7 +47,7 @@ class CNSAnatomy3D {
         this.csfCurveData = [];
 
         this.viewMode = 'EXTERNAL'; // EXTERNAL | XRAY | VASCULAR | ISOLATED
-        this.bodyShellVisible = true;
+        this.bodyShellVisible = false;
         this.meningesVisible = false;
         this.selectedId = null;
         this.isolatedId = null;
@@ -166,9 +166,9 @@ class CNSAnatomy3D {
         this.buildSubcorticalAndLimbic();
         this.buildBrainstemAndSpinalCord();
         this.buildCranialAndPeripheralNerves();
-        this.buildBioluminescentHumanBodyShell();
         this.buildCerebrovascularTree();
         this.buildVentricularCSFSystem();
+        this.bodyShellGroup.visible = false;
     }
 
     // =========================================================================
@@ -608,11 +608,17 @@ class CNSAnatomy3D {
         this.meningesGroup.add(meningesWrapper);
         this.meningesGroup.visible = false; // Visível ao ativar o botão 🛡️ Meninges ou ao clicar nas Meninges na lista
         this.registerStructure('MENINGES_DURA_ARACHNOID_PIA', meningesWrapper, new THREE.Vector3(0.0, 4.95, 0.85));
+        this.setMeningesVisible(false);
     }
 
     setMeningesVisible(visible) {
         this.meningesVisible = visible;
         this.meningesGroup.visible = visible;
+        this.meningesGroup.traverse(child => {
+            if (child.isMesh) {
+                child.raycast = () => {};
+            }
+        });
     }
 
     // =========================================================================
@@ -1726,6 +1732,9 @@ class CNSAnatomy3D {
 
     setBodyShellVisible(visible) {
         this.bodyShellVisible = visible;
+        if (visible && this.bodyShellGroup.children.length === 0) {
+            this.buildBioluminescentHumanBodyShell();
+        }
         this.bodyShellGroup.visible = visible;
     }
 
@@ -2054,6 +2063,31 @@ class CNSAnatomy3D {
     setHoveredStructure(structureId) {
         this.hoveredId = structureId;
         this.uniforms.uHoverId.value = this.lobeNumericMap[structureId] || -1.0;
+    }
+
+    isObjectEffectivelyVisible(obj) {
+        let curr = obj;
+        while (curr) {
+            if (curr.visible === false) return false;
+            curr = curr.parent;
+        }
+        return true;
+    }
+
+    getPickableMeshes() {
+        return this.interactiveMeshes.filter(mesh => {
+            if (!this.isObjectEffectivelyVisible(mesh)) return false;
+            // Nunca intercepta clique na capa externa das Meninges no 3D para não bloquear o Córtex, Cerebelo e Medula!
+            // As Meninges são ativadas/selecionadas exclusivamente pelo botão 🛡️ Meninges na barra superior ou na lista lateral.
+            if (mesh.userData && mesh.userData.structureId === 'MENINGES_DURA_ARACHNOID_PIA') {
+                return false;
+            }
+            // Se o córtex estiver em modo Raio-X transparente (uXRayAlpha < 0.35), permite clicar direto nos núcleos subcorticais profundos (Hipocampo, Tálamo, Amígdala)
+            if (mesh.userData && mesh.userData.isMniCortex && this.uniforms.uXRayAlpha.value < 0.35) {
+                return false;
+            }
+            return true;
+        });
     }
 
     resolveRaycastHit(intersection) {

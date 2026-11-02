@@ -1199,11 +1199,11 @@
 
     <!-- LINHA GUIA E CAIXA POP-UP 3D FLUTUANTE (HUD CALLOUT) -->
     <svg class="popup-leader-svg" id="popup-leader-svg">
-        <line id="popup-leader-line" x1="0" y1="0" x2="0" y2="0" stroke="#00f2fe" stroke-width="1.8" stroke-dasharray="4 3" />
+        <line id="popup-leader-line" x1="0" y1="0" x2="0" y2="0" stroke="#00f2fe" stroke-width="1.8" stroke-dasharray="4 3" style="display:none;" />
     </svg>
-    <div class="popup-pin-dot" id="popup-pin-dot"></div>
+    <div class="popup-pin-dot hidden" id="popup-pin-dot"></div>
 
-    <div class="popup-callout-3d" id="anatomical-popup-3d">
+    <div class="popup-callout-3d hidden" id="anatomical-popup-3d">
         <div class="popup-header">
             <span class="popup-badge" id="popup-badge">CÓRTEX TELENCEFÁLICO</span>
             <button class="popup-close-btn" id="btn-close-popup" title="Fechar Pop-up">✕</button>
@@ -1237,7 +1237,7 @@
             <button class="hud-btn" id="btn-view-vascular">🩸 Árvore Vascular & LCR</button>
             <button class="hud-btn" id="btn-meninges" title="Exibir/Ocultar as 3 Meninges 3D (Dura-Máter, Foice, Tentório, Aracnoide e Pia-Máter)">🛡️ Meninges</button>
             <button class="hud-btn gold" id="btn-view-micro">🔬 Microcosmos Neuronal</button>
-            <button class="hud-btn active" id="btn-body-shell">🫧 Corpo Translúcido</button>
+            <button class="hud-btn" id="btn-body-shell" style="display:none;">🫧 Corpo Translúcido</button>
             <button class="hud-btn" id="btn-home-view">🎯 Centralizar</button>
             <button class="hud-btn" id="btn-tour">🧭 Tour Guiado</button>
             <button class="hud-btn" id="btn-voice">🔊 Voz IA</button>
@@ -2067,7 +2067,7 @@
             let activeCategory = 'ALL';
             let selectedStructureId = 'FRONTAL_LOBE';
             let selectedNeuronPartId = 'NEURON_SOMA';
-            let popupVisible = true;
+            let popupVisible = false;
             let voiceEnabled = false;
             let isStrokeActive = false;
             let hypoxiaProgress = 0.0;
@@ -2139,10 +2139,10 @@
             // =====================================================================
             // ATUALIZAÇÃO DO PAINEL DIREITO E DA CAIXA POP-UP 3D FLUTUANTE
             // =====================================================================
-            function updateHUDAndPopup(meta) {
+            function updateHUDAndPopup(meta, showFloatingPopup = false) {
                 if (!meta) return;
 
-                // Painel Direito
+                // Atualiza sempre o Painel Direito silenciosamente
                 document.getElementById('card-category-badge').textContent = meta.badge || meta.category;
                 document.getElementById('card-title').textContent = meta.name;
                 document.getElementById('card-latin').textContent = meta.latin;
@@ -2166,7 +2166,7 @@
                     ntRow.appendChild(chip);
                 });
 
-                // Caixa Pop-up 3D Flutuante
+                // Preenche dados do Pop-up 3D Flutuante
                 popupBadgeEl.textContent = meta.badge || meta.category;
                 popupTitleEl.textContent = meta.name;
                 popupLatinEl.textContent = meta.latin;
@@ -2192,16 +2192,24 @@
                     document.getElementById('btn-card-dive').textContent = '🔬 Ver Neurônios';
                 }
 
-                popupVisible = true;
-                popupEl.classList.remove('hidden');
-                pinDotEl.classList.remove('hidden');
-                leaderLineEl.style.display = 'block';
+                // Só abre o pop-up flutuante se o usuário clicou explicitamente em uma estrutura
+                if (showFloatingPopup) {
+                    popupVisible = true;
+                    popupEl.classList.remove('hidden');
+                    pinDotEl.classList.remove('hidden');
+                    leaderLineEl.style.display = 'block';
+                } else {
+                    popupVisible = false;
+                    popupEl.classList.add('hidden');
+                    pinDotEl.classList.add('hidden');
+                    leaderLineEl.style.display = 'none';
+                }
             }
 
             // =====================================================================
             // SELEÇÃO DE ESTRUTURA DO SNC/SNP OU DE SUB-PEÇA DO NEURÔNIO
             // =====================================================================
-            function selectMacroStructure(structureId, focusCamera = true) {
+            function selectMacroStructure(structureId, focusCamera = true, showFloatingPopup = true) {
                 const meta = ontologyMap.get(structureId);
                 if (!meta) return;
                 selectedStructureId = structureId;
@@ -2212,7 +2220,7 @@
 
                 cnsAnatomy.selectStructure(structureId);
                 document.getElementById('btn-meninges').classList.toggle('active', !!cnsAnatomy.meningesVisible);
-                updateHUDAndPopup(meta);
+                updateHUDAndPopup(meta, showFloatingPopup);
 
                 document.querySelectorAll('.structure-item').forEach(el => {
                     el.classList.toggle('active', el.dataset.id === structureId);
@@ -2236,11 +2244,11 @@
                 }
             }
 
-            function selectNeuronSubPart(partId, focusCamera = true) {
+            function selectNeuronSubPart(partId, focusCamera = true, showFloatingPopup = true) {
                 selectedNeuronPartId = partId;
                 neuralMicro.selectedPartId = partId;
                 const meta = neuralMicro.getPartMetadata(partId);
-                updateHUDAndPopup(meta);
+                updateHUDAndPopup(meta, showFloatingPopup);
 
                 document.querySelectorAll('.neuron-part-btn').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.part === partId);
@@ -2289,7 +2297,7 @@
                         </div>
                         <div class="struct-item-latin">${item.latin}</div>
                     `;
-                    card.addEventListener('click', () => selectMacroStructure(item.id, true));
+                    card.addEventListener('click', () => selectMacroStructure(item.id, true, true));
                     listEl.appendChild(card);
                 });
             }
@@ -2309,13 +2317,13 @@
                     ['btn-view-external', 'btn-view-xray', 'btn-view-vascular'].forEach(id => {
                         document.getElementById(id).classList.remove('active');
                     });
-                    selectNeuronSubPart(selectedNeuronPartId || 'NEURON_SOMA', false);
+                    selectNeuronSubPart(selectedNeuronPartId || 'NEURON_SOMA', false, false);
                     flyCameraTo(new THREE.Vector3(-0.8, 0.6, 0), new THREE.Vector3(-0.8, 2.2, 16.5), 0.75);
                 } else {
                     document.getElementById('btn-view-external').classList.add('active');
                     cnsAnatomy.setViewMode('EXTERNAL');
                     const meta = ontologyMap.get(selectedStructureId) || MOZOK_ONTOLOGY[0];
-                    updateHUDAndPopup(meta);
+                    updateHUDAndPopup(meta, false);
                     flyCameraTo(new THREE.Vector3(0, -1.5, 0), new THREE.Vector3(0, 1.5, 22.0), 0.75);
                 }
             }
@@ -2422,7 +2430,7 @@
                 raycaster.setFromCamera(mouseNDC, camera);
 
                 if (!isMicroMode) {
-                    const hits = raycaster.intersectObjects(cnsAnatomy.interactiveMeshes, false);
+                    const hits = raycaster.intersectObjects(cnsAnatomy.getPickableMeshes(), false);
                     if (hits.length > 0) {
                         const hoveredId = cnsAnatomy.resolveRaycastHit(hits[0]);
                         cnsAnatomy.setHoveredStructure(hoveredId);
@@ -2449,13 +2457,13 @@
                     const hits = raycaster.intersectObjects(neuralMicro.interactiveParts, false);
                     if (hits.length > 0) {
                         const partId = neuralMicro.resolveRaycastHit(hits[0]);
-                        if (partId) selectNeuronSubPart(partId, true);
+                        if (partId) selectNeuronSubPart(partId, true, true);
                     }
                 } else {
-                    const hits = raycaster.intersectObjects(cnsAnatomy.interactiveMeshes, false);
+                    const hits = raycaster.intersectObjects(cnsAnatomy.getPickableMeshes(), false);
                     if (hits.length > 0) {
                         const structId = cnsAnatomy.resolveRaycastHit(hits[0]);
-                        if (structId) selectMacroStructure(structId, true);
+                        if (structId) selectMacroStructure(structId, true, true);
                     }
                 }
             });
@@ -2682,7 +2690,7 @@
             document.querySelectorAll('.neuron-part-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     if (!isMicroMode) setMicrocosmosMode(true);
-                    selectNeuronSubPart(btn.dataset.part, true);
+                    selectNeuronSubPart(btn.dataset.part, true, true);
                 });
             });
 
@@ -3258,7 +3266,7 @@
 
             // Inicialização padrão
             renderStructureList();
-            selectMacroStructure('FRONTAL_LOBE', false);
+            selectMacroStructure('FRONTAL_LOBE', false, false);
             animate();
         })();
     </script>
