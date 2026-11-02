@@ -178,11 +178,33 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf, port: u16) {
     if path_only == "/health" {
         let body = br#"{"status":"ok","engine":"mozok-native","port":8090}"#;
         let header = format!(
-            "HTTP/1.1 200 OK\r\nContent-Type: application/json; charset=utf-8\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+            "HTTP/1.1 200 OK\r\nContent-Type: application/json; charset=utf-8\r\nContent-Length: {}\r\nCache-Control: no-store, no-cache, must-revalidate, max-age=0\r\nPragma: no-cache\r\nConnection: close\r\n\r\n",
             body.len()
         );
         let _ = stream.write_all(header.as_bytes());
         let _ = stream.write_all(body);
+        return;
+    }
+
+    if path_only == "/api/version" {
+        let body = format!(
+            r#"{{"version":"6.1.0","git_sha":"{}"}}"#,
+            env!("CARGO_PKG_VERSION")
+        );
+        let header = format!(
+            concat!(
+                "HTTP/1.1 200 OK\r\n",
+                "Content-Type: application/json; charset=utf-8\r\n",
+                "Content-Length: {}\r\n",
+                "Cache-Control: no-store, no-cache, must-revalidate, max-age=0\r\n",
+                "Pragma: no-cache\r\n",
+                "Access-Control-Allow-Origin: *\r\n",
+                "Connection: close\r\n\r\n"
+            ),
+            body.len()
+        );
+        let _ = stream.write_all(header.as_bytes());
+        let _ = stream.write_all(body.as_bytes());
         return;
     }
 
@@ -199,7 +221,8 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf, port: u16) {
                         "Accept-Ranges: bytes\r\n",
                         "Access-Control-Allow-Origin: http://127.0.0.1:{}\r\n",
                         "X-Content-Type-Options: nosniff\r\n",
-                        "Cache-Control: no-cache\r\n",
+                        "Cache-Control: no-store, no-cache, must-revalidate, max-age=0\r\n",
+                        "Pragma: no-cache\r\n",
                         "Connection: close\r\n\r\n"
                     ),
                     mime,

@@ -1135,7 +1135,64 @@
             }
         }
 
+        /* ═══ MODO CLEAN HUD PARA CAPTURA DE VÍDEO DO SVITLO ═══ */
+        body.clean-hud-mode .topbar,
+        body.clean-hud-mode .left-sidebar,
+        body.clean-hud-mode .right-sidebar,
+        body.clean-hud-mode .popup-callout-3d,
+        body.clean-hud-mode .popup-leader-svg,
+        body.clean-hud-mode .popup-pin-dot,
+        body.clean-hud-mode #neuron-parts-bar,
+        body.clean-hud-mode #nav-pan-hud,
+        body.clean-hud-mode #mobile-bottom-nav {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
     </style>
+    <script>
+    (function () {
+      const STORAGE_KEY = 'mozok_github_commit_sha';
+      async function syncWithGitHubCommit() {
+        try {
+          const res = await fetch('https://api.github.com/repos/pedro-almeida/mozok/commits/main', {
+            headers: { 'Accept': 'application/vnd.github.v3+json' },
+            cache: 'no-store'
+          });
+          if (!res.ok) return;
+          const data = await res.json();
+          const latestSha = (data.sha || '').slice(0, 7);
+          if (!latestSha) return;
+
+          const savedSha = localStorage.getItem(STORAGE_KEY);
+          if (savedSha && savedSha !== latestSha) {
+            localStorage.setItem(STORAGE_KEY, latestSha);
+            if ('caches' in window) {
+              const keys = await caches.keys();
+              await Promise.all(keys.map(k => caches.delete(k)));
+            }
+            if ('serviceWorker' in navigator) {
+              const regs = await navigator.serviceWorker.getRegistrations();
+              await Promise.all(regs.map(r => r.unregister()));
+            }
+            const url = new URL(window.location.href);
+            url.searchParams.set('_v', latestSha);
+            window.location.replace(url.toString());
+            return;
+          }
+          if (!savedSha) {
+            localStorage.setItem(STORAGE_KEY, latestSha);
+          }
+        } catch (_) {}
+      }
+      syncWithGitHubCommit();
+      setInterval(syncWithGitHubCommit, 45000);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') syncWithGitHubCommit();
+      });
+    })();
+    </script>
 </head>
 <body>
     <div id="webgl-container"></div>
@@ -2977,6 +3034,227 @@
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
             });
+
+            // =====================================================================
+            // MOZOK STUDIO API — CAPTURA CINEMATOGRÁFICA 1080P & STREAM PARA SVITLO
+            // =====================================================================
+            const REGION_ALIAS_MAP = {
+                'hippocampus': 'HIPPOCAMPUS',
+                'hipocampo': 'HIPPOCAMPUS',
+                'prefrontal_cortex': 'FRONTAL_LOBE',
+                'prefrontal': 'FRONTAL_LOBE',
+                'cortex_prefrontal': 'FRONTAL_LOBE',
+                'amygdala': 'AMYGDALA',
+                'amigdala': 'AMYGDALA',
+                'substantia_nigra': 'BASAL_GANGLIA',
+                'substancia_negra': 'BASAL_GANGLIA',
+                'sn': 'BASAL_GANGLIA',
+                'frontal_lobe': 'FRONTAL_LOBE',
+                'temporal_lobe': 'TEMPORAL_LOBE',
+                'parietal_lobe': 'PARIETAL_LOBE',
+                'occipital_lobe': 'OCCIPITAL_LOBE',
+                'cerebellum': 'CEREBELLUM',
+                'cerebelo': 'CEREBELLUM',
+                'brainstem': 'PONS',
+                'pons': 'PONS',
+                'ponte': 'PONS',
+                'midbrain': 'MIDBRAIN',
+                'mesencefalo': 'MIDBRAIN',
+                'medulla': 'MEDULLA_OBLONGATA',
+                'medulla_oblongata': 'MEDULLA_OBLONGATA',
+                'bulbo': 'MEDULLA_OBLONGATA',
+                'spinal_cord': 'SPINAL_CORD',
+                'medula_espinhal': 'SPINAL_CORD',
+                'thalamus': 'THALAMUS',
+                'talamo': 'THALAMUS',
+                'hypothalamus': 'HYPOTHALAMUS',
+                'hipotalamo': 'HYPOTHALAMUS',
+                'basal_ganglia': 'BASAL_GANGLIA',
+                'nucleos_da_base': 'BASAL_GANGLIA',
+                'corpus_callosum': 'CORPUS_CALLOSUM',
+                'corpo_caloso': 'CORPUS_CALLOSUM',
+                'meninges': 'MENINGES_DURA_ARACHNOID_PIA',
+                'circle_of_willis': 'CIRCLE_OF_WILLIS',
+                'poligono_de_willis': 'CIRCLE_OF_WILLIS',
+                'mca': 'MIDDLE_CEREBRAL_ARTERY',
+                'middle_cerebral_artery': 'MIDDLE_CEREBRAL_ARTERY',
+                'ventricles': 'THIRD_FOURTH_VENTRICLES'
+            };
+
+            const PATHOLOGY_ALIAS_MAP = {
+                'healthy': 'HEALTHY',
+                'fisiologico': 'HEALTHY',
+                'normal': 'HEALTHY',
+                'alzheimer': 'ALZHEIMER',
+                'parkinson': 'PARKINSON',
+                'stroke': 'ISCHEMIC_STROKE',
+                'avc': 'ISCHEMIC_STROKE',
+                'ischemic_stroke': 'ISCHEMIC_STROKE',
+                'ms': 'MULTIPLE_SCLEROSIS',
+                'multiple_sclerosis': 'MULTIPLE_SCLEROSIS',
+                'esclerose_multipla': 'MULTIPLE_SCLEROSIS',
+                'prion': 'PRION_DCJ',
+                'prion_dcj': 'PRION_DCJ',
+                'dcj': 'PRION_DCJ',
+                'cjd': 'PRION_DCJ',
+                'als': 'ALS_ELA',
+                'ela': 'ALS_ELA',
+                'als_ela': 'ALS_ELA',
+                'epilepsy': 'EPILEPSY',
+                'epilepsia': 'EPILEPSY'
+            };
+
+            function resolveStructureId(input) {
+                if (!input) return 'FRONTAL_LOBE';
+                const s = String(input).trim();
+                if (ontologyMap.has(s)) return s;
+                const upper = s.toUpperCase();
+                if (ontologyMap.has(upper)) return upper;
+                const lower = s.toLowerCase().replace(/[\s-]+/g, '_');
+                if (REGION_ALIAS_MAP[lower] && ontologyMap.has(REGION_ALIAS_MAP[lower])) {
+                    return REGION_ALIAS_MAP[lower];
+                }
+                for (const item of MOZOK_ONTOLOGY) {
+                    if (item.name.toLowerCase().includes(lower) || item.id.toLowerCase() === lower) {
+                        return item.id;
+                    }
+                }
+                return 'FRONTAL_LOBE';
+            }
+
+            function resolvePathologyKey(input) {
+                if (!input) return null;
+                const s = String(input).trim();
+                if (PATHOLOGY_PROFILES[s]) return s;
+                const upper = s.toUpperCase();
+                if (PATHOLOGY_PROFILES[upper]) return upper;
+                const lower = s.toLowerCase().replace(/[\s-]+/g, '_');
+                if (PATHOLOGY_ALIAS_MAP[lower] && PATHOLOGY_PROFILES[PATHOLOGY_ALIAS_MAP[lower]]) {
+                    return PATHOLOGY_ALIAS_MAP[lower];
+                }
+                return null;
+            }
+
+            function setCleanHUDMode(clean = true) {
+                document.body.classList.toggle('clean-hud-mode', !!clean);
+                if (clean) {
+                    popupVisible = false;
+                    popupEl.classList.add('hidden');
+                    pinDotEl.classList.add('hidden');
+                    leaderLineEl.style.display = 'none';
+                }
+            }
+
+            // Ativa Clean HUD se parâmetro estiver presente na URL
+            const urlQuery = new URLSearchParams(window.location.search);
+            if (urlQuery.get('clean_hud') === '1' || urlQuery.get('clean_hud') === 'true') {
+                setCleanHUDMode(true);
+            }
+
+            function captureFramePNG(width = 1920, height = 1080) {
+                const prevAspect = camera.aspect;
+
+                renderer.setSize(width, height, false);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+
+                renderer.render(scene, camera);
+                const dataUrl = renderer.domElement.toDataURL('image/png');
+
+                // Restaura resolução de exibição
+                renderer.setSize(window.innerWidth, window.innerHeight, true);
+                camera.aspect = prevAspect;
+                camera.updateProjectionMatrix();
+
+                return dataUrl;
+            }
+
+            async function captureStreamWebM(durationMs = 4000, fps = 30) {
+                return new Promise((resolve, reject) => {
+                    try {
+                        const stream = renderer.domElement.captureStream ? renderer.domElement.captureStream(fps) : null;
+                        if (!stream) {
+                            reject(new Error('Canvas captureStream not supported'));
+                            return;
+                        }
+                        const mimeType = (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('video/webm;codecs=vp9'))
+                            ? 'video/webm;codecs=vp9'
+                            : 'video/webm';
+                        const recorder = new MediaRecorder(stream, { mimeType });
+                        const chunks = [];
+                        recorder.ondataavailable = (e) => {
+                            if (e.data && e.data.size > 0) chunks.push(e.data);
+                        };
+                        recorder.onstop = () => {
+                            const blob = new Blob(chunks, { type: 'video/webm' });
+                            resolve({ blob, stream });
+                        };
+                        recorder.start();
+                        setTimeout(() => {
+                            recorder.stop();
+                        }, durationMs);
+                    } catch (err) {
+                        reject(err);
+                    }
+                });
+            }
+
+            async function focusRegionAndCapture(regionId, pathologyId, options = {}) {
+                const cleanHud = options.cleanHud !== false;
+                if (cleanHud) {
+                    setCleanHUDMode(true);
+                }
+
+                const targetStructure = resolveStructureId(regionId);
+                const resolvedPathology = resolvePathologyKey(pathologyId);
+
+                if (resolvedPathology) {
+                    pathologySelect.value = resolvedPathology;
+                    applyPathologySelection(resolvedPathology, options.severity || 0.85);
+                }
+
+                selectMacroStructure(targetStructure, true);
+
+                // Ativa destaque sináptico / eletrofisiológico
+                if (neuralMicro && typeof neuralMicro.triggerManualSpike === 'function') {
+                    neuralMicro.triggerManualSpike();
+                }
+
+                const waitMs = options.waitMs || 850;
+                await new Promise(r => setTimeout(r, waitMs));
+
+                const outW = options.width || 1920;
+                const outH = options.height || 1080;
+                const dataUrl = captureFramePNG(outW, outH);
+
+                let webmResult = null;
+                if (options.format === 'webm' || options.recordWebM) {
+                    try {
+                        webmResult = await captureStreamWebM(options.durationMs || 3000, options.fps || 30);
+                    } catch (_) {}
+                }
+
+                return {
+                    status: 'ok',
+                    regionId: targetStructure,
+                    pathologyId: resolvedPathology || 'HEALTHY',
+                    width: outW,
+                    height: outH,
+                    dataUrl,
+                    blob: webmResult ? webmResult.blob : null
+                };
+            }
+
+            window.MozokStudioAPI = {
+                focusRegionAndCapture,
+                captureFramePNG,
+                captureStreamWebM,
+                setCleanHUD: setCleanHUDMode,
+                selectStructure: selectMacroStructure,
+                applyPathology: applyPathologySelection,
+                getOntology: () => MOZOK_ONTOLOGY,
+                getPathologies: () => PATHOLOGY_PROFILES
+            };
 
             // Inicialização padrão
             renderStructureList();
