@@ -28,6 +28,7 @@ class CNSAnatomy3D {
         this.pnsGroup = new THREE.Group();
         this.vascularGroup = new THREE.Group();
         this.csfGroup = new THREE.Group();
+        this.brodmannGroup = new THREE.Group();
 
         this.rootGroup.add(this.bodyShellGroup);
         this.rootGroup.add(this.meningesGroup);
@@ -39,6 +40,7 @@ class CNSAnatomy3D {
         this.rootGroup.add(this.pnsGroup);
         this.rootGroup.add(this.vascularGroup);
         this.rootGroup.add(this.csfGroup);
+        this.rootGroup.add(this.brodmannGroup);
 
         this.structureMeshes = new Map();
         this.structureAnchors = new Map();
@@ -67,7 +69,7 @@ class CNSAnatomy3D {
             uSelectedId: { value: -1.0 },
             uXRayAlpha: { value: 1.0 },
             uStrokeActive: { value: 0.0 },
-            uStrokeCenter: { value: new THREE.Vector3(-3.8, 1.2, 1.1) },
+            uStrokeCenter: { value: new THREE.Vector3(3.8, 1.2, 1.1) },
             uStrokeRadius: { value: 3.4 },
             uHypoxiaLevel: { value: 0.0 },
             uDiseaseMode: { value: 0.0 },
@@ -168,6 +170,7 @@ class CNSAnatomy3D {
         this.buildCranialAndPeripheralNerves();
         this.buildCerebrovascularTree();
         this.buildVentricularCSFSystem();
+        this.buildBrodmannAndLanguageCircuit();
         this.bodyShellGroup.visible = false;
     }
 
@@ -1905,6 +1908,130 @@ class CNSAnatomy3D {
     }
 
     // =========================================================================
+    // 8.5 ÁREAS DE BRODMANN, CIRCUITO DA LINGUAGEM E FASCÍCULO ARQUEADO 3D
+    // =========================================================================
+    buildBrodmannAndLanguageCircuit() {
+        // 1. Área de Broca (BA44 Pars Opercularis e BA45 Pars Triangularis - Giro Frontal Inferior Esquerdo)
+        const brocaGroup = new THREE.Group();
+        const brocaMat = this.createOrganicMaterial(0xf43f5e, 0.28, 0.85, 0.88, 0xe11d48);
+        brocaMat.emissiveIntensity = 0.52;
+        const brocaMesh = new THREE.Mesh(new THREE.SphereGeometry(0.72, 32, 24), brocaMat);
+        brocaMesh.scale.set(0.85, 0.95, 1.25);
+        brocaMesh.position.set(3.45, 1.25, 1.85);
+        brocaMesh.rotation.set(-0.15, 0.28, -0.2);
+        brocaGroup.add(brocaMesh);
+        this.brodmannGroup.add(brocaGroup);
+        this.registerStructure('BROCA_AREA_BA44_45', brocaGroup, new THREE.Vector3(3.45, 1.25, 1.85));
+
+        // 2. Área de Wernicke (BA22 - Giro Temporal Superior Esquerdo Posterior / Planum Temporale)
+        const wernickeGroup = new THREE.Group();
+        const wernickeMat = this.createOrganicMaterial(0x8b5cf6, 0.28, 0.85, 0.88, 0x7c3aed);
+        wernickeMat.emissiveIntensity = 0.52;
+        const wernickeMesh = new THREE.Mesh(new THREE.SphereGeometry(0.78, 32, 24), wernickeMat);
+        wernickeMesh.scale.set(0.82, 0.92, 1.35);
+        wernickeMesh.position.set(3.92, 0.45, -0.92);
+        wernickeMesh.rotation.set(0.12, -0.15, 0.1);
+        wernickeGroup.add(wernickeMesh);
+        this.brodmannGroup.add(wernickeGroup);
+        this.registerStructure('WERNICKE_AREA_BA22', wernickeGroup, new THREE.Vector3(3.92, 0.45, -0.92));
+
+        // 3. Fascículo Arqueado & Território de Geschwind (BA39 Angular e BA40 Supramarginal)
+        const arcGroup = new THREE.Group();
+        const arcMat = new THREE.MeshPhysicalMaterial({
+            color: 0x06b6d4,
+            emissive: 0x0891b2,
+            emissiveIntensity: 0.65,
+            roughness: 0.25,
+            clearcoat: 0.85,
+            transparent: true,
+            opacity: 0.92
+        });
+        const arcCurve1 = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(3.78, 0.48, -0.85),
+            new THREE.Vector3(3.88, 1.45, -0.82),
+            new THREE.Vector3(3.72, 2.15, 0.15),
+            new THREE.Vector3(3.52, 1.95, 1.15),
+            new THREE.Vector3(3.38, 1.32, 1.75)
+        ]);
+        const arcCurve2 = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(3.85, 0.55, -0.75),
+            new THREE.Vector3(3.95, 1.55, -0.70),
+            new THREE.Vector3(3.80, 2.25, 0.25),
+            new THREE.Vector3(3.60, 2.05, 1.25),
+            new THREE.Vector3(3.45, 1.40, 1.82)
+        ]);
+        arcGroup.add(new THREE.Mesh(new THREE.TubeGeometry(arcCurve1, 48, 0.11, 14, false), arcMat));
+        arcGroup.add(new THREE.Mesh(new THREE.TubeGeometry(arcCurve2, 48, 0.09, 14, false), arcMat));
+        // Geschwind territory (Giro Angular BA39 e Supramarginal BA40)
+        const geschwindMesh = new THREE.Mesh(new THREE.SphereGeometry(0.55, 24, 20), arcMat);
+        geschwindMesh.position.set(3.88, 1.65, -0.45);
+        arcGroup.add(geschwindMesh);
+        this.brodmannGroup.add(arcGroup);
+        this.registerStructure('ARCUATE_FASCICULUS_BA39_40', arcGroup, new THREE.Vector3(3.85, 1.75, 0.25));
+
+        // 4. Córtex Pré-Frontal Dorsolateral (DLPFC - BA9 e BA46)
+        const dlpfcGroup = new THREE.Group();
+        const dlpfcMat = this.createOrganicMaterial(0x3b82f6, 0.28, 0.85, 0.88, 0x1d4ed8);
+        dlpfcMat.emissiveIntensity = 0.5;
+        const dlpfcMesh = new THREE.Mesh(new THREE.SphereGeometry(0.85, 32, 24), dlpfcMat);
+        dlpfcMesh.scale.set(0.9, 0.9, 1.2);
+        dlpfcMesh.position.set(2.85, 2.75, 2.45);
+        dlpfcGroup.add(dlpfcMesh);
+        this.brodmannGroup.add(dlpfcGroup);
+        this.registerStructure('PREFRONTAL_DLPFC_BA9_46', dlpfcGroup, new THREE.Vector3(2.85, 2.75, 2.45));
+
+        // 5. Córtex Motor Primário (M1 - BA4 - Giro Pré-Central / Homúnculo Motor)
+        const m1Group = new THREE.Group();
+        const m1Curve = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(0.85, 4.25, 0.55),
+            new THREE.Vector3(2.15, 3.45, 0.42),
+            new THREE.Vector3(3.45, 2.25, 0.28),
+            new THREE.Vector3(3.75, 1.45, 0.18)
+        ]);
+        const m1Mat = this.createOrganicMaterial(0xef4444, 0.28, 0.85, 0.88, 0xdc2626);
+        m1Mat.emissiveIntensity = 0.55;
+        m1Group.add(new THREE.Mesh(new THREE.TubeGeometry(m1Curve, 32, 0.28, 16, false), m1Mat));
+        this.brodmannGroup.add(m1Group);
+        this.registerStructure('PRIMARY_MOTOR_M1_BA4', m1Group, new THREE.Vector3(2.35, 3.15, 0.38));
+
+        // 6. Córtex Somatossensorial Primário (S1 - BA3, 1, 2 - Giro Pós-Central / Homúnculo Sensorial)
+        const s1Group = new THREE.Group();
+        const s1Curve = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(0.85, 4.15, -0.05),
+            new THREE.Vector3(2.18, 3.35, -0.18),
+            new THREE.Vector3(3.48, 2.15, -0.32),
+            new THREE.Vector3(3.78, 1.35, -0.42)
+        ]);
+        const s1Mat = this.createOrganicMaterial(0x10b981, 0.28, 0.85, 0.88, 0x059669);
+        s1Mat.emissiveIntensity = 0.55;
+        s1Group.add(new THREE.Mesh(new THREE.TubeGeometry(s1Curve, 32, 0.26, 16, false), s1Mat));
+        this.brodmannGroup.add(s1Group);
+        this.registerStructure('PRIMARY_SOMATOSENSORY_S1_BA312', s1Group, new THREE.Vector3(2.38, 3.05, -0.22));
+
+        // 7. Córtex Auditivo Primário (A1 - BA41 e BA42 - Giros Transversos de Heschl)
+        const a1Group = new THREE.Group();
+        const a1Mat = this.createOrganicMaterial(0xf59e0b, 0.28, 0.85, 0.88, 0xd97706);
+        a1Mat.emissiveIntensity = 0.52;
+        const a1Mesh = new THREE.Mesh(new THREE.SphereGeometry(0.55, 24, 20), a1Mat);
+        a1Mesh.scale.set(0.65, 0.42, 0.85);
+        a1Mesh.position.set(3.62, 0.82, -0.05);
+        a1Group.add(a1Mesh);
+        this.brodmannGroup.add(a1Group);
+        this.registerStructure('PRIMARY_AUDITORY_A1_BA41_42', a1Group, new THREE.Vector3(3.62, 0.82, -0.05));
+
+        // 8. Córtex Visual Primário (V1 - BA17 - Córtex Estriado / Lábios do Sulco Calcarino)
+        const v1Group = new THREE.Group();
+        const v1Mat = this.createOrganicMaterial(0x6366f1, 0.28, 0.85, 0.88, 0x4f46e5);
+        v1Mat.emissiveIntensity = 0.55;
+        const v1Mesh = new THREE.Mesh(new THREE.SphereGeometry(0.72, 28, 24), v1Mat);
+        v1Mesh.scale.set(0.75, 0.65, 1.15);
+        v1Mesh.position.set(0.92, 0.35, -4.55);
+        v1Group.add(v1Mesh);
+        this.brodmannGroup.add(v1Group);
+        this.registerStructure('PRIMARY_VISUAL_V1_BA17', v1Group, new THREE.Vector3(0.92, 0.35, -4.55));
+    }
+
+    // =========================================================================
     // 9. MODOS DE VISUALIZAÇÃO, ISOLAMENTO DE PEÇAS 3D E SIMULADOR DE PATOLOGIAS
     // =========================================================================
     setCortexAlpha(alpha) {
@@ -1933,6 +2060,7 @@ class CNSAnatomy3D {
             this.pnsGroup.visible = true;
             this.vascularGroup.visible = true;
             this.csfGroup.visible = false;
+            this.brodmannGroup.visible = true;
         } else if (mode === 'XRAY') {
             this.setCortexAlpha(0.20);
             this.uniforms.uClipSagittal.value = 0.0;
@@ -1944,6 +2072,7 @@ class CNSAnatomy3D {
             this.pnsGroup.visible = true;
             this.vascularGroup.visible = true;
             this.csfGroup.visible = true;
+            this.brodmannGroup.visible = true;
         } else if (mode === 'VASCULAR') {
             this.setCortexAlpha(0.14);
             this.uniforms.uClipSagittal.value = 0.0;
@@ -1955,6 +2084,7 @@ class CNSAnatomy3D {
             this.pnsGroup.visible = false;
             this.vascularGroup.visible = true;
             this.csfGroup.visible = true;
+            this.brodmannGroup.visible = false;
         }
 
         this.structureMeshes.forEach((meshes, id) => {
@@ -2028,6 +2158,14 @@ class CNSAnatomy3D {
             this.csfGroup.visible = false;
         } else if (category === 'VASCULAR_VENTRICULAR') {
             this.setViewMode('VASCULAR');
+        } else if (category === 'BRODMANN_LANGUAGE') {
+            this.setViewMode('XRAY');
+            this.setCortexAlpha(0.32);
+            this.brodmannGroup.visible = true;
+            this.pnsGroup.visible = false;
+            this.vascularGroup.visible = false;
+            this.csfGroup.visible = false;
+            this.subcorticalGroup.visible = false;
         }
     }
 

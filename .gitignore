@@ -11,6 +11,10 @@ scratch_*
 *.log
 .playwright-mcp/
 
+# Python cache
+__pycache__/
+*.py[cod]
+
 # IDE & OS
 .vscode/
 .idea/

@@ -303,10 +303,11 @@
         .structure-list {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             padding: 10px 12px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 7px;
             scrollbar-width: thin;
             scrollbar-color: rgba(0, 242, 254, 0.35) transparent;
         }
@@ -322,55 +323,165 @@
 
         .structure-item {
             background: var(--bg-card);
-            border: 1px solid rgba(148, 163, 184, 0.16);
+            border: 1px solid rgba(148, 163, 184, 0.18);
             border-radius: 10px;
-            padding: 9px 11px;
+            padding: 10px 12px;
             cursor: pointer;
             transition: all 0.16s ease;
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            align-items: flex-start;
+            gap: 4px;
+            width: 100%;
+            overflow: hidden;
         }
 
         .structure-item:hover {
-            border-color: rgba(0, 242, 254, 0.5);
-            background: rgba(20, 36, 68, 0.92);
+            border-color: rgba(0, 242, 254, 0.55);
+            background: rgba(20, 36, 68, 0.94);
             transform: translateX(2px);
         }
 
         .structure-item.active {
             border-color: var(--accent-gold);
-            background: linear-gradient(135deg, rgba(250, 204, 21, 0.16), rgba(15, 25, 48, 0.92));
+            background: linear-gradient(135deg, rgba(250, 204, 21, 0.16), rgba(15, 25, 48, 0.94));
             box-shadow: 0 0 14px rgba(250, 204, 21, 0.22);
         }
 
+        /* CORREÇÃO DEFINITIVA: Badge acima do nome para nunca espremer os títulos em colunas de 1 palavra! */
         .struct-item-top {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 6px;
-        }
-
-        .struct-item-name {
-            font-size: 12.5px;
-            font-weight: 700;
-            color: #f8fafc;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            width: 100%;
         }
 
         .struct-item-badge {
-            font-size: 9.5px;
-            font-weight: 700;
-            padding: 2px 6px;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 2px 7px;
             border-radius: 5px;
             background: rgba(0, 242, 254, 0.14);
+            border: 1px solid rgba(0, 242, 254, 0.28);
             color: var(--accent-cyan);
+            max-width: 100%;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            order: -1;
+        }
+
+        .struct-item-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #f8fafc;
+            line-height: 1.32;
+            width: 100%;
+            word-break: normal;
+            overflow-wrap: break-word;
         }
 
         .struct-item-latin {
             font-size: 11px;
             font-style: italic;
             color: var(--text-muted);
+            line-height: 1.3;
+            width: 100%;
+            overflow-wrap: break-word;
+        }
+
+        /* Seletor de 5 Idiomas na Topbar */
+        .lang-select-hud {
+            background: rgba(15, 28, 55, 0.88);
+            color: #f8fafc;
+            border: 1px solid rgba(0, 242, 254, 0.38);
+            border-radius: 9px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.18s ease;
+        }
+        .lang-select-hud:hover, .lang-select-hud:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.28);
+        }
+
+        /* =========================================================================
+           VLIBRAS SOB DEMANDA EM DOCK COMPACTO PiP (ZERO ESPAÇO DESPERDIÇADO!)
+           ========================================================================= */
+        body:not(.vlibras-dock-open) [vw] {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        body.vlibras-dock-open [vw] {
+            display: block !important;
+            position: fixed !important;
+            right: 396px !important;
+            bottom: 66px !important;
+            top: auto !important;
+            left: auto !important;
+            z-index: 32 !important;
+            transform: scale(0.72) !important;
+            transform-origin: bottom right !important;
+            filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.75));
+        }
+
+        @media (max-width: 1440px) {
+            body.vlibras-dock-open [vw] {
+                right: 324px !important;
+                bottom: 62px !important;
+                transform: scale(0.66) !important;
+            }
+        }
+
+        @media (max-width: 1180px) {
+            body.vlibras-dock-open [vw] {
+                right: 12px !important;
+                bottom: 64px !important;
+                transform: scale(0.64) !important;
+            }
+        }
+
+        /* Barra de Legendas Acessíveis Sincronizada com Gemini TTS + VLibras */
+        #mozok-subtitle-bar {
+            position: fixed;
+            bottom: 68px;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: min(680px, calc(100vw - 740px));
+            background: rgba(4, 9, 20, 0.92);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(0, 242, 254, 0.55);
+            border-radius: 10px;
+            padding: 8px 14px;
+            color: #f8fafc;
+            font-size: 12.5px;
+            line-height: 1.4;
+            z-index: 29;
+            display: none;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75);
+            pointer-events: none;
+        }
+        #mozok-subtitle-bar.visible {
+            display: block;
+        }
+        .sr-only-vlibras {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
 
         /* =========================================================================
@@ -1232,16 +1343,23 @@
         </div>
 
         <div class="topbar-controls">
-            <button class="hud-btn active" id="btn-view-external">🧠 Córtex Real</button>
-            <button class="hud-btn" id="btn-view-xray">🩻 Raio-X Subcortical</button>
-            <button class="hud-btn" id="btn-view-vascular">🩸 Árvore Vascular & LCR</button>
-            <button class="hud-btn" id="btn-meninges" title="Exibir/Ocultar as 3 Meninges 3D (Dura-Máter, Foice, Tentório, Aracnoide e Pia-Máter)">🛡️ Meninges</button>
-            <button class="hud-btn gold" id="btn-view-micro">🔬 Microcosmos Neuronal</button>
-            <button class="hud-btn" id="btn-body-shell" style="display:none;">🫧 Corpo Translúcido</button>
-            <button class="hud-btn" id="btn-home-view">🎯 Centralizar</button>
-            <button class="hud-btn" id="btn-tour">🧭 Tour Guiado</button>
-            <button class="hud-btn" id="btn-voice">🔊 Voz IA</button>
-            <button class="hud-btn" id="btn-fullscreen" title="Tela Cheia (F11)">⛶ Tela Cheia</button>
+            <button class="hud-btn active" id="btn-view-external" data-i18n="btn_cortex">🧠 Córtex Real</button>
+            <button class="hud-btn" id="btn-view-xray" data-i18n="btn_xray">🩻 Raio-X Subcortical</button>
+            <button class="hud-btn" id="btn-view-vascular" data-i18n="btn_vascular">🩸 Árvore Vascular & LCR</button>
+            <button class="hud-btn" id="btn-meninges" data-i18n="btn_meninges" title="Exibir/Ocultar as 3 Meninges 3D">🛡️ Meninges</button>
+            <button class="hud-btn gold" id="btn-view-micro" data-i18n="btn_micro">🔬 Microcosmos Neuronal</button>
+            <button class="hud-btn" id="btn-home-view" data-i18n="btn_center">🎯 Centralizar</button>
+            <button class="hud-btn" id="btn-tour" data-i18n="btn_tour">🧭 Tour Guiado</button>
+            <select id="lang-select" class="lang-select-hud" title="Selecionar Idioma (Tradução e Voz Neural Gemini)">
+                <option value="pt-BR">🇧🇷 PT-BR</option>
+                <option value="en-GB">🇬🇧 EN-GB</option>
+                <option value="es-ES">🇪🇸 ES-ES</option>
+                <option value="it-IT">🇮🇹 IT-IT</option>
+                <option value="uk-UA">🇺🇦 UK-UA</option>
+            </select>
+            <button class="hud-btn" id="btn-voice" data-i18n="btn_voice" title="Narração Neural Gemini via credentials.json">🔊 Voz Gemini</button>
+            <button class="hud-btn" id="btn-vlibras" title="Ativar/Recolher Intérprete VLibras em Modo Compacto PiP">🤟 Libras</button>
+            <button class="hud-btn" id="btn-fullscreen" data-i18n="btn_fullscreen" title="Tela Cheia (F11)">⛶ Tela Cheia</button>
         </div>
     </header>
 
@@ -1271,11 +1389,12 @@
         <div class="sidebar-header">
             <div class="sidebar-title-row">
                 <span class="sidebar-title">Atlas Anatômico SNC & SNP</span>
-                <span class="count-pill" id="structure-count-pill">37 / 37</span>
+                <span class="count-pill" id="structure-count-pill">40 / 40</span>
             </div>
-            <input type="text" id="search-input" class="search-box" placeholder="Buscar lobo, meninges, núcleo, nervo, plexo..." />
+            <input type="text" id="search-input" class="search-box" placeholder="Buscar lobo, Broca, Wernicke, núcleo, nervo, plexo..." />
             <div class="category-filter-bar" id="category-filter-bar">
-                <button class="cat-chip active" data-cat="ALL">Todos (37)</button>
+                <button class="cat-chip active" data-cat="ALL" id="cat-chip-all">Todos (40)</button>
+                <button class="cat-chip" data-cat="BRODMANN_LANGUAGE">🗣️ Broca, Wernicke & Brodmann</button>
                 <button class="cat-chip" data-cat="CORTEX_CEREBELLUM">Córtex & Cerebelo</button>
                 <button class="cat-chip" data-cat="LIMBIC_DIENCEPHALON">Límbico & Núcleos</button>
                 <button class="cat-chip" data-cat="BRAINSTEM_SPINAL">Tronco & Medula</button>
@@ -1289,15 +1408,16 @@
         <div class="neuron-parts-bar" id="neuron-parts-bar">
             <div style="display:flex; align-items:center; justify-content:space-between;">
                 <span style="font-size: 10px; font-weight: 800; color: #f0abfc; text-transform: uppercase; letter-spacing: 0.6px;">
-                    🔬 Rede Conectada (<span id="neuron-count-label">90</span> Neurônios):
+                    🔬 Rede Conectada (<span id="neuron-count-label">240</span> Neurônios):
                 </span>
                 <span id="gpu-tier-pill" style="font-size:9px; color:#00f2fe; font-weight:700;">GPU Auto</span>
             </div>
             <div class="neuron-density-row" id="neuron-density-row">
-                <button class="neuron-density-btn" data-count="54" title="Mínimo garantido (54 Neurônios Conectados)">54 (Mín)</button>
-                <button class="neuron-density-btn active" data-count="90" title="Densidade Padrão (90 Neurônios Conectados)">90 (Méd)</button>
-                <button class="neuron-density-btn" data-count="135" title="Alta Densidade GPU Dedicada (135 Neurônios Conectados)">135 (Ultra)</button>
-                <button class="neuron-density-btn" data-count="180" title="Densidade Máxima (180 Neurônios Conectados)">180 (Máx)</button>
+                <button class="neuron-density-btn" data-count="60" title="Modo Eco / Integrada (60 Neurônios)">60 (Eco)</button>
+                <button class="neuron-density-btn" data-count="120" title="Densidade Padrão (120 Neurônios)">120 (Méd)</button>
+                <button class="neuron-density-btn active" data-count="240" title="Alta Densidade GPU Dedicada GTX (240 Neurônios)">240 (GTX)</button>
+                <button class="neuron-density-btn" data-count="360" title="Ultra Densidade GPU Forte RTX (360 Neurônios)">360 (RTX)</button>
+                <button class="neuron-density-btn" data-count="500" title="Densidade Extrema Conectoma Camada V (500 Neurônios)">500 (Máx)</button>
             </div>
             <div class="neuron-parts-grid" id="neuron-parts-grid">
                 <button class="neuron-part-btn active" data-part="NEURON_SOMA">🟣 Corpo Celular (Soma)</button>
@@ -1305,7 +1425,7 @@
                 <button class="neuron-part-btn" data-part="NEURON_DENDRITES">🌿 Dendritos & Espinhas</button>
                 <button class="neuron-part-btn" data-part="NEURON_AXON">⚡ Axônio & Cone</button>
                 <button class="neuron-part-btn" data-part="NEURON_MYELIN">🟡 Bainha de Mielina</button>
-                <button class="neuron-part-btn" data-part="NEURON_SCHWANN">🟢 Célula de Schwann</button>
+                <button class="neuron-part-btn" data-part="NEURON_SCHWANN">🟢 Oligodendrócito / Schwann</button>
                 <button class="neuron-part-btn" data-part="NEURON_RANVIER">💠 Nódulo de Ranvier</button>
                 <button class="neuron-part-btn" data-part="NEURON_TERMINAL">🌸 Terminal do Axônio</button>
                 <button class="neuron-part-btn" data-part="NEURON_SYNAPSE" style="grid-column: span 2;">🔗 Sinapses (Axodendrítica & Axoaxônica)</button>
@@ -1419,7 +1539,7 @@
 
     <!-- BARRA INFERIOR RESPONSIVA PARA CELULARES E TABLETS -->
     <nav id="mobile-bottom-nav" aria-label="Navegação Mobile">
-        <button class="mobile-nav-btn" id="mob-btn-atlas">📚 Atlas (37)</button>
+        <button class="mobile-nav-btn" id="mob-btn-atlas">📚 Atlas (40)</button>
         <button class="mobile-nav-btn" id="mob-btn-clinical">🧬 Doenças & EEG</button>
         <button class="mobile-nav-btn" id="mob-btn-neurons">🔬 Neurônios</button>
         <button class="mobile-nav-btn" id="mob-btn-pan">🧭 Mover 3D</button>
@@ -2008,6 +2128,132 @@
                 ],
                 neurotransmitters: ['Sinalização Neuroendócrina Liquórica e Quimiorrecepção Central de H+/CO2'],
                 clinical: 'Hidrocefalia Obstrutiva Aguda por estenose do Aqueduto de Sylvius ou compressão do 4º Ventrículo por tumores de fossa posterior (Meduloblastoma, Ependimoma) e Malformação de Arnold-Chiari.'
+            },
+            {
+                id: 'BROCA_AREA_BA44_45',
+                name: 'Área de Broca (Giro Frontal Inferior — Pars Opercularis & Triangularis)',
+                latin: 'Area Motoria Loquelae Brocae (Brodmann 44 & 45 — Gyrus Frontalis Inferior)',
+                category: 'BRODMANN_LANGUAGE',
+                badge: 'ÁREA DE BRODMANN 44 & 45 • EXPRESSÃO DA LINGUAGEM',
+                summary: 'Centro cortical motor da fala situado nas porções opercular (BA 44) e triangular (BA 45) do Giro Frontal Inferior do hemisfério dominante (geralmente o esquerdo, ~95% dos destros). Orquestra o planejamento fonológico, a estruturação sintática gramatical e a programação motora articulatória antes de enviar os comandos ao córtex motor primário orofacial (Área 4).',
+                functions: [
+                    'Codificação fonológica e montagem sequencial de morfemas e fonemas em palavras articuladas (Pars Opercularis — BA 44)',
+                    'Processamento sintático-gramatical complexo e seleção léxico-semântica executiva (Pars Triangularis — BA 45)',
+                    'Coordenação direta com o córtex motor da laringe, língua, lábios e palato (Giro Pré-Central Inferior) e com a Ínsula Anterior (Giro de Dronkers)',
+                    'Integração bidirecional com a Área de Wernicke (BA 22) através do Fascículo Arqueado e do Fascículo Longitudinal Superior'
+                ],
+                neurotransmitters: ['Glutamato (Neurônios Piramidais Camadas III/V)', 'GABA (Interneurônios Parvalbumina+)', 'Dopamina (Via Mesocortical D1)', 'Acetilcolina'],
+                clinical: 'Afasia de Broca (Afasia Expressiva ou Não-Fluente por oclusão do ramo superior M2 da Artéria Cerebral Média esquerda): fala telegráfica, agramatismo, esforço articulatório intenso e repetição comprometida, mas com compreensão auditiva amplamente preservada e consciência dolorosa do déficit.'
+            },
+            {
+                id: 'WERNICKE_AREA_BA22',
+                name: 'Área de Wernicke (Giro Temporal Superior Posterior)',
+                latin: 'Area Sensoria Loquelae Wernickei (Brodmann 22 — Planum Temporale)',
+                category: 'BRODMANN_LANGUAGE',
+                badge: 'ÁREA DE BRODMANN 22 • COMPREENSÃO DA LINGUAGEM',
+                summary: 'Centro cortical de decodificação fonêmica e compreensão léxico-semântica localizado no terço posterior do Giro Temporal Superior esquerdo (Área 22 de Brodmann / Planum Temporale), adjacente ao Córtex Auditivo Primário (Giros de Heschl — BA 41/42).',
+                functions: [
+                    'Reconhecimento acústico-fonológico dos sons da fala recebidos dos Giros Transversos de Heschl (BA 41/42)',
+                    'Acesso ao léxico semântico mental: conversão de sequências sonoras ou grafemas em significado conceitual compreensível',
+                    'Monitoramento em tempo real da própria fala (feedback auditivo-verbal) para evitar parafasias fonêmicas e semânticas',
+                    'Projeção das representações semânticas decodificadas para a Área de Broca via Fascículo Arqueado'
+                ],
+                neurotransmitters: ['Glutamato (Receptores AMPA/NMDA)', 'GABA', 'Acetilcolina (Núcleo Basal de Meynert)'],
+                clinical: 'Afasia de Wernicke (Afasia Receptiva ou Fluente por oclusão do ramo inferior M2 da Artéria Cerebral Média esquerda): discurso fluente em ritmo e melodia ("salada de palavras" / jargão afásico), repleto de parafasias fonêmicas, parafasias semânticas e neologismos, acompanhado de grave incapacidade de compreender a linguagem falada/escrita e anosognosia do próprio déficit.'
+            },
+            {
+                id: 'ARCUATE_FASCICULUS_BA39_40',
+                name: 'Fascículo Arqueado & Território de Geschwind (Giros Supramarginal e Angular)',
+                latin: 'Fasciculus Arcuatus & Lobulus Parietalis Inferior (Brodmann 39 & 40)',
+                category: 'BRODMANN_LANGUAGE',
+                badge: 'CONECTOMA DORSAL DA LINGUAGEM • BRODMANN 39 & 40',
+                summary: 'Feixe associativo de substância branca em forma de arco que contorna a Fissura Lateral de Sylvius para acoplar a Área de Wernicke (BA 22) à Área de Broca (BA 44/45), integrando-se ao Lóbulo Parietal Inferior — Giro Supramarginal (BA 40) e Giro Angular (BA 39, Território de Geschwind).',
+                functions: [
+                    'Via Dorsal Fonológica (Fascículo Arqueado): transmissão ultrarrápida somato-auditiva para repetição fiel de palavras e aprendizado de novos vocábulos',
+                    'Giro Supramarginal (BA 40): alça fonológica da memória operacional verbal e integração somatossensorial da articulação',
+                    'Giro Angular (BA 39): hub multimodal visuo-auditivo-tátil essencial para leitura (conversão grafema-fonema), escrita e cálculo simbólico'
+                ],
+                neurotransmitters: ['Glutamato (Axônios Associativos Longos Mielinizados)', 'Acetilcolina'],
+                clinical: 'Afasia de Condução (lesão do Fascículo Arqueado / Giro Supramarginal): compreensão preservada e fala fluente, porém incapacidade severa de repetir palavras ouvidas e parafasias fonêmicas com conduta de aproximação ("conduite d\'approche"). Lesão no Giro Angular dominante (BA 39) causa a Síndrome de Gerstmann (acalculia, agrafia, agnosia digital e desorientação direita-esquerda) e alexia com agrafia.'
+            },
+            {
+                id: 'PREFRONTAL_DLPFC_BA9_46',
+                name: 'Córtex Pré-Frontal Dorsolateral & Orbitofrontal (Funções Executivas)',
+                latin: 'Cortex Praefrontalis Dorsolateralis et Orbitofrontalis (Brodmann 9, 10, 11, 46)',
+                category: 'BRODMANN_LANGUAGE',
+                badge: 'ÁREAS DE BRODMANN 9, 10, 11 & 46 • CONTROLE EXECUTIVO',
+                summary: 'Região associativa multimodal anterior do Lobo Frontal, última a completar a mielinização ontogenética no ser humano (~25 anos). Subdivide-se no circuito Dorsolateral (BA 9/46 — funções executivas "frias": memória de trabalho, planejamento e flexibilidade) e circuito Orbitofrontal/Ventromedial (BA 10/11/12 — funções executivas "quentes": regulação afetiva, ética e inibição de impulsos).',
+                functions: [
+                    'Manutenção e manipulação ativa de informações na Memória de Trabalho (buffer executivo central de Baddeley na BA 9/46)',
+                    'Controle inibitório top-down sobre a Amígdala e o Sistema Límbico, suprimindo respostas impulsivas inadequadas',
+                    'Flexibilidade cognitiva, alternância de estratégias (set-shifting) e raciocínio hipotético-dedutivo abstrato',
+                    'Tomada de decisão baseada em valor, empatia cognitiva (Teoria da Mente) e julgamento moral (Córtex Orbitofrontal BA 11)'
+                ],
+                neurotransmitters: ['Dopamina (Via Mesocortical — Receptores D1)', 'Noradrenalina (Receptores α2A)', 'Glutamato', 'GABA'],
+                clinical: 'Síndrome Disexecutiva Dorsolateral (déficit de atenção executiva, perseveração no teste Wisconsin e incapacidade de planejar) e Síndrome Orbitofrontal ("Phineas Gage": desinibição comportamental, puerilidade/moria, labilidade emocional e sociopatia adquirida).'
+            },
+            {
+                id: 'PRIMARY_MOTOR_M1_BA4',
+                name: 'Córtex Motor Primário M1 (Giro Pré-Central & Homúnculo de Penfield)',
+                latin: 'Gyrus Praecentralis — Cortex Motorius Primarius (Brodmann 4)',
+                category: 'BRODMANN_LANGUAGE',
+                badge: 'ÁREA DE BRODMANN 4 • MOTRICIDADE VOLUNTÁRIA (CAMADA V)',
+                summary: 'Faixa cortical agranular localizada no Giro Pré-Central, imediatamente anterior ao Sulco Central de Rolando. Abriga na Camada V as células piramidais gigantes de Betz, cujos axônios descem pela coroa radiada e braço posterior da cápsula interna formando o Trato Corticoespinhal e o Trato Corticonuclear.',
+                functions: [
+                    'Representação somatotópica invertida e desproporcional do corpo humano (Homúnculo Motor de Penfield: mão/polegar e face/língua na convexidade lateral irrigada pela ACM; perna/pé no lóbulo paracentral medial irrigado pela ACA)',
+                    'Codificação da força, direção e velocidade da contração muscular voluntária fina distal (especialmente pinça digital e mímica/fala)',
+                    'Disparo direto dos motoneurônios superiores da Camada V para os motoneurônios alfa da medula espinhal contralateral'
+                ],
+                neurotransmitters: ['Glutamato (Neurônios Piramidais Gigantes de Betz)', 'GABA (Células em Candelabro e em Cesto)'],
+                clinical: 'Síndrome do Neurônio Motor Superior (hemiparesia/hemiplegia contralateral, espasticidade em canivete, hiperreflexia profunda, clônus e Sinal de Babinski positivo), crises epilépticas focais motoras com Marcha Jacksoniana e degeneração seletiva na Esclerose Lateral Amiotrófica (ELA).'
+            },
+            {
+                id: 'PRIMARY_SOMATOSENSORY_S1_BA312',
+                name: 'Córtex Somatossensorial Primário S1 (Giro Pós-Central)',
+                latin: 'Gyrus Postcentralis — Cortex Somatosensorius Primarius (Brodmann 3, 1, 2)',
+                category: 'BRODMANN_LANGUAGE',
+                badge: 'ÁREAS DE BRODMANN 3, 1 & 2 • HOMÚNCULO SENSORIAL',
+                summary: 'Faixa cortical granular (koniocórtex com Camada IV hiperdesenvolvida) situada no Giro Pós-Central, posteriormente ao Sulco Central de Rolando. Recebe as radiações talâmicas dos núcleos VPL (corpo: colunas dorsais/lemnisco medial e trato espinotalâmico) e VPM (face e cavidade oral via lemnisco trigeminal).',
+                functions: [
+                    'Área 3a: recepção de aferências proprioceptivas conscientes dos fusos neuromusculares e órgãos tendinosos de Golgi',
+                    'Área 3b e Área 1: discriminação tátil epicrítica de dois pontos, textura e vibração cutânea (corpúsculos de Meissner, Merkel e Pacini)',
+                    'Área 2: integração tátil-proprioceptiva da forma e tamanho tridimensional dos objetos palpados (estereognosia)',
+                    'Mapeamento somatotópico do Homúnculo Sensorial de Penfield (lábios, língua e polpas digitais com máxima densidade cortical)'
+                ],
+                neurotransmitters: ['Glutamato (Aferências Talamocorticais VPL/VPM)', 'GABA (Inibição Lateral para Nitidez Espacial)', 'Acetilcolina'],
+                clinical: 'Hemi-hipoestesia ou hemianestesia contralateral, perda da propriocepção consciente (ataxia sensitiva), astereognosia (incapacidade de identificar objetos pelo tato de olhos fechados), agrafestesia e fenômeno do membro fantasma por reorganização plástica somatotópica.'
+            },
+            {
+                id: 'PRIMARY_AUDITORY_A1_BA41_42',
+                name: 'Córtex Auditivo Primário A1 (Giros Transversos de Heschl)',
+                latin: 'Gyri Temporales Transversi Heschli (Brodmann 41 & 42)',
+                category: 'BRODMANN_LANGUAGE',
+                badge: 'ÁREAS DE BRODMANN 41 & 42 • MAPA TONOTÓPICO AUDITIVO',
+                summary: 'Localizado na parede superior do Giro Temporal Superior (plano supratemporal), oculto na profundidade da Fissura Lateral de Sylvius. Recebe as radiações acústicas oriundas do Corpo Geniculado Medial do tálamo, preservando o mapa tonotópico da membrana basilar da cóclea.',
+                functions: [
+                    'Organização tonotópica precisa: frequências agudas processadas na porção posteromedial e frequências graves na porção anterolateral',
+                    'Análise temporal de transientes acústicos rápidos essenciais para discriminar consoantes oclusivas da fala',
+                    'Localização binaural da fonte sonora no espaço horizontal através da diferença interaural de tempo e intensidade',
+                    'Retransmissão imediata para a Área de Wernicke (BA 22) para decodificação fonológica da linguagem'
+                ],
+                neurotransmitters: ['Glutamato', 'GABA (Inibição Lateral de Frequências)', 'Acetilcolina'],
+                clinical: 'Como cada Córtex Auditivo Primário recebe aferências bilaterais de ambos os ouvidos (via Corpo Trapezoide e Lemnisco Lateral), lesões unilaterais causam apenas dificuldade sutil de localização sonora; lesões bilaterais nos Giros de Heschl provocam Surdez Cortical ou Agnosia Auditiva Verbal Pura.'
+            },
+            {
+                id: 'PRIMARY_VISUAL_V1_BA17',
+                name: 'Córtex Visual Primário V1 (Córtex Calcarino / Estria de Gennari)',
+                latin: 'Cortex Visualis Primarius — Sulcus Calcarinus (Brodmann 17 / Area Striata)',
+                category: 'BRODMANN_LANGUAGE',
+                badge: 'ÁREA DE BRODMANN 17 • CÓRTEX ESTRIADO RETINOTÓPICO',
+                summary: 'Situado nas margens superior (cúneo) e inferior (giro lingual) do Sulco Calcarino na face medial do Lobo Occipital. É denominado Córtex Estriado devido à proeminente faixa mielinizada visível a olho nu na Camada IVb (Estria de Gennari), recebendo as Radiações Ópticas de Gratiolet vindas do Corpo Geniculado Lateral (CGL).',
+                functions: [
+                    'Mapa retinotópico com magnificação foveal: a mácula (visão central de alta acuidade) ocupa o terço posterior do polo occipital; o quadrante visual superior projeta-se no lábio calcarino inferior e o quadrante inferior no lábio superior',
+                    'Colunas de dominância ocular e colunas de orientação (Hubel & Wiesel: células simples, complexas e hipercomplexas)',
+                    'Extração primária de orientação de bordas, frequência espacial, contraste luminoso, cor (blobs de citocromo oxidase) e disparidade binocular',
+                    'Distribuição para a Via Dorsal Occipitoparietal ("Onde/Como agir") e Via Ventral Occipitotemporal ("O Quê é")'
+                ],
+                neurotransmitters: ['Glutamato', 'GABA (Interneurônios Inibitórios)', 'Acetilcolina'],
+                clinical: 'Hemianopsia Homônima Contralateral com Preservação Macular (oclusão da Artéria Cerebral Posterior), Quadrantopsia Superior ("Pie in the Sky" — lesão da Alça de Meyer temporal) ou Inferior ("Pie on the Floor" — lesão da radiação parietal) e Cegueira Cortical com Síndrome de Anton.'
             }
         ];
 
@@ -2115,31 +2361,271 @@
             }
 
             // =====================================================================
-            // SÍNTESE DE VOZ NEUROANATÔMICA (WEB SPEECH API)
+            // I18N, TRADUÇÃO NEUROANATÔMICA E SÍNTESE DE VOZ GEMINI / WEB SPEECH
             // =====================================================================
-            function speakText(text) {
-                if (!('speechSynthesis' in window) || !text) return;
-                try {
-                    window.speechSynthesis.cancel();
-                    const utter = new SpeechSynthesisUtterance(text);
-                    utter.lang = 'pt-BR';
-                    utter.rate = 1.04;
-                    window.speechSynthesis.speak(utter);
-                } catch (_) {}
-            }
+            let currentLang = 'pt-BR';
+            const translationCache = new Map();
+            let currentAudio = null;
 
-            function narrateCurrentSelection() {
+            const UI_I18N = {
+                'pt-BR': {
+                    title_macro: 'ATLAS ANATÔMICO SNC & SNP',
+                    subtitle_macro: 'SNC & SNP Completo • Córtex MNI152 Real • GPU: NVIDIA GeForce GTX 1650',
+                    title_micro: 'MICROCOSMOS NEURONAL 3D',
+                    subtitle_micro: 'Camada V Cortical • Modelo Hodgkin-Huxley Biofísico • Dinâmica Sináptica Real',
+                    btn_micro: '🔬 Microcosmos Neuronal',
+                    btn_cns: '🧠 Voltar ao SNC',
+                    btn_center: '🎯 Centralizar',
+                    btn_tour: '🎬 Tour Guiado',
+                    btn_voice: '🔊 Voz Gemini',
+                    btn_fullscreen: '⛶ Tela Cheia',
+                    search_placeholder: 'Buscar estrutura neuroanatômica...',
+                    cat_all: 'Todos (40)',
+                    cat_telencephalon: 'Telencéfalo',
+                    cat_diencephalon: 'Diencéfalo',
+                    cat_brainstem: 'Tronco Encefálico',
+                    cat_cerebellum: 'Cerebelo',
+                    cat_spinal_pns: 'Medula & SNP',
+                    cat_vascular_csf: 'Vascular & LCR',
+                    cat_brodmann: 'Áreas de Brodmann & Linguagem',
+                    badge_clinical: 'CORRELAÇÃO CLÍNICA & FISIOPATOLOGIA',
+                    btn_isolate: '🧩 Isolar Peça 3D',
+                    btn_dive: '🔬 Ver Neurônios',
+                    btn_meninges: '🛡️ Meninges (3 Camadas)',
+                    btn_xray: '👁️ Visão Raio-X',
+                    btn_vlibras: '🤟 Libras'
+                },
+                'en-GB': {
+                    title_macro: 'CNS & PNS ANATOMICAL ATLAS',
+                    subtitle_macro: 'Full CNS & PNS • Real MNI152 Cortex • GPU: NVIDIA GeForce GTX 1650',
+                    title_micro: '3D NEURONAL MICROCOSM',
+                    subtitle_micro: 'Cortical Layer V • Biophysical Hodgkin-Huxley Model • Real Synaptic Dynamics',
+                    btn_micro: '🔬 Neuronal Microcosm',
+                    btn_cns: '🧠 Return to CNS',
+                    btn_center: '🎯 Recentre',
+                    btn_tour: '🎬 Guided Tour',
+                    btn_voice: '🔊 Gemini Voice',
+                    btn_fullscreen: '⛶ Fullscreen',
+                    search_placeholder: 'Search neuroanatomical structure...',
+                    cat_all: 'All (40)',
+                    cat_telencephalon: 'Telencephalon',
+                    cat_diencephalon: 'Diencephalon',
+                    cat_brainstem: 'Brainstem',
+                    cat_cerebellum: 'Cerebellum',
+                    cat_spinal_pns: 'Spinal Cord & PNS',
+                    cat_vascular_csf: 'Vascular & CSF',
+                    cat_brodmann: 'Brodmann Areas & Language',
+                    badge_clinical: 'CLINICAL CORRELATION & PATHOPHYSIOLOGY',
+                    btn_isolate: '🧩 Isolate 3D Part',
+                    btn_dive: '🔬 View Neurons',
+                    btn_meninges: '🛡️ Meninges (3 Layers)',
+                    btn_xray: '👁️ X-Ray View',
+                    btn_vlibras: '🤟 Sign Language'
+                },
+                'es-ES': {
+                    title_macro: 'ATLAS ANATÓMICO SNC Y SNP',
+                    subtitle_macro: 'SNC y SNP Completo • Corteza MNI152 Real • GPU: NVIDIA GeForce GTX 1650',
+                    title_micro: 'MICROCOSMOS NEURONAL 3D',
+                    subtitle_micro: 'Capa V Cortical • Modelo Hodgkin-Huxley Biofísico • Dinámica Sináptica Real',
+                    btn_micro: '🔬 Microcosmos Neuronal',
+                    btn_cns: '🧠 Volver al SNC',
+                    btn_center: '🎯 Centrar',
+                    btn_tour: '🎬 Visita Guiada',
+                    btn_voice: '🔊 Voz Gemini',
+                    btn_fullscreen: '⛶ Pantalla Completa',
+                    search_placeholder: 'Buscar estructura neuroanatómica...',
+                    cat_all: 'Todos (40)',
+                    cat_telencephalon: 'Telencéfalo',
+                    cat_diencephalon: 'Diencéfalo',
+                    cat_brainstem: 'Tronco Encefálico',
+                    cat_cerebellum: 'Cerebelo',
+                    cat_spinal_pns: 'Médula y SNP',
+                    cat_vascular_csf: 'Vascular y LCR',
+                    cat_brodmann: 'Áreas de Brodmann y Lenguaje',
+                    badge_clinical: 'CORRELACIÓN CLÍNICA Y FISIOPATOLOGÍA',
+                    btn_isolate: '🧩 Aislar Pieza 3D',
+                    btn_dive: '🔬 Ver Neuronas',
+                    btn_meninges: '🛡️ Meninges (3 Capas)',
+                    btn_xray: '👁️ Visión Rayos X',
+                    btn_vlibras: '🤟 Lengua de Señas'
+                },
+                'it-IT': {
+                    title_macro: 'ATLANTE ANATOMICO SNC E SNP',
+                    subtitle_macro: 'SNC e SNP Completo • Corteccia MNI152 Reale • GPU: NVIDIA GeForce GTX 1650',
+                    title_micro: 'MICROCOSMO NEURONALE 3D',
+                    subtitle_micro: 'Strato V Corticale • Modello Hodgkin-Huxley Biofisico • Dinamica Sinaptica Reale',
+                    btn_micro: '🔬 Microcosmo Neuronale',
+                    btn_cns: '🧠 Torna al SNC',
+                    btn_center: '🎯 Ricentra',
+                    btn_tour: '🎬 Tour Guidato',
+                    btn_voice: '🔊 Voce Gemini',
+                    btn_fullscreen: '⛶ Schermo Intero',
+                    search_placeholder: 'Cerca struttura neuroanatomica...',
+                    cat_all: 'Tutti (40)',
+                    cat_telencephalon: 'Telencefalo',
+                    cat_diencephalon: 'Diencefalo',
+                    cat_brainstem: 'Tronco Encefalico',
+                    cat_cerebellum: 'Cervelletto',
+                    cat_spinal_pns: 'Midollo e SNP',
+                    cat_vascular_csf: 'Vascolare e LCS',
+                    cat_brodmann: 'Aree di Brodmann e Linguaggio',
+                    badge_clinical: 'CORRELAZIONE CLINICA E FISIOPATOLOGIA',
+                    btn_isolate: '🧩 Isola Parte 3D',
+                    btn_dive: '🔬 Guarda Neuroni',
+                    btn_meninges: '🛡️ Meningi (3 Strati)',
+                    btn_xray: '👁️ Visione a Raggi X',
+                    btn_vlibras: '🤟 Lingua dei Segni'
+                },
+                'uk-UA': {
+                    title_macro: 'АНАТОМІЧНИЙ АТЛАС ЦНС ТА ПНС',
+                    subtitle_macro: 'Повна ЦНС та ПНС • Реальна кора MNI152 • GPU: NVIDIA GeForce GTX 1650',
+                    title_micro: '3D НЕЙРОННИЙ МІКРОКОСМОС',
+                    subtitle_micro: 'V корковий шар • Біофізична модель Ходжкіна-Хакслі • Реальна синаптична динаміка',
+                    btn_micro: '🔬 Нейронний мікрокосмос',
+                    btn_cns: '🧠 Повернутися до ЦНС',
+                    btn_center: '🎯 Центрувати',
+                    btn_tour: '🎬 Екскурсія',
+                    btn_voice: '🔊 Голос Gemini',
+                    btn_fullscreen: '⛶ На весь екран',
+                    search_placeholder: 'Пошук нейроанатомічної структури...',
+                    cat_all: 'Всі (40)',
+                    cat_telencephalon: 'Кінцевий мозок',
+                    cat_diencephalon: 'Проміжний мозок',
+                    cat_brainstem: 'Стовбур мозку',
+                    cat_cerebellum: 'Мозочок',
+                    cat_spinal_pns: 'Спинний мозок та ПНС',
+                    cat_vascular_csf: 'Судини та СМР',
+                    cat_brodmann: 'Поля Бродмана та Мова',
+                    badge_clinical: 'КЛІНІЧНА КОРЕЛЯЦІЯ ТА ПАТОФІЗІОЛОГІЯ',
+                    btn_isolate: '🧩 Ізолювати 3D деталь',
+                    btn_dive: '🔬 Дослідити нейрони',
+                    btn_meninges: '🛡️ Мозкові оболони (3 шари)',
+                    btn_xray: '👁️ Рентген-режим',
+                    btn_vlibras: '🤟 Жестова мова'
+                }
+            };
+
+            function applyLanguage(lang) {
+                currentLang = lang;
+                const dict = UI_I18N[lang] || UI_I18N['pt-BR'];
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.dataset.i18n;
+                    if (dict[key]) {
+                        if (el.tagName === 'INPUT') el.placeholder = dict[key];
+                        else el.textContent = dict[key];
+                    }
+                });
                 const meta = isMicroMode
                     ? neuralMicro.getPartMetadata(selectedNeuronPartId)
                     : (ontologyMap.get(selectedStructureId) || MOZOK_ONTOLOGY[0]);
-                if (!meta) return;
-                speakText(`${meta.name}. ${meta.summary} Correlação clínica: ${meta.clinical}`);
+                if (meta) updateHUDAndPopup(meta, popupVisible);
+                renderStructureList();
+            }
+
+            function syncSpeechWithVLibras(text) {
+                const subBar = document.getElementById('mozok-subtitle-bar');
+                if (subBar) {
+                    subBar.textContent = text;
+                    subBar.classList.remove('hidden');
+                    clearTimeout(window._subTimeout);
+                    window._subTimeout = setTimeout(() => subBar.classList.add('hidden'), 12000);
+                }
+                try {
+                    const bridge = document.getElementById('vlibras-speech-bridge');
+                    if (bridge) {
+                        bridge.value = text;
+                        bridge.dispatchEvent(new Event('input', { bubbles: true }));
+                        bridge.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                } catch (_) {}
+            }
+
+            async function getTranslatedMetadata(meta, lang) {
+                if (!meta || lang === 'pt-BR') return meta;
+                const cacheKey = `${lang}_${meta.id}`;
+                if (translationCache.has(cacheKey)) {
+                    return translationCache.get(cacheKey);
+                }
+                try {
+                    const resp = await fetch('/api/gemini-translate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            target_lang: lang,
+                            data: {
+                                name: meta.name,
+                                summary: meta.summary,
+                                clinical: meta.clinical,
+                                functions: meta.functions || []
+                            }
+                        })
+                    });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data && data.translated) {
+                            const tr = {
+                                ...meta,
+                                name: data.translated.name || meta.name,
+                                summary: data.translated.summary || meta.summary,
+                                clinical: data.translated.clinical || meta.clinical,
+                                functions: data.translated.functions || meta.functions
+                            };
+                            translationCache.set(cacheKey, tr);
+                            return tr;
+                        }
+                    }
+                } catch (_) {}
+                return meta;
+            }
+
+            async function speakText(text, lang = currentLang) {
+                if (!text) return;
+                syncSpeechWithVLibras(text);
+
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio = null;
+                }
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                }
+
+                try {
+                    const audioUrl = `/api/gemini-tts?text=${encodeURIComponent(text)}&lang=${encodeURIComponent(lang)}`;
+                    const audio = new Audio(audioUrl);
+                    currentAudio = audio;
+                    await audio.play();
+                    return;
+                } catch (_) {
+                    // Fallback para Web Speech API nativa
+                    if ('speechSynthesis' in window) {
+                        try {
+                            const utter = new SpeechSynthesisUtterance(text);
+                            utter.lang = lang;
+                            utter.rate = 1.04;
+                            window.speechSynthesis.speak(utter);
+                        } catch (err) {}
+                    }
+                }
+            }
+
+            async function narrateCurrentSelection() {
+                const rawMeta = isMicroMode
+                    ? neuralMicro.getPartMetadata(selectedNeuronPartId)
+                    : (ontologyMap.get(selectedStructureId) || MOZOK_ONTOLOGY[0]);
+                if (!rawMeta) return;
+                const meta = (currentLang !== 'pt-BR') ? (await getTranslatedMetadata(rawMeta, currentLang)) : rawMeta;
+                const clinicalPrefix = (currentLang === 'pt-BR') ? 'Correlação clínica: ' :
+                    (currentLang === 'es-ES') ? 'Correlación clínica: ' :
+                    (currentLang === 'it-IT') ? 'Correlazione clinica: ' :
+                    (currentLang === 'uk-UA') ? 'Клінічна кореляція: ' : 'Clinical correlation: ';
+                speakText(`${meta.name}. ${meta.summary} ${clinicalPrefix}${meta.clinical}`, currentLang);
             }
 
             // =====================================================================
             // ATUALIZAÇÃO DO PAINEL DIREITO E DA CAIXA POP-UP 3D FLUTUANTE
             // =====================================================================
-            function updateHUDAndPopup(meta, showFloatingPopup = false) {
+            function renderHUDFields(meta, showFloatingPopup = false) {
                 if (!meta) return;
 
                 // Atualiza sempre o Painel Direito silenciosamente
@@ -2203,6 +2689,18 @@
                     popupEl.classList.add('hidden');
                     pinDotEl.classList.add('hidden');
                     leaderLineEl.style.display = 'none';
+                }
+            }
+
+            async function updateHUDAndPopup(rawMeta, showFloatingPopup = false) {
+                if (!rawMeta) return;
+                renderHUDFields(rawMeta, showFloatingPopup);
+
+                if (currentLang !== 'pt-BR') {
+                    const trMeta = await getTranslatedMetadata(rawMeta, currentLang);
+                    if (trMeta && trMeta !== rawMeta && (selectedStructureId === rawMeta.id || selectedNeuronPartId === rawMeta.id)) {
+                        renderHUDFields(trMeta, showFloatingPopup);
+                    }
                 }
             }
 
@@ -2640,16 +3138,54 @@
                 }, 5500);
             });
 
-            // Voz IA
+            // Voz IA (Gemini TTS / Web Speech)
             document.getElementById('btn-voice').addEventListener('click', (e) => {
                 voiceEnabled = !voiceEnabled;
                 e.currentTarget.classList.toggle('active', voiceEnabled);
                 if (voiceEnabled) {
                     narrateCurrentSelection();
-                } else if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
+                } else {
+                    if (currentAudio) {
+                        currentAudio.pause();
+                        currentAudio = null;
+                    }
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                    }
                 }
             });
+
+            // Seletor de Idioma (i18n + Tradução Neuroanatômica)
+            const langSelect = document.getElementById('lang-select');
+            if (langSelect) {
+                langSelect.addEventListener('change', (e) => applyLanguage(e.target.value));
+            }
+
+            // Ativação / Recolhimento do Intérprete VLibras (PiP Compacto)
+            let vlibrasInitialized = false;
+            let vlibrasActive = false;
+            const btnVlibras = document.getElementById('btn-vlibras');
+            if (btnVlibras) {
+                btnVlibras.addEventListener('click', () => {
+                    vlibrasActive = !vlibrasActive;
+                    btnVlibras.classList.toggle('active', vlibrasActive);
+                    const cont = document.getElementById('vlibras-container');
+                    if (cont) {
+                        cont.style.display = vlibrasActive ? 'block' : 'none';
+                    }
+                    if (vlibrasActive && !vlibrasInitialized) {
+                        vlibrasInitialized = true;
+                        const script = document.createElement('script');
+                        script.src = 'https://vlibras.gov.br/app/vlibras-plugin.js';
+                        script.onload = () => {
+                            if (window.VLibras && window.VLibras.Widget) {
+                                new window.VLibras.Widget('https://vlibras.gov.br/app');
+                            }
+                        };
+                        document.body.appendChild(script);
+                    }
+                });
+            }
 
             // Tela Cheia (Navegador + WebView2 Nativo via IPC)
             function toggleFullscreen() {
@@ -2759,7 +3295,7 @@
                     targetStructure: 'MIDDLE_CEREBRAL_ARTERY'
                 },
                 'ALZHEIMER': {
-                    stage: 'BRAK V–VI • DEMÊNCIA',
+                    stage: 'BRAAK V–VI • DEMÊNCIA',
                     color: '#c084fc',
                     note: 'Deposição extracelular de placas senis de Beta-Amiloide (Aβ42) e emaranhados neurofibrilares intracelulares de Tau hiperfosforilada com atrofia hipocampal e cortical.',
                     abetaTau: 'Aβ42↓ pTau↑↑',
@@ -3270,5 +3806,17 @@
             animate();
         })();
     </script>
+    <div id="mozok-subtitle-bar" role="status" aria-live="polite">
+        <strong style="color:#00f2fe; margin-right:6px;">🎙️ Gemini IA:</strong>
+        <span id="mozok-subtitle-text"></span>
+    </div>
+    <div id="vlibras-speech-bridge" class="sr-only-vlibras" aria-live="assertive" tabindex="0"></div>
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js" async></script>
 </body>
 </html>

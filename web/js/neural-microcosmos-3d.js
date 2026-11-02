@@ -1,4 +1,33 @@
-// MOZOK v7.0 — NeuralMicrocosmos3D (54-180 Connected Neurons, Axo-Dendritic & Axo-Axonic Synapses, 7 Pathologies)
+// MOZOK v7.2 — NeuralMicrocosmos3D (DCJ Firefly Layer V Photorealistic Engine, Rall's Law, Bidirectional Synapses, 50-500 Neurons)
+
+function fbm3D(x, y, z) {
+    let total = 0.0;
+    let amp = 0.5;
+    let freq = 1.0;
+    for (let i = 0; i < 4; i++) {
+        total += amp * (Math.sin(x * freq * 1.8 + y * freq * 0.9) * Math.cos(y * freq * 1.6 + z * freq * 1.1) * Math.sin(z * freq * 1.7 + x * freq * 0.8));
+        freq *= 2.05;
+        amp *= 0.5;
+    }
+    return total;
+}
+
+function buildSoftGlowTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, 'rgba(0, 242, 254, 1.0)');
+    grad.addColorStop(0.35, 'rgba(0, 242, 254, 0.6)');
+    grad.addColorStop(0.7, 'rgba(14, 165, 233, 0.2)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 64, 64);
+    const tex = new THREE.CanvasTexture(canvas);
+    return tex;
+}
+
 class NeuralMicrocosmos3D {
     constructor(scene, renderer = null) {
         this.scene = scene;
@@ -14,6 +43,8 @@ class NeuralMicrocosmos3D {
         this.synapseConnections = [];
         this.myelinMeshes = [];
         this.somaMeshes = [];
+        this.somaShaderUniforms = [];
+        this.glowTexture = buildSoftGlowTexture();
         this.interactiveParts = [];
         this.partAnchors = new Map();
         this.selectedPartId = 'NEURON_SOMA';
@@ -172,7 +203,7 @@ class NeuralMicrocosmos3D {
     detectDeviceGpuPower() {
         let gpuRenderer = 'WebGL2 GPU';
         let tier = 'HIGH';
-        let recommendedNeurons = 90;
+        let recommendedNeurons = 240;
         try {
             const cores = navigator.hardwareConcurrency || 4;
             const mem = navigator.deviceMemory || 8;
@@ -184,42 +215,69 @@ class NeuralMicrocosmos3D {
                     gpuRenderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || gpuRenderer;
                 }
             }
-            const highPerfRegex = /NVIDIA|GeForce|RTX|GTX|Radeon RX|Apple M[1-9]|Arc A[57]/i;
+            const rtxRegex = /RTX|Radeon RX 7|Apple M[2-4] Max|Arc A7/i;
+            const gtxRegex = /NVIDIA|GeForce|GTX|Radeon RX|Apple M[1-9]|Arc A[57]/i;
             const lowPerfRegex = /Mali|Adreno|PowerVR|Intel\(R\) HD|UHD Graphics 6/i;
-            if (highPerfRegex.test(gpuRenderer) && !isMobileScreen) {
-                tier = 'ULTRA (GPU Dedicada)';
-                recommendedNeurons = 135;
+            if (rtxRegex.test(gpuRenderer) && !isMobileScreen) {
+                tier = 'ULTRA (RTX / High-End)';
+                recommendedNeurons = 360;
+            } else if (gtxRegex.test(gpuRenderer) && !isMobileScreen) {
+                tier = 'DEDICADA (GTX 1650)';
+                recommendedNeurons = 240;
             } else if (isMobileScreen || lowPerfRegex.test(gpuRenderer) || cores <= 4 || mem <= 4) {
-                tier = 'ADAPTATIVO (Mínimo 54 Neurônios)';
-                recommendedNeurons = 54; // Estritamente >= 50 neurônios mesmo em celulares/integrada!
+                tier = 'ECONÔMICO (Mobile / Integrada)';
+                recommendedNeurons = 60;
             } else {
-                tier = 'ALTO (Desktop)';
-                recommendedNeurons = 90;
+                tier = 'MÉDIO (Desktop Padrão)';
+                recommendedNeurons = 120;
             }
         } catch (_) {
-            recommendedNeurons = 75;
+            recommendedNeurons = 120;
         }
         return {
             tier,
             gpuRenderer,
-            recommendedNeurons: Math.max(50, recommendedNeurons)
+            recommendedNeurons: Math.max(50, Math.min(500, recommendedNeurons))
         };
     }
     initSharedMaterials() {
+        const somaMat = new THREE.MeshPhysicalMaterial({
+            color: 0xa855f7,
+            emissive: 0x581c87,
+            emissiveIntensity: 0.38,
+            roughness: 0.18,
+            metalness: 0.02,
+            transmission: 0.68,
+            transparent: true,
+            opacity: 0.52,
+            depthWrite: false,
+            clearcoat: 0.9,
+            side: THREE.DoubleSide
+        });
+
+        somaMat.onBeforeCompile = (shader) => {
+            shader.uniforms.uTime = { value: 0.0 };
+            shader.uniforms.uSpike = { value: 0.0 };
+            this.somaShaderUniforms.push(shader.uniforms);
+            shader.fragmentShader = `
+                uniform float uTime;
+                uniform float uSpike;
+            ` + shader.fragmentShader;
+            shader.fragmentShader = shader.fragmentShader.replace(
+                '#include <dithering_fragment>',
+                `#include <dithering_fragment>
+                vec3 viewDirNorm = normalize(vViewPosition);
+                float fresnel = 1.0 - abs(dot(viewDirNorm, normal));
+                fresnel = pow(fresnel, 2.8);
+                vec3 fresnelCyan = vec3(0.0, 0.95, 1.0) * fresnel * (0.65 + 0.35 * sin(uTime * 3.0 + uSpike * 4.0));
+                vec3 amberGlow = vec3(1.0, 0.72, 0.15) * uSpike * 0.85;
+                gl_FragColor.rgb += fresnelCyan + amberGlow;
+                `
+            );
+        };
+
         this.materials = {
-            somaMat: new THREE.MeshPhysicalMaterial({
-                color: 0xa855f7,
-                emissive: 0x581c87,
-                emissiveIntensity: 0.38,
-                roughness: 0.18,
-                metalness: 0.02,
-                transmission: 0.68,
-                transparent: true,
-                opacity: 0.52,
-                depthWrite: false,
-                clearcoat: 0.9,
-                side: THREE.DoubleSide
-            }),
+            somaMat,
             nucleusMat: new THREE.MeshPhysicalMaterial({
                 color: 0xff6b00,
                 emissive: 0xea580c,
@@ -310,7 +368,7 @@ class NeuralMicrocosmos3D {
         return new THREE.Vector3(0, 0, 0);
     }
     setNeuronCount(count) {
-        const clamped = Math.max(50, Math.min(200, Math.round(Number(count) || 54)));
+        const clamped = Math.max(50, Math.min(500, Math.round(Number(count) || 60)));
         if (clamped === this.targetNeuronCount && this.neurons.length === clamped) return clamped;
         this.targetNeuronCount = clamped;
         this.buildCompleteConnectedNeuronNetwork(clamped);
@@ -447,18 +505,43 @@ class NeuralMicrocosmos3D {
         const materials = this.materials;
         const nGroup = new THREE.Group();
         const somaGroup = new THREE.Group();
-        const somaGeo = new THREE.SphereGeometry(1.18, 42, 42);
+
+        // 1. Soma Piramidal Camada V Photorealista (DCJ Firefly com 8 polos de emergência dendrítica e cone axonal)
+        const somaGeo = new THREE.SphereGeometry(1.22, 54, 54);
         const sPos = somaGeo.attributes.position;
+        const poles = [
+            new THREE.Vector3(1.0, 0.0, 0.0),       // Cone de implantação axonal (Axon Hillock)
+            new THREE.Vector3(-0.85, 0.52, 0.15),   // Tronco dendrítico apical
+            new THREE.Vector3(-0.72, -0.62, 0.42),  // Raiz basal 1
+            new THREE.Vector3(-0.72, -0.62, -0.42), // Raiz basal 2
+            new THREE.Vector3(-0.45, 0.72, -0.62),  // Raiz basal 3
+            new THREE.Vector3(-0.45, -0.72, 0.62),  // Raiz basal 4
+            new THREE.Vector3(-0.82, 0.22, 0.55),   // Raiz basal 5
+            new THREE.Vector3(-0.82, -0.22, -0.55)  // Raiz basal 6
+        ];
+        poles.forEach(p => p.normalize());
+
         for (let i = 0; i < sPos.count; i++) {
             let x = sPos.getX(i);
             let y = sPos.getY(i);
             let z = sPos.getZ(i);
-            if (x > 0.25) {
-                x *= 1.30;
-                y *= (1.0 - (x / 2.2) * 0.25);
-                z *= (1.0 - (x / 2.2) * 0.25);
+            const v = new THREE.Vector3(x, y, z);
+            const r = v.length();
+            if (r > 0.0001) {
+                const normV = v.clone().divideScalar(r);
+                let flare = 0.0;
+                for (let p = 0; p < poles.length; p++) {
+                    const dot = Math.max(0.0, normV.dot(poles[p]));
+                    if (dot > 0.48) {
+                        const power = (p === 0) ? 2.8 : 3.4;
+                        const intensity = (p === 0) ? 0.42 : (p === 1 ? 0.35 : 0.24);
+                        flare += Math.pow(dot, power) * intensity;
+                    }
+                }
+                const noise = fbm3D(x * 1.5, y * 1.5, z * 1.5) * 0.12;
+                const factor = 1.0 + flare + noise;
+                sPos.setXYZ(i, x * factor, y * factor, z * factor);
             }
-            sPos.setXYZ(i, x, y, z);
         }
         somaGeo.computeVertexNormals();
         const somaMesh = new THREE.Mesh(somaGeo, materials.somaMat.clone());
@@ -467,11 +550,27 @@ class NeuralMicrocosmos3D {
         this.somaMeshes.push(somaMesh);
         nGroup.add(somaGroup);
         this.registerNeuronPart('NEURON_SOMA', somaGroup, isPrimary ? somaPos.clone().add(new THREE.Vector3(0, 1.25, 0)) : null);
+
+        // 2. Núcleo, Nucléolo, Halo Perinuclear e Corpúsculos de Nissl
         const nucGroup = new THREE.Group();
         const nucleusMesh = new THREE.Mesh(new THREE.SphereGeometry(0.54, 32, 32), materials.nucleusMat);
         nucleusMesh.position.copy(somaPos);
         nucGroup.add(nucleusMesh);
-        const nucleolusMesh = new THREE.Mesh(new THREE.SphereGeometry(0.20, 20, 20), materials.nucleolusMat);
+
+        const haloMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(0.64, 24, 24),
+            new THREE.MeshBasicMaterial({
+                color: 0x38bdf8,
+                transparent: true,
+                opacity: 0.24,
+                blending: THREE.AdditiveBlending,
+                side: THREE.BackSide
+            })
+        );
+        haloMesh.position.copy(somaPos);
+        nucGroup.add(haloMesh);
+
+        const nucleolusMesh = new THREE.Mesh(new THREE.SphereGeometry(0.18, 20, 20), materials.nucleolusMat);
         nucleolusMesh.position.copy(somaPos).add(new THREE.Vector3(0.12, 0.10, 0.18));
         nucGroup.add(nucleolusMesh);
         for (let k = 0; k < 12; k++) {
@@ -487,13 +586,21 @@ class NeuralMicrocosmos3D {
         }
         nGroup.add(nucGroup);
         this.registerNeuronPart('NEURON_NUCLEUS', nucGroup, isPrimary ? somaPos.clone() : null);
+
+        // 3. Árvore Dendrítica Multinível de 5ª Ordem via Lei Potencial de Rall (r_filho = 0.63 * r_pai)
         const dendGroup = new THREE.Group();
+        const rParent = 0.14;
+        const r2 = rParent * 0.63;
+        const r3 = r2 * 0.63;
+        const r4 = r3 * 0.63;
+        const r5 = r4 * 0.63;
+
         dendriteTargets.forEach((targetPt, dIdx) => {
             const dir = targetPt.clone().sub(somaPos);
             const mid1 = somaPos.clone().add(dir.clone().multiplyScalar(0.38)).add(new THREE.Vector3(0, (dIdx % 2 === 0 ? 0.35 : -0.35), 0.2));
             const mid2 = somaPos.clone().add(dir.clone().multiplyScalar(0.72)).add(new THREE.Vector3(0, (dIdx % 2 === 0 ? -0.22 : 0.25), -0.18));
             const dCurve = new THREE.CatmullRomCurve3([somaPos.clone(), mid1, mid2, targetPt.clone()]);
-            const dGeo = new THREE.TubeGeometry(dCurve, 28, 0.14, 12, false);
+            const dGeo = new THREE.TubeGeometry(dCurve, 28, rParent, 12, false);
             const dPos = dGeo.attributes.position;
             for (let i = 0; i < dPos.count; i++) {
                 const vx = dPos.getX(i), vy = dPos.getY(i), vz = dPos.getZ(i);
@@ -511,44 +618,76 @@ class NeuralMicrocosmos3D {
             }
             dGeo.computeVertexNormals();
             dendGroup.add(new THREE.Mesh(dGeo, materials.dendriteMat));
-            [0.35, 0.58, 0.78].forEach((branchT, bSub) => {
+
+            [0.32, 0.58, 0.82].forEach((branchT, bSub) => {
                 const startSub = dCurve.getPointAt(branchT);
                 const subEnd = startSub.clone().add(new THREE.Vector3(
-                    (bSub % 2 === 0 ? -0.62 : -0.42),
-                    (dIdx % 2 === 0 ? 0.72 : -0.72) * (bSub === 1 ? -0.65 : 1.0),
-                    (bSub === 0 ? 0.52 : -0.52)
+                    (bSub % 2 === 0 ? -0.72 : -0.48),
+                    (dIdx % 2 === 0 ? 0.82 : -0.82) * (bSub === 1 ? -0.65 : 1.0),
+                    (bSub === 0 ? 0.58 : -0.58)
                 ));
                 const subCurve = new THREE.CatmullRomCurve3([startSub, subEnd]);
-                dendGroup.add(new THREE.Mesh(new THREE.TubeGeometry(subCurve, 12, 0.052, 8, false), materials.dendriteMat));
+                dendGroup.add(new THREE.Mesh(new THREE.TubeGeometry(subCurve, 12, r2, 8, false), materials.dendriteMat));
+
+                // 3ª ordem
+                const start3 = subCurve.getPointAt(0.6);
+                const end3 = start3.clone().add(new THREE.Vector3(0.35, (bSub % 2 === 0 ? 0.45 : -0.45), 0.3));
+                const curve3 = new THREE.CatmullRomCurve3([start3, end3]);
+                dendGroup.add(new THREE.Mesh(new THREE.TubeGeometry(curve3, 8, r3, 6, false), materials.dendriteMat));
+
+                // 4ª e 5ª ordens
+                const start4 = curve3.getPointAt(0.7);
+                const end4 = start4.clone().add(new THREE.Vector3(-0.25, 0.35, -0.2));
+                const curve4 = new THREE.CatmullRomCurve3([start4, end4]);
+                dendGroup.add(new THREE.Mesh(new THREE.TubeGeometry(curve4, 6, r4, 6, false), materials.dendriteMat));
+
+                const end5 = end4.clone().add(new THREE.Vector3(0.18, 0.22, 0.15));
+                const curve5 = new THREE.CatmullRomCurve3([end4, end5]);
+                dendGroup.add(new THREE.Mesh(new THREE.TubeGeometry(curve5, 5, r5, 5, false), materials.dendriteMat));
+
+                // Espinhas dendríticas
                 const spine = new THREE.Mesh(new THREE.SphereGeometry(0.078, 10, 10), materials.spineMat);
-                spine.position.copy(subEnd);
+                spine.position.copy(end5);
                 dendGroup.add(spine);
             });
         });
         nGroup.add(dendGroup);
         this.registerNeuronPart('NEURON_DENDRITES', dendGroup, isPrimary ? dendriteTargets[0].clone() : null);
+
+        // 4. Axônio Central
         const axonCurve = new THREE.CatmullRomCurve3(axonPoints);
         const axonGroup = new THREE.Group();
         const axonMesh = new THREE.Mesh(new THREE.TubeGeometry(axonCurve, 56, 0.12, 14, false), materials.axonCoreMat);
         axonGroup.add(axonMesh);
         nGroup.add(axonGroup);
         this.registerNeuronPart('NEURON_AXON', axonGroup, isPrimary ? axonCurve.getPointAt(0.12) : null);
+
+        // 5. Bainha de Mielina Sinusoidal Orgânica & Nódulos de Ranvier com Bokeh
         const myelinGroup = new THREE.Group();
         const schwannGroup = new THREE.Group();
         const ranvierGroup = new THREE.Group();
         const numSegments = isPrimary ? 5 : 3;
         const segSpan = 0.80 / numSegments;
         const gapSpan = 0.045;
+
         for (let s = 0; s < numSegments; s++) {
             const tStart = 0.12 + s * (segSpan + gapSpan);
             const tEnd = Math.min(0.94, tStart + segSpan);
             if (tEnd <= tStart) continue;
             const subPts = [];
-            for (let k = 0; k <= 10; k++) {
-                subPts.push(axonCurve.getPointAt(tStart + (tEnd - tStart) * (k / 10)));
+            for (let k = 0; k <= 12; k++) {
+                subPts.push(axonCurve.getPointAt(tStart + (tEnd - tStart) * (k / 12)));
             }
             const segCurve = new THREE.CatmullRomCurve3(subPts);
             const segGeo = new THREE.TubeGeometry(segCurve, 20, 0.28, 18, false);
+            const mPos = segGeo.attributes.position;
+            for (let mi = 0; mi < mPos.count; mi++) {
+                const mx = mPos.getX(mi), my = mPos.getY(mi), mz = mPos.getZ(mi);
+                const wave = 1.0 + 0.08 * Math.sin(mx * 6.0 + my * 4.0);
+                mPos.setXYZ(mi, mx * wave, my * wave, mz * wave);
+            }
+            segGeo.computeVertexNormals();
+
             const segMesh = new THREE.Mesh(segGeo, materials.myelinMat.clone());
             myelinGroup.add(segMesh);
             this.myelinMeshes.push(segMesh);
@@ -558,6 +697,7 @@ class NeuralMicrocosmos3D {
             schwannNuc.scale.set(1.65, 0.85, 0.95);
             schwannNuc.position.copy(midPt).add(new THREE.Vector3(0, (s % 2 === 0 ? 0.25 : -0.25), 0.14));
             schwannGroup.add(schwannNuc);
+
             if (s < numSegments - 1) {
                 const nodeT = tEnd + gapSpan * 0.5;
                 const nodePt = axonCurve.getPointAt(Math.min(0.98, nodeT));
@@ -566,6 +706,21 @@ class NeuralMicrocosmos3D {
                 nodeRing.position.copy(nodePt);
                 nodeRing.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), tangent.normalize());
                 ranvierGroup.add(nodeRing);
+
+                // Sprite Bokeh luminoso
+                const ranvierSpriteMat = new THREE.SpriteMaterial({
+                    map: this.glowTexture,
+                    color: 0x00f2fe,
+                    transparent: true,
+                    opacity: 0.85,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                const ranvierSprite = new THREE.Sprite(ranvierSpriteMat);
+                ranvierSprite.scale.set(0.65, 0.65, 0.65);
+                ranvierSprite.position.copy(nodePt);
+                ranvierGroup.add(ranvierSprite);
+
                 if (isPrimary && s === 1) {
                     this.partAnchors.set('NEURON_RANVIER', nodePt.clone());
                 }
@@ -581,6 +736,8 @@ class NeuralMicrocosmos3D {
         this.registerNeuronPart('NEURON_MYELIN', myelinGroup);
         this.registerNeuronPart('NEURON_SCHWANN', schwannGroup);
         this.registerNeuronPart('NEURON_RANVIER', ranvierGroup);
+
+        // 6. Terminais Axonais e Sinapses Bidirecionais (Anterógrada Glu/GABA + Retrógrada 2-AG/NO/EAAT2)
         const terminalGroup = new THREE.Group();
         const synapseGroup = new THREE.Group();
         terminalBranches.forEach((branch, bIdx) => {
@@ -592,6 +749,7 @@ class NeuralMicrocosmos3D {
             bouton.scale.set(1.25, 0.95, 0.95);
             bouton.position.copy(tipPt);
             terminalGroup.add(bouton);
+
             const cleftHalo = new THREE.Mesh(
                 new THREE.RingGeometry(0.12, 0.34, 20),
                 new THREE.MeshBasicMaterial({
@@ -604,7 +762,9 @@ class NeuralMicrocosmos3D {
             cleftHalo.position.copy(tipPt);
             cleftHalo.rotation.y = Math.PI / 2;
             synapseGroup.add(cleftHalo);
-            const vCount = 12;
+
+            // Vesículas Anterógradas (Glutamato / GABA)
+            const vCount = 14;
             const vPos = new Float32Array(vCount * 3);
             for (let v = 0; v < vCount; v++) {
                 vPos[v * 3] = tipPt.x + (Math.random() - 0.5) * 0.35;
@@ -622,6 +782,27 @@ class NeuralMicrocosmos3D {
                 depthWrite: false
             }));
             synapseGroup.add(vPoints);
+
+            // Vesículas Retrógradas (Endocanabinoides 2-AG / Óxido Nítrico / Receptores EAAT2)
+            const rCount = 8;
+            const rPos = new Float32Array(rCount * 3);
+            for (let r = 0; r < rCount; r++) {
+                rPos[r * 3] = tipPt.x + (Math.random() - 0.5) * 0.28;
+                rPos[r * 3 + 1] = tipPt.y + (Math.random() - 0.5) * 0.28;
+                rPos[r * 3 + 2] = tipPt.z + (Math.random() - 0.5) * 0.28;
+            }
+            const rGeo = new THREE.BufferGeometry();
+            rGeo.setAttribute('position', new THREE.BufferAttribute(rPos, 3));
+            const rPoints = new THREE.Points(rGeo, new THREE.PointsMaterial({
+                color: 0x10b981,
+                size: 0.12,
+                transparent: true,
+                opacity: 0.88,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            }));
+            synapseGroup.add(rPoints);
+
             this.synapseConnections.push({
                 type: branch.type,
                 sourceNeuronIndex: index,
@@ -629,6 +810,7 @@ class NeuralMicrocosmos3D {
                 center: tipPt.clone(),
                 halo: cleftHalo,
                 vesicles: vPoints,
+                retroVesicles: rPoints,
                 burstIntensity: 0.0
             });
             if (isPrimary && bIdx === 0) {
@@ -640,6 +822,7 @@ class NeuralMicrocosmos3D {
         nGroup.add(synapseGroup);
         this.registerNeuronPart('NEURON_TERMINAL', terminalGroup);
         this.registerNeuronPart('NEURON_SYNAPSE', synapseGroup);
+
         const apGlow = new THREE.Mesh(
             new THREE.SphereGeometry(0.26, 16, 16),
             new THREE.MeshBasicMaterial({
@@ -651,6 +834,7 @@ class NeuralMicrocosmos3D {
         );
         apGlow.position.copy(axonPoints[0]);
         nGroup.add(apGlow);
+
         this.neurons.push({
             index,
             isPrimary,
@@ -667,16 +851,38 @@ class NeuralMicrocosmos3D {
     buildConnectedCorticalEnsemble(extraCount) {
         const numExtra = Math.max(47, extraCount);
         const materials = this.materials;
-        const sharedSomaGeo = new THREE.SphereGeometry(0.88, 22, 18);
+        const sharedSomaGeo = new THREE.SphereGeometry(0.92, 28, 24);
         const sPos = sharedSomaGeo.attributes.position;
+        const sharedPoles = [
+            new THREE.Vector3(1.0, 0.0, 0.0),
+            new THREE.Vector3(-0.85, 0.52, 0.15),
+            new THREE.Vector3(-0.72, -0.62, 0.42),
+            new THREE.Vector3(-0.72, -0.62, -0.42),
+            new THREE.Vector3(-0.45, 0.72, -0.62),
+            new THREE.Vector3(-0.45, -0.72, 0.62),
+            new THREE.Vector3(-0.82, 0.22, 0.55),
+            new THREE.Vector3(-0.82, -0.22, -0.55)
+        ];
+        sharedPoles.forEach(p => p.normalize());
         for (let i = 0; i < sPos.count; i++) {
             let x = sPos.getX(i), y = sPos.getY(i), z = sPos.getZ(i);
-            if (x > 0.2) {
-                x *= 1.28;
-                y *= (1.0 - (x / 1.8) * 0.24);
-                z *= (1.0 - (x / 1.8) * 0.24);
+            const v = new THREE.Vector3(x, y, z);
+            const r = v.length();
+            if (r > 0.0001) {
+                const normV = v.clone().divideScalar(r);
+                let flare = 0.0;
+                for (let p = 0; p < sharedPoles.length; p++) {
+                    const dot = Math.max(0.0, normV.dot(sharedPoles[p]));
+                    if (dot > 0.48) {
+                        const power = (p === 0) ? 2.8 : 3.4;
+                        const intensity = (p === 0) ? 0.38 : (p === 1 ? 0.30 : 0.20);
+                        flare += Math.pow(dot, power) * intensity;
+                    }
+                }
+                const noise = fbm3D(x * 1.5, y * 1.5, z * 1.5) * 0.12;
+                const factor = 1.0 + flare + noise;
+                sPos.setXYZ(i, x * factor, y * factor, z * factor);
             }
-            sPos.setXYZ(i, x, y, z);
         }
         sharedSomaGeo.computeVertexNormals();
         const sharedNucGeo = new THREE.SphereGeometry(0.40, 16, 14);
@@ -692,10 +898,10 @@ class NeuralMicrocosmos3D {
         for (let i = 0; i < numExtra; i++) {
             const goldenAngle = i * 2.3999632;
             const layerIdx = i % 6;
-            const radiusXZ = 7.5 + (i % 9) * 2.25 + (layerIdx * 0.65);
+            const radiusXZ = 7.5 + (i % 16) * 1.85 + (layerIdx * 0.55);
             const x = Math.cos(goldenAngle) * radiusXZ * 1.35;
-            const y = -8.5 + (layerIdx * 3.4) + Math.sin(i * 1.7) * 1.45;
-            const z = -2.8 - Math.abs(Math.sin(goldenAngle)) * 12.5 + (i % 3 === 0 ? 4.2 : -1.5);
+            const y = -10.5 + (layerIdx * 3.8) + Math.sin(i * 1.7) * 1.65;
+            const z = -2.8 - Math.abs(Math.sin(goldenAngle)) * 14.5 + (i % 5 === 0 ? 5.2 : -2.5);
             nodePositions.push(new THREE.Vector3(x, y, z));
         }
         for (let i = 0; i < numExtra; i++) {
@@ -1145,6 +1351,14 @@ class NeuralMicrocosmos3D {
         }
         this.firingRateHz += (this.targetFiringRateHz - this.firingRateHz) * Math.min(1.0, dt * 3.5);
         if (!this.microGroup.visible) return;
+
+        // Pulsação Biofísica do Shader GLSL de Membrana (Fresnel Cyan + Spike Âmbar)
+        const spikeNorm = Math.max(0.0, Math.min(1.0, (this.membranePotentialMv + 70.0) / 100.0));
+        this.somaShaderUniforms.forEach(u => {
+            u.uTime.value = elapsed;
+            u.uSpike.value = spikeNorm;
+        });
+
         this.neurons.forEach((n, idx) => {
             n.apProgress += dt * n.apSpeed;
             if (n.apProgress >= 1.0) {
@@ -1169,6 +1383,7 @@ class NeuralMicrocosmos3D {
             syn.burstIntensity = Math.max(0.18, syn.burstIntensity - dt * 1.5);
             const haloScale = 0.85 + 0.55 * syn.burstIntensity + 0.14 * Math.sin(elapsed * 7.5 + idx);
             syn.halo.scale.setScalar(haloScale);
+            // Fluxo Anterógrado (Glutamato / GABA)
             if (syn.vesicles) {
                 const posAttr = syn.vesicles.geometry.attributes.position;
                 for (let v = 0; v < posAttr.count; v++) {
@@ -1182,6 +1397,21 @@ class NeuralMicrocosmos3D {
                     );
                 }
                 posAttr.needsUpdate = true;
+            }
+            // Fluxo Retrógrado (2-AG Endocanabinoide / Óxido Nítrico / EAAT2)
+            if (syn.retroVesicles) {
+                const rPosAttr = syn.retroVesicles.geometry.attributes.position;
+                for (let r = 0; r < rPosAttr.count; r++) {
+                    const angle = -elapsed * 3.8 + r * 1.3;
+                    const radius = (0.06 + ((-elapsed * 0.35 + r * 0.08) % 0.30)) * (0.6 + 0.5 * syn.burstIntensity);
+                    rPosAttr.setXYZ(
+                        r,
+                        syn.center.x + Math.sin(angle) * radius,
+                        syn.center.y + Math.cos(angle * 1.2) * radius,
+                        syn.center.z + Math.cos(angle * 0.7) * radius
+                    );
+                }
+                rPosAttr.needsUpdate = true;
             }
         }
     }
