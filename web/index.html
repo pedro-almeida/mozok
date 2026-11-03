@@ -3014,6 +3014,19 @@
 
             async function updateHUDAndPopup(rawMeta, showFloatingPopup = false) {
                 if (!rawMeta) return;
+                if (currentLang !== 'pt-BR' && window.MOZOK_I18N_CACHE && window.MOZOK_I18N_CACHE[currentLang] && window.MOZOK_I18N_CACHE[currentLang][rawMeta.id]) {
+                    const cached = window.MOZOK_I18N_CACHE[currentLang][rawMeta.id];
+                    const trMeta = {
+                        ...rawMeta,
+                        name: cached.name || rawMeta.name,
+                        badge: cached.badge || rawMeta.badge,
+                        summary: cached.summary || rawMeta.summary,
+                        clinical: cached.clinical || rawMeta.clinical,
+                        functions: (cached.functions && cached.functions.length) ? cached.functions : (rawMeta.functions || [])
+                    };
+                    renderHUDFields(trMeta, showFloatingPopup);
+                    return;
+                }
                 renderHUDFields(rawMeta, showFloatingPopup);
 
                 if (currentLang !== 'pt-BR') {
