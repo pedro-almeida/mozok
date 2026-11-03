@@ -173,13 +173,18 @@ def main():
     args = parser.parse_args()
 
     api_key = load_gemini_api_key()
-    if not api_key:
-        sys.stderr.write("ERRO: Chave GEMINI_API_KEY nao encontrada em credentials.json.\n")
-        sys.exit(2)
 
     if args.mode == "translate":
         raw_json = Path(args.input_json).read_text(encoding="utf-8") if args.input_json else sys.stdin.read()
         payload = json.loads(raw_json)
+        if not api_key:
+            data_to_return = payload.get("data", payload)
+            out_str = json.dumps({"translated": data_to_return}, ensure_ascii=False)
+            if args.output:
+                Path(args.output).write_text(out_str, encoding="utf-8")
+            else:
+                sys.stdout.write(out_str)
+            sys.exit(0)
         translated = gemini_translate_json(payload, args.lang, api_key)
         out_str = json.dumps(translated, ensure_ascii=False)
         if args.output:
@@ -189,6 +194,9 @@ def main():
         sys.exit(0)
 
     elif args.mode == "tts":
+        if not api_key:
+            sys.stderr.write("ERRO: Chave GEMINI_API_KEY nao encontrada em credentials.json.\n")
+            sys.exit(2)
         out_path = Path(args.output)
         if out_path.exists() and out_path.stat().st_size > 100:
             sys.exit(0)
@@ -197,3 +205,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

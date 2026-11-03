@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MOZOK v6.0 — Simulacro Neurofisiológico e Clínico 3D (SNC, SNP, Meninges & 7 Patologias)</title>
+    <title>MOZOK Beta — Simulacro Neurofisiológico e Clínico 3D (SNC, SNP, Meninges & 7 Patologias)</title>
     <style>
         :root {
             --bg-void: #030712;
@@ -69,9 +69,9 @@
         .brand-block {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             flex-shrink: 0;
-            max-width: 340px;
+            max-width: 390px;
             overflow: hidden;
         }
 
@@ -89,10 +89,24 @@
         }
 
         .brand-title {
-            font-size: 15px;
+            font-size: 14.5px;
             font-weight: 800;
-            letter-spacing: 1.4px;
+            letter-spacing: 1.1px;
             color: #ffffff;
+            white-space: nowrap;
+        }
+
+        .brand-preset-tag {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 1px 6px;
+            border-radius: 5px;
+            background: rgba(0, 242, 254, 0.18);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            margin-left: 5px;
+            vertical-align: middle;
         }
 
         .brand-subtitle {
@@ -412,14 +426,27 @@
         }
 
         /* =========================================================================
-           VLIBRAS SOB DEMANDA EM DOCK COMPACTO PiP (ZERO ESPAÇO DESPERDIÇADO!)
+           VLIBRAS SOB DEMANDA EM DOCK COMPACTO PiP (ZERO ESPAÇO QUANDO DESATIVADO)
            ========================================================================= */
-        body:not(.vlibras-dock-open) [vw] {
+        #vlibras-container {
+            display: none !important;
+        }
+        body.vlibras-dock-open #vlibras-container {
+            display: block !important;
+            position: fixed !important;
+            right: 396px !important;
+            bottom: 66px !important;
+            top: auto !important;
+            left: auto !important;
+            z-index: 32 !important;
+        }
+        body:not(.vlibras-dock-open) [vw],
+        body:not(.vlibras-dock-open) [vw-access-button],
+        body:not(.vlibras-dock-open) [vw-plugin-wrapper] {
             display: none !important;
             opacity: 0 !important;
             pointer-events: none !important;
         }
-
         body.vlibras-dock-open [vw] {
             display: block !important;
             position: fixed !important;
@@ -432,17 +459,17 @@
             transform-origin: bottom right !important;
             filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.75));
         }
-
         @media (max-width: 1440px) {
-            body.vlibras-dock-open [vw] {
+            body.vlibras-dock-open [vw],
+            body.vlibras-dock-open #vlibras-container {
                 right: 324px !important;
                 bottom: 62px !important;
                 transform: scale(0.66) !important;
             }
         }
-
         @media (max-width: 1180px) {
-            body.vlibras-dock-open [vw] {
+            body.vlibras-dock-open [vw],
+            body.vlibras-dock-open #vlibras-container {
                 right: 12px !important;
                 bottom: 64px !important;
                 transform: scale(0.64) !important;
@@ -470,7 +497,7 @@
             pointer-events: none;
         }
         #mozok-subtitle-bar.visible {
-            display: block;
+            display: block !important;
         }
         .sr-only-vlibras {
             position: absolute;
@@ -1337,8 +1364,8 @@
         <div class="brand-block">
             <div class="brand-logo">🧠</div>
             <div>
-                <div class="brand-title">MOZOK v7.0 — ATLAS NEUROFISIOLÓGICO 3D</div>
-                <div class="brand-subtitle" id="gpu-status-subtitle">SNC, SNP & Meninges • Córtex MNI152 Real • 7 Doenças</div>
+                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag">BETA</span></div>
+                <div class="brand-subtitle" id="gpu-status-subtitle" data-i18n="subtitle_macro">SNC, SNP & Meninges • Córtex MNI152 • 7 Patologias</div>
             </div>
         </div>
 
@@ -1348,6 +1375,7 @@
             <button class="hud-btn" id="btn-view-vascular" data-i18n="btn_vascular">🩸 Árvore Vascular & LCR</button>
             <button class="hud-btn" id="btn-meninges" data-i18n="btn_meninges" title="Exibir/Ocultar as 3 Meninges 3D">🛡️ Meninges</button>
             <button class="hud-btn gold" id="btn-view-micro" data-i18n="btn_micro">🔬 Microcosmos Neuronal</button>
+            <button class="hud-btn" id="btn-body-shell" style="display:none;">🫧 Corpo Translúcido</button>
             <button class="hud-btn" id="btn-home-view" data-i18n="btn_center">🎯 Centralizar</button>
             <button class="hud-btn" id="btn-tour" data-i18n="btn_tour">🧭 Tour Guiado</button>
             <select id="lang-select" class="lang-select-hud" title="Selecionar Idioma (Tradução e Voz Neural Gemini)">
@@ -1358,7 +1386,7 @@
                 <option value="uk-UA">🇺🇦 UK-UA</option>
             </select>
             <button class="hud-btn" id="btn-voice" data-i18n="btn_voice" title="Narração Neural Gemini via credentials.json">🔊 Voz Gemini</button>
-            <button class="hud-btn" id="btn-vlibras" title="Ativar/Recolher Intérprete VLibras em Modo Compacto PiP">🤟 Libras</button>
+            <button class="hud-btn" id="btn-vlibras" data-i18n="btn_vlibras" title="Ativar/Recolher Intérprete VLibras em Modo Compacto PiP">🤟 Libras</button>
             <button class="hud-btn" id="btn-fullscreen" data-i18n="btn_fullscreen" title="Tela Cheia (F11)">⛶ Tela Cheia</button>
         </div>
     </header>
@@ -1410,14 +1438,15 @@
                 <span style="font-size: 10px; font-weight: 800; color: #f0abfc; text-transform: uppercase; letter-spacing: 0.6px;">
                     🔬 Rede Conectada (<span id="neuron-count-label">240</span> Neurônios):
                 </span>
-                <span id="gpu-tier-pill" style="font-size:9px; color:#00f2fe; font-weight:700;">GPU Auto</span>
+                <span id="gpu-tier-pill" style="display:none;"></span>
             </div>
             <div class="neuron-density-row" id="neuron-density-row">
-                <button class="neuron-density-btn" data-count="60" title="Modo Eco / Integrada (60 Neurônios)">60 (Eco)</button>
-                <button class="neuron-density-btn" data-count="120" title="Densidade Padrão (120 Neurônios)">120 (Méd)</button>
-                <button class="neuron-density-btn active" data-count="240" title="Alta Densidade GPU Dedicada GTX (240 Neurônios)">240 (GTX)</button>
-                <button class="neuron-density-btn" data-count="360" title="Ultra Densidade GPU Forte RTX (360 Neurônios)">360 (RTX)</button>
-                <button class="neuron-density-btn" data-count="500" title="Densidade Extrema Conectoma Camada V (500 Neurônios)">500 (Máx)</button>
+                <button class="neuron-density-btn" data-count="60" title="60 Neurônios Conectados">60</button>
+                <button class="neuron-density-btn" data-count="120" title="120 Neurônios Conectados">120</button>
+                <button class="neuron-density-btn active" data-count="240" title="240 Neurônios Conectados">240</button>
+                <button class="neuron-density-btn" data-count="360" title="360 Neurônios Conectados">360</button>
+                <button class="neuron-density-btn" data-count="500" title="500 Neurônios Conectados">500</button>
+            </div>
             </div>
             <div class="neuron-parts-grid" id="neuron-parts-grid">
                 <button class="neuron-part-btn active" data-part="NEURON_SOMA">🟣 Corpo Celular (Soma)</button>
@@ -2280,19 +2309,7 @@
             renderer.toneMappingExposure = 1.15;
             container.appendChild(renderer.domElement);
 
-            // Detecta a GPU ativa no WebGL2 e exibe na barra superior
-            try {
-                const gl = renderer.getContext();
-                const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-                if (dbg) {
-                    const gpuName = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
-                    if (gpuName) {
-                        const shortGpu = gpuName.replace(/ANGLE \((.+?), (.+?) Direct3D.+?\)/i, '$2').trim();
-                        document.getElementById('gpu-status-subtitle').textContent =
-                            `SNC & SNP Completo • Córtex MNI152 Real • GPU: ${shortGpu}`;
-                    }
-                }
-            } catch (_) {}
+            // NÃO sobrescreve o subtítulo com o nome da GPU (mantém subtítulo limpo do MOZOK Beta)
 
             const controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
@@ -2369,139 +2386,79 @@
 
             const UI_I18N = {
                 'pt-BR': {
-                    title_macro: 'ATLAS ANATÔMICO SNC & SNP',
-                    subtitle_macro: 'SNC & SNP Completo • Córtex MNI152 Real • GPU: NVIDIA GeForce GTX 1650',
-                    title_micro: 'MICROCOSMOS NEURONAL 3D',
-                    subtitle_micro: 'Camada V Cortical • Modelo Hodgkin-Huxley Biofísico • Dinâmica Sináptica Real',
+                    title_macro: 'MOZOK',
+                    subtitle_macro: 'SNC, SNP & Meninges • Córtex MNI152 • 7 Patologias',
+                    btn_cortex: '🧠 Córtex Real',
+                    btn_xray: '🩻 Raio-X Subcortical',
+                    btn_vascular: '🩸 Árvore Vascular & LCR',
+                    btn_meninges: '🛡️ Meninges',
                     btn_micro: '🔬 Microcosmos Neuronal',
-                    btn_cns: '🧠 Voltar ao SNC',
                     btn_center: '🎯 Centralizar',
-                    btn_tour: '🎬 Tour Guiado',
+                    btn_tour: '🧭 Tour Guiado',
                     btn_voice: '🔊 Voz Gemini',
+                    btn_vlibras: '🤟 Libras',
                     btn_fullscreen: '⛶ Tela Cheia',
-                    search_placeholder: 'Buscar estrutura neuroanatômica...',
-                    cat_all: 'Todos (40)',
-                    cat_telencephalon: 'Telencéfalo',
-                    cat_diencephalon: 'Diencéfalo',
-                    cat_brainstem: 'Tronco Encefálico',
-                    cat_cerebellum: 'Cerebelo',
-                    cat_spinal_pns: 'Medula & SNP',
-                    cat_vascular_csf: 'Vascular & LCR',
-                    cat_brodmann: 'Áreas de Brodmann & Linguagem',
-                    badge_clinical: 'CORRELAÇÃO CLÍNICA & FISIOPATOLOGIA',
-                    btn_isolate: '🧩 Isolar Peça 3D',
-                    btn_dive: '🔬 Ver Neurônios',
-                    btn_meninges: '🛡️ Meninges (3 Camadas)',
-                    btn_xray: '👁️ Visão Raio-X',
-                    btn_vlibras: '🤟 Libras'
+                    search_placeholder: 'Buscar lobo, Broca, Wernicke, núcleo, nervo, plexo...'
                 },
                 'en-GB': {
-                    title_macro: 'CNS & PNS ANATOMICAL ATLAS',
-                    subtitle_macro: 'Full CNS & PNS • Real MNI152 Cortex • GPU: NVIDIA GeForce GTX 1650',
-                    title_micro: '3D NEURONAL MICROCOSM',
-                    subtitle_micro: 'Cortical Layer V • Biophysical Hodgkin-Huxley Model • Real Synaptic Dynamics',
-                    btn_micro: '🔬 Neuronal Microcosm',
-                    btn_cns: '🧠 Return to CNS',
+                    title_macro: 'MOZOK',
+                    subtitle_macro: 'CNS, PNS & Meninges • MNI152 Cortex • 7 Pathologies',
+                    btn_cortex: '🧠 Real Cortex',
+                    btn_xray: '🩻 Subcortical X-Ray',
+                    btn_vascular: '🩸 Vascular & CSF',
+                    btn_meninges: '🛡️ Meninges',
+                    btn_micro: '🔬 Neuronal Microcosmos',
                     btn_center: '🎯 Recentre',
-                    btn_tour: '🎬 Guided Tour',
+                    btn_tour: '🧭 Guided Tour',
                     btn_voice: '🔊 Gemini Voice',
+                    btn_vlibras: '🤟 Sign Language',
                     btn_fullscreen: '⛶ Fullscreen',
-                    search_placeholder: 'Search neuroanatomical structure...',
-                    cat_all: 'All (40)',
-                    cat_telencephalon: 'Telencephalon',
-                    cat_diencephalon: 'Diencephalon',
-                    cat_brainstem: 'Brainstem',
-                    cat_cerebellum: 'Cerebellum',
-                    cat_spinal_pns: 'Spinal Cord & PNS',
-                    cat_vascular_csf: 'Vascular & CSF',
-                    cat_brodmann: 'Brodmann Areas & Language',
-                    badge_clinical: 'CLINICAL CORRELATION & PATHOPHYSIOLOGY',
-                    btn_isolate: '🧩 Isolate 3D Part',
-                    btn_dive: '🔬 View Neurons',
-                    btn_meninges: '🛡️ Meninges (3 Layers)',
-                    btn_xray: '👁️ X-Ray View',
-                    btn_vlibras: '🤟 Sign Language'
+                    search_placeholder: 'Search lobe, Broca, Wernicke, nucleus, nerve, plexus...'
                 },
                 'es-ES': {
-                    title_macro: 'ATLAS ANATÓMICO SNC Y SNP',
-                    subtitle_macro: 'SNC y SNP Completo • Corteza MNI152 Real • GPU: NVIDIA GeForce GTX 1650',
-                    title_micro: 'MICROCOSMOS NEURONAL 3D',
-                    subtitle_micro: 'Capa V Cortical • Modelo Hodgkin-Huxley Biofísico • Dinámica Sináptica Real',
+                    title_macro: 'MOZOK',
+                    subtitle_macro: 'SNC, SNP y Meninges • Corteza MNI152 • 7 Patologías',
+                    btn_cortex: '🧠 Corteza Real',
+                    btn_xray: '🩻 Rayos X Subcortical',
+                    btn_vascular: '🩸 Árbol Vascular y LCR',
+                    btn_meninges: '🛡️ Meninges',
                     btn_micro: '🔬 Microcosmos Neuronal',
-                    btn_cns: '🧠 Volver al SNC',
                     btn_center: '🎯 Centrar',
-                    btn_tour: '🎬 Visita Guiada',
+                    btn_tour: '🧭 Tour Guiado',
                     btn_voice: '🔊 Voz Gemini',
+                    btn_vlibras: '🤟 Lengua de Señas',
                     btn_fullscreen: '⛶ Pantalla Completa',
-                    search_placeholder: 'Buscar estructura neuroanatómica...',
-                    cat_all: 'Todos (40)',
-                    cat_telencephalon: 'Telencéfalo',
-                    cat_diencephalon: 'Diencéfalo',
-                    cat_brainstem: 'Tronco Encefálico',
-                    cat_cerebellum: 'Cerebelo',
-                    cat_spinal_pns: 'Médula y SNP',
-                    cat_vascular_csf: 'Vascular y LCR',
-                    cat_brodmann: 'Áreas de Brodmann y Lenguaje',
-                    badge_clinical: 'CORRELACIÓN CLÍNICA Y FISIOPATOLOGÍA',
-                    btn_isolate: '🧩 Aislar Pieza 3D',
-                    btn_dive: '🔬 Ver Neuronas',
-                    btn_meninges: '🛡️ Meninges (3 Capas)',
-                    btn_xray: '👁️ Visión Rayos X',
-                    btn_vlibras: '🤟 Lengua de Señas'
+                    search_placeholder: 'Buscar lóbulo, Broca, Wernicke, núcleo, nervio, plexo...'
                 },
                 'it-IT': {
-                    title_macro: 'ATLANTE ANATOMICO SNC E SNP',
-                    subtitle_macro: 'SNC e SNP Completo • Corteccia MNI152 Reale • GPU: NVIDIA GeForce GTX 1650',
-                    title_micro: 'MICROCOSMO NEURONALE 3D',
-                    subtitle_micro: 'Strato V Corticale • Modello Hodgkin-Huxley Biofisico • Dinamica Sinaptica Reale',
+                    title_macro: 'MOZOK',
+                    subtitle_macro: 'SNC, SNP e Meningi • Corteccia MNI152 • 7 Patologie',
+                    btn_cortex: '🧠 Corteccia Reale',
+                    btn_xray: '🩻 Raggi X Subcorticali',
+                    btn_vascular: '🩸 Albero Vascolare e LCS',
+                    btn_meninges: '🛡️ Meningi',
                     btn_micro: '🔬 Microcosmo Neuronale',
-                    btn_cns: '🧠 Torna al SNC',
                     btn_center: '🎯 Ricentra',
-                    btn_tour: '🎬 Tour Guidato',
+                    btn_tour: '🧭 Tour Guidato',
                     btn_voice: '🔊 Voce Gemini',
+                    btn_vlibras: '🤟 Lingua dei Segni',
                     btn_fullscreen: '⛶ Schermo Intero',
-                    search_placeholder: 'Cerca struttura neuroanatomica...',
-                    cat_all: 'Tutti (40)',
-                    cat_telencephalon: 'Telencefalo',
-                    cat_diencephalon: 'Diencefalo',
-                    cat_brainstem: 'Tronco Encefalico',
-                    cat_cerebellum: 'Cervelletto',
-                    cat_spinal_pns: 'Midollo e SNP',
-                    cat_vascular_csf: 'Vascolare e LCS',
-                    cat_brodmann: 'Aree di Brodmann e Linguaggio',
-                    badge_clinical: 'CORRELAZIONE CLINICA E FISIOPATOLOGIA',
-                    btn_isolate: '🧩 Isola Parte 3D',
-                    btn_dive: '🔬 Guarda Neuroni',
-                    btn_meninges: '🛡️ Meningi (3 Strati)',
-                    btn_xray: '👁️ Visione a Raggi X',
-                    btn_vlibras: '🤟 Lingua dei Segni'
+                    search_placeholder: 'Cerca lobo, Broca, Wernicke, nucleo, nervo, plesso...'
                 },
                 'uk-UA': {
-                    title_macro: 'АНАТОМІЧНИЙ АТЛАС ЦНС ТА ПНС',
-                    subtitle_macro: 'Повна ЦНС та ПНС • Реальна кора MNI152 • GPU: NVIDIA GeForce GTX 1650',
-                    title_micro: '3D НЕЙРОННИЙ МІКРОКОСМОС',
-                    subtitle_micro: 'V корковий шар • Біофізична модель Ходжкіна-Хакслі • Реальна синаптична динаміка',
+                    title_macro: 'MOZOK',
+                    subtitle_macro: 'ЦНС, ПНС та Мозкові оболони • Кора MNI152 • 7 Патологій',
+                    btn_cortex: '🧠 Реальна кора',
+                    btn_xray: '🩻 Підкірковий рентген',
+                    btn_vascular: '🩸 Судинне русло та СМР',
+                    btn_meninges: '🛡️ Мозкові оболони',
                     btn_micro: '🔬 Нейронний мікрокосмос',
-                    btn_cns: '🧠 Повернутися до ЦНС',
                     btn_center: '🎯 Центрувати',
-                    btn_tour: '🎬 Екскурсія',
+                    btn_tour: '🧭 Екскурсія',
                     btn_voice: '🔊 Голос Gemini',
+                    btn_vlibras: '🤟 Жестова мова',
                     btn_fullscreen: '⛶ На весь екран',
-                    search_placeholder: 'Пошук нейроанатомічної структури...',
-                    cat_all: 'Всі (40)',
-                    cat_telencephalon: 'Кінцевий мозок',
-                    cat_diencephalon: 'Проміжний мозок',
-                    cat_brainstem: 'Стовбур мозку',
-                    cat_cerebellum: 'Мозочок',
-                    cat_spinal_pns: 'Спинний мозок та ПНС',
-                    cat_vascular_csf: 'Судини та СМР',
-                    cat_brodmann: 'Поля Бродмана та Мова',
-                    badge_clinical: 'КЛІНІЧНА КОРЕЛЯЦІЯ ТА ПАТОФІЗІОЛОГІЯ',
-                    btn_isolate: '🧩 Ізолювати 3D деталь',
-                    btn_dive: '🔬 Дослідити нейрони',
-                    btn_meninges: '🛡️ Мозкові оболони (3 шари)',
-                    btn_xray: '👁️ Рентген-режим',
-                    btn_vlibras: '🤟 Жестова мова'
+                    search_placeholder: 'Пошук частки, Брока, Верніке, ядра, нерва, сплетення...'
                 }
             };
 
@@ -2523,19 +2480,28 @@
             }
 
             function syncSpeechWithVLibras(text) {
+                if (!text) return;
                 const subBar = document.getElementById('mozok-subtitle-bar');
-                if (subBar) {
-                    subBar.textContent = text;
-                    subBar.classList.remove('hidden');
+                const subText = document.getElementById('mozok-subtitle-text');
+                if (subBar && subText) {
+                    subText.textContent = text;
+                    subBar.classList.add('visible');
                     clearTimeout(window._subTimeout);
-                    window._subTimeout = setTimeout(() => subBar.classList.add('hidden'), 12000);
+                    window._subTimeout = setTimeout(() => subBar.classList.remove('visible'), Math.max(6000, text.length * 65));
                 }
                 try {
                     const bridge = document.getElementById('vlibras-speech-bridge');
-                    if (bridge) {
+                    if (bridge && vlibrasActive && currentLang === 'pt-BR') {
                         bridge.value = text;
+                        bridge.textContent = text;
+                        bridge.setAttribute('aria-label', text);
                         bridge.dispatchEvent(new Event('input', { bubbles: true }));
-                        bridge.dispatchEvent(new Event('change', { bubbles: true }));
+                        bridge.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+                        if (window.plugin && typeof window.plugin.translate === 'function') {
+                            window.plugin.translate(text);
+                        } else if (window.VLibras && typeof window.VLibras.translate === 'function') {
+                            window.VLibras.translate(text);
+                        }
                     }
                 } catch (_) {}
             }
@@ -2562,13 +2528,14 @@
                     });
                     if (resp.ok) {
                         const data = await resp.json();
-                        if (data && data.translated) {
+                        const trData = (data && data.translated) ? data.translated : data;
+                        if (trData) {
                             const tr = {
                                 ...meta,
-                                name: data.translated.name || meta.name,
-                                summary: data.translated.summary || meta.summary,
-                                clinical: data.translated.clinical || meta.clinical,
-                                functions: data.translated.functions || meta.functions
+                                name: trData.name || meta.name,
+                                summary: trData.summary || meta.summary,
+                                clinical: trData.clinical || meta.clinical,
+                                functions: trData.functions || meta.functions
                             };
                             translationCache.set(cacheKey, tr);
                             return tr;
@@ -3016,11 +2983,16 @@
                 setMicrocosmosMode(!isMicroMode);
             });
 
-            document.getElementById('btn-body-shell').addEventListener('click', (e) => {
-                const nextState = !cnsAnatomy.bodyShellVisible;
-                cnsAnatomy.setBodyShellVisible(nextState);
-                e.currentTarget.classList.toggle('active', nextState);
-            });
+            const btnBodyShell = document.getElementById('btn-body-shell');
+            if (btnBodyShell) {
+                btnBodyShell.addEventListener('click', (e) => {
+                    const nextState = !cnsAnatomy.bodyShellVisible;
+                    if (typeof cnsAnatomy.setBodyShellVisible === 'function') {
+                        cnsAnatomy.setBodyShellVisible(nextState);
+                    }
+                    e.currentTarget.classList.toggle('active', nextState);
+                });
+            }
 
             // =====================================================================
             // NAVEGAÇÃO LATERAL/VERTICAL (PAN X/Y), BOTÕES DIRECIONAIS E TECLADO
@@ -3169,6 +3141,7 @@
                 btnVlibras.addEventListener('click', () => {
                     vlibrasActive = !vlibrasActive;
                     btnVlibras.classList.toggle('active', vlibrasActive);
+                    document.body.classList.toggle('vlibras-dock-open', vlibrasActive);
                     const cont = document.getElementById('vlibras-container');
                     if (cont) {
                         cont.style.display = vlibrasActive ? 'block' : 'none';
@@ -3810,13 +3783,14 @@
         <strong style="color:#00f2fe; margin-right:6px;">🎙️ Gemini IA:</strong>
         <span id="mozok-subtitle-text"></span>
     </div>
-    <div id="vlibras-speech-bridge" class="sr-only-vlibras" aria-live="assertive" tabindex="0"></div>
-    <div vw class="enabled">
-        <div vw-access-button class="active"></div>
-        <div vw-plugin-wrapper>
-            <div class="vw-plugin-top-wrapper"></div>
+    <input id="vlibras-speech-bridge" class="sr-only-vlibras" aria-live="assertive" tabindex="-1" readonly />
+    <div id="vlibras-container">
+        <div vw class="enabled">
+            <div vw-access-button class="active"></div>
+            <div vw-plugin-wrapper>
+                <div class="vw-plugin-top-wrapper"></div>
+            </div>
         </div>
     </div>
-    <script src="https://vlibras.gov.br/app/vlibras-plugin.js" async></script>
 </body>
 </html>

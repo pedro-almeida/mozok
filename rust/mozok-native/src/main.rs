@@ -231,7 +231,32 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf, port: u16) {
         _ => return,
     };
 
-    let req_str = String::from_utf8_lossy(&buffer[..n]);
+    let mut full_req = buffer[..n].to_vec();
+    if let Some(header_end) = full_req.windows(4).position(|w| w == b"\r\n\r\n") {
+        let headers_str = String::from_utf8_lossy(&full_req[..header_end]);
+        let mut content_length: usize = 0;
+        for line in headers_str.lines() {
+            let lower = line.to_lowercase();
+            if lower.starts_with("content-length:") {
+                if let Some(val_str) = line.split(':').nth(1) {
+                    content_length = val_str.trim().parse::<usize>().unwrap_or(0);
+                }
+            }
+        }
+        let mut body_len = full_req.len() - (header_end + 4);
+        while body_len < content_length {
+            let mut chunk = [0u8; 4096];
+            match stream.read(&mut chunk) {
+                Ok(chunk_n) if chunk_n > 0 => {
+                    full_req.extend_from_slice(&chunk[..chunk_n]);
+                    body_len += chunk_n;
+                }
+                _ => break,
+            }
+        }
+    }
+
+    let req_str = String::from_utf8_lossy(&full_req);
     let first_line = req_str.lines().next().unwrap_or("GET / HTTP/1.1");
 
     if first_line.starts_with("OPTIONS ") {
@@ -360,14 +385,17 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf, port: u16) {
     }
 
     if path_only == "/api/gemini-translate" {
-        let body_bytes = if let Some(pos) = buffer[..n].windows(4).position(|w| w == b"\r\n\r\n") {
-            buffer[pos + 4..n].to_vec()
+        let body_bytes = if let Some(pos) = full_req.windows(4).position(|w| w == b"\r\n\r\n") {
+            full_req[pos + 4..].to_vec()
         } else {
             Vec::new()
         };
 
         let body_str = String::from_utf8_lossy(&body_bytes);
-        let target_lang = if let Some(pos) = body_str.find("\"targetLang\"") {
+        let target_lang = if let Some(pos) = body_str
+            .find("\"target_lang\"")
+            .or_else(|| body_str.find("\"targetLang\""))
+        {
             let rem = &body_str[pos..];
             if let Some(colon) = rem.find(':') {
                 let val_part = &rem[colon + 1..];
@@ -437,6 +465,8 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf, port: u16) {
             );
             let _ = stream.write_all(header.as_bytes());
             let _ = stream.write_all(&translated_json);
+            let _ = stream.flush();
+            let _ = stream.shutdown(std::net::Shutdown::Both);
             return;
         }
 
@@ -447,6 +477,8 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf, port: u16) {
         );
         let _ = stream.write_all(header.as_bytes());
         let _ = stream.write_all(body);
+        let _ = stream.flush();
+        let _ = stream.shutdown(std::net::Shutdown::Both);
         return;
     }
 
@@ -523,8 +555,7 @@ fn launch_native_window(app_url: &str) {
     };
     use wry::WebViewBuilder;
 
-    let win_title =
-        "MOZOK v7.1 — Simulacro Neurofisiológico 3D (SNC, SNP & Conectoma | GPU High-Perf :8090)";
+    let win_title = "MOZOK Beta — Simulacro Neurofisiológico e Clínico 3D (SNC, SNP & Meninges)";
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
         .with_title(win_title)
@@ -581,6 +612,18 @@ fn main() {
     let web_root = find_web_root();
     let actual_port = start_embedded_server(web_root, PORT);
     let app_url = format!("http://127.0.0.1:{}/index.html", actual_port);
+
+    if std::env::args().any(|a| a == "--server-only" || a == "--headless")
+        || std::env::var("MOZOK_SERVER_ONLY").is_ok()
+    {
+        println!(
+            "MOZOK HTTP server running in server-only mode at {}",
+            app_url
+        );
+        loop {
+            std::thread::sleep(std::time::Duration::from_secs(3600));
+        }
+    }
 
     launch_native_window(&app_url);
 }
