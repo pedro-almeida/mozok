@@ -15,6 +15,10 @@ scratch_*
 __pycache__/
 *.py[cod]
 
+# Audio cache
+web/assets/audio_cache/*.wav
+!web/assets/audio_cache/.gitkeep
+
 # IDE & OS
 .vscode/
 .idea/

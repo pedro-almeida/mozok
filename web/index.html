@@ -46,13 +46,14 @@
         /* =========================================================================
            HUD TOPBAR
            ========================================================================= */
+        /* TOPBAR COMPACTA QUE NUNCA COME BOTÕES EM UCRANIANO OU ITALIANO */
         .topbar {
             position: fixed;
-            top: 12px;
-            left: 16px;
-            right: 16px;
-            min-height: 56px;
-            height: auto;
+            top: 10px;
+            left: 14px;
+            right: 14px;
+            min-height: 54px;
+            height: auto !important;
             background: var(--bg-panel);
             backdrop-filter: blur(18px);
             border: 1px solid var(--border-cyan);
@@ -60,8 +61,9 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 6px 14px;
-            gap: 12px;
+            flex-wrap: wrap;
+            padding: 6px 12px !important;
+            gap: 8px 10px;
             z-index: 20;
             box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
         }
@@ -69,75 +71,82 @@
         .brand-block {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 9px;
             flex-shrink: 0;
-            max-width: 390px;
+            max-width: 265px;
             overflow: hidden;
         }
 
         .brand-logo {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
             background: linear-gradient(135deg, rgba(0, 242, 254, 0.25), rgba(56, 189, 248, 0.08));
             border: 1px solid var(--accent-cyan);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 17px;
             box-shadow: 0 0 15px rgba(0, 242, 254, 0.35);
         }
 
         .brand-title {
-            font-size: 14.5px;
+            font-size: 14px;
             font-weight: 800;
-            letter-spacing: 1.1px;
+            letter-spacing: 0.8px;
             color: #ffffff;
             white-space: nowrap;
         }
 
         .brand-preset-tag {
             display: inline-block;
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 800;
-            padding: 1px 6px;
-            border-radius: 5px;
+            padding: 1px 5px;
+            border-radius: 4px;
             background: rgba(0, 242, 254, 0.18);
             border: 1px solid var(--accent-cyan);
             color: var(--accent-cyan);
-            margin-left: 5px;
+            margin-left: 4px;
             vertical-align: middle;
         }
 
         .brand-subtitle {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--accent-cyan);
-            letter-spacing: 0.6px;
+            letter-spacing: 0.3px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            display: block;
         }
 
         .topbar-controls {
             display: flex;
             align-items: center;
-            gap: 8px;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            scrollbar-width: none;
-            flex: 1;
+            gap: 5px;
+            flex-wrap: wrap;
             justify-content: flex-end;
+            flex: 1;
+            min-width: 0;
         }
 
         .hud-btn {
             background: rgba(15, 28, 55, 0.78);
             color: var(--text-main);
             border: 1px solid rgba(148, 163, 184, 0.28);
-            border-radius: 9px;
-            padding: 7px 12px;
-            font-size: 12px;
+            border-radius: 8px;
+            padding: 5px 9px;
+            font-size: 11.5px;
             font-weight: 600;
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.18s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -274,18 +283,19 @@
             color: #ffffff;
         }
 
-        /* Seletor Rápido das Peças do Neurônio (aparece quando está no modo Microcosmos Neuronal) */
+        /* CORREÇÃO CRÍTICA: .neuron-parts-bar SÓ APARECE NO MODO MICROCOSMOS! */
         .neuron-parts-bar {
-            display: none;
+            display: none !important;
             padding: 10px 14px;
             background: rgba(88, 28, 135, 0.26);
             border-bottom: 1px solid rgba(192, 132, 252, 0.35);
             flex-direction: column;
             gap: 6px;
+            flex-shrink: 0;
         }
 
         .neuron-parts-bar.visible {
-            display: flex;
+            display: flex !important;
         }
 
         .neuron-parts-grid {
@@ -314,6 +324,7 @@
             box-shadow: 0 0 10px rgba(192, 132, 252, 0.35);
         }
 
+        /* CORREÇÃO CRÍTICA DOS CARDS ESMAGADOS: flex-shrink: 0 + overflow: visible! */
         .structure-list {
             flex: 1;
             overflow-y: auto;
@@ -321,7 +332,7 @@
             padding: 10px 12px;
             display: flex;
             flex-direction: column;
-            gap: 7px;
+            gap: 8px;
             scrollbar-width: thin;
             scrollbar-color: rgba(0, 242, 254, 0.35) transparent;
         }
@@ -347,7 +358,9 @@
             align-items: flex-start;
             gap: 4px;
             width: 100%;
-            overflow: hidden;
+            flex-shrink: 0 !important;
+            min-height: 66px;
+            overflow: visible;
         }
 
         .structure-item:hover {
@@ -1353,9 +1366,9 @@
         </div>
         <div class="popup-tags" id="popup-tags"></div>
         <div class="popup-actions">
-            <button class="popup-btn" id="btn-popup-isolate">🧩 Isolar Peça 3D</button>
-            <button class="popup-btn" id="btn-popup-micro">🔬 Ver Neurônios</button>
-            <button class="popup-btn" id="btn-popup-narrate">🔊 Narrar</button>
+            <button class="popup-btn" id="btn-popup-isolate" data-i18n="btn_isolate">🧩 Isolar Peça 3D</button>
+            <button class="popup-btn" id="btn-popup-micro" data-i18n="btn_dive">🔬 Ver Neurônios</button>
+            <button class="popup-btn" id="btn-popup-narrate" data-i18n="btn_narrate">🔊 Narrar</button>
         </div>
     </div>
 
@@ -1401,34 +1414,34 @@
             <button class="nav-dpad-btn" id="btn-pan-reset" title="Centralizar Eixo X/Y (Tecla R)">🎯</button>
         </div>
         <div class="nav-slider-wrap">
-            <span>↔ Esq–Dir</span>
+            <span data-i18n="nav_pan_x">↔ Esq–Dir</span>
             <input type="range" id="slider-pan-x" min="-8" max="8" step="0.1" value="0" />
         </div>
         <div class="nav-slider-wrap">
-            <span>↕ Crânio–Pés</span>
+            <span data-i18n="nav_pan_y">↕ Crânio–Pés</span>
             <input type="range" id="slider-pan-y" min="-28" max="6" step="0.2" value="-1.5" />
         </div>
-        <span class="nav-hint-badge">⌨️ WASD / Setas ou Espaço+Arrastar</span>
+        <span class="nav-hint-badge" data-i18n="nav_hint">⌨️ WASD / Setas ou Espaço+Arrastar</span>
     </div>
 
     <!-- SIDEBAR ESQUERDA: ATLAS ONTOLÓGICO DE 32 PEÇAS + SUB-PEÇAS DO NEURÔNIO -->
     <aside class="left-sidebar" id="left-sidebar-drawer">
-        <div class="mobile-drawer-close-bar"><span>📚 ATLAS ANATÔMICO SNC & SNP</span><button class="mobile-drawer-close-btn" id="btn-close-left-drawer">✕ Fechar</button></div>
+        <div class="mobile-drawer-close-bar"><span data-i18n="atlas_title">📚 ATLAS ANATÔMICO SNC & SNP</span><button class="mobile-drawer-close-btn" id="btn-close-left-drawer">✕ Fechar</button></div>
         <div class="sidebar-header">
             <div class="sidebar-title-row">
-                <span class="sidebar-title">Atlas Anatômico SNC & SNP</span>
+                <span class="sidebar-title" data-i18n="atlas_title">Atlas Anatômico SNC & SNP</span>
                 <span class="count-pill" id="structure-count-pill">40 / 40</span>
             </div>
-            <input type="text" id="search-input" class="search-box" placeholder="Buscar lobo, Broca, Wernicke, núcleo, nervo, plexo..." />
+            <input type="text" id="search-input" class="search-box" data-i18n="search_placeholder" placeholder="Buscar lobo, Broca, Wernicke, núcleo, nervo, plexo..." />
             <div class="category-filter-bar" id="category-filter-bar">
-                <button class="cat-chip active" data-cat="ALL" id="cat-chip-all">Todos (40)</button>
-                <button class="cat-chip" data-cat="BRODMANN_LANGUAGE">🗣️ Broca, Wernicke & Brodmann</button>
-                <button class="cat-chip" data-cat="CORTEX_CEREBELLUM">Córtex & Cerebelo</button>
-                <button class="cat-chip" data-cat="LIMBIC_DIENCEPHALON">Límbico & Núcleos</button>
-                <button class="cat-chip" data-cat="BRAINSTEM_SPINAL">Tronco & Medula</button>
-                <button class="cat-chip" data-cat="CRANIAL_NERVES">Nervos Cranianos</button>
-                <button class="cat-chip" data-cat="PERIPHERAL_PLEXUSES">Plexos & Nervos SNP</button>
-                <button class="cat-chip" data-cat="VASCULAR_VENTRICULAR">Vascular & Líquor</button>
+                <button class="cat-chip active" data-cat="ALL" id="cat-chip-all" data-i18n="cat_all">Todos (40)</button>
+                <button class="cat-chip" data-cat="BRODMANN_LANGUAGE" data-i18n="cat_brodmann">🗣️ Broca, Wernicke & Brodmann</button>
+                <button class="cat-chip" data-cat="CORTEX_CEREBELLUM" data-i18n="cat_cortex">Córtex & Cerebelo</button>
+                <button class="cat-chip" data-cat="LIMBIC_DIENCEPHALON" data-i18n="cat_limbic">Límbico & Núcleos</button>
+                <button class="cat-chip" data-cat="BRAINSTEM_SPINAL" data-i18n="cat_brainstem">Tronco & Medula</button>
+                <button class="cat-chip" data-cat="CRANIAL_NERVES" data-i18n="cat_cranial">Nervos Cranianos</button>
+                <button class="cat-chip" data-cat="PERIPHERAL_PLEXUSES" data-i18n="cat_peripheral">Plexos & Nervos SNP</button>
+                <button class="cat-chip" data-cat="VASCULAR_VENTRICULAR" data-i18n="cat_vascular">Vascular & Líquor</button>
             </div>
         </div>
 
@@ -1436,7 +1449,7 @@
         <div class="neuron-parts-bar" id="neuron-parts-bar">
             <div style="display:flex; align-items:center; justify-content:space-between;">
                 <span style="font-size: 10px; font-weight: 800; color: #f0abfc; text-transform: uppercase; letter-spacing: 0.6px;">
-                    🔬 Rede Conectada (<span id="neuron-count-label">240</span> Neurônios):
+                    <span data-i18n="neuron_net_label">🔬 Rede Conectada</span> (<span id="neuron-count-label">240</span> Neurônios):
                 </span>
                 <span id="gpu-tier-pill" style="display:none;"></span>
             </div>
@@ -1447,17 +1460,16 @@
                 <button class="neuron-density-btn" data-count="360" title="360 Neurônios Conectados">360</button>
                 <button class="neuron-density-btn" data-count="500" title="500 Neurônios Conectados">500</button>
             </div>
-            </div>
             <div class="neuron-parts-grid" id="neuron-parts-grid">
-                <button class="neuron-part-btn active" data-part="NEURON_SOMA">🟣 Corpo Celular (Soma)</button>
-                <button class="neuron-part-btn" data-part="NEURON_NUCLEUS">🟠 Núcleo & Nucléolo</button>
-                <button class="neuron-part-btn" data-part="NEURON_DENDRITES">🌿 Dendritos & Espinhas</button>
-                <button class="neuron-part-btn" data-part="NEURON_AXON">⚡ Axônio & Cone</button>
-                <button class="neuron-part-btn" data-part="NEURON_MYELIN">🟡 Bainha de Mielina</button>
-                <button class="neuron-part-btn" data-part="NEURON_SCHWANN">🟢 Oligodendrócito / Schwann</button>
-                <button class="neuron-part-btn" data-part="NEURON_RANVIER">💠 Nódulo de Ranvier</button>
-                <button class="neuron-part-btn" data-part="NEURON_TERMINAL">🌸 Terminal do Axônio</button>
-                <button class="neuron-part-btn" data-part="NEURON_SYNAPSE" style="grid-column: span 2;">🔗 Sinapses (Axodendrítica & Axoaxônica)</button>
+                <button class="neuron-part-btn active" data-part="NEURON_SOMA" data-i18n="part_soma">🟣 Corpo Celular (Soma)</button>
+                <button class="neuron-part-btn" data-part="NEURON_NUCLEUS" data-i18n="part_nucleus">🟠 Núcleo & Nucléolo</button>
+                <button class="neuron-part-btn" data-part="NEURON_DENDRITES" data-i18n="part_dendrites">🌿 Dendritos & Espinhas</button>
+                <button class="neuron-part-btn" data-part="NEURON_AXON" data-i18n="part_axon">⚡ Axônio & Cone</button>
+                <button class="neuron-part-btn" data-part="NEURON_MYELIN" data-i18n="part_myelin">🟡 Bainha de Mielina</button>
+                <button class="neuron-part-btn" data-part="NEURON_SCHWANN" data-i18n="part_schwann">🟢 Oligodendrócito / Schwann</button>
+                <button class="neuron-part-btn" data-part="NEURON_RANVIER" data-i18n="part_ranvier">💠 Nódulo de Ranvier</button>
+                <button class="neuron-part-btn" data-part="NEURON_TERMINAL" data-i18n="part_terminal">🌸 Terminal do Axônio</button>
+                <button class="neuron-part-btn" data-part="NEURON_SYNAPSE" data-i18n="part_synapse" style="grid-column: span 2;">🔗 Sinapses (Axodendrítica & Axoaxônica)</button>
             </div>
         </div>
 
@@ -1466,7 +1478,7 @@
 
     <!-- SIDEBAR DIREITA: FICHA NEUROANATÔMICA, SIMULADOR DE AVC E OSCILOSCÓPIO SINÁPTICO -->
     <aside class="right-sidebar" id="right-sidebar-drawer">
-        <div class="mobile-drawer-close-bar"><span>🧬 FICHA CLÍNICA & SIMULADOR DE DOENÇAS</span><button class="mobile-drawer-close-btn" id="btn-close-right-drawer">✕ Fechar</button></div>
+        <div class="mobile-drawer-close-bar"><span data-i18n="mob_clinical">🧬 FICHA CLÍNICA & SIMULADOR DE DOENÇAS</span><button class="mobile-drawer-close-btn" id="btn-close-right-drawer">✕ Fechar</button></div>
         <div>
             <span class="clinical-header-badge" id="card-category-badge">TELENCÉFALO • CÓRTEX CEREBRAL</span>
             <h2 class="clinical-title" id="card-title">Lobo Frontal</h2>
@@ -1474,32 +1486,32 @@
         </div>
 
         <div class="action-grid-2x2">
-            <button class="hud-btn" id="btn-isolate-piece">🧩 Isolar Peça 3D</button>
-            <button class="hud-btn gold" id="btn-card-dive">🔬 Ver Neurônios</button>
-            <button class="hud-btn" id="btn-narrate-card">🔊 Narrar Peça</button>
-            <button class="hud-btn" id="btn-stimulate-neuron">⚡ Disparar Sinapse</button>
-            <button class="hud-btn danger" id="btn-trigger-stroke-card">🩸 Simular AVC (ACM)</button>
-            <button class="hud-btn" id="btn-restore-tissue-card">💚 Restaurar Perfusão</button>
+            <button class="hud-btn" id="btn-isolate-piece" data-i18n="btn_isolate_piece">🧩 Isolar Peça 3D</button>
+            <button class="hud-btn gold" id="btn-card-dive" data-i18n="btn_card_dive">🔬 Ver Neurônios</button>
+            <button class="hud-btn" id="btn-narrate-card" data-i18n="btn_narrate_card">🔊 Narrar Peça</button>
+            <button class="hud-btn" id="btn-stimulate-neuron" data-i18n="btn_stimulate">⚡ Disparar Sinapse</button>
+            <button class="hud-btn danger" id="btn-trigger-stroke-card" data-i18n="btn_stroke">🩸 Simular AVC (ACM)</button>
+            <button class="hud-btn" id="btn-restore-tissue-card" data-i18n="btn_restore">💚 Restaurar Perfusão</button>
         </div>
 
         <!-- SIMULADOR CLÍNICO DE 7 DOENÇAS NEUROLÓGICAS + BIOMARCADORES LCR -->
         <div class="pathology-sim-card">
             <div class="section-card-title" style="margin-bottom: 4px;">
-                <span>🧬 Simulador Clínico de 7 Patologias</span>
+                <span data-i18n="sim_title">🧬 Simulador Clínico de 7 Patologias</span>
                 <span id="pathology-stage-badge" style="color: #10b981; font-size: 10px;">FISIOLÓGICO</span>
             </div>
             <select id="pathology-select" class="pathology-select">
-                <option value="HEALTHY">🟢 Estado Fisiológico Saudável (Sem Patologia)</option>
-                <option value="ISCHEMIC_STROKE">🩸 AVC Isquêmico Agudo (Oclusão da ACM Esquerda)</option>
-                <option value="ALZHEIMER">🟣 Doença de Alzheimer (Placas Aβ42 & Tau + Atrofia)</option>
-                <option value="PARKINSON">🟠 Doença de Parkinson (Depleção SNpc & Corpos de Lewy)</option>
-                <option value="MULTIPLE_SCLEROSIS">🔵 Esclerose Múltipla (Desmielinização Autoimune)</option>
-                <option value="PRION_DCJ">☣️ Doença Priônica de Creutzfeldt-Jakob (PrPSc Espongiforme)</option>
-                <option value="ALS_ELA">⚡ Esclerose Lateral Amiotrófica — ELA (Motoneurônios M1)</option>
-                <option value="EPILEPSY">🌩️ Epilepsia Focal Mesial Temporal (Hipersincronia Ictal)</option>
+                <option value="HEALTHY" data-i18n="opt_healthy">🟢 Estado Fisiológico Saudável (Sem Patologia)</option>
+                <option value="ISCHEMIC_STROKE" data-i18n="opt_stroke">🩸 AVC Isquêmico Agudo (Oclusão da ACM Esquerda)</option>
+                <option value="ALZHEIMER" data-i18n="opt_alzheimer">🟣 Doença de Alzheimer (Placas Aβ42 & Tau + Atrofia)</option>
+                <option value="PARKINSON" data-i18n="opt_parkinson">🟠 Doença de Parkinson (Depleção SNpc & Corpos de Lewy)</option>
+                <option value="MULTIPLE_SCLEROSIS" data-i18n="opt_ms">🔵 Esclerose Múltipla (Desmielinização Autoimune)</option>
+                <option value="PRION_DCJ" data-i18n="opt_prion">☣️ Doença Priônica de Creutzfeldt-Jakob (PrPSc Espongiforme)</option>
+                <option value="ALS_ELA" data-i18n="opt_als">⚡ Esclerose Lateral Amiotrófica — ELA (Motoneurônios M1)</option>
+                <option value="EPILEPSY" data-i18n="opt_epilepsy">🌩️ Epilepsia Focal Mesial Temporal (Hipersincronia Ictal)</option>
             </select>
             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: #cbd5e1; margin-bottom: 4px;">
-                <span>Severidade / Estágio Clínico:</span>
+                <span data-i18n="sim_severity">Severidade / Estágio Clínico:</span>
                 <strong id="pathology-sev-label" style="color: #f43f5e;">75%</strong>
             </div>
             <input type="range" id="pathology-severity-slider" min="0.1" max="1.0" step="0.05" value="0.75" style="width: 100%; accent-color: #f43f5e; cursor: pointer;" />
@@ -1524,43 +1536,43 @@
 
         <div class="section-card">
             <div class="section-card-title">
-                <span>⚡ Eletrofisiologia & Potencial de Ação</span>
+                <span data-i18n="sec_electrophysiology">⚡ Eletrofisiologia & Potencial de Ação</span>
                 <span id="spike-mv-readout" style="color: #facc15;">-70.0 mV</span>
             </div>
             <canvas id="oscilloscope-canvas" width="330" height="86"></canvas>
             <div class="telemetry-row">
                 <div class="telemetry-box">
-                    <div class="telemetry-label">Frequência</div>
+                    <div class="telemetry-label" data-i18n="tel_frequency">Frequência</div>
                     <div class="telemetry-val" id="tel-firing-rate">18.0 Hz</div>
                 </div>
                 <div class="telemetry-box">
-                    <div class="telemetry-label">Perfusão CBF</div>
+                    <div class="telemetry-label" data-i18n="tel_cbf">Perfusão CBF</div>
                     <div class="telemetry-val" id="tel-cbf">54 mL/100g</div>
                 </div>
                 <div class="telemetry-box">
-                    <div class="telemetry-label">Condução</div>
+                    <div class="telemetry-label" data-i18n="tel_conduction">Condução</div>
                     <div class="telemetry-val" id="tel-conduction">110 m/s</div>
                 </div>
             </div>
         </div>
 
         <div class="section-card">
-            <div class="section-card-title">📖 Síntese Morfofuncional</div>
+            <div class="section-card-title" data-i18n="sec_summary">📖 Síntese Morfofuncional</div>
             <div class="section-card-body" id="card-summary"></div>
         </div>
 
         <div class="section-card">
-            <div class="section-card-title">⚙️ Funções Neurofisiológicas Principais</div>
+            <div class="section-card-title" data-i18n="sec_functions">⚙️ Funções Neurofisiológicas Principais</div>
             <ul class="bullet-list" id="card-functions"></ul>
         </div>
 
         <div class="section-card">
-            <div class="section-card-title">🧪 Neurotransmissores & Receptores</div>
+            <div class="section-card-title" data-i18n="sec_neurotransmitters">🧪 Neurotransmissores & Receptores</div>
             <div class="nt-chip-row" id="card-neurotransmitters"></div>
         </div>
 
         <div class="section-card">
-            <div class="section-card-title">🏥 Correlação Anatomoclínica & Semiologia</div>
+            <div class="section-card-title" data-i18n="sec_clinical">🏥 Correlação Anatomoclínica & Semiologia</div>
             <div class="section-card-body" id="card-clinical"></div>
         </div>
     </aside>
@@ -1568,10 +1580,10 @@
 
     <!-- BARRA INFERIOR RESPONSIVA PARA CELULARES E TABLETS -->
     <nav id="mobile-bottom-nav" aria-label="Navegação Mobile">
-        <button class="mobile-nav-btn" id="mob-btn-atlas">📚 Atlas (40)</button>
-        <button class="mobile-nav-btn" id="mob-btn-clinical">🧬 Doenças & EEG</button>
-        <button class="mobile-nav-btn" id="mob-btn-neurons">🔬 Neurônios</button>
-        <button class="mobile-nav-btn" id="mob-btn-pan">🧭 Mover 3D</button>
+        <button class="mobile-nav-btn" id="mob-btn-atlas" data-i18n="mob_atlas">📚 Atlas (40)</button>
+        <button class="mobile-nav-btn" id="mob-btn-clinical" data-i18n="mob_clinical">🧬 Doenças & EEG</button>
+        <button class="mobile-nav-btn" id="mob-btn-neurons" data-i18n="mob_neurons">🔬 Neurônios</button>
+        <button class="mobile-nav-btn" id="mob-btn-pan" data-i18n="mob_pan">🧭 Mover 3D</button>
     </nav>
 
     <!-- SCRIPTS THREE.JS E MÓDULOS DO MOZOK -->
@@ -2398,7 +2410,60 @@
                     btn_voice: '🔊 Voz Gemini',
                     btn_vlibras: '🤟 Libras',
                     btn_fullscreen: '⛶ Tela Cheia',
-                    search_placeholder: 'Buscar lobo, Broca, Wernicke, núcleo, nervo, plexo...'
+                    search_placeholder: 'Buscar lobo, Broca, Wernicke, núcleo, nervo, plexo...',
+                    atlas_title: 'ATLAS ANATÔMICO SNC & SNP',
+                    cat_all: '🌐 Todos',
+                    cat_brodmann: '🗣️ Brodmann',
+                    cat_cortex: '🧠 Córtex MNI152',
+                    cat_limbic: '🧬 Límbico',
+                    cat_brainstem: '⚡ Tronco & Medula',
+                    cat_cranial: '👁️ Pares Cranianos',
+                    cat_peripheral: '🦾 Nervos Periféricos',
+                    cat_vascular: '🩸 Vascular & LCR',
+                    neuron_net_label: '🔬 Rede Conectada:',
+                    part_soma: 'Corpo Celular',
+                    part_nucleus: 'Núcleo',
+                    part_dendrites: 'Dendritos',
+                    part_axon: 'Cone Axonal',
+                    part_myelin: 'Bainha Mielina',
+                    part_schwann: 'Cél. de Schwann',
+                    part_ranvier: 'Nódulos Ranvier',
+                    part_terminal: 'Botão Terminal',
+                    part_synapse: 'Fenda Sináptica',
+                    btn_isolate_piece: '🧩 Isolar Peça 3D',
+                    btn_card_dive: '🔬 Ver Neurônios',
+                    btn_narrate_card: '🔊 Narrar Ficha',
+                    btn_stimulate: '⚡ Estimular',
+                    btn_stroke: '💥 Isquemia Aguda',
+                    btn_restore: '🔄 Restaurar Tecido',
+                    sim_title: '🧪 Simulação Neurofisiológica',
+                    sim_severity: 'Severidade',
+                    opt_healthy: 'Controle Fisiológico Saudável',
+                    opt_stroke: 'Acidente Vascular Cerebral (AVC Isquêmico)',
+                    opt_alzheimer: 'Doença de Alzheimer (β-Amiloide/Tau)',
+                    opt_parkinson: 'Doença de Parkinson (Dopamina/Substância Negra)',
+                    opt_ms: 'Esclerose Múltipla (Desmielinização Autoimune)',
+                    opt_prion: 'Doença Priônica / CJD (Encefalopatia Espongiforme)',
+                    opt_als: 'Esclerose Lateral Amiotrófica (ELA - Degeneração Motora)',
+                    opt_epilepsy: 'Epilepsia Focal (Hipersincronia e Despolarização Paroxística)',
+                    sec_electrophysiology: 'Eletrofisiologia & Hemodinâmica',
+                    tel_frequency: 'Frequência de Disparo',
+                    tel_cbf: 'Fluxo Sanguíneo Local',
+                    tel_conduction: 'Velocidade de Condução',
+                    sec_summary: 'Descrição Anatômica',
+                    sec_functions: 'Funções Neurofisiológicas',
+                    sec_neurotransmitters: 'Neurotransmissores / Marcadores',
+                    sec_clinical: 'Correlação Clínica & Lesões',
+                    btn_isolate: '🧩 Isolar Peça 3D',
+                    btn_dive: '🔬 Ver Neurônios',
+                    btn_narrate: '🔊 Narrar',
+                    nav_pan_x: '↔ Eixo X',
+                    nav_pan_y: '↕ Eixo Y',
+                    nav_hint: 'Shift + Arrastar • Setas',
+                    mob_atlas: 'Atlas',
+                    mob_clinical: 'Clínica',
+                    mob_neurons: 'Neurônios',
+                    mob_pan: 'Navegar'
                 },
                 'en-GB': {
                     title_macro: 'MOZOK',
@@ -2413,7 +2478,60 @@
                     btn_voice: '🔊 Gemini Voice',
                     btn_vlibras: '🤟 Sign Language',
                     btn_fullscreen: '⛶ Fullscreen',
-                    search_placeholder: 'Search lobe, Broca, Wernicke, nucleus, nerve, plexus...'
+                    search_placeholder: 'Search lobe, Broca, Wernicke, nucleus, nerve, plexus...',
+                    atlas_title: 'ANATOMICAL ATLAS CNS & PNS',
+                    cat_all: '🌐 All',
+                    cat_brodmann: '🗣️ Brodmann',
+                    cat_cortex: '🧠 MNI152 Cortex',
+                    cat_limbic: '🧬 Limbic',
+                    cat_brainstem: '⚡ Brainstem & Cord',
+                    cat_cranial: '👁️ Cranial Nerves',
+                    cat_peripheral: '🦾 Peripheral Nerves',
+                    cat_vascular: '🩸 Vascular & CSF',
+                    neuron_net_label: '🔬 Connected Network:',
+                    part_soma: 'Cell Body',
+                    part_nucleus: 'Nucleus',
+                    part_dendrites: 'Dendrites',
+                    part_axon: 'Axon Hillock',
+                    part_myelin: 'Myelin Sheath',
+                    part_schwann: 'Schwann Cell',
+                    part_ranvier: 'Nodes of Ranvier',
+                    part_terminal: 'Terminal Bouton',
+                    part_synapse: 'Synaptic Cleft',
+                    btn_isolate_piece: '🧩 Isolate 3D Part',
+                    btn_card_dive: '🔬 View Neurons',
+                    btn_narrate_card: '🔊 Narrate Card',
+                    btn_stimulate: '⚡ Stimulate',
+                    btn_stroke: '💥 Acute Ischaemia',
+                    btn_restore: '🔄 Restore Tissue',
+                    sim_title: '🧪 Neurophysiological Simulation',
+                    sim_severity: 'Severity',
+                    opt_healthy: 'Healthy Physiological Control',
+                    opt_stroke: 'Ischaemic Stroke',
+                    opt_alzheimer: "Alzheimer's Disease (β-Amyloid/Tau)",
+                    opt_parkinson: "Parkinson's Disease (Dopamine/Substantia Nigra)",
+                    opt_ms: 'Multiple Sclerosis (Autoimmune Demyelination)',
+                    opt_prion: 'Prion Disease / CJD (Spongiform Encephalopathy)',
+                    opt_als: 'Amyotrophic Lateral Sclerosis (ALS)',
+                    opt_epilepsy: 'Focal Epilepsy (Hypersynchrony)',
+                    sec_electrophysiology: 'Electrophysiology & Haemodynamics',
+                    tel_frequency: 'Firing Frequency',
+                    tel_cbf: 'Local Blood Flow',
+                    tel_conduction: 'Conduction Velocity',
+                    sec_summary: 'Anatomical Description',
+                    sec_functions: 'Neurophysiological Functions',
+                    sec_neurotransmitters: 'Neurotransmitters / Markers',
+                    sec_clinical: 'Clinical Correlation & Lesions',
+                    btn_isolate: '🧩 Isolate 3D Part',
+                    btn_dive: '🔬 View Neurons',
+                    btn_narrate: '🔊 Narrate',
+                    nav_pan_x: '↔ X Axis',
+                    nav_pan_y: '↕ Y Axis',
+                    nav_hint: 'Shift + Drag • Arrows',
+                    mob_atlas: 'Atlas',
+                    mob_clinical: 'Clinical',
+                    mob_neurons: 'Neurons',
+                    mob_pan: 'Navigate'
                 },
                 'es-ES': {
                     title_macro: 'MOZOK',
@@ -2428,7 +2546,60 @@
                     btn_voice: '🔊 Voz Gemini',
                     btn_vlibras: '🤟 Lengua de Señas',
                     btn_fullscreen: '⛶ Pantalla Completa',
-                    search_placeholder: 'Buscar lóbulo, Broca, Wernicke, núcleo, nervio, plexo...'
+                    search_placeholder: 'Buscar lóbulo, Broca, Wernicke, núcleo, nervio, plexo...',
+                    atlas_title: 'ATLAS ANATÓMICO SNC Y SNP',
+                    cat_all: '🌐 Todos',
+                    cat_brodmann: '🗣️ Brodmann',
+                    cat_cortex: '🧠 Corteza MNI152',
+                    cat_limbic: '🧬 Límbico',
+                    cat_brainstem: '⚡ Tronco y Médula',
+                    cat_cranial: '👁️ Pares Craneales',
+                    cat_peripheral: '🦾 Nervios Periféricos',
+                    cat_vascular: '🩸 Vascular y LCR',
+                    neuron_net_label: '🔬 Red Conectada:',
+                    part_soma: 'Cuerpo Celular',
+                    part_nucleus: 'Núcleo',
+                    part_dendrites: 'Dendritas',
+                    part_axon: 'Cono Axónico',
+                    part_myelin: 'Vaina de Mielina',
+                    part_schwann: 'Cél. de Schwann',
+                    part_ranvier: 'Nódulos de Ranvier',
+                    part_terminal: 'Botón Terminal',
+                    part_synapse: 'Hendidura Sináptica',
+                    btn_isolate_piece: '🧩 Aislar Pieza 3D',
+                    btn_card_dive: '🔬 Ver Neuronas',
+                    btn_narrate_card: '🔊 Narrar Ficha',
+                    btn_stimulate: '⚡ Estimular',
+                    btn_stroke: '💥 Isquemia Aguda',
+                    btn_restore: '🔄 Restaurar Tejido',
+                    sim_title: '🧪 Simulación Neurofisiológica',
+                    sim_severity: 'Severidad',
+                    opt_healthy: 'Control Fisiológico Saludable',
+                    opt_stroke: 'Accidente Cerebrovascular (ACV Isquémico)',
+                    opt_alzheimer: 'Enfermedad de Alzheimer (β-Amiloide/Tau)',
+                    opt_parkinson: 'Enfermedad de Parkinson (Dopamina/Sustancia Negra)',
+                    opt_ms: 'Esclerosis Múltiple (Desmielinización Autoinmune)',
+                    opt_prion: 'Enfermedad Priónica / ECJ (Encefalopatía Espongiforme)',
+                    opt_als: 'Esclerosis Lateral Amiotrófica (ELA)',
+                    opt_epilepsy: 'Epilepsia Focal (Hipersincronía)',
+                    sec_electrophysiology: 'Electrofisiología y Hemodinámica',
+                    tel_frequency: 'Frecuencia de Disparo',
+                    tel_cbf: 'Flujo Sanguíneo Local',
+                    tel_conduction: 'Velocidad de Conducción',
+                    sec_summary: 'Descripción Anatómica',
+                    sec_functions: 'Funciones Neurofisiológicas',
+                    sec_neurotransmitters: 'Neurotransmisores / Marcadores',
+                    sec_clinical: 'Correlación Clínica y Lesiones',
+                    btn_isolate: '🧩 Aislar Pieza 3D',
+                    btn_dive: '🔬 Ver Neuronas',
+                    btn_narrate: '🔊 Narrar',
+                    nav_pan_x: '↔ Eje X',
+                    nav_pan_y: '↕ Eje Y',
+                    nav_hint: 'Shift + Arrastrar • Flechas',
+                    mob_atlas: 'Atlas',
+                    mob_clinical: 'Clínica',
+                    mob_neurons: 'Neuronas',
+                    mob_pan: 'Navegar'
                 },
                 'it-IT': {
                     title_macro: 'MOZOK',
@@ -2443,7 +2614,60 @@
                     btn_voice: '🔊 Voce Gemini',
                     btn_vlibras: '🤟 Lingua dei Segni',
                     btn_fullscreen: '⛶ Schermo Intero',
-                    search_placeholder: 'Cerca lobo, Broca, Wernicke, nucleo, nervo, plesso...'
+                    search_placeholder: 'Cerca lobo, Broca, Wernicke, nucleo, nervo, plesso...',
+                    atlas_title: 'ATLANTE ANATOMICO SNC E SNP',
+                    cat_all: '🌐 Tutti',
+                    cat_brodmann: '🗣️ Brodmann',
+                    cat_cortex: '🧠 Corteccia MNI152',
+                    cat_limbic: '🧬 Limbico',
+                    cat_brainstem: '⚡ Tronco e Midollo',
+                    cat_cranial: '👁️ Nervi Cranici',
+                    cat_peripheral: '🦾 Nervi Periferici',
+                    cat_vascular: '🩸 Vascolare e LCS',
+                    neuron_net_label: '🔬 Rete Connessa:',
+                    part_soma: 'Corpo Cellulare',
+                    part_nucleus: 'Nucleo',
+                    part_dendrites: 'Dendriti',
+                    part_axon: "Cono d'Emergenza",
+                    part_myelin: 'Guaina Mielinica',
+                    part_schwann: 'Cellula di Schwann',
+                    part_ranvier: 'Nodi di Ranvier',
+                    part_terminal: 'Bottone Terminale',
+                    part_synapse: 'Fessura Sinaptica',
+                    btn_isolate_piece: '🧩 Isola Pezzo 3D',
+                    btn_card_dive: '🔬 Vedi Neuroni',
+                    btn_narrate_card: '🔊 Narra Scheda',
+                    btn_stimulate: '⚡ Stimola',
+                    btn_stroke: '💥 Ischemia Acuta',
+                    btn_restore: '🔄 Ripristina Tessuto',
+                    sim_title: '🧪 Simulazione Neurofisiologica',
+                    sim_severity: 'Gravità',
+                    opt_healthy: 'Controllo Fisiologico Sano',
+                    opt_stroke: 'Ictus Ischemico',
+                    opt_alzheimer: 'Malattia di Alzheimer (β-Amiloide/Tau)',
+                    opt_parkinson: 'Malattia di Parkinson (Dopamina/Sostanza Nera)',
+                    opt_ms: 'Sclerosi Multipla (Demielinizzazione Autoimmune)',
+                    opt_prion: 'Malattia da Prioni / CJD (Encefalopatia Spongiforme)',
+                    opt_als: 'Sclerosi Laterale Amiotrofica (SLA)',
+                    opt_epilepsy: 'Epilessia Focale (Ipersincronia)',
+                    sec_electrophysiology: 'Elettrofisiologia ed Emodinamica',
+                    tel_frequency: 'Frequenza di Scarica',
+                    tel_cbf: 'Flusso Sanguigno Locale',
+                    tel_conduction: 'Velocità di Conduzione',
+                    sec_summary: 'Descrizione Anatomica',
+                    sec_functions: 'Funzioni Neurofisiologiche',
+                    sec_neurotransmitters: 'Neurotrasmettitori / Marcatori',
+                    sec_clinical: 'Correlazione Clinica e Lesioni',
+                    btn_isolate: '🧩 Isola Pezzo 3D',
+                    btn_dive: '🔬 Vedi Neuroni',
+                    btn_narrate: '🔊 Narra',
+                    nav_pan_x: '↔ Asse X',
+                    nav_pan_y: '↕ Asse Y',
+                    nav_hint: 'Shift + Trascina • Frecce',
+                    mob_atlas: 'Atlante',
+                    mob_clinical: 'Clinica',
+                    mob_neurons: 'Neuroni',
+                    mob_pan: 'Naviga'
                 },
                 'uk-UA': {
                     title_macro: 'MOZOK',
@@ -2458,9 +2682,93 @@
                     btn_voice: '🔊 Голос Gemini',
                     btn_vlibras: '🤟 Жестова мова',
                     btn_fullscreen: '⛶ На весь екран',
-                    search_placeholder: 'Пошук частки, Брока, Верніке, ядра, нерва, сплетення...'
+                    search_placeholder: 'Пошук частки, Брока, Верніке, ядра, нерва, сплетення...',
+                    atlas_title: 'АНАТОМІЧНИЙ АТЛАС ЦНС І ПНС',
+                    cat_all: '🌐 Всі',
+                    cat_brodmann: '🗣️ Бродман',
+                    cat_cortex: '🧠 Кора MNI152',
+                    cat_limbic: '🧬 Лімбічна',
+                    cat_brainstem: '⚡ Стовбур і мозок',
+                    cat_cranial: '👁️ Черепні нерви',
+                    cat_peripheral: '🦾 Периферичні нерви',
+                    cat_vascular: '🩸 Судини та СМР',
+                    neuron_net_label: "🔬 З'єднана мережа:",
+                    part_soma: 'Тіло клітини',
+                    part_nucleus: 'Ядро',
+                    part_dendrites: 'Дендрити',
+                    part_axon: 'Аксонний горбок',
+                    part_myelin: 'Мієлінова оболонка',
+                    part_schwann: 'Клітина Шванна',
+                    part_ranvier: "Перехоплення Ранв'є",
+                    part_terminal: 'Кінцеве потовщення',
+                    part_synapse: 'Синаптична щілина',
+                    btn_isolate_piece: '🧩 Ізолювати 3D',
+                    btn_card_dive: '🔬 До нейронів',
+                    btn_narrate_card: '🔊 Озвучити картку',
+                    btn_stimulate: '⚡ Стимулювати',
+                    btn_stroke: '💥 Гостра ішемія',
+                    btn_restore: '🔄 Відновити тканину',
+                    sim_title: '🧪 Нейрофізіологічна симуляція',
+                    sim_severity: 'Тяжкість',
+                    opt_healthy: 'Здоровий фізіологічний контроль',
+                    opt_stroke: 'Ішемічний інсульт (ГПМК)',
+                    opt_alzheimer: 'Хвороба Альцгеймера (β-амілоїд/Tau)',
+                    opt_parkinson: 'Хвороба Паркінсона (Дофамін/Чорна речовина)',
+                    opt_ms: 'Розсіяний склероз (Аутоімунна демієлінізація)',
+                    opt_prion: 'Пріонна хвороба / Крейтцфельдта-Якоба',
+                    opt_als: 'Боковий аміотрофічний склероз (БАС)',
+                    opt_epilepsy: 'Фокальна епілепсія (Гіперсинхронія)',
+                    sec_electrophysiology: 'Електрофізіологія та гемодинаміка',
+                    tel_frequency: 'Частота розрядів',
+                    tel_cbf: 'Місцевий кровотік',
+                    tel_conduction: 'Швидкість проведення',
+                    sec_summary: 'Анатомічний опис',
+                    sec_functions: 'Нейрофізіологічні функції',
+                    sec_neurotransmitters: 'Нейромедіатори / Маркери',
+                    sec_clinical: 'Клінічна кореляція та ураження',
+                    btn_isolate: '🧩 Ізолювати 3D',
+                    btn_dive: '🔬 До нейронів',
+                    btn_narrate: '🔊 Озвучити',
+                    nav_pan_x: '↔ Вісь X',
+                    nav_pan_y: '↕ Вісь Y',
+                    nav_hint: 'Shift + Перетягування • Стрілки',
+                    mob_atlas: 'Атлас',
+                    mob_clinical: 'Клініка',
+                    mob_neurons: 'Нейрони',
+                    mob_pan: 'Навігація'
                 }
             };
+
+            const translatedListNames = {};
+
+            async function preloadListTranslations(lang) {
+                if (!lang || lang === 'pt-BR' || translatedListNames[lang]) return;
+                try {
+                    const itemsToTranslate = {};
+                    MOZOK_ONTOLOGY.forEach(item => {
+                        itemsToTranslate[item.id] = {
+                            name: item.name,
+                            badge: item.badge
+                        };
+                    });
+                    const resp = await fetch('/api/gemini-translate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            target_lang: lang,
+                            items: itemsToTranslate
+                        })
+                    });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        const trItems = (data && data.translated && data.translated.items) ? data.translated.items : (data && data.items ? data.items : null);
+                        if (trItems) {
+                            translatedListNames[lang] = trItems;
+                            renderStructureList();
+                        }
+                    }
+                } catch (_) {}
+            }
 
             function applyLanguage(lang) {
                 currentLang = lang;
@@ -2469,6 +2777,7 @@
                     const key = el.dataset.i18n;
                     if (dict[key]) {
                         if (el.tagName === 'INPUT') el.placeholder = dict[key];
+                        else if (el.tagName === 'OPTION') el.text = dict[key];
                         else el.textContent = dict[key];
                     }
                 });
@@ -2477,6 +2786,9 @@
                     : (ontologyMap.get(selectedStructureId) || MOZOK_ONTOLOGY[0]);
                 if (meta) updateHUDAndPopup(meta, popupVisible);
                 renderStructureList();
+                if (lang !== 'pt-BR' && !translatedListNames[lang]) {
+                    preloadListTranslations(lang);
+                }
             }
 
             function syncSpeechWithVLibras(text) {
@@ -2633,16 +2945,30 @@
                     popupTagsEl.appendChild(tag);
                 });
 
+                const hudDict = UI_I18N[currentLang] || UI_I18N['pt-BR'];
                 if (isMicroMode) {
-                    btnPopupIsolate.textContent = '⚡ Disparar Pulso';
-                    btnPopupMicro.textContent = '🧠 Voltar ao SNC';
-                    document.getElementById('btn-card-dive').textContent = '🧠 Voltar ao SNC';
+                    btnPopupIsolate.textContent = (currentLang === 'pt-BR') ? '⚡ Disparar Pulso' :
+                        (currentLang === 'uk-UA') ? '⚡ Запустити імпульс' :
+                        (currentLang === 'es-ES') ? '⚡ Disparar Pulso' :
+                        (currentLang === 'it-IT') ? '⚡ Emetti Impulso' : '⚡ Fire Pulse';
+                    const backText = (currentLang === 'pt-BR') ? '🧠 Voltar ao SNC' :
+                        (currentLang === 'uk-UA') ? '🧠 Повернутися до ЦНС' :
+                        (currentLang === 'es-ES') ? '🧠 Volver al SNC' :
+                        (currentLang === 'it-IT') ? '🧠 Torna al SNC' : '🧠 Back to CNS';
+                    btnPopupMicro.textContent = backText;
+                    document.getElementById('btn-card-dive').textContent = backText;
                 } else {
                     const isIso = cnsAnatomy.isolatedId === selectedStructureId;
-                    btnPopupIsolate.textContent = isIso ? '🔄 Mostrar Tudo' : '🧩 Isolar Peça 3D';
-                    document.getElementById('btn-isolate-piece').textContent = isIso ? '🔄 Mostrar Tudo' : '🧩 Isolar Peça 3D';
-                    btnPopupMicro.textContent = '🔬 Ver Neurônios';
-                    document.getElementById('btn-card-dive').textContent = '🔬 Ver Neurônios';
+                    const showAllText = (currentLang === 'pt-BR') ? '🔄 Mostrar Tudo' :
+                        (currentLang === 'uk-UA') ? '🔄 Показати все' :
+                        (currentLang === 'es-ES') ? '🔄 Mostrar Todo' :
+                        (currentLang === 'it-IT') ? '🔄 Mostra Tutto' : '🔄 Show All';
+                    const isolateText = hudDict.btn_isolate || '🧩 Isolar Peça 3D';
+                    btnPopupIsolate.textContent = isIso ? showAllText : isolateText;
+                    document.getElementById('btn-isolate-piece').textContent = isIso ? showAllText : isolateText;
+                    const diveText = hudDict.btn_dive || '🔬 Ver Neurônios';
+                    btnPopupMicro.textContent = diveText;
+                    document.getElementById('btn-card-dive').textContent = diveText;
                 }
 
                 // Só abre o pop-up flutuante se o usuário clicou explicitamente em uma estrutura
@@ -2751,14 +3077,20 @@
 
                 document.getElementById('structure-count-pill').textContent = `${filtered.length} / ${MOZOK_ONTOLOGY.length}`;
 
+                const langMap = (currentLang !== 'pt-BR' && translatedListNames[currentLang]) ? translatedListNames[currentLang] : null;
+
                 filtered.forEach(item => {
                     const card = document.createElement('div');
                     card.className = 'structure-item' + (item.id === selectedStructureId ? ' active' : '');
                     card.dataset.id = item.id;
+                    const trItem = langMap && langMap[item.id];
+                    const displayName = (trItem && trItem.name) ? trItem.name : item.name;
+                    const rawBadge = (trItem && trItem.badge) ? trItem.badge : item.badge;
+                    const displayBadge = rawBadge.split('•')[0].trim();
                     card.innerHTML = `
                         <div class="struct-item-top">
-                            <span class="struct-item-name">${item.name}</span>
-                            <span class="struct-item-badge">${item.badge.split('•')[0].trim()}</span>
+                            <span class="struct-item-name">${displayName}</span>
+                            <span class="struct-item-badge">${displayBadge}</span>
                         </div>
                         <div class="struct-item-latin">${item.latin}</div>
                     `;
@@ -3130,7 +3462,19 @@
             // Seletor de Idioma (i18n + Tradução Neuroanatômica)
             const langSelect = document.getElementById('lang-select');
             if (langSelect) {
-                langSelect.addEventListener('change', (e) => applyLanguage(e.target.value));
+                langSelect.addEventListener('change', async (e) => {
+                    if (currentAudio) {
+                        try { currentAudio.pause(); } catch (_) {}
+                        currentAudio = null;
+                    }
+                    if ('speechSynthesis' in window) {
+                        try { window.speechSynthesis.cancel(); } catch (_) {}
+                    }
+                    applyLanguage(e.target.value);
+                    if (voiceEnabled) {
+                        narrateCurrentSelection();
+                    }
+                });
             }
 
             // Ativação / Recolhimento do Intérprete VLibras (PiP Compacto)
