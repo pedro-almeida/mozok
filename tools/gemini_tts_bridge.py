@@ -42,17 +42,21 @@ NEURAL_VOICES = {
     "uk-UA": "uk-UA-PolinaNeural"
 }
 
-def load_gemini_api_key() -> str:
+_gemini_key_index = 0
+
+def load_gemini_api_keys() -> list:
+    keys = []
     for env_name in ("GEMINI_API_KEY", "GOOGLE_API_KEY"):
         val = os.getenv(env_name)
         if val and val.strip():
-            return val.strip()
+            keys.append(val.strip())
 
     exe_dir = Path(__file__).resolve().parent.parent
     candidates = [
         exe_dir / "credentials.json",
         exe_dir.parent / "credentials.json",
         Path("credentials.json"),
+        Path("C:/mriya/mriya/credentials.json"),
         Path("C:/mozok/credentials.json"),
         Path("C:/zorya/credentials.json"),
         Path("C:/zorya/zorya.toml"),
@@ -69,20 +73,38 @@ def load_gemini_api_key() -> str:
                 raw = path.read_text(encoding="utf-8", errors="ignore")
                 if path.suffix.lower() == ".json":
                     data = json.loads(raw)
+                    if isinstance(data.get("gemini"), dict):
+                        for k, v in data["gemini"].items():
+                            if isinstance(v, str) and (v.startswith("AIza") or v.startswith("AQ.")):
+                                keys.append(v.strip())
                     for k in ("gemini_api_key", "GEMINI_API_KEY", "api_key", "google_api_key"):
-                        if data.get(k) and str(data[k]).strip().startswith("AIza"):
-                            return str(data[k]).strip()
-                    if isinstance(data.get("gemini"), dict) and data["gemini"].get("api_key"):
-                        return str(data["gemini"]["api_key"]).strip()
+                        if data.get(k) and (str(data[k]).strip().startswith("AIza") or str(data[k]).strip().startswith("AQ.")):
+                            keys.append(str(data[k]).strip())
+                    for sec in ("jobs", "svitanok", "svitlo", "aggressor"):
+                        if isinstance(data.get(sec), dict):
+                            val = data[sec].get("gemini_key") or data[sec].get("api_key")
+                            if val and (str(val).strip().startswith("AIza") or str(val).strip().startswith("AQ.")):
+                                keys.append(str(val).strip())
                 else:
                     for line in raw.splitlines():
                         if ("gemini" in line.lower() or "google_api_key" in line.lower()) and "=" in line:
                             v = line.split("=", 1)[1].strip().strip('"\'')
-                            if v.startswith("AIza"):
-                                return v
+                            if v.startswith("AIza") or v.startswith("AQ."):
+                                keys.append(v)
             except Exception:
                 continue
-    return ""
+
+    # Deduplicate preserving order
+    return list(dict.fromkeys(keys))
+
+def load_gemini_api_key() -> str:
+    global _gemini_key_index
+    keys = load_gemini_api_keys()
+    if not keys:
+        return ""
+    key = keys[_gemini_key_index % len(keys)]
+    _gemini_key_index = (_gemini_key_index + 1) % len(keys)
+    return key
 
 def gtx_translate_text(text: str, target_lang: str) -> str:
     if not text or not text.strip() or target_lang == "pt-BR":
@@ -228,45 +250,55 @@ def synthesize_speech(text: str, lang: str, voice: str, output_path: Path, api_k
     # Garante que o texto esteja no idioma selecionado antes de sintetizar a voz!
     spoken_text = gtx_translate_text(text.strip(), lang) if lang != "pt-BR" else text.strip()
 
-    # 1. Camada 1: Gemini 2.5 Flash TTS via credentials.json
-    if api_key:
-        try:
-            lang_desc = LANGUAGE_NAMES.get(lang, lang)
-            tts_prompt = (
-                f"Narrate clearly with the warm, natural voice of a university neuroanatomy professor "
-                f"speaking natively in {lang_desc} ({lang}):\n\n{spoken_text}"
-            )
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key={api_key}"
-            req_body = {
-                "contents": [{"parts": [{"text": tts_prompt}]}],
-                "generationConfig": {
-                    "responseModalities": ["AUDIO"],
-                    "speechConfig": {
-                        "voiceConfig": {
-                            "prebuiltVoiceConfig": {"voiceName": voice or "Aoede"}
+    # 1. Camada 1: Gemini TTS com Rotação Automática de Chaves & Fallback de Modelos
+    all_keys = load_gemini_api_keys()
+    if not all_keys and api_key:
+        all_keys = [api_key]
+
+    # Modelos TTS suportados pela Gemini
+    tts_models = ["gemini-3.8-flash-tts", "gemini-2.5-flash-preview-tts"]
+    lang_desc = LANGUAGE_NAMES.get(lang, lang)
+    tts_prompt = (
+        f"Narrate clearly with the warm, natural voice of a university neuroanatomy professor "
+        f"speaking natively in {lang_desc} ({lang}):\n\n{spoken_text}"
+    )
+
+    # Tenta rotacionar entre as chaves disponíveis para evitar rate limit (429)
+    for key_candidate in all_keys:
+        for model_name in tts_models:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={key_candidate}"
+                req_body = {
+                    "contents": [{"parts": [{"text": tts_prompt}]}],
+                    "generationConfig": {
+                        "responseModalities": ["AUDIO"],
+                        "speechConfig": {
+                            "voiceConfig": {
+                                "prebuiltVoiceConfig": {"voiceName": voice or "Aoede"}
+                            }
                         }
                     }
                 }
-            }
-            req = urllib.request.Request(
-                url,
-                data=json.dumps(req_body).encode("utf-8"),
-                headers={"Content-Type": "application/json"},
-                method="POST"
-            )
-            with urllib.request.urlopen(req, timeout=25) as resp:
-                resp_data = json.loads(resp.read().decode("utf-8"))
-                parts = resp_data["candidates"][0]["content"]["parts"]
-                for part in parts:
-                    inline = part.get("inlineData") or part.get("inline_data")
-                    if inline and inline.get("data"):
-                        raw_audio = base64.b64decode(inline["data"])
-                        wav_bytes = raw_audio if raw_audio[:4] == b"RIFF" else pcm16_to_wav_bytes(raw_audio, 24000)
-                        output_path.parent.mkdir(parents=True, exist_ok=True)
-                        output_path.write_bytes(wav_bytes)
-                        return True
-        except Exception:
-            pass
+                req = urllib.request.Request(
+                    url,
+                    data=json.dumps(req_body).encode("utf-8"),
+                    headers={"Content-Type": "application/json"},
+                    method="POST"
+                )
+                with urllib.request.urlopen(req, timeout=12) as resp:
+                    resp_data = json.loads(resp.read().decode("utf-8"))
+                    parts = resp_data["candidates"][0]["content"]["parts"]
+                    for part in parts:
+                        inline = part.get("inlineData") or part.get("inline_data")
+                        if inline and inline.get("data"):
+                            raw_audio = base64.b64decode(inline["data"])
+                            wav_bytes = raw_audio if raw_audio[:4] == b"RIFF" else pcm16_to_wav_bytes(raw_audio, 24000)
+                            output_path.parent.mkdir(parents=True, exist_ok=True)
+                            output_path.write_bytes(wav_bytes)
+                            return True
+            except Exception as e:
+                # Se for 429 ou erro de modelo, rotaciona para a próxima chave
+                continue
 
     # 2. Camada 2 (Fallback Neural Garantido): Microsoft Edge Neural TTS no idioma selecionado!
     neural_voice = NEURAL_VOICES.get(lang, "pt-BR-FranciscaNeural")

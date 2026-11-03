@@ -1589,6 +1589,7 @@
     <!-- SCRIPTS THREE.JS E MÓDULOS DO MOZOK -->
     <script src="js/vendor/three.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'"></script>
     <script src="js/vendor/OrbitControls.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js'"></script>
+    <script src="js/i18n-cache.js"></script>
     <script src="js/brain-mesh-data.js"></script>
     <script src="js/cns-anatomy-3d.js"></script>
     <script src="js/neural-microcosmos-3d.js"></script>
@@ -2395,6 +2396,7 @@
             let currentLang = 'pt-BR';
             const translationCache = new Map();
             let currentAudio = null;
+            let activeSpeechId = 0;
 
             const UI_I18N = {
                 'pt-BR': {
@@ -2742,7 +2744,13 @@
             const translatedListNames = {};
 
             async function preloadListTranslations(lang) {
-                if (!lang || lang === 'pt-BR' || translatedListNames[lang]) return;
+                if (!lang || lang === 'pt-BR') return;
+                if (window.MOZOK_I18N_CACHE && window.MOZOK_I18N_CACHE[lang]) {
+                    translatedListNames[lang] = window.MOZOK_I18N_CACHE[lang];
+                    renderStructureList();
+                    return;
+                }
+                if (translatedListNames[lang]) return;
                 try {
                     const itemsToTranslate = {};
                     MOZOK_ONTOLOGY.forEach(item => {
@@ -2784,6 +2792,9 @@
                 const meta = isMicroMode
                     ? neuralMicro.getPartMetadata(selectedNeuronPartId)
                     : (ontologyMap.get(selectedStructureId) || MOZOK_ONTOLOGY[0]);
+                if (lang !== 'pt-BR' && window.MOZOK_I18N_CACHE && window.MOZOK_I18N_CACHE[lang]) {
+                    translatedListNames[lang] = window.MOZOK_I18N_CACHE[lang];
+                }
                 if (meta) updateHUDAndPopup(meta, popupVisible);
                 renderStructureList();
                 if (lang !== 'pt-BR' && !translatedListNames[lang]) {
@@ -2824,6 +2835,19 @@
                 if (translationCache.has(cacheKey)) {
                     return translationCache.get(cacheKey);
                 }
+                if (window.MOZOK_I18N_CACHE && window.MOZOK_I18N_CACHE[lang] && window.MOZOK_I18N_CACHE[lang][meta.id]) {
+                    const cached = window.MOZOK_I18N_CACHE[lang][meta.id];
+                    const tr = {
+                        ...meta,
+                        name: cached.name || meta.name,
+                        badge: cached.badge || meta.badge,
+                        summary: cached.summary || meta.summary,
+                        clinical: cached.clinical || meta.clinical,
+                        functions: (cached.functions && cached.functions.length) ? cached.functions : (meta.functions || [])
+                    };
+                    translationCache.set(cacheKey, tr);
+                    return tr;
+                }
                 try {
                     const resp = await fetch('/api/gemini-translate', {
                         method: 'POST',
@@ -2859,23 +2883,26 @@
 
             async function speakText(text, lang = currentLang) {
                 if (!text) return;
+                const thisSpeechId = ++activeSpeechId;
                 syncSpeechWithVLibras(text);
 
                 if (currentAudio) {
-                    currentAudio.pause();
+                    try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (_) {}
                     currentAudio = null;
                 }
                 if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
+                    try { window.speechSynthesis.cancel(); } catch (_) {}
                 }
 
                 try {
-                    const audioUrl = `/api/gemini-tts?text=${encodeURIComponent(text)}&lang=${encodeURIComponent(lang)}`;
+                    const audioUrl = `/api/gemini-tts?text=${encodeURIComponent(text)}&lang=${encodeURIComponent(lang)}&_t=${Date.now()}`;
                     const audio = new Audio(audioUrl);
+                    if (thisSpeechId !== activeSpeechId) return;
                     currentAudio = audio;
                     await audio.play();
                     return;
                 } catch (_) {
+                    if (thisSpeechId !== activeSpeechId) return;
                     // Fallback para Web Speech API nativa
                     if ('speechSynthesis' in window) {
                         try {
@@ -3463,8 +3490,9 @@
             const langSelect = document.getElementById('lang-select');
             if (langSelect) {
                 langSelect.addEventListener('change', async (e) => {
+                    activeSpeechId++;
                     if (currentAudio) {
-                        try { currentAudio.pause(); } catch (_) {}
+                        try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (_) {}
                         currentAudio = null;
                     }
                     if ('speechSynthesis' in window) {
