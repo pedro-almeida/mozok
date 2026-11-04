@@ -4387,6 +4387,10 @@
             // Inicialização padrão
             renderStructureList();
             selectMacroStructure('FRONTAL_LOBE', false, false);
+            popupVisible = false;
+            popupEl.classList.add('hidden');
+            pinDotEl.classList.add('hidden');
+            leaderLineEl.style.display = 'none';
             animate();
         })();
     </script>

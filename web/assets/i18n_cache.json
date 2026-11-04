@@ -1,4 +1,714 @@
 {
+  "pt-BR": {
+    "MENINGES_DURA_ARACHNOID_PIA": {
+      "name": "Meninges (Dura-Máter, Aracnoide e Pia-Máter)",
+      "badge": "MENINGES & SEPTOS DURAIS • PROTEÇÃO SNC",
+      "summary": "Três membranas concêntricas que revestem e protegem o Sistema Nervoso Central: (1) Dura-máter (paquimeninge fibrosa externa com Foice do Cérebro na fissura inter-hemisférica e Tentório do Cerebelo), (2) Membrana Aracnoide trabecular no espaço subaracnóideo preenchido por Líquor (LCR) e Granulações Aracnoideas de Pacchioni junto ao Seio Sagital Superior, e (3) Pia-máter vascular íntima aderida aos giros e sulcos corticais.",
+      "clinical": "Meningite bacteriana ou viral (rigidez de nuca, sinais de Kernig e Brudzinski), Hematoma Epidural (ruptura da artéria meníngea média), Hematoma Subdural (ruptura de veias-ponte corticais) e Hemorragia Subaracnóidea.",
+      "functions": [
+        "Proteção mecânica contra traumas cranioencefálicos e compartimentalização craniana (Foice do Cérebro e Tentório do Cerebelo)",
+        "Sustentação hidrostática do encéfalo flutuante no líquor subaracnóideo (reduzindo o peso efetivo de 1.400g para ~50g)",
+        "Reabsorção unidirecional do Líquor (LCR) pelas Granulações Aracnoideas de Pacchioni para o Seio Sagital Superior",
+        "Barreira hematoliquórica e revestimento pial perivascular (Espaços de Virchow-Robin / Sistema Glinfático)"
+      ],
+      "citation": "Louveau, A. et al. Structural and functional features of central nervous system lymphatic vessels. Nature 523, 337–341 (2015).",
+      "doi": "10.1038/nature14432"
+    },
+    "FRONTAL_LOBE": {
+      "name": "Lobo Frontal",
+      "badge": "CÓRTEX TELENCEFÁLICO",
+      "summary": "Sede das funções executivas superiores, planejamento, controle inibitório (Córtex Pré-Frontal Dorsolateral e Orbitofrontal), motricidade voluntária somatotópica (Giro Pré-Central / Homúnculo Motor de Penfield) e expressão motora da fala (Área de Broca).",
+      "clinical": "Afasia motora de Broca (fala não-fluente com compreensão preservada), hemiparesia/hemiplegia contralateral, Síndrome Disexecutiva ou apatia/desinibição frontal (Síndrome de Phineas Gage) e Demência Frontotemporal.",
+      "functions": [
+        "Execução motora voluntária contralateral via Trato Corticoespinhal Piramidal (Área 4)",
+        "Planejamento motor complexo, coordenação bimanual e olhar conjugado (Áreas 6 e 8)",
+        "Memória de trabalho, abstração, julgamento ético e regulação da conduta social (Áreas 9–12)",
+        "Programação fonológica e sintática da linguagem falada e escrita (Área de Broca — 44 e 45)"
+      ],
+      "citation": "Miller, E. K. & Cohen, J. D. An integrative theory of prefrontal cortex function. Annu. Rev. Neurosci. 24, 167–202 (2001).",
+      "doi": "10.1146/annurev.neuro.24.1.167"
+    },
+    "PARIETAL_LOBE": {
+      "name": "Lobo Parietal",
+      "badge": "CÓRTEX SOMATOSSENSORIAL",
+      "summary": "Centro primário de integração somatossensorial (tato epicrítico, propriocepção consciente, dor e temperatura no Giro Pós-Central), percepção visuoespacial, esquema corporal e cálculo simbólico.",
+      "clinical": "Heminegligência espacial contralateral (lesão parietal direita), astereognosia, apraxia ideomotora e Síndrome de Gerstmann (agnosia digital, acalculia, agrafia e desorientação direita-esquerda no giro angular dominante).",
+      "functions": [
+        "Somatotopia sensorial primária no Giro Pós-Central (Homúnculo Sensorial — Áreas 3, 1 e 2)",
+        "Estereognosia (reconhecimento tátil de objetos) e grafestesia no Lóbulo Parietal Superior",
+        "Integração semântica multimodal, leitura e cálculo nos Giros Supramarginal (40) e Angular (39)",
+        "Atenção espacial tridimensional e mapa egocêntrico/alocêntrico do espaço peripessoal"
+      ],
+      "citation": "Culham, J. C. & Kanwisher, N. G. Neuroimaging of cognitive functions in human parietal cortex. Curr. Opin. Neurobiol. 11, 157–163 (2001).",
+      "doi": "10.1016/S0959-4388(00)00191-4"
+    },
+    "TEMPORAL_LOBE": {
+      "name": "Lobo Temporal",
+      "badge": "AUDIÇÃO, LINGUAGEM & MEMÓRIA",
+      "summary": "Processa a audição primária (Giros Transversos de Heschl), a compreensão semântica da linguagem (Área de Wernicke), o reconhecimento visual de faces (Giro Fusiforme) e abriga na face medial o complexo hipocampal-amigdaliano.",
+      "clinical": "Afasia sensitiva de Wernicke (fala fluente porém parafásica/neologística e sem compreensão), prosopagnosia (incapacidade de reconhecer rostos) e Epilepsia do Lobo Temporal com auras olfativas/déjà vu.",
+      "functions": [
+        "Tonotopia auditiva primária e secundária nos Giros de Heschl (Áreas 41 e 42)",
+        "Decodificação fonêmica e compreensão da linguagem na Área de Wernicke (Área 22 posterior)",
+        "Via visual ventral (\"O Quê\"): reconhecimento de objetos e faces no Giro Fusiforme (Área 37)",
+        "Integração auditivo-límbica e consolidação de memórias semânticas de longo prazo"
+      ],
+      "citation": "Binder, J. R. et al. Human temporal lobe activation by speech and nonspeech sounds. Brain 123, 2371–2385 (2000).",
+      "doi": "10.1093/brain/123.12.2371"
+    },
+    "OCCIPITAL_LOBE": {
+      "name": "Lobo Occipital",
+      "badge": "PROCESSAMENTO VISUAL",
+      "summary": "Dedicado integralmente à visão, recebendo as radiações ópticas do Corpo Geniculado Lateral nos lábios do Sulco Calcarino (V1 / Área 17 — Estria de Gennari) e distribuindo para as áreas associativas V2–V5.",
+      "clinical": "Hemianopsia homônima contralateral com preservação macular (oclusão da Artéria Cerebral Posterior), cegueira cortical com Síndrome de Anton (negação da cegueira e confabulação visual) e acromatopsia central.",
+      "functions": [
+        "Mapeamento retinotópico ponto-a-ponto no Córtex Visual Primário (V1 / Área 17)",
+        "Decomposição de orientação de bordas, contraste binocular, disparidade de profundidade e cor (V2/V4)",
+        "Percepção de movimento e velocidade óptica (Área V5 / MT)",
+        "Origem das vias visuais Dorsal (Parietal — \"Onde/Como agir\") e Ventral (Temporal — \"O Quê é\")"
+      ],
+      "citation": "Wandell, B. A., Dumoulin, S. O. & Brewer, A. A. Visual field maps in human cortex. Neuron 56, 366–383 (2007).",
+      "doi": "10.1016/j.neuron.2007.10.012"
+    },
+    "INSULAR_CORTEX": {
+      "name": "Córtex Insular (Ínsula de Reil)",
+      "badge": "INTEROCEPÇÃO & EMPATIA",
+      "summary": "Quinto lobo cerebral oculto no fundo do Sulco Lateral de Sylvius, responsável pela interocepção consciente (percepção dos batimentos cardíacos, respiração, dor visceral e fome), gustação primária e empatia afetiva.",
+      "clinical": "Arritmias neurogênicas e inversão de onda T pós-AVC insular direito, perda súbita da fissura por nicotina/dependência química após lesão insular e alterações na percepção da dor (assymbolia para a dor).",
+      "functions": [
+        "Mapa interoceptivo visceral consciente (estado fisiológico interno do corpo)",
+        "Córtex gustativo primário e integração olfativo-gustativa do paladar",
+        "Processamento da matriz afetiva da dor, aversão ao risco, nojo e empatia emocional",
+        "Controle autonômico cardiovascular (modulação simpática/parassimpática da frequência cardíaca)"
+      ],
+      "citation": "Craig, A. D. How do you feel — now? The anterior insula and human awareness. Nat. Rev. Neurosci. 10, 59–70 (2009).",
+      "doi": "10.1038/nrn2555"
+    },
+    "CEREBELLUM": {
+      "name": "Cerebelo (Folia, Vérmis & Hemisférios)",
+      "badge": "COORDENAÇÃO & APRENDIZADO MOTOR",
+      "summary": "Contém mais da metade de todos os neurônios do encéfalo humano (~69 bilhões), organizados em lâminas horizontais finas (folia) e células de Purkinje que comparam a intenção motora cortical com o feedback proprioceptivo em tempo real.",
+      "clinical": "Síndrome Cerebelar Ipsilateral: ataxia de marcha (base alargada), dismetria (prova índex-nariz), disdiadococinesia, tremor intencional, disartria escandida e nistagmo.",
+      "functions": [
+        "Coordenação fina da força, amplitude e cronometria muscular (metria e diadococinesia)",
+        "Manutenção do equilíbrio axial e do reflexo vestibulo-ocular (Lobo Floculonodular e Vérmis)",
+        "Correção instantânea de erros motores via fibras trepadeiras da Oliva Inferior sobre células de Purkinje",
+        "Aprendizado motor procedimental e automação de habilidades cognitivo-motoras"
+      ],
+      "citation": "Herculano-Houzel, S. The human brain in numbers: a linearly scaled-up primate brain. Front. Hum. Neurosci. 3, 31 (2009).",
+      "doi": "10.3389/neuro.09.031.2009"
+    },
+    "CORPUS_CALLOSUM": {
+      "name": "Corpo Caloso",
+      "badge": "COMISSURA INTER-HEMISFÉRICA",
+      "summary": "A maior estrutura de substância branca do sistema nervoso (~200 milhões de axônios mielinizados), conectando homotopicamente e heterotopicamente os hemisférios cerebrais esquerdo e direito.",
+      "clinical": "Síndrome da Desconexão Inter-Hemisférica (Split-Brain), Síndrome da Mão Alheia (Alien Hand Syndrome), alexia sem agrafia (lesão do esplênio + córtex occipital esquerdo) e agenesia do corpo caloso.",
+      "functions": [
+        "Transferência inter-hemisférica ultrarrápida de informações sensoriais, motoras e linguísticas",
+        "Unificação do campo visual esquerdo e direito através do Esplênio do Corpo Caloso",
+        "Coordenação motora bimanual sincronizada através do Joelho e Tronco caloso",
+        "Integração da prosódia emocional (hemisfério direito) com a sintaxe verbal (hemisfério esquerdo)"
+      ],
+      "citation": "Gazzaniga, M. S. Cerebral specialization and interhemispheric communication: Does the corpus callosum enable the human condition? Brain 123, 1293–1326 (2000).",
+      "doi": "10.1093/brain/123.7.1293"
+    },
+    "THALAMUS": {
+      "name": "Tálamo (Diencéfalo Dorsal)",
+      "badge": "PORTAL SENSORIAL & TALAMOCORTICAL",
+      "summary": "Estação retransmissora e filtradora obrigatória para todas as vias sensoriais conscientes (exceto o olfato), além de integrar os circuitos motores dos Núcleos da Base e do Cerebelo rumo ao córtex.",
+      "clinical": "Síndrome da Dor Talâmica de Dejerine-Roussy (hemi-hipoestesia seguida de dor neuropática alodínica excruciante contralateral pós-AVC talâmico posterolateral) e insônia familiar fatal.",
+      "functions": [
+        "Retransmissão somatossensorial do corpo (Núcleo VPL) e da face/trigêmeo (Núcleo VPM)",
+        "Retransmissão visual (Corpo Geniculado Lateral — CGL) e auditiva (Corpo Geniculado Medial — CGM)",
+        "Modulação de alças motoras dos Núcleos da Base e Cerebelo (Núcleos Ventral Anterior e Ventral Lateral)",
+        "Regulação do ciclo vigília-sono e ritmos alfa/fusos do sono pelo Núcleo Reticular Talâmico"
+      ],
+      "citation": "Sherman, S. M. & Guillery, R. W. The role of the thalamus in the flow of information to the cortex. Philos. Trans. R. Soc. Lond. B 357, 1695–1708 (2002).",
+      "doi": "10.1098/rstb.2002.1161"
+    },
+    "HYPOTHALAMUS": {
+      "name": "Hipotálamo & Eixo Hipofisário",
+      "badge": "HOMEOSTASE & NEUROENDOCRINOLOGIA",
+      "summary": "Maestro supremo da homeostase corporal e do Sistema Nervoso Autônomo, acoplado à Hipófise (Pituitária) para traduzir sinais neurais em controle hormonal sistêmico.",
+      "clinical": "Diabetes Insipidus Central (deficiência de ADH), Síndrome da Secreção Inapropriada de ADH (SIADH), narcolepsia (perda de neurônios orexinérgicos) e distúrbios graves de termorregulação.",
+      "functions": [
+        "Termorregulação (hipotálamo anterior dissipa calor; posterior conserva calor)",
+        "Marca-passo circadiano endógeno de 24 horas no Núcleo Supraquiasmático",
+        "Controle da sede/osmolaridade, fome/saciedade (Núcleos Arqueado, Ventromedial e Lateral)",
+        "Síntese de Ocitocina e ADH (Vasopressina) nos núcleos Supraóptico e Paraventricular e comando da Adeno-Hipófise"
+      ],
+      "citation": "Saper, C. B. & Lowell, B. B. The hypothalamus. Curr. Biol. 24, R1111–R1116 (2014).",
+      "doi": "10.1016/j.cub.2014.10.023"
+    },
+    "HIPPOCAMPUS": {
+      "name": "Hipocampo & Fórnix",
+      "badge": "MEMÓRIA EPISÓDICA & NAVEGAÇÃO",
+      "summary": "Arquicórtex temporal medial essencial para a consolidação da memória declarativa (episódica e semântica) e para o mapeamento espacial cognitivo (células de lugar / place cells).",
+      "clinical": "Amnésia anterógrada grave (incapacidade de formar novas memórias declarativas, como no clássico paciente H.M.), atrofia hipocampal precoce na Doença de Alzheimer e Esclerose Mesial Temporal.",
+      "functions": [
+        "Consolidação sináptica de memórias de curto prazo em memórias de longo prazo via Potenciação de Longa Duração (LTP)",
+        "Circuito Trissináptico Hipocampal (Córtex Entorrinal -> Giro Denteado -> CA3 -> CA1 -> Subículo -> Fórnix)",
+        "Navegação espacial e orientação geográfica através das Place Cells (Hipocampo) e Grid Cells (Córtex Entorrinal)",
+        "Neurogênese adulta contínua na zona subgranular do Giro Denteado"
+      ],
+      "citation": "Scoville, W. B. & Milner, B. Loss of recent memory after bilateral hippocampal lesions. J. Neurol. Neurosurg. Psychiatry 20, 11–21 (1957).",
+      "doi": "10.1136/jnnp.20.1.11"
+    },
+    "AMYGDALA": {
+      "name": "Amígdala Cerebral (Complexo Amigdaliano)",
+      "badge": "EMOÇÃO, ALERTA & VALÊNCIA AFETIVA",
+      "summary": "Sentinela emocional do sistema límbico situada no polo temporal anterior, atribuindo valência afetiva imediata aos estímulos sensoriais e disparando a resposta autonômica de luta ou fuga.",
+      "clinical": "Transtorno de Estresse Pós-Traumático (TEPT), transtornos de ansiedade/pânico (hiper-reatividade amigdaliana com hipofunção pré-frontal) e Síndrome de Klüver-Bucy (placidez, hiperoralidade e ausência de medo após lesão bilateral).",
+      "functions": [
+        "Condicionamento de medo e detecção ultrarrápida de ameaças ambientais (via talamo-amigdaliana)",
+        "Modulação emocional da consolidação de memórias no hipocampo (memórias emocionalmente intensas)",
+        "Ativação autonômica simpática e neuroendócrina (eixo HPA / cortisol) via Núcleo Central da Amígdala",
+        "Reconhecimento de expressões faciais de medo, raiva e confiabilidade social"
+      ],
+      "citation": "LeDoux, J. E. Emotion circuits in the brain. Annu. Rev. Neurosci. 23, 155–184 (2000).",
+      "doi": "10.1146/annurev.neuro.23.1.155"
+    },
+    "BASAL_GANGLIA": {
+      "name": "Núcleos da Base (Corpo Estriado & Globo Pálido)",
+      "badge": "SELEÇÃO DE AÇÃO & AUTOMATISMO MOTOR",
+      "summary": "Complexo de núcleos subcorticais profundos que operam em alças córtico-estriado-pálido-tálamo-corticais (Via Direta facilitadora e Via Indireta inibitória) para iniciar movimentos desejados e suprimir movimentos parasitas.",
+      "clinical": "Doença de Parkinson (degeneração dopaminérgica da Substância Negra -> bradicinesia, rigidez em roda denteada e tremor de repouso), Coreia de Huntington e Hemibalismo (lesão do Núcleo Subtalâmico de Luys).",
+      "functions": [
+        "Via Direta (Receptores D1): desinibe o tálamo e facilita o início fluente de movimentos voluntários",
+        "Via Indireta (Receptores D2): inibe o tálamo para suprimir movimentos involuntários indesejados",
+        "Modulação dopaminérgica nigroestriatal a partir da Substância Negra pars compacta (SNpc)",
+        "Aprendizado por reforço, formação de hábitos e motivação (Estriado Ventral / Núcleo Accumbens)"
+      ],
+      "citation": "Alexander, G. E., DeLong, M. R. & Strick, P. L. Parallel organization of functionally segregated circuits linking basal ganglia and cortex. Annu. Rev. Neurosci. 9, 357–381 (1986).",
+      "doi": "10.1146/annurev.ne.09.030186.002041"
+    },
+    "MIDBRAIN": {
+      "name": "Mesencéfalo (Tronco Encefálico Superior)",
+      "badge": "TRONCO ENCEFÁLICO • REFLEXOS VISUAIS/AUDITIVOS",
+      "summary": "Segmento superior do tronco encefálico atravessado pelo Aqueduto Cerebral de Sylvius, contendo os Pedúnculos Cerebrais, os Colículos Superiores e Inferiores, o Núcleo Rubro, a Substância Negra e a Área Tegmentar Ventral (VTA).",
+      "clinical": "Síndrome de Weber (hemiplegia contralateral + paralisia do III par ipsilateral com ptose e midríase), Síndrome de Parinaud (paralisia do olhar conjugado vertical superior) e rigidez descerebrada.",
+      "functions": [
+        "Orientação reflexa da cabeça e dos olhos para estímulos visuais (Colículos Superiores) e sonoros (Colículos Inferiores)",
+        "Origem dos nervos Oculomotor (CN III — motricidade ocular e reflexo fotomotor pupilar de Edinger-Westphal) e Troclear (CN IV)",
+        "Produção de Dopamina na Substância Negra (via nigroestriatal) e na VTA (vias mesolímbica e mesocortical)",
+        "Analgesia endógena descendente através da Substância Cinzenta Periaquedutal (PAG)"
+      ],
+      "citation": "Roeper, J. Dissecting the diversity of midbrain dopamine neurons. Physiol. Rev. 93, 281–320 (2013).",
+      "doi": "10.1152/physrev.00029.2012"
+    },
+    "PONS": {
+      "name": "Ponte de Varólio (Protuberância Anular)",
+      "badge": "TRONCO ENCEFÁLICO • ELO CORTICOCEREBELAR",
+      "summary": "Prominência ventral do tronco encefálico situada entre o mesencéfalo e o bulbo, servindo como grande ponte de fibras transversas entre o córtex cerebral e o cerebelo e abrigando os núcleos dos nervos V, VI, VII e VIII.",
+      "clinical": "Síndrome do Cativeiro / Locked-in Syndrome (infarto ventral da base da ponte por oclusão basilar -> tetraplegia e anartria com consciência intacta e movimento ocular vertical preservado) e Mielinólise Pontina Central.",
+      "functions": [
+        "Retransmissão maciça de comandos corticais para o cerebelo via Núcleos Pontinos e Pedúnculo Cerebelar Médio",
+        "Centros pneumotáxico e apnêustico (regulação fina da transição inspiração-expiração)",
+        "Núcleos dos nervos Trigêmeo (CN V), Abducente (CN VI), Facial (CN VII) e Vestibulococlear (CN VIII)",
+        "Principal fonte de Noradrenalina para todo o encéfalo no Locus Coeruleus (vigilância e atenção)"
+      ],
+      "citation": "Schmahmann, J. D. & Pandya, D. N. Anatomic organization of the basilar pontine projections from prefrontal cortices. Brain 120, 1609–1639 (1997).",
+      "doi": "10.1093/brain/120.9.1609"
+    },
+    "MEDULLA_OBLONGATA": {
+      "name": "Bulbo Raquidiano (Medula Oblonga)",
+      "badge": "CENTROS VITAIS CARDIORRESPIRATÓRIOS",
+      "summary": "Segmento caudal do tronco encefálico contínuo com a medula espinhal no forame magno, contendo a Decussação das Pirâmides (cruzamento motor de 85% das fibras corticoespinhais) e os centros vitais autônomos.",
+      "clinical": "Síndrome Bulbar Lateral de Wallenberg (oclusão da PICA -> disfagia, rouquidão, síndrome de Horner ipsilateral, vertigem e perda termoalgésica cruzada) e parada cardiorrespiratória em herniação tonsilar.",
+      "functions": [
+        "Controle automático da geração do ritmo respiratório (Grupos Respiratórios Dorsal e Ventral / Complexo Pré-Bötzinger)",
+        "Regulação batimento-a-batimento da pressão arterial e frequência cardíaca (Núcleo do Trato Solitário e Bulbo Rostroventrolateral)",
+        "Decussação motora das Pirâmides (Trato Corticoespinhal Lateral) e decussação sensitiva do Lemnisco Medial (Grácil e Cuneiforme)",
+        "Núcleos dos nervos Glossofaríngeo (IX), Vago (X), Acessório (XI) e Hipoglosso (XII) — deglutição, fonação, tosse e vômito"
+      ],
+      "citation": "Smith, J. C., Ellenberger, H. H., Ballanyi, K., Richter, D. W. & Feldman, J. L. Pre-Bötzinger complex: a brainstem region that may generate respiratory rhythm in mammals. Science 254, 726–729 (1991).",
+      "doi": "10.1126/science.1683005"
+    },
+    "SPINAL_CORD": {
+      "name": "Medula Espinhal, Cone Medular & Cauda Equina",
+      "badge": "SNC ESPINHAL • VIAS MOTORAS E SENSITIVAS",
+      "summary": "Eixo cilíndrico do Sistema Nervoso Central protegido pelo canal vertebral, exibindo o H medular de substância cinzenta (cornos dorsal sensitivo, intermédio autonômico e ventral motor) cercado pelos funículos de substância branca e terminando no Cone Medular (L1/L2) e Cauda Equina.",
+      "clinical": "Síndrome de Hemissecção Medular de Brown-Séquard (paralisia e perda proprioceptiva ipsilateral + perda termoalgésica contralateral), Síndrome da Cauda Equina (anestesia em sela e retenção urinária) e Esclerose Lateral Amiotrófica (ELA).",
+      "functions": [
+        "Condução motora descendente pelos Tratos Corticoespinhal Lateral/Anterior, Rubroespinhal, Reticuloespinhal e Vestibuloespinhal",
+        "Condução sensitiva ascendente pelas Colunas Dorsais (Grácil/Cuneiforme: tato epicrítico e propriocepção) e Trato Espinotalâmico (dor e temperatura)",
+        "Integração de arcos reflexos medulares (reflexo miotático patelar/aquileu e reflexo flexor de retirada)",
+        "Origem da coluna simpática toracolombar (T1–L2) e parassimpática sacral (S2–S4) e das raízes da Cauda Equina"
+      ],
+      "citation": "Lemon, R. N. Descending pathways in motor control. Annu. Rev. Neurosci. 31, 195–218 (2008).",
+      "doi": "10.1146/annurev.neuro.31.060407.125547"
+    },
+    "OLFACTORY_NERVE_CN1": {
+      "name": "Nervo Olfatório (I Par Craniano)",
+      "badge": "I PAR CRANIANO • OLFATO DIRETO AO CÓRTEX",
+      "summary": "Primeiro par craniano, puramente sensorial especial (Aferente Visceral Especial), sendo a única via sensorial humana que alcança diretamente o córtex olfatório primário (piriforme e amígdala) sem passar antes pelo tálamo.",
+      "clinical": "Anosmia ou hiposmia pós-traumática (fratura da lâmina cribriforme com fístula liquórica / rinorreia de LCR), hiposmia precoce prodrômica na Doença de Parkinson e Síndrome de Foster Kennedy.",
+      "functions": [
+        "Transdução química de moléculas odoríferas pelos cílios dos neurônios bipolares da mucosa olfatória superior",
+        "Passagem dos filetes olfatórios pelos forames da Lâmina Cribriforme do osso etmoide até os glomérulos do Bulbo Olfatório",
+        "Conexão direta com o Córtex Piriforme, Amígdala e Córtex Entorrinal (evocação instantânea de memórias afetivas pelo cheiro)"
+      ],
+      "citation": "Buck, L. & Axel, R. A novel multigene family may encode odorant receptors: a molecular basis for odor recognition. Cell 65, 175–187 (1991).",
+      "doi": "10.1016/0092-8674(91)90418-X"
+    },
+    "OPTIC_NERVE_CN2": {
+      "name": "Nervo Óptico, Quiasma & Trato Óptico (II Par)",
+      "badge": "II PAR CRANIANO • VIA RETINOCALCARINA",
+      "summary": "Formado pelos axônios das células ganglionares da retina (mielinizados por oligodendrócitos, sendo um verdadeiro trato do diencéfalo), cujas fibras nasais cruzam no Quiasma Óptico a caminho do Corpo Geniculado Lateral.",
+      "clinical": "Neurite Óptica Retrobulbar (frequentemente manifestação inicial da Esclerose Múltipla, com defeito pupilar aferente relativo de Marcus Gunn), Hemianopsia Bitemporal Heterônima (compressão do Quiasma por adenoma hipofisário) e Papiledema.",
+      "functions": [
+        "Condução de alta resolução da imagem retiniana foveal (mácula) e periférica",
+        "Decussação das fibras da hemirretina nasal no Quiasma Óptico (unificando os hemicampos visuais esquerdo e direito)",
+        "Aferência do reflexo fotomotor pupilar direto e consensual rumo à área pré-tectal mesencefálica"
+      ],
+      "citation": "Toosy, A. T., Mason, D. F. & Miller, D. H. Optic neuritis. Lancet Neurol. 13, 83–99 (2014).",
+      "doi": "10.1016/S1474-4422(13)70259-X"
+    },
+    "OCULOMOTOR_NERVES_CN3_4_6": {
+      "name": "Nervos Oculomotor (III), Troclear (IV) & Abducente (VI)",
+      "badge": "III, IV & VI PARES • MOTRICIDADE OCULAR EXTRÍNSECA E INTRÍNSECA",
+      "summary": "Trio de nervos cranianos motores que atravessam o Seio Cavernoso e a Fissura Orbitária Superior para comandar com precisão micrométrica os 6 músculos extraoculares, o levantador da pálpebra e o esfíncter da pupila.",
+      "clinical": "Paralisia do III par (olho desviado para fora e para baixo, ptose palpebral e midríase fixa por aneurisma da Artéria Comunicante Posterior), diplopia vertical ao descer escadas (lesão do IV par) e estrabismo convergente (lesão do VI par).",
+      "functions": [
+        "CN III (Oculomotor): inerva Reto Superior, Inferior, Medial, Oblíquo Inferior, Levantador da Pálpebra e miose pupilar (Edinger-Westphal)",
+        "CN IV (Troclear): único nervo que emerge da face dorsal do tronco, inervando o músculo Oblíquo Superior (intorsão e depressão do olho)",
+        "CN VI (Abducente): inerva o músculo Reto Lateral, realizando a abdução horizontal do globo ocular"
+      ],
+      "citation": "Büttner-Ennever, J. A. The extraocular motor nuclei: organization and functional neuroanatomy. Prog. Brain Res. 151, 95–125 (2006).",
+      "doi": "10.1016/S0079-6123(05)51004-5"
+    },
+    "TRIGEMINAL_NERVE_CN5": {
+      "name": "Nervo Trigêmeo (V Par: Ramos V1, V2 e V3)",
+      "badge": "V PAR CRANIANO • SENSIBILIDADE DA FACE E MASTIGAÇÃO",
+      "summary": "O mais calibroso dos nervos cranianos, emergindo da face anterolateral da ponte e expandindo-se no Gânglio Trigêmeo (Semilunar de Gasser) nos três grandes ramos: Oftálmico (V1), Maxilar (V2) e Mandibular (V3).",
+      "clinical": "Neuralgia do Trigêmeo (paroxismos de dor lancinante em choque elétrico nos territórios V2/V3, frequentemente por compressão neurovascular pela Artéria Cerebelar Superior), fisiopatologia da Enxaqueca (sistema trigeminovascular) e Herpes Zóster Oftálmico.",
+      "functions": [
+        "Sensibilidade tátil, térmica e dolorosa de toda a face, córnea, seios paranasais, dentes, língua anterior (2/3) e dura-máter",
+        "Inervação motora branquial (ramo V3) dos músculos da mastigação (Masseter, Temporal, Pterigóideos Medial e Lateral)",
+        "Aferência do reflexo corneopalpebral (V1) e do reflexo mentoniano / massetérico (V3)"
+      ],
+      "citation": "Cruccu, G. et al. Trigeminal neuralgia: New classification and diagnostic grading for practice and research. Neurology 87, 220–228 (2016).",
+      "doi": "10.1212/WNL.0000000000002840"
+    },
+    "FACIAL_VESTIBULOCOCHLEAR_CN7_8": {
+      "name": "Nervos Facial (VII) & Vestibulococlear (VIII)",
+      "badge": "VII & VIII PARES • MÍMICA FACIAL, AUDIÇÃO & EQUILÍBRIO",
+      "summary": "Emergem juntos no Ângulo Pontocerebelar e penetram no Meato Acústico Interno: o VII par comanda a mímica facial, lacrimejamento, salivação e paladar anterior; o VIII par traz a audição (Cóclea) e o equilíbrio (Labirinto Vestibular).",
+      "clinical": "Paralisia Facial Periférica de Bell (acomete andar superior e inferior da hemiface ipsilateral com sinal de Bell), Vertigem Posicional Paroxística Benigna (VPPB), Doença de Ménière e Schwannoma Vestibular.",
+      "functions": [
+        "CN VII (Facial): motricidade de todos os músculos da expressão facial, gustação dos 2/3 anteriores da língua (Corda do Tímpano) e glândulas lacrimal/submandibular/sublingual",
+        "CN VIII (Divisão Coclear): transdução sonora do Órgão de Corti para os núcleos cocleares",
+        "CN VIII (Divisão Vestibular): detecção de aceleração angular (canais semicirculares) e linear (utrículo e sáculo)"
+      ],
+      "citation": "Eviston, T. J. et al. Bell's palsy: aetiology, clinical features and multidisciplinary care. J. Neurol. Neurosurg. Psychiatry 86, 1356–1361 (2015).",
+      "doi": "10.1136/jnnp-2014-309563"
+    },
+    "VAGUS_NERVE_CN10": {
+      "name": "Nervo Vago (X Par) & Eixo Parassimpático",
+      "badge": "X PAR CRANIANO • MAESTRO PARASSIMPÁTICO TORACOABDOMINAL",
+      "summary": "O nervo craniano de mais longo trajeto, descendo pelo pescoço (bainha carotídea), mediastino e hiato esofágico para fornecer ~75% de todas as fibras parassimpáticas do corpo humano até o cólon transverso.",
+      "clinical": "Rouquidão/disfonia por paralisia de prega vocal (lesão do Nervo Laríngeo Recorrente), síncope vasovagal, gastroparesia diabética e Estimulação do Nervo Vago (VNS) para epilepsia refratária e depressão resistente.",
+      "functions": [
+        "Redução da frequência cardíaca (efeito cronotrópico negativo no nó sinoatrial) e broncoconstrição fisiológica",
+        "Estímulo do peristaltismo gastrointestinal, secreção ácida gástrica, biliar e pancreática (Eixo Intestino-Cérebro)",
+        "Inervação motora da laringe (Nervo Laríngeo Recorrente — fonação) e do palato mole, além do reflexo barorreceptor",
+        "Via anti-inflamatória colinérgica (modulação vagal da resposta imune sistêmica)"
+      ],
+      "citation": "Tracey, K. J. The inflammatory reflex. Nature 420, 853–859 (2002).",
+      "doi": "10.1038/nature01321"
+    },
+    "GLOSSOPHARYNGEAL_ACCESSORY_HYPOGLOSSAL_CN9_11_12": {
+      "name": "Nervos Glossofaríngeo (IX), Acessório (XI) & Hipoglosso (XII)",
+      "badge": "IX, XI & XII PARES • DEGLUTIÇÃO, FONOARTICULAÇÃO E PESCOÇO",
+      "summary": "Nervos bulbares inferiores que coordenam a sensibilidade faríngea e do seio carotídeo (IX), a rotação cervical e elevação dos ombros (XI) e a motricidade intrínseca e extrínseca da língua (XII).",
+      "clinical": "Neuralgia Glossofaríngea, Síndrome do Forame Jugular (Vernet — IX, X e XI), queda do ombro por lesão do XI par e desvio da língua para o lado da lesão com atrofia e fasciculações na lesão do XII par.",
+      "functions": [
+        "CN IX (Glossofaríngeo): gustação e sensibilidade do 1/3 posterior da língua, reflexo de vômito, glândula parótida e quimio/barorreceptores do Seio Carotídeo",
+        "CN XI (Acessório Espinhal): inervação motora dos músculos Esternocleidomastóideo e Trapézio",
+        "CN XII (Hipoglosso): comando motor de todos os músculos da língua (genioglosso, hipoglosso, estiloglosso)"
+      ],
+      "citation": "Erman, A. B., Kejner, A. E., Hogikyan, N. D. & Feldman, E. L. Disorders of cranial nerves IX and X. Semin. Neurol. 29, 85–92 (2009).",
+      "doi": "10.1055/s-0028-1124027"
+    },
+    "CERVICAL_PLEXUS_PHRENIC": {
+      "name": "Plexo Cervical & Nervo Frênico (C1–C5)",
+      "badge": "SNP CERVICAL • INERVAÇÃO DO DIAFRAGMA",
+      "summary": "Formado pelos ramos ventrais de C1 a C4 (com contribuição de C5), origina a Alça Cervical para os músculos infra-hióideos e o vital Nervo Frênico (C3, C4, C5), responsável único pela contração do músculo Diafragma.",
+      "clinical": "Paralisia diafragmática com elevação paradoxal da hemicúpula diafragmática (lesão do nervo frênico) ou parada respiratória mecânica em traumatismo raquimedular cervical alto (acima de C3).",
+      "functions": [
+        "Comando motor rítmico e voluntário do Diafragma pelo Nervo Frênico (\"C3, C4, C5 keep the diaphragm alive\")",
+        "Sensibilidade cutânea do couro cabeludo occipital, pavilhão auricular, pescoço anterior e região supraclavicular",
+        "Sensibilidade dolorosa referida do pericárdio, pleura mediastinal e peritônio subdiafragmático (dor referida no ombro — Sinal de Kehr)"
+      ],
+      "citation": "Kim, J. S. et al. Anatomy and Pathology of the Cervical Plexus and Phrenic Nerve. RadioGraphics 38, 1153–1171 (2018).",
+      "doi": "10.1148/rg.2018170196"
+    },
+    "BRACHIAL_PLEXUS": {
+      "name": "Plexo Braquial (Raízes C5–T1, Troncos & Fascículos)",
+      "badge": "SNP MEMBRO SUPERIOR • REDE AXILAR",
+      "summary": "Complexa rede anastomótica formada pelos ramos anteriores de C5 a T1 que atravessa o desfiladeiro interescalênico, divide-se em Troncos (Superior, Médio, Inferior), Divisões e Fascículos (Lateral, Medial e Posterior) para inervar todo o membro superior.",
+      "clinical": "Paralisia de Erb-Duchenne (lesão de C5–C6 -> postura em \"gorjeta de garçom\"), Paralisia de Klumpke (lesão de C8–T1 -> mão em garra + Síndrome de Horner) e Síndrome do Desfiladeiro Torácico.",
+      "functions": [
+        "Tronco Superior (C5–C6): abdução do ombro (Nervo Axilar / Deltoide) e flexão do cotovelo (Nervo Musculocutâneo / Bíceps)",
+        "Fascículo Posterior: extensão de todo o membro superior via Nervo Radial",
+        "Fascículos Lateral e Medial: motricidade flexora e intrínseca fina da mão via Nervos Mediano e Ulnar"
+      ],
+      "citation": "Ferrante, M. A. Brachial plexopathies: classification, causes, and consequences. Muscle Nerve 30, 547–568 (2004).",
+      "doi": "10.1002/mus.20131"
+    },
+    "MEDIAN_ULNAR_RADIAL_NERVES": {
+      "name": "Nervos Mediano, Ulnar & Radial (Braço, Antebraço e Mão)",
+      "badge": "SNP BRAQUIAL • MOTRICIDADE FINA DA MÃO",
+      "summary": "Tríade de grandes nervos terminais do Plexo Braquial que percorrem o braço, cotovelo, antebraço e punho (Túnel do Carpo e Canal de Guyon) para comandar a preensão, pinça fina e extensão dos dedos.",
+      "clinical": "Síndrome do Túnel do Carpo / Mão Simiesca (lesão do Nervo Mediano), Mão em Garra Ulnar (Sinal de Froment na lesão do Nervo Ulnar) e Mão Caída / Wrist Drop (lesão do Nervo Radial no sulco espiral do úmero).",
+      "functions": [
+        "Nervo Mediano (C5–T1): pronação do antebraço, oposição do polegar (eminência tenar) e sensibilidade palmar do 1º ao 3º dedo",
+        "Nervo Ulnar (C8–T1): músculos intrínsecos da mão (interósseos, adutor do polegar e hipotenar) e sensibilidade do 5º dedo",
+        "Nervo Radial (C5–T1): extensão do cotovelo (tríceps), punho e dedos (compartimento posterior)"
+      ],
+      "citation": "Padua, L. et al. Carpal tunnel syndrome: clinical features, diagnosis, and management. Lancet Neurol. 15, 1273–1284 (2016).",
+      "doi": "10.1016/S1474-4422(16)30231-9"
+    },
+    "INTERCOSTAL_SYMPATHETIC_CHAIN": {
+      "name": "Nervos Intercostais (T1–T12) & Cadeia Simpática Toracolombar",
+      "badge": "SNP TORÁCICO & TRONCO SIMPÁTICO",
+      "summary": "Conjunto dos 12 pares de nervos torácicos segmentares (dermátomos T1–T12) associados aos gânglios paravertebrais do Tronco Simpático que orquestram a resposta adrenérgica sistêmica.",
+      "clinical": "Neuralgia Pós-Herpética (reativação do vírus Varicela-Zóster em um gânglio da raiz dorsal torácica), Síndrome de Horner (lesão simpática T1 / gânglio estrelado) e hiperidrose primária.",
+      "functions": [
+        "Inervação motora dos músculos intercostais internos e externos na mecânica ventilatória torácica",
+        "Sensibilidade exteroceptiva em faixa dos dermátomos torácicos e parede abdominal (T4 = mamilo; T10 = cicatriz umbilical)",
+        "Cadeia Simpática: broncodilatação, taquicardia, vasoconstrição esplâncnica, piloereção e sudorese (nervos esplâncnicos)"
+      ],
+      "citation": "Wehrwein, E. A., Orer, H. S. & Barman, S. M. Overview of the Anatomy, Physiology, and Pharmacology of the Autonomic Nervous System. Compr. Physiol. 6, 1239–1278 (2016).",
+      "doi": "10.1002/cphy.c150037"
+    },
+    "LUMBOSACRAL_PLEXUS": {
+      "name": "Plexo Lombossacral & Nervo Femoral (L1–S4)",
+      "badge": "SNP LOMBOSSACRAL • PELVE E COXA ANTERIOR",
+      "summary": "União anatômica e funcional dos plexos Lombar (L1–L4, no interior do músculo psoas maior) e Sacral (L4–S4, na parede pélvica posterior), originando os nervos Femoral, Obturatório, Pudendo e Ciático.",
+      "clinical": "Neuropatia Femoral (fraqueza para subir escadas/levantar da cadeira, abolição do reflexo patelar e hipoestesia no território do nervo safeno) e Meralgia Parestésica (compressão do nervo cutâneo femoral lateral).",
+      "functions": [
+        "Nervo Femoral (L2–L4): flexão do quadril (iliopsoas), extensão potente do joelho (quadríceps femoral) e reflexo patelar (L4)",
+        "Nervo Obturatório (L2–L4): adução da coxa e sensibilidade da face medial da coxa",
+        "Plexo Sacral e Nervo Pudendo (S2–S4): continência urinária/fecal e sensibilidade perineal"
+      ],
+      "citation": "Dyck, P. J. B. & Thaisetthawatkul, P. Lumbosacral plexopathy. Continuum (Minneap. Minn.) 20, 1343–1358 (2014).",
+      "doi": "10.1212/01.CON.0000455877.60932.d3"
+    },
+    "SCIATIC_TIBIAL_FIBULAR_NERVES": {
+      "name": "Nervo Ciático (Isquiático), Tibial & Fibular Comum (L4–S3)",
+      "badge": "MAIOR NERVO DO CORPO HUMANO • MEMBRO INFERIOR",
+      "summary": "O mais longo e calibroso nervo do corpo humano (raízes L4–S3), emergindo pelo forame isquiático maior abaixo do músculo piriforme e dividindo-se na fossa poplítea nos nervos Tibial e Fibular Comum até o pé.",
+      "clinical": "Ciatalgia / Radiculopatia L5–S1 por hérnia de disco lombar (Sinal de Lasègue positivo), Síndrome do Piriforme e Pé Caído / Marcha Escarvante (lesão do Nervo Fibular Comum no colo da fíbula).",
+      "functions": [
+        "Tronco Ciático: flexão do joelho pelos músculos isquiotibiais (bíceps femoral, semitendíneo e semimembranáceo)",
+        "Nervo Tibial (L4–S3): flexão plantar do pé (gastrocnêmio e sóleo), reflexo aquileu (S1) e sensibilidade da planta do pé",
+        "Nervo Fibular Comum (L4–S2): dorsiflexão do tornozelo (tibial anterior), eversão do pé e extensão dos artelhos"
+      ],
+      "citation": "Ropper, A. H. & Zafonte, R. D. Sciatica. N. Engl. J. Med. 372, 1240–1248 (2015).",
+      "doi": "10.1056/NEJMra1410151"
+    },
+    "INTERNAL_CAROTID_ARTERIES": {
+      "name": "Artérias Carótidas Internas (Circulação Anterior)",
+      "badge": "VASCULAR • 80% DO FLUXO SANGUÍNEO CEREBRAL",
+      "summary": "Principais troncos arteriais da circulação cerebral anterior, penetrando na base do crânio pelo Canal Carotídeo, atravessando o Seio Cavernoso (Sifão Carotídeo) e bifurcando-se nas Artérias Cerebral Anterior e Cerebral Média.",
+      "clinical": "Estenose aterosclerótica carotídea com Amaurose Fugaz ipsilateral (embolia para a artéria central da retina) e AVC isquêmico hemisférico, dissecção carotídea (dor cervical + Síndrome de Horner) e aneurismas paraclinóideos.",
+      "functions": [
+        "Suprimento de ~80% de todo o fluxo sanguíneo encefálico (aproximadamente 750 mL/min em repouso)",
+        "Emissão da Artéria Oftálmica (irrigação da retina e nervo óptico) e da Artéria Corióidea Anterior (cápsula interna e hipocampo)",
+        "Conexão com a circulação posterior através da Artéria Comunicante Posterior"
+      ],
+      "citation": "Brott, T. G. et al. Stenting versus Endarterectomy for Treatment of Carotid-Artery Stenosis. N. Engl. J. Med. 363, 11–23 (2010).",
+      "doi": "10.1056/NEJMoa0912321"
+    },
+    "VERTEBRAL_BASILAR_ARTERIES": {
+      "name": "Artérias Vertebrais & Artéria Basilar (Circulação Posterior)",
+      "badge": "VASCULAR • IRRIGAÇÃO DO TRONCO E CEREBELO",
+      "summary": "As duas Artérias Vertebrais ascendem pelos forames transversos de C6 a C1, penetram pelo Forame Magno e fundem-se na junção bulbopontina para formar a Artéria Basilar sobre a goteira basilar da ponte.",
+      "clinical": "Insuficiência Vertebrobasilar (vertigem, diplopia, disartria, ataxia e drop attacks) e Trombose da Artéria Basilar (emergência neurológica devastadora causadora da Síndrome de Locked-in).",
+      "functions": [
+        "Irrigação vital do Bulbo, Ponte, Mesencéfalo, Cerebelo (PICA, AICA e ACS), Tálamo posterior e Lobo Occipital",
+        "Emissão da Artéria Espinhal Anterior e das Artérias Cerebelares Inferiores Posteriores (PICA)",
+        "Bifurcação terminal da Artéria Basilar nas duas Artérias Cerebrais Posteriores (ACP)"
+      ],
+      "citation": "Savitz, S. I. & Caplan, L. R. Vertebrobasilar Disease. N. Engl. J. Med. 352, 2618–2626 (2005).",
+      "doi": "10.1056/NEJMra041544"
+    },
+    "CIRCLE_OF_WILLIS": {
+      "name": "Polígono de Willis (Círculo Arterial do Cérebro)",
+      "badge": "ANASTOMOSE COLATERAL DA BASE DO CRÂNIO",
+      "summary": "Anel arterial anastomótico heptagonal situado na cisterna interpeduncular ao redor do quiasma óptico e infundíbulo hipofisário, interligando as circulações carotídea (anterior) e vertebrobasilar (posterior).",
+      "clinical": "Local de 85% dos aneurismas saculares intracranianos (especialmente nas artérias Comunicante Anterior e Comunicante Posterior), cuja ruptura causa Hemorragia Subaracnóidea (HSA — \"a pior cefaleia da vida\").",
+      "functions": [
+        "Redistribuição colateral imediata do fluxo sanguíneo em caso de oclusão de uma carótida ou vertebral",
+        "Equalização hemodinâmica da pressão de perfusão cerebral entre os dois hemisférios",
+        "Origem das artérias perfurantes centrais (lenticuloestriadas e talamoperfurantes) para o diencéfalo e cápsula interna"
+      ],
+      "citation": "van Gijn, J., Kerr, R. S. & Rinkel, G. J. Subarachnoid haemorrhage. Lancet 369, 306–318 (2007).",
+      "doi": "10.1016/S0140-6736(07)60153-6"
+    },
+    "MIDDLE_CEREBRAL_ARTERY": {
+      "name": "Artérias Cerebrais Média (ACM), Anterior (ACA) & Posterior (ACP)",
+      "badge": "TERRITÓRIOS VASCULARES CORTICAIS E PROFUNDOS",
+      "summary": "Os três grandes pares de artérias cerebrais que irrigam todo o córtex telencefálico e núcleos profundos: a ACM irriga a convexidade lateral (áreas motora/sensitiva da face e braço, Broca e Wernicke); a ACA irriga a face medial (perna); a ACP irriga o lobo occipital.",
+      "clinical": "Sítio mais comum de AVC Isquêmico: oclusão da ACM causa hemiplegia/hemi-hipoestesia faciobraquial contralateral, desvio do olhar para a lesão e afasia (se à esquerda) ou heminegligência (se à direita).",
+      "functions": [
+        "Artéria Cerebral Média (ACM): irriga 2/3 da face dorsolateral dos lobos frontal, parietal, temporal e ínsula + artérias lenticuloestriadas",
+        "Artéria Cerebral Anterior (ACA): irriga a face medial frontal e parietal (representação motora e sensitiva do membro inferior)",
+        "Artéria Cerebral Posterior (ACP): irriga o córtex calcarino visual (Lobo Occipital), esplênio do corpo caloso e temporal inferior"
+      ],
+      "citation": "Campbell, B. C. V. et al. Ischaemic stroke. Nat. Rev. Dis. Primers 5, 70 (2019).",
+      "doi": "10.1038/s41572-019-0118-8"
+    },
+    "DURAL_VENOUS_SINUSES": {
+      "name": "Seios Venosos da Dura-Máter & Veias Jugulares Internas",
+      "badge": "DRENAGEM VENOSA ENCEFÁLICA & REABSORÇÃO DO LÍQUOR",
+      "summary": "Canais venosos endoteliais desprovidos de válvulas esculpidos entre os folhetos periosteal e meníngeo da dura-máter, responsáveis por drenar todo o sangue venoso do encéfalo e o líquor reabsorvido rumo às Veias Jugulares Internas.",
+      "clinical": "Trombose Venosa Cerebral (TVC — cefaleia refratária, papiledema, convulsões e infartos venosos hemorrágicos) e Trombose séptica do Seio Cavernoso.",
+      "functions": [
+        "Drenagem venosa cortical e subcortical para a Confluência dos Seios (Tórcula de Herófilo), Seios Transversos e Sigmoides",
+        "Reabsorção contínua do Líquido Cefalorraquidiano (LCR) através das Granulações Aracnóideas de Pacchioni no Seio Sagital Superior",
+        "Regulação da pressão venosa intracraniana (Doutrina de Monro-Kellie)"
+      ],
+      "citation": "Stam, J. Thrombosis of the Cerebral Veins and Sinuses. N. Engl. J. Med. 352, 1791–1798 (2005).",
+      "doi": "10.1056/NEJMra042354"
+    },
+    "LATERAL_VENTRICLES": {
+      "name": "Ventrículos Laterais & Plexos Corióideos",
+      "badge": "SISTEMA VENTRICULAR • PRODUÇÃO DO LÍQUOR (LCR)",
+      "summary": "Par de amplas cavidades ependimárias em forma de \"C\" no interior de cada hemisfério cerebral, abrigando os Plexos Corióideos que filtram o plasma para produzir ~500 mL de Líquido Cefalorraquidiano (LCR) por dia.",
+      "clinical": "Hidrocefalia Comunicante ou Não-Comunicante (ventriculomegalia), Hidrocefalia de Pressão Normal do idoso (Tríade de Hakim-Adams: marcha magnética apráxica, incontinência urinária e declínio cognitivo).",
+      "functions": [
+        "Produção ativa de Líquido Cefalorraquidiano (LCR) pelos ependimócitos especializados dos Plexos Corióideos",
+        "Drenagem do LCR para o Terceiro Ventrículo através dos Forames Interventriculares de Monro",
+        "Amortecimento hidráulico mecânico do encéfalo e depuração metabólica (Sistema Glinfático durante o sono profundo)"
+      ],
+      "citation": "Iliff, J. J. et al. A paravascular pathway facilitates CSF flow through the brain parenchyma and the clearance of interstitial solutes. Sci. Transl. Med. 4, 147ra111 (2012).",
+      "doi": "10.1126/scitranslmed.3003748"
+    },
+    "THIRD_FOURTH_VENTRICLES": {
+      "name": "Terceiro Ventrículo, Aqueduto de Sylvius & Quarto Ventrículo",
+      "badge": "CIRCULAÇÃO LIQUÓRICA & CISTERNAS SUBARACNÓIDEAS",
+      "summary": "Via mediana de circulação do líquor que atravessa o diencéfalo (3º Ventrículo), desce pelo estreito Aqueduto Cerebral de Sylvius no mesencéfalo até o 4º Ventrículo (entre ponte/bulbo e cerebelo), saindo pelos Forames de Luschka e Magendie.",
+      "clinical": "Hidrocefalia Obstrutiva Aguda por estenose do Aqueduto de Sylvius ou compressão do 4º Ventrículo por tumores de fossa posterior (Meduloblastoma, Ependimoma) e Malformação de Arnold-Chiari.",
+      "functions": [
+        "Condução unidirecional pulsátil do líquor impulsionada pela sístole arterial corióidea e cílios ependimários",
+        "Passagem do LCR do 4º Ventrículo para o espaço subaracnóideo e Cisterna Magna via Forames de Magendie (mediano) e Luschka (laterais)",
+        "Comunicação química com os Órgãos Circunventriculares (Área Postrema, OVLT e Órgão Subfornical)"
+      ],
+      "citation": "Kahle, K. T., Kulkarni, A. V., Limbrick, D. D. & Warf, B. C. Hydrocephalus in children. Lancet 387, 788–799 (2016).",
+      "doi": "10.1016/S0140-6736(15)60694-8"
+    },
+    "BROCA_AREA_BA44_45": {
+      "name": "Área de Broca (Giro Frontal Inferior — Pars Opercularis & Triangularis)",
+      "badge": "ÁREA DE BRODMANN 44 & 45 • EXPRESSÃO DA LINGUAGEM",
+      "summary": "Centro cortical motor da fala situado nas porções opercular (BA 44) e triangular (BA 45) do Giro Frontal Inferior do hemisfério dominante (geralmente o esquerdo, ~95% dos destros). Orquestra o planejamento fonológico, a estruturação sintática gramatical e a programação motora articulatória antes de enviar os comandos ao córtex motor primário orofacial (Área 4).",
+      "clinical": "Afasia de Broca (Afasia Expressiva ou Não-Fluente por oclusão do ramo superior M2 da Artéria Cerebral Média esquerda): fala telegráfica, agramatismo, esforço articulatório intenso e repetição comprometida, mas com compreensão auditiva amplamente preservada e consciência dolorosa do déficit.",
+      "functions": [
+        "Codificação fonológica e montagem sequencial de morfemas e fonemas em palavras articuladas (Pars Opercularis — BA 44)",
+        "Processamento sintático-gramatical complexo e seleção léxico-semântica executiva (Pars Triangularis — BA 45)",
+        "Coordenação direta com o córtex motor da laringe, língua, lábios e palato (Giro Pré-Central Inferior) e com a Ínsula Anterior (Giro de Dronkers)",
+        "Integração bidirecional com a Área de Wernicke (BA 22) através do Fascículo Arqueado e do Fascículo Longitudinal Superior"
+      ],
+      "citation": "Dronkers, N. F., Plaisant, O., Iba-Zizen, M. T. & Cabanis, E. A. Paul Broca's historic cases: high resolution MR imaging of the brains of Leborgne and Lelong. Brain 130, 1432–1441 (2007).",
+      "doi": "10.1093/brain/awm042"
+    },
+    "WERNICKE_AREA_BA22": {
+      "name": "Área de Wernicke (Giro Temporal Superior Posterior)",
+      "badge": "ÁREA DE BRODMANN 22 • COMPREENSÃO DA LINGUAGEM",
+      "summary": "Centro cortical de decodificação fonêmica e compreensão léxico-semântica localizado no terço posterior do Giro Temporal Superior esquerdo (Área 22 de Brodmann / Planum Temporale), adjacente ao Córtex Auditivo Primário (Giros de Heschl — BA 41/42).",
+      "clinical": "Afasia de Wernicke (Afasia Receptiva ou Fluente por oclusão do ramo inferior M2 da Artéria Cerebral Média esquerda): discurso fluente em ritmo e melodia (\"salada de palavras\" / jargão afásico), repleto de parafasias fonêmicas, parafasias semânticas e neologismos, acompanhado de grave incapacidade de compreender a linguagem falada/escrita e anosognosia do próprio déficit.",
+      "functions": [
+        "Reconhecimento acústico-fonológico dos sons da fala recebidos dos Giros Transversos de Heschl (BA 41/42)",
+        "Acesso ao léxico semântico mental: conversão de sequências sonoras ou grafemas em significado conceitual compreensível",
+        "Monitoramento em tempo real da própria fala (feedback auditivo-verbal) para evitar parafasias fonêmicas e semânticas",
+        "Projeção das representações semânticas decodificadas para a Área de Broca via Fascículo Arqueado"
+      ],
+      "citation": "Hickok, G. & Poeppel, D. The cortical organization of speech processing. Nat. Rev. Neurosci. 8, 393–402 (2007).",
+      "doi": "10.1038/nrn2113"
+    },
+    "ARCUATE_FASCICULUS_BA39_40": {
+      "name": "Fascículo Arqueado & Território de Geschwind (Giros Supramarginal e Angular)",
+      "badge": "CONECTOMA DORSAL DA LINGUAGEM • BRODMANN 39 & 40",
+      "summary": "Feixe associativo de substância branca em forma de arco que contorna a Fissura Lateral de Sylvius para acoplar a Área de Wernicke (BA 22) à Área de Broca (BA 44/45), integrando-se ao Lóbulo Parietal Inferior — Giro Supramarginal (BA 40) e Giro Angular (BA 39, Território de Geschwind).",
+      "clinical": "Afasia de Condução (lesão do Fascículo Arqueado / Giro Supramarginal): compreensão preservada e fala fluente, porém incapacidade severa de repetir palavras ouvidas e parafasias fonêmicas com conduta de aproximação (\"conduite d'approche\"). Lesão no Giro Angular dominante (BA 39) causa a Síndrome de Gerstmann (acalculia, agrafia, agnosia digital e desorientação direita-esquerda) e alexia com agrafia.",
+      "functions": [
+        "Via Dorsal Fonológica (Fascículo Arqueado): transmissão ultrarrápida somato-auditiva para repetição fiel de palavras e aprendizado de novos vocábulos",
+        "Giro Supramarginal (BA 40): alça fonológica da memória operacional verbal e integração somatossensorial da articulação",
+        "Giro Angular (BA 39): hub multimodal visuo-auditivo-tátil essencial para leitura (conversão grafema-fonema), escrita e cálculo simbólico"
+      ],
+      "citation": "Catani, M., Jones, D. K. & ffytche, D. H. Perisylvian language networks of the human brain. Ann. Neurol. 57, 8–16 (2005).",
+      "doi": "10.1002/ana.20319"
+    },
+    "PREFRONTAL_DLPFC_BA9_46": {
+      "name": "Córtex Pré-Frontal Dorsolateral & Orbitofrontal (Funções Executivas)",
+      "badge": "ÁREAS DE BRODMANN 9, 10, 11 & 46 • CONTROLE EXECUTIVO",
+      "summary": "Região associativa multimodal anterior do Lobo Frontal, última a completar a mielinização ontogenética no ser humano (~25 anos). Subdivide-se no circuito Dorsolateral (BA 9/46 — funções executivas \"frias\": memória de trabalho, planejamento e flexibilidade) e circuito Orbitofrontal/Ventromedial (BA 10/11/12 — funções executivas \"quentes\": regulação afetiva, ética e inibição de impulsos).",
+      "clinical": "Síndrome Disexecutiva Dorsolateral (déficit de atenção executiva, perseveração no teste Wisconsin e incapacidade de planejar) e Síndrome Orbitofrontal (\"Phineas Gage\": desinibição comportamental, puerilidade/moria, labilidade emocional e sociopatia adquirida).",
+      "functions": [
+        "Manutenção e manipulação ativa de informações na Memória de Trabalho (buffer executivo central de Baddeley na BA 9/46)",
+        "Controle inibitório top-down sobre a Amígdala e o Sistema Límbico, suprimindo respostas impulsivas inadequadas",
+        "Flexibilidade cognitiva, alternância de estratégias (set-shifting) e raciocínio hipotético-dedutivo abstrato",
+        "Tomada de decisão baseada em valor, empatia cognitiva (Teoria da Mente) e julgamento moral (Córtex Orbitofrontal BA 11)"
+      ],
+      "citation": "Baddeley, A. Working memory: looking back and looking forward. Nat. Rev. Neurosci. 4, 829–839 (2003).",
+      "doi": "10.1038/nrn1201"
+    },
+    "PRIMARY_MOTOR_M1_BA4": {
+      "name": "Córtex Motor Primário M1 (Giro Pré-Central & Homúnculo de Penfield)",
+      "badge": "ÁREA DE BRODMANN 4 • MOTRICIDADE VOLUNTÁRIA (CAMADA V)",
+      "summary": "Faixa cortical agranular localizada no Giro Pré-Central, imediatamente anterior ao Sulco Central de Rolando. Abriga na Camada V as células piramidais gigantes de Betz, cujos axônios descem pela coroa radiada e braço posterior da cápsula interna formando o Trato Corticoespinhal e o Trato Corticonuclear.",
+      "clinical": "Síndrome do Neurônio Motor Superior (hemiparesia/hemiplegia contralateral, espasticidade em canivete, hiperreflexia profunda, clônus e Sinal de Babinski positivo), crises epilépticas focais motoras com Marcha Jacksoniana e degeneração seletiva na Esclerose Lateral Amiotrófica (ELA).",
+      "functions": [
+        "Representação somatotópica invertida e desproporcional do corpo humano (Homúnculo Motor de Penfield: mão/polegar e face/língua na convexidade lateral irrigada pela ACM; perna/pé no lóbulo paracentral medial irrigado pela ACA)",
+        "Codificação da força, direção e velocidade da contração muscular voluntária fina distal (especialmente pinça digital e mímica/fala)",
+        "Disparo direto dos motoneurônios superiores da Camada V para os motoneurônios alfa da medula espinhal contralateral"
+      ],
+      "citation": "Gordon, E. M. et al. A somato-cognitive action network alternates with effector regions in motor cortex (Penfield Homunculus & Betz Layer V). Nature 617, 351–359 (2023).",
+      "doi": "10.1038/s41586-023-05964-2"
+    },
+    "PRIMARY_SOMATOSENSORY_S1_BA312": {
+      "name": "Córtex Somatossensorial Primário S1 (Giro Pós-Central)",
+      "badge": "ÁREAS DE BRODMANN 3, 1 & 2 • HOMÚNCULO SENSORIAL",
+      "summary": "Faixa cortical granular (koniocórtex com Camada IV hiperdesenvolvida) situada no Giro Pós-Central, posteriormente ao Sulco Central de Rolando. Recebe as radiações talâmicas dos núcleos VPL (corpo: colunas dorsais/lemnisco medial e trato espinotalâmico) e VPM (face e cavidade oral via lemnisco trigeminal).",
+      "clinical": "Hemi-hipoestesia ou hemianestesia contralateral, perda da propriocepção consciente (ataxia sensitiva), astereognosia (incapacidade de identificar objetos pelo tato de olhos fechados), agrafestesia e fenômeno do membro fantasma por reorganização plástica somatotópica.",
+      "functions": [
+        "Área 3a: recepção de aferências proprioceptivas conscientes dos fusos neuromusculares e órgãos tendinosos de Golgi",
+        "Área 3b e Área 1: discriminação tátil epicrítica de dois pontos, textura e vibração cutânea (corpúsculos de Meissner, Merkel e Pacini)",
+        "Área 2: integração tátil-proprioceptiva da forma e tamanho tridimensional dos objetos palpados (estereognosia)",
+        "Mapeamento somatotópico do Homúnculo Sensorial de Penfield (lábios, língua e polpas digitais com máxima densidade cortical)"
+      ],
+      "citation": "Abraira, V. E. & Ginty, D. D. The sensory neurons of touch. Neuron 79, 618–639 (2013).",
+      "doi": "10.1016/j.neuron.2013.07.051"
+    },
+    "PRIMARY_AUDITORY_A1_BA41_42": {
+      "name": "Córtex Auditivo Primário A1 (Giros Transversos de Heschl)",
+      "badge": "ÁREAS DE BRODMANN 41 & 42 • MAPA TONOTÓPICO AUDITIVO",
+      "summary": "Localizado na parede superior do Giro Temporal Superior (plano supratemporal), oculto na profundidade da Fissura Lateral de Sylvius. Recebe as radiações acústicas oriundas do Corpo Geniculado Medial do tálamo, preservando o mapa tonotópico da membrana basilar da cóclea.",
+      "clinical": "Como cada Córtex Auditivo Primário recebe aferências bilaterais de ambos os ouvidos (via Corpo Trapezoide e Lemnisco Lateral), lesões unilaterais causam apenas dificuldade sutil de localização sonora; lesões bilaterais nos Giros de Heschl provocam Surdez Cortical ou Agnosia Auditiva Verbal Pura.",
+      "functions": [
+        "Organização tonotópica precisa: frequências agudas processadas na porção posteromedial e frequências graves na porção anterolateral",
+        "Análise temporal de transientes acústicos rápidos essenciais para discriminar consoantes oclusivas da fala",
+        "Localização binaural da fonte sonora no espaço horizontal através da diferença interaural de tempo e intensidade",
+        "Retransmissão imediata para a Área de Wernicke (BA 22) para decodificação fonológica da linguagem"
+      ],
+      "citation": "Moerel, M., De Martino, F. & Formisano, E. An anatomical and functional topography of human auditory cortical areas. Front. Neurosci. 8, 225 (2014).",
+      "doi": "10.3389/fnins.2014.00225"
+    },
+    "PRIMARY_VISUAL_V1_BA17": {
+      "name": "Córtex Visual Primário V1 (Córtex Calcarino / Estria de Gennari)",
+      "badge": "ÁREA DE BRODMANN 17 • CÓRTEX ESTRIADO RETINOTÓPICO",
+      "summary": "Situado nas margens superior (cúneo) e inferior (giro lingual) do Sulco Calcarino na face medial do Lobo Occipital. É denominado Córtex Estriado devido à proeminente faixa mielinizada visível a olho nu na Camada IVb (Estria de Gennari), recebendo as Radiações Ópticas de Gratiolet vindas do Corpo Geniculado Lateral (CGL).",
+      "clinical": "Hemianopsia Homônima Contralateral com Preservação Macular (oclusão da Artéria Cerebral Posterior), Quadrantopsia Superior (\"Pie in the Sky\" — lesão da Alça de Meyer temporal) ou Inferior (\"Pie on the Floor\" — lesão da radiação parietal) e Cegueira Cortical com Síndrome de Anton.",
+      "functions": [
+        "Mapa retinotópico com magnificação foveal: a mácula (visão central de alta acuidade) ocupa o terço posterior do polo occipital; o quadrante visual superior projeta-se no lábio calcarino inferior e o quadrante inferior no lábio superior",
+        "Colunas de dominância ocular e colunas de orientação (Hubel & Wiesel: células simples, complexas e hipercomplexas)",
+        "Extração primária de orientação de bordas, frequência espacial, contraste luminoso, cor (blobs de citocromo oxidase) e disparidade binocular",
+        "Distribuição para a Via Dorsal Occipitoparietal (\"Onde/Como agir\") e Via Ventral Occipitotemporal (\"O Quê é\")"
+      ],
+      "citation": "Hubel, D. H. & Wiesel, T. N. Receptive fields, binocular interaction and functional architecture in the cat's visual cortex. J. Physiol. 160, 106–154 (1962).",
+      "doi": "10.1113/jphysiol.1962.sp006837"
+    },
+    "NEURON_SOMA": {
+      "name": "Corpo Celular (Soma / Pericário)",
+      "badge": "Centro Metabólico e Integração Sináptica",
+      "summary": "Centro trófico e genômico do neurônio piramidal da Camada V neocortical. Contém o núcleo eucromático esférico, corpúsculos de Nissl densos (retículo endoplasmático rugoso hiperativo) e complexo de Golgi de alta demanda.",
+      "clinical": "Degeneração do soma com cromatólise central é o marcador clássico de axotomia retrógrada e apoptose em esclerose lateral amiotrófica (ELA) e isquemia cerebral aguda.",
+      "functions": [],
+      "citation": "Spruston, N. Pyramidal neurons: dendritic structure and synaptic integration. Nat. Rev. Neurosci. 9, 206–221 (2008).",
+      "doi": "10.1038/nrn2286"
+    },
+    "NEURON_NUCLEUS": {
+      "name": "Núcleo Eucromático & Nucléolo",
+      "badge": "Transcrição e Síntese Proteica",
+      "summary": "Núcleo vesicular com predomínio de eucromatina descondensada, refletindo taxa contínua de transcrição de canais iônicos, receptores pós-sinápticos e tubulinas para manutenção axônica.",
+      "clinical": "Inclusões intranucleares anormais (TDP-43 em ELA/Demência Frontotemporal, cauda poliQ na Doença de Huntington) sequestram maquinário de splicing e levam à falência transcricional neuronal.",
+      "functions": [],
+      "citation": "Yap, E. L. & Greenberg, M. E. Activity-Regulated Transcription: Bridging the Gap between Neural Activity and Behavior. Neuron 100, 330–348 (2018).",
+      "doi": "10.1016/j.neuron.2018.09.044"
+    },
+    "NEURON_DENDRITES": {
+      "name": "Árvore Dendrítica & Espinhos",
+      "badge": "Recepção Pós-Sináptica e Plasticidade LTP",
+      "summary": "Árvore ramificada com dendrito apical longo ascendente e dendritos basais. Recoberta por milhares de espinhos dendríticos ricamente dotados de receptores glutamatérgicos AMPA e NMDA.",
+      "clinical": "Perda precoce de espinhos dendríticos induzida por oligômeros solúveis de β-amiloide (Aβ42) na Doença de Alzheimer; base do déficit de plasticidade sináptica e falha da potenciação de longa duração (LTP).",
+      "functions": [],
+      "citation": "Rall, W. Branching dendritic trees and motoneuron membrane resistivity (Rall's 3/2 Power Law). Exp. Neurol. 1, 491–527 (1959).",
+      "doi": "10.1016/0014-4886(59)90046-9"
+    },
+    "NEURON_AXON_HILLOCK": {
+      "name": "Cone de Implantação & Zona de Gatilho (AIS)",
+      "badge": "Geração do Potencial de Ação",
+      "summary": "Segmento inicial do axônio (AIS - Axon Initial Segment). Possui a densidade mais alta de canais de sódio voltagem-dependentes (NaV1.6), funcionando como o somador digital e disparador elétrico do potencial de ação.",
+      "clinical": "Canalopatias com mutações nos canais NaV (gene SCN1A na Síndrome de Dravet) desestabilizam o limiar de disparo, gerando hiperexcitabilidade e crises epilépticas farmacorresistentes.",
+      "functions": [],
+      "citation": "Kole, M. H. P. et al. Action potential generation requires a high sodium channel density in the axon initial segment. Nat. Neurosci. 11, 178–186 (2008).",
+      "doi": "10.1038/nn2040"
+    },
+    "NEURON_MYELIN": {
+      "name": "Bainha de Mielina (Oligodendrócitos)",
+      "badge": "Isolamento Lipídico e Condução Saltatória",
+      "summary": "Múltiplas camadas concêntricas de membrana plasmática rica em esfingomielina e cerebrosídeos, formadas por oligodendrócitos no SNC. Reduz a capacitância da membrana e eleva a resistência transmembrana.",
+      "clinical": "Ataque autoimune mediado por linfócitos T contra proteína básica da mielina (MBP) e MOG na Esclerose Múltipla; causa bloqueio de condução saltatória, lentificação axonal e déficits neurológicos multifocais.",
+      "functions": [],
+      "citation": "Nave, K. A. & Werner, H. B. Myelination of the nervous system: mechanisms and functions. Annu. Rev. Cell Dev. Biol. 30, 503–533 (2014).",
+      "doi": "10.1146/annurev-cellbio-100913-013101"
+    },
+    "NEURON_SCHWANN": {
+      "name": "Célula de Schwann (Mielinização SNP)",
+      "badge": "Suporte e Regeneração no SNP",
+      "summary": "Célula glial periférica responsável pela formação de mielina em axônios do SNP (um único entrenó por célula) e secreção de neurotrofinas (NGF, BDNF) durante o processo regenerativo.",
+      "clinical": "Polirradiculoneuropatia inflamatória desmielinizante (Síndrome de Guillain-Barré) ataca a mielina periférica e células de Schwann após infecções, desencadeando tetraparesia flácida arreflexa ascendente.",
+      "functions": [],
+      "citation": "Fünfschilling, U. et al. Glycolytic oligodendrocytes maintain myelin and long-term axonal integrity. Nature 485, 517–521 (2012).",
+      "doi": "10.1038/nature11007"
+    },
+    "NEURON_NODE_RANVIER": {
+      "name": "Nódulos de Ranvier",
+      "badge": "Propagação Saltatória e Canais NaV1.6",
+      "summary": "Descontinuidades periódicas (1–2 µm) entre entrenós mielinizados. Concentram altíssima densidade de canais NaV1.6 ancorados por anquirina-G, permitindo a regeneração do potencial de ação a até 120 m/s.",
+      "clinical": "Anticorpos anti-neurofascina 155/186 ou anti-contactina atacam a junção paranodal em neuropatias nodopáticas autoimunes, rompendo o isolamento nodal e causando bloqueio agudo de condução motora.",
+      "functions": [],
+      "citation": "Rasband, M. N. & Peles, E. Mechanisms of node of Ranvier assembly. Nat. Rev. Neurosci. 22, 7–20 (2021).",
+      "doi": "10.1038/s41583-020-00406-8"
+    },
+    "NEURON_TERMINAL": {
+      "name": "Botão Terminal & Terminação Axônica",
+      "badge": "Canais CaV2.1 e Exocitose de Vesículas",
+      "summary": "Dilatação terminal do axônio contendo mitocôndrias abundantes, complexos SNARE (sinaptobrevina, sintaxina, SNAP-25) e canais de cálcio dependentes de voltagem P/Q (CaV2.1).",
+      "clinical": "Toxinas bacterianas (Toxina Botulínica, Tétano) clivam irreversivelmente as proteínas SNARE, bloqueando a exocitose de acetilcolina ou GABA e provocando paralisia flácida ou espástica fulminante.",
+      "functions": [],
+      "citation": "Südhof, T. C. Neurotransmitter release: the last millisecond in the life of a synaptic vesicle. Neuron 80, 675–690 (2013).",
+      "doi": "10.1016/j.neuron.2013.10.022"
+    },
+    "NEURON_SYNAPSE": {
+      "name": "Fenda Sináptica & Densidade Pós-Sináptica",
+      "badge": "Transmissão Neuroquímica e Receptores",
+      "summary": "Espaço extracelular de 20 nm entre a membrana pré e pós-sináptica. O influxo de cálcio dispara a liberação de glutamato na fenda, ligando-se a receptores AMPA, NMDA e mGluR na densidade pós-sináptica (PSD-95).",
+      "clinical": "A superexposição ao glutamato na isquemia aguda provoca influxo maciço descontrolado de cálcio por receptores NMDA hiperativados, gerando excitotoxicidade, disfunção mitocondrial e apoptose em cascata.",
+      "functions": [],
+      "citation": "Kano, M. et al. Endocannabinoid-mediated control of synaptic transmission. Physiol. Rev. 89, 309–380 (2009).",
+      "doi": "10.1152/physrev.00019.2008"
+    },
+    "NEURON_AXON": {
+      "name": "Implantation Cone & Trigger Zone (AIS)",
+      "badge": "Generation of Action Potential",
+      "summary": "Axon initial segment (AIS). It has the highest density of voltage-gated sodium channels (NaV1.6), acting as the digital summing device and electrical trigger for the action potential.",
+      "clinical": "Channelopathies involving mutations in NaV channels (the SCN1A gene in Dravet syndrome) destabilise the firing threshold, leading to hyperexcitability and drug-resistant epileptic seizures.",
+      "functions": [],
+      "citation": "Kole, M. H. P. et al. Action potential generation requires a high sodium channel density in the axon initial segment. Nat. Neurosci. 11, 178–186 (2008).",
+      "doi": "10.1038/nn2040"
+    },
+    "NEURON_RANVIER": {
+      "name": "Ranvier’s nodes",
+      "badge": "Bound Propagation and Channels in NaV1.6",
+      "summary": "Periodic discontinuities (1–2 µm) between myelinated internodes. These contain an extremely high density of NaV1.6 channels anchored by ankyrin-G, enabling the action potential to propagate at speeds of up to 120 m/s.",
+      "clinical": "Anti-neurofascin 155/186 or anti-contactin antibodies attack the paranodal junction in autoimmune nodopathic neuropathies, disrupting nodal insulation and causing acute motor conduction block.",
+      "functions": [],
+      "citation": "Rasband, M. N. & Peles, E. Mechanisms of node of Ranvier assembly. Nat. Rev. Neurosci. 22, 7–20 (2021).",
+      "doi": "10.1038/s41583-020-00406-8"
+    }
+  },
   "en-GB": {
     "MENINGES_DURA_ARACHNOID_PIA": {
       "name": "Meninges (Dura mater, Arachnoid membrane and Pia mater)",

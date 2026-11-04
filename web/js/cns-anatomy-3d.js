@@ -612,7 +612,20 @@ class CNSAnatomy3D {
 
         this.meningesGroup.add(meningesWrapper);
         this.meningesGroup.visible = false; // Visível ao ativar o botão 🛡️ Meninges ou ao clicar nas Meninges na lista
-        this.registerStructure('MENINGES_DURA_ARACHNOID_PIA', meningesWrapper, new THREE.Vector3(0.0, 4.95, 0.85));
+        // [RAYCAST FIX]: As meninges permanecem na cena 3D, mas são excluídas da lista de alvos de clique direto (interactiveMeshes)
+        // this.registerStructure('MENINGES_DURA_ARACHNOID_PIA', meningesWrapper, new THREE.Vector3(0.0, 4.95, 0.85));
+        this.structures = this.structures || {};
+        this.structures['MENINGES_DURA_ARACHNOID_PIA'] = { object: meningesWrapper, pinPosition: new THREE.Vector3(0.0, 4.95, 0.85) };
+        this.structureAnchors.set('MENINGES_DURA_ARACHNOID_PIA', new THREE.Vector3(0.0, 4.95, 0.85));
+        const menMeshes = [];
+        meningesWrapper.traverse(child => {
+            if (child.isMesh) {
+                child.userData.structureId = 'MENINGES_DURA_ARACHNOID_PIA';
+                child.raycast = () => {};
+                menMeshes.push(child);
+            }
+        });
+        this.structureMeshes.set('MENINGES_DURA_ARACHNOID_PIA', menMeshes);
         this.setMeningesVisible(false);
     }
 
@@ -1738,7 +1751,8 @@ class CNSAnatomy3D {
     setBodyShellVisible(visible) {
         this.bodyShellVisible = visible;
         if (visible && this.bodyShellGroup.children.length === 0) {
-            this.buildBioluminescentHumanBodyShell();
+            // [SOLICITAÇÃO PEDRO]: Casca translúcida do corpo humano desativada para manter foco exclusivo no encéfalo e nervos
+            // this.buildBioluminescentHumanBodyShell();
         }
         this.bodyShellGroup.visible = visible;
     }
