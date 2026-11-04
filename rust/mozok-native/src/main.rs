@@ -306,6 +306,7 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf, port: u16) {
         let text = parse_query_param(query_str, "text").unwrap_or_default();
         let lang = parse_query_param(query_str, "lang").unwrap_or_else(|| "pt-BR".to_string());
         let voice = parse_query_param(query_str, "voice").unwrap_or_else(|| "Aoede".to_string());
+        let item_id = parse_query_param(query_str, "id").unwrap_or_default();
 
         if text.trim().is_empty() {
             let body = b"{\"error\":\"Parametro text obrigatorio\"}";
@@ -318,10 +319,44 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf, port: u16) {
             return;
         }
 
+        if !item_id.is_empty()
+            && item_id
+                .chars()
+                .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+        {
+            let pregen_mp3 = web_root
+                .join("assets")
+                .join("audio")
+                .join(&lang)
+                .join(format!("{}.mp3", item_id));
+            if pregen_mp3.exists() {
+                if let Ok(mut f) = fs::File::open(&pregen_mp3) {
+                    let mut audio_bytes = Vec::new();
+                    if f.read_to_end(&mut audio_bytes).is_ok() {
+                        let header = format!(
+                            concat!(
+                                "HTTP/1.1 200 OK\r\n",
+                                "Content-Type: audio/mpeg\r\n",
+                                "Content-Length: {}\r\n",
+                                "Accept-Ranges: bytes\r\n",
+                                "Access-Control-Allow-Origin: *\r\n",
+                                "Cache-Control: public, max-age=86400\r\n",
+                                "Connection: close\r\n\r\n"
+                            ),
+                            audio_bytes.len()
+                        );
+                        let _ = stream.write_all(header.as_bytes());
+                        let _ = stream.write_all(&audio_bytes);
+                        return;
+                    }
+                }
+            }
+        }
+
         let cache_dir = web_root.join("assets").join("audio_cache");
         let _ = fs::create_dir_all(&cache_dir);
         let hash = simple_hash_hex(&format!("{}:{}:{}", lang, voice, text));
-        let cache_file = cache_dir.join(format!("{}_{}.wav", lang, hash));
+        let cache_file = cache_dir.join(format!("{}_{}.mp3", lang, hash));
 
         if !cache_file.exists() {
             let bridge_script = find_bridge_script(&web_root)
@@ -358,7 +393,7 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf, port: u16) {
                     let header = format!(
                         concat!(
                             "HTTP/1.1 200 OK\r\n",
-                            "Content-Type: audio/wav\r\n",
+                            "Content-Type: audio/mpeg\r\n",
                             "Content-Length: {}\r\n",
                             "Accept-Ranges: bytes\r\n",
                             "Access-Control-Allow-Origin: *\r\n",
