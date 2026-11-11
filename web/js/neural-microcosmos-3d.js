@@ -2054,6 +2054,251 @@ class NeuralMicrocosmos3D {
         }
 
     }
+
+    // =========================================================================
+    // TIER 4: ORGANELAS INTRACELULARES 3D (NÚCLEO, MITOCÔNDRIAS, RER, GOLGI, MICROTÚBULOS)
+    // =========================================================================
+    buildIntracellularOrganelles3D() {
+        const center = new THREE.Vector3(0, 0.5, 0);
+
+        // 1. Envelope Nuclear Fenestrado + Cromatina + Nucléolo
+        const nucMat = new THREE.MeshPhysicalMaterial({
+            color: 0xa855f7,
+            emissive: 0x6b21a8,
+            emissiveIntensity: 0.45,
+            roughness: 0.25,
+            transmission: 0.72,
+            transparent: true,
+            opacity: 0.78,
+            wireframe: false
+        });
+        const nucleusShell = new THREE.Mesh(new THREE.SphereGeometry(0.42, 32, 28), nucMat);
+        nucleusShell.position.copy(center);
+        this.organelleGroup.add(nucleusShell);
+
+        const nucleolusMat = new THREE.MeshStandardMaterial({
+            color: 0xfacc15,
+            emissive: 0xd97706,
+            emissiveIntensity: 0.85,
+            roughness: 0.2
+        });
+        const nucleolus = new THREE.Mesh(new THREE.SphereGeometry(0.16, 24, 20), nucleolusMat);
+        nucleolus.position.copy(center);
+        this.organelleGroup.add(nucleolus);
+
+        // Poros Nucleares (Complexos NPC em anel octogonal)
+        const poreGeo = new THREE.TorusGeometry(0.032, 0.008, 8, 16);
+        const poreMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.8 });
+        for (let i = 0; i < 26; i++) {
+            const phi = Math.acos(1 - 2 * (i + 0.5) / 26);
+            const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+            const px = 0.42 * Math.sin(phi) * Math.cos(theta);
+            const py = 0.42 * Math.sin(phi) * Math.sin(theta);
+            const pz = 0.42 * Math.cos(phi);
+            const pore = new THREE.Mesh(poreGeo, poreMat);
+            pore.position.set(center.x + px, center.y + py, center.z + pz);
+            pore.lookAt(center);
+            this.organelleGroup.add(pore);
+        }
+
+        // 2. Mitocôndrias Neurais com Cristas Internas (Síntese de ATP para Na+/K+ ATPase)
+        const mitoOuterMat = new THREE.MeshPhysicalMaterial({
+            color: 0xf97316,
+            emissive: 0xc2410c,
+            emissiveIntensity: 0.52,
+            roughness: 0.3,
+            transmission: 0.55,
+            transparent: true,
+            opacity: 0.85
+        });
+        const cristaMat = new THREE.MeshStandardMaterial({
+            color: 0xfde047,
+            emissive: 0xeab308,
+            emissiveIntensity: 0.75,
+            wireframe: true
+        });
+        const mitoOffsets = [
+            new THREE.Vector3(0.65, 0.18, 0.25),
+            new THREE.Vector3(-0.62, -0.15, 0.32),
+            new THREE.Vector3(0.35, 0.62, -0.35),
+            new THREE.Vector3(-0.42, -0.58, -0.28),
+            new THREE.Vector3(0.18, -0.65, 0.48),
+            new THREE.Vector3(-0.55, 0.45, -0.18)
+        ];
+        mitoOffsets.forEach((off, idx) => {
+            const mGroup = new THREE.Group();
+            const outer = new THREE.Mesh(new THREE.SphereGeometry(0.11, 20, 16), mitoOuterMat);
+            outer.scale.set(1.85, 0.85, 0.85);
+            const inner = new THREE.Mesh(new THREE.TorusKnotGeometry(0.065, 0.015, 32, 6, 2, 3), cristaMat);
+            inner.scale.set(1.5, 0.7, 0.7);
+            mGroup.add(outer);
+            mGroup.add(inner);
+            mGroup.position.copy(center).add(off);
+            mGroup.rotation.set(idx * 0.7, idx * 1.1, idx * 0.4);
+            this.organelleGroup.add(mGroup);
+            this.organelleItems.push(mGroup);
+        });
+
+        // 3. Retículo Endoplasmático Rugoso (Corpúsculos de Nissl) & Complexo de Golgi
+        const rerMat = new THREE.MeshPhysicalMaterial({
+            color: 0x06b6d4,
+            emissive: 0x0e7490,
+            emissiveIntensity: 0.48,
+            roughness: 0.35,
+            transparent: true,
+            opacity: 0.82,
+            side: THREE.DoubleSide
+        });
+        for (let r = 0; r < 4; r++) {
+            const radius = 0.48 + r * 0.045;
+            const ring = new THREE.Mesh(new THREE.TorusGeometry(radius, 0.016, 12, 40, Math.PI * 1.25), rerMat);
+            ring.position.copy(center);
+            ring.rotation.set(0.4 * r, 0.8 * r, 0.2);
+            this.organelleGroup.add(ring);
+        }
+
+        // 4. Feixes de Microtúbulos Citoesqueléticos (Transporte Axonal Kinesina/Dineína)
+        const mtMat = new THREE.MeshStandardMaterial({
+            color: 0x10b981,
+            emissive: 0x059669,
+            emissiveIntensity: 0.55
+        });
+        for (let m = 0; m < 8; m++) {
+            const angle = (m / 8) * Math.PI * 2;
+            const p1 = center.clone().add(new THREE.Vector3(Math.cos(angle) * 0.45, Math.sin(angle) * 0.45, -0.2));
+            const p2 = center.clone().add(new THREE.Vector3(Math.cos(angle) * 1.15, Math.sin(angle) * 1.15, 0.35));
+            const curve = new THREE.LineCurve3(p1, p2);
+            const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 8, 0.009, 8, false), mtMat);
+            this.organelleGroup.add(tube);
+        }
+    }
+
+    // =========================================================================
+    // TIER 5: REDE ATÔMICA E ORBITAIS QUÂNTICOS 3D (ESCALA DE ANGSTROMS — C, N, O, P, Na+, K+)
+    // =========================================================================
+    buildAtomicQuantumLattice3D() {
+        const center = new THREE.Vector3(0, 0.5, 0);
+
+        // Cores CPK científicas: Carbono (Ciano-Grafite), Oxigênio (Vermelho), Nitrogênio (Azul), Fósforo (Âmbar), Sódio/Potássio (Violeta Elétrico)
+        const atomSpecs = [
+            { name: 'Phosphorus (P) — Fosfolipídio de Membrana', pos: new THREE.Vector3(0.0, 0.0, 0.0), color: 0xf59e0b, radius: 0.036, electrons: 5 },
+            { name: 'Oxygen (O) — Grupo Fosfato', pos: new THREE.Vector3(0.11, 0.08, 0.04), color: 0xf43f5e, radius: 0.028, electrons: 4 },
+            { name: 'Oxygen (O) — Ligação Éster', pos: new THREE.Vector3(-0.11, 0.07, -0.05), color: 0xf43f5e, radius: 0.028, electrons: 4 },
+            { name: 'Carbon (Cα) — Cadeia Acil Lipídica', pos: new THREE.Vector3(0.04, -0.13, 0.08), color: 0x38bdf8, radius: 0.030, electrons: 4 },
+            { name: 'Nitrogen (N+) — Cabeça Colina Hidrofílica', pos: new THREE.Vector3(-0.05, 0.16, 0.09), color: 0x60a5fa, radius: 0.031, electrons: 4 },
+            { name: 'Sodium Ion (Na+) — Canal Nav1.6', pos: new THREE.Vector3(0.17, -0.04, -0.11), color: 0xc084fc, radius: 0.034, electrons: 6 },
+            { name: 'Potassium Ion (K+) — Poros Kv', pos: new THREE.Vector3(-0.16, -0.09, 0.12), color: 0x34d399, radius: 0.038, electrons: 6 }
+        ];
+
+        const bondMat = new THREE.MeshStandardMaterial({
+            color: 0x94a3b8,
+            emissive: 0x38bdf8,
+            emissiveIntensity: 0.45,
+            roughness: 0.2
+        });
+
+        const orbitalRingMat = new THREE.MeshBasicMaterial({
+            color: 0x00f2fe,
+            transparent: true,
+            opacity: 0.32,
+            side: THREE.DoubleSide
+        });
+
+        const electronMat = new THREE.MeshBasicMaterial({
+            color: 0xfacc15
+        });
+
+        atomSpecs.forEach((spec, idx) => {
+            const atomNode = new THREE.Group();
+            atomNode.position.copy(center).add(spec.pos);
+
+            // Núcleo Atômico (Prótons + Nêutrons em cluster subatômico)
+            const nucMat = new THREE.MeshStandardMaterial({
+                color: spec.color,
+                emissive: spec.color,
+                emissiveIntensity: 0.95,
+                roughness: 0.15
+            });
+            const nucleus = new THREE.Mesh(new THREE.IcosahedronGeometry(spec.radius, 2), nucMat);
+            atomNode.add(nucleus);
+
+            // Nuvem de Probabilidade Quântica (Halo translúcido s/p)
+            const cloudMat = new THREE.MeshPhysicalMaterial({
+                color: spec.color,
+                emissive: spec.color,
+                emissiveIntensity: 0.35,
+                transparent: true,
+                opacity: 0.22,
+                roughness: 0.1
+            });
+            const cloud = new THREE.Mesh(new THREE.SphereGeometry(spec.radius * 2.4, 20, 16), cloudMat);
+            atomNode.add(cloud);
+
+            // Anéis Orbitais e Elétrons em Movimento Quântico
+            for (let e = 0; e < spec.electrons; e++) {
+                const orbitRadius = spec.radius * (1.8 + (e % 2) * 0.65);
+                const ring = new THREE.Mesh(new THREE.RingGeometry(orbitRadius - 0.002, orbitRadius + 0.002, 32), orbitalRingMat);
+                ring.rotation.set((e * 1.1) + idx * 0.4, (e * 0.8), e * 0.5);
+                atomNode.add(ring);
+
+                const elec = new THREE.Mesh(new THREE.SphereGeometry(0.0065, 10, 10), electronMat);
+                atomNode.add(elec);
+                this.electronOrbitals.push({
+                    mesh: elec,
+                    radius: orbitRadius,
+                    speed: 6.5 + e * 2.2,
+                    phase: e * 1.57 + idx,
+                    tiltX: ring.rotation.x,
+                    tiltY: ring.rotation.y
+                });
+            }
+
+            this.atomicGroup.add(atomNode);
+
+            // Ligações Covalentes com o átomo central (Índice 0)
+            if (idx > 0 && idx < 5) {
+                const p0 = center.clone().add(atomSpecs[0].pos);
+                const p1 = center.clone().add(spec.pos);
+                const curve = new THREE.LineCurve3(p0, p1);
+                const bond = new THREE.Mesh(new THREE.TubeGeometry(curve, 6, 0.0055, 8, false), bondMat);
+                this.atomicGroup.add(bond);
+            }
+        });
+    }
+
+    // =========================================================================
+    // CONTROLADOR DE PROFUNDIDADE MULTIESCALA (TRANSIÇÃO SUAVE NEURÔNIO -> ORGANELAS -> ÁTOMOS)
+    // =========================================================================
+    setMultiscaleDepth(cameraDistance) {
+        // Visibilidade das Organelas (Tier 4: d < 1.35) e Átomos (Tier 5: d < 0.52)
+        const showOrganelles = (cameraDistance < 1.35 && cameraDistance > 0.32);
+        const showAtoms = (cameraDistance <= 0.52);
+
+        if (this.organelleGroup) {
+            this.organelleGroup.visible = showOrganelles;
+        }
+        if (this.atomicGroup) {
+            this.atomicGroup.visible = showAtoms;
+        }
+
+        // Torna a membrana do Soma translúcida quando a câmera entra dentro da célula (d < 1.35)
+        if (this.somaMeshes && this.somaMeshes.length > 0) {
+            const mainSoma = this.somaMeshes[0];
+            if (mainSoma && mainSoma.material) {
+                if (cameraDistance < 0.52) {
+                    mainSoma.material.opacity = 0.12;
+                    mainSoma.material.depthWrite = false;
+                } else if (cameraDistance < 1.35) {
+                    mainSoma.material.opacity = 0.28;
+                    mainSoma.material.depthWrite = false;
+                } else {
+                    mainSoma.material.opacity = 0.88;
+                    mainSoma.material.depthWrite = true;
+                }
+            }
+        }
+    }
+
 }
 
 window.NeuralMicrocosmos3D = NeuralMicrocosmos3D;

@@ -298,7 +298,7 @@ METHODS_TO_APPEND = """
     }
 """
 
-if "buildIntracellularOrganelles3D()" not in micro_code:
+if "setMultiscaleDepth(cameraDistance)" not in micro_code:
     last_brace_idx = micro_code.rfind("}\n\nwindow.NeuralMicrocosmos3D")
     if last_brace_idx == -1:
         last_brace_idx = micro_code.rfind("}")
