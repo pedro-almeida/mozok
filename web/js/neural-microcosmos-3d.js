@@ -400,6 +400,23 @@ class NeuralMicrocosmos3D {
 
         // 3. Constrói os 384 Pulsos de Condução Saltatória nos Nódulos de Ranvier (#00f2fe)
         this.buildActionPotentialPulses();
+
+        // Grupos Multiescala Profundos: Tier 4 (Organelas Celulares) e Tier 5 (Átomos & Orbitais)
+        this.organelleGroup = new THREE.Group();
+        this.organelleGroup.name = 'Tier4_Intracellular_Organelles';
+        this.organelleGroup.visible = false;
+        this.microGroup.add(this.organelleGroup);
+
+        this.atomicGroup = new THREE.Group();
+        this.atomicGroup.name = 'Tier5_Atomic_Quantum_Lattice';
+        this.atomicGroup.visible = false;
+        this.microGroup.add(this.atomicGroup);
+
+        this.electronOrbitals = [];
+        this.organelleItems = [];
+        this.buildIntracellularOrganelles3D();
+        this.buildAtomicQuantumLattice3D();
+
     }
 
     /**
@@ -2017,6 +2034,25 @@ class NeuralMicrocosmos3D {
                 node.sprite.material.opacity = Math.min(1.0, 0.95 * ranvierDim * healthRhythm);
             }
         }
+
+        // 5. Animação de Orbitais Quânticos (Tier 5) e Organelas (Tier 4)
+        if (this.atomicGroup && this.atomicGroup.visible && this.electronOrbitals.length > 0) {
+            for (let i = 0; i < this.electronOrbitals.length; i++) {
+                const eo = this.electronOrbitals[i];
+                const angle = elapsed * eo.speed + eo.phase;
+                const lx = Math.cos(angle) * eo.radius;
+                const ly = Math.sin(angle) * eo.radius * Math.cos(eo.tiltX);
+                const lz = Math.sin(angle) * eo.radius * Math.sin(eo.tiltX);
+                eo.mesh.position.set(lx, ly, lz);
+            }
+        }
+        if (this.organelleGroup && this.organelleGroup.visible && this.organelleItems.length > 0) {
+            for (let i = 0; i < this.organelleItems.length; i++) {
+                const org = this.organelleItems[i];
+                org.rotation.y += dt * 0.35;
+            }
+        }
+
     }
 }
 

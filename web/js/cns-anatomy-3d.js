@@ -1752,7 +1752,7 @@ class CNSAnatomy3D {
         this.bodyShellVisible = visible;
         if (visible && this.bodyShellGroup.children.length === 0) {
             // [SOLICITAÇÃO PEDRO]: Casca translúcida do corpo humano desativada para manter foco exclusivo no encéfalo e nervos
-            // this.buildBioluminescentHumanBodyShell();
+            this.buildBioluminescentHumanBodyShell();
         }
         this.bodyShellGroup.visible = visible;
     }

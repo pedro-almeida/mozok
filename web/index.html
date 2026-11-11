@@ -1454,6 +1454,47 @@
             pointer-events: none !important;
         }
 
+    
+        /* RÉGUA MULTIESCALA ESTILO GOOGLE EARTH BIOLÓGICO (6 ESCALAS: CÉREBRO -> ÁTOMO) */
+        #mozok-scale-hud {
+            position: fixed;
+            bottom: 18px;
+            right: 402px;
+            z-index: 25;
+            background: rgba(8, 15, 30, 0.88);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(0, 242, 254, 0.35);
+            border-radius: 12px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
+            font-size: 11px;
+        }
+        @media screen and (max-width: 1180px) {
+            #mozok-scale-hud {
+                right: 14px;
+                bottom: 64px;
+            }
+        }
+        .scale-tier-badge {
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(0, 242, 254, 0.16);
+            border: 1px solid #00f2fe;
+            color: #00f2fe;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            min-width: 155px;
+            text-align: center;
+        }
+        #mozok-scale-slider {
+            width: 130px;
+            accent-color: #00f2fe;
+            cursor: pointer;
+        }
+
     </style>
     <script>
     (function () {
@@ -1537,7 +1578,7 @@
         <div class="brand-block">
             <div class="brand-logo">🧠</div>
             <div>
-                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag">BETA</span></div>
+                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.1+0001">v1.0001</span></div>
                 <div class="brand-subtitle" id="gpu-status-subtitle" data-i18n="subtitle_macro">SNC, SNP & Meninges • Córtex MNI152 • 7 Patologias</div>
             </div>
         </div>
@@ -1548,7 +1589,7 @@
             <button class="hud-btn" id="btn-view-vascular" data-i18n="btn_vascular">🩸 Árvore Vascular & LCR</button>
             <button class="hud-btn" id="btn-meninges" data-i18n="btn_meninges" title="Exibir/Ocultar as 3 Meninges 3D">🛡️ Meninges</button>
             <button class="hud-btn gold" id="btn-view-micro" data-i18n="btn_micro">🔬 Microcosmos Neuronal</button>
-            <button class="hud-btn" id="btn-body-shell" style="display:none;">🫧 Corpo Translúcido</button>
+            <button class="hud-btn" id="btn-body-shell" data-i18n="btn_body_shell" title="Exibir/Ocultar Silhueta Corporal Bioluminescente">🫧 Corpo Translúcido</button>
             <button class="hud-btn" id="btn-home-view" data-i18n="btn_center">🎯 Centralizar</button>
             <button class="hud-btn" id="btn-tour" data-i18n="btn_tour">🧭 Tour Guiado</button>
             <select id="lang-select" class="lang-select-hud" title="Selecionar Idioma (Tradução e Voz Neural Gemini)">
@@ -1586,6 +1627,14 @@
     </div>
 
     <!-- SIDEBAR ESQUERDA: ATLAS ONTOLÓGICO DE 32 PEÇAS + SUB-PEÇAS DO NEURÔNIO -->
+    
+    <!-- RÉGUA DE ESCALA MULTIESCALA ("GOOGLE EARTH BIOLÓGICO") -->
+    <div id="mozok-scale-hud" title="Role o mouse (Scroll) ou arraste para mergulhar do Cérebro até os Neurônios, Organelas e Átomos">
+        <span style="color:#94a3b8; font-weight:700;">🔭 Escala:</span>
+        <span class="scale-tier-badge" id="scale-tier-label">15 cm • Macro SNC</span>
+        <input type="range" id="mozok-scale-slider" min="0" max="100" step="1" value="18" />
+    </div>
+
     <aside class="left-sidebar" id="left-sidebar-drawer">
         <div class="mobile-drawer-close-bar"><span data-i18n="atlas_title">📚 ATLAS ANATÔMICO SNC & SNP</span><button class="mobile-drawer-close-btn" id="btn-close-left-drawer">✕ Fechar</button></div>
         <div class="sidebar-header">
@@ -2502,7 +2551,7 @@
             const controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.065;
-            controls.minDistance = 2.2;
+            controls.minDistance = 0.14;
             controls.maxDistance = 85.0;
             controls.target.set(0, -1.5, 0);
 
@@ -2590,6 +2639,7 @@
                     btn_vascular: '🩸 Árvore Vascular & LCR',
                     btn_meninges: '🛡️ Meninges',
                     btn_micro: '🔬 Microcosmos Neuronal',
+                    btn_body_shell: '🫧 Corpo Translúcido',
                     btn_center: '🎯 Centralizar',
                     btn_tour: '🧭 Tour Guiado',
                     btn_voice: '🔊 Voz Gemini',
@@ -2678,6 +2728,7 @@
                     btn_vascular: '🩸 Vascular & CSF',
                     btn_meninges: '🛡️ Meninges',
                     btn_micro: '🔬 Neuronal Microcosmos',
+                    btn_body_shell: '🫧 Translucent Body',
                     btn_center: '🎯 Recentre',
                     btn_tour: '🧭 Guided Tour',
                     btn_voice: '🔊 Gemini Voice',
@@ -2766,6 +2817,7 @@
                     btn_vascular: '🩸 Árbol Vascular y LCR',
                     btn_meninges: '🛡️ Meninges',
                     btn_micro: '🔬 Microcosmos Neuronal',
+                    btn_body_shell: '🫧 Cuerpo Translúcido',
                     btn_center: '🎯 Centrar',
                     btn_tour: '🧭 Tour Guiado',
                     btn_voice: '🔊 Voz Gemini',
@@ -2854,6 +2906,7 @@
                     btn_vascular: '🩸 Albero Vascolare e LCS',
                     btn_meninges: '🛡️ Meningi',
                     btn_micro: '🔬 Microcosmo Neuronale',
+                    btn_body_shell: '🫧 Corpo Traslucido',
                     btn_center: '🎯 Ricentra',
                     btn_tour: '🧭 Tour Guidato',
                     btn_voice: '🔊 Voce Gemini',
@@ -2942,6 +2995,7 @@
                     btn_vascular: '🩸 Судинне русло та СМР',
                     btn_meninges: '🛡️ Мозкові оболони',
                     btn_micro: '🔬 Нейронний мікрокосмос',
+                    btn_body_shell: '🫧 Напівпрозоре тіло',
                     btn_center: '🎯 Центрувати',
                     btn_tour: '🧭 Екскурсія',
                     btn_voice: '🔊 Голос Gemini',
@@ -3069,6 +3123,7 @@
                     if (dict[key]) {
                         if (el.tagName === 'INPUT') el.placeholder = dict[key];
                         else if (el.tagName === 'OPTION') el.text = dict[key];
+                        else if (el.id === 'cat-chip-all') el.textContent = `${dict[key]} (${MOZOK_ONTOLOGY.length})`;
                         else el.textContent = dict[key];
                     }
                 });
@@ -3643,10 +3698,12 @@
             // EVENT LISTENERS DE TODOS OS BOTÕES DA INTERFACE
             // =====================================================================
             function resetIsolateButtonsUI() {
+                const hudDict = UI_I18N[currentLang] || UI_I18N['pt-BR'];
+                const isoTxt = hudDict.btn_isolate || '🧩 Isolar Peça 3D';
                 document.getElementById('btn-isolate-piece').classList.remove('active');
-                document.getElementById('btn-isolate-piece').textContent = '🧩 Isolar Peça 3D';
+                document.getElementById('btn-isolate-piece').textContent = isoTxt;
                 if (!isMicroMode) {
-                    btnPopupIsolate.textContent = '🧩 Isolar Peça 3D';
+                    btnPopupIsolate.textContent = isoTxt;
                 }
             }
 
@@ -3932,9 +3989,11 @@
                 if (isMicroMode) {
                     neuralMicro.triggerManualSpike();
                 } else {
+                    const hudDict = UI_I18N[currentLang] || UI_I18N['pt-BR'];
                     const isolated = cnsAnatomy.isolateStructure(selectedStructureId);
-                    btnPopupIsolate.textContent = isolated ? '🔄 Mostrar Tudo' : '🧩 Isolar Peça 3D';
-                    document.getElementById('btn-isolate-piece').textContent = isolated ? '🔄 Mostrar Tudo' : '🧩 Isolar Peça 3D';
+                    const labelTxt = isolated ? (hudDict.btn_restore || '🔄 Mostrar Tudo') : (hudDict.btn_isolate || '🧩 Isolar Peça 3D');
+                    btnPopupIsolate.textContent = labelTxt;
+                    document.getElementById('btn-isolate-piece').textContent = labelTxt;
                     document.getElementById('btn-isolate-piece').classList.toggle('active', isolated);
                 }
             });
@@ -3948,10 +4007,12 @@
             // Botões do Painel Direito
             document.getElementById('btn-isolate-piece').addEventListener('click', (e) => {
                 if (isMicroMode) setMicrocosmosMode(false);
+                const hudDict = UI_I18N[currentLang] || UI_I18N['pt-BR'];
                 const isolated = cnsAnatomy.isolateStructure(selectedStructureId);
+                const labelTxt = isolated ? (hudDict.btn_restore || '🔄 Mostrar Tudo') : (hudDict.btn_isolate || '🧩 Isolar Peça 3D');
                 e.currentTarget.classList.toggle('active', isolated);
-                e.currentTarget.textContent = isolated ? '🔄 Mostrar Tudo' : '🧩 Isolar Peça 3D';
-                btnPopupIsolate.textContent = isolated ? '🔄 Mostrar Tudo' : '🧩 Isolar Peça 3D';
+                e.currentTarget.textContent = labelTxt;
+                btnPopupIsolate.textContent = labelTxt;
             });
 
             document.getElementById('btn-card-dive').addEventListener('click', () => {
@@ -4255,6 +4316,104 @@
             // =====================================================================
             // LOOP DE RENDERIZAÇÃO PRINCIPAL (60+ FPS)
             // =====================================================================
+            
+            // =====================================================================
+            // MOTOR DE ZOOM CONTÍNUO MULTIESCALA ("GOOGLE EARTH BIOLÓGICO" — 6 NÍVEIS)
+            // =====================================================================
+            const scaleTierLabel = document.getElementById('scale-tier-label');
+            const scaleSlider = document.getElementById('mozok-scale-slider');
+            let autoZoomMicroTriggered = false;
+
+            function evaluateContinuousMultiscaleZoom() {
+                const dist = camera.position.distanceTo(controls.target);
+
+                // Calcula porcentagem de profundidade logarítmica (dist de 45.0 até 0.16)
+                const minD = 0.16, maxD = 45.0;
+                const clampedD = Math.max(minD, Math.min(maxD, dist));
+                const depthPct = Math.round((1.0 - (Math.log(clampedD) - Math.log(minD)) / (Math.log(maxD) - Math.log(minD))) * 100);
+                if (scaleSlider && document.activeElement !== scaleSlider) {
+                    scaleSlider.value = String(Math.max(0, Math.min(100, depthPct)));
+                }
+
+                // Transição contínua Macro <-> Micro pelo scroll do mouse (limiar em dist = 6.2)
+                if (!isMicroMode && dist < 8.8 && dist >= 5.2) {
+                    // Fase de penetração cortical: torna o córtex progressivamente translúcido
+                    const alpha = THREE.MathUtils.clamp((dist - 5.2) / (8.8 - 5.2), 0.12, 1.0);
+                    cnsAnatomy.setCortexAlpha(alpha);
+                } else if (!isMicroMode && dist < 5.2) {
+                    // Mergulho automático para dentro da rede neuronal da Camada V!
+                    autoZoomMicroTriggered = true;
+                    isMicroMode = true;
+                    cnsAnatomy.rootGroup.visible = false;
+                    neuralMicro.setVisible(true, selectedStructureId);
+                    document.getElementById('neuron-parts-bar').classList.add('visible');
+                    setActiveTopViewBtn('btn-view-micro');
+                    const meta = neuralMicro.getPartMetadata(selectedNeuronPartId || 'NEURON_SOMA');
+                    updateHUDAndPopup(meta, false);
+                } else if (isMicroMode && autoZoomMicroTriggered && dist > 6.4) {
+                    // Retorno suave ao Córtex Macroscópico ao afastar o zoom (scroll out)
+                    autoZoomMicroTriggered = false;
+                    isMicroMode = false;
+                    cnsAnatomy.rootGroup.visible = true;
+                    neuralMicro.setVisible(false);
+                    cnsAnatomy.setCortexAlpha(1.0);
+                    document.getElementById('neuron-parts-bar').classList.remove('visible');
+                    setActiveTopViewBtn('btn-view-external');
+                    const meta = ontologyMap.get(selectedStructureId) || MOZOK_ONTOLOGY[0];
+                    updateHUDAndPopup(meta, false);
+                }
+
+                // Atualiza visibilidade de Organelas (Tier 4) e Átomos (Tier 5)
+                if (isMicroMode && typeof neuralMicro.setMultiscaleDepth === 'function') {
+                    neuralMicro.setMultiscaleDepth(dist);
+                }
+
+                // Atualiza rótulo da Régua Biológica (6 Escalas)
+                if (scaleTierLabel) {
+                    if (dist > 11.5) {
+                        scaleTierLabel.textContent = '15 cm • Macro SNC';
+                        scaleTierLabel.style.borderColor = '#00f2fe';
+                        scaleTierLabel.style.color = '#00f2fe';
+                    } else if (dist > 5.2) {
+                        scaleTierLabel.textContent = '10 mm • Parênquima Cortical';
+                        scaleTierLabel.style.borderColor = '#38bdf8';
+                        scaleTierLabel.style.color = '#38bdf8';
+                    } else if (dist > 2.2) {
+                        scaleTierLabel.textContent = '100 µm • Neurônios Camada V';
+                        scaleTierLabel.style.borderColor = '#facc15';
+                        scaleTierLabel.style.color = '#facc15';
+                    } else if (dist > 1.35) {
+                        scaleTierLabel.textContent = '500 nm • Fenda Sináptica';
+                        scaleTierLabel.style.borderColor = '#34d399';
+                        scaleTierLabel.style.color = '#34d399';
+                    } else if (dist > 0.52) {
+                        scaleTierLabel.textContent = '50 nm • Organelas Celulares';
+                        scaleTierLabel.style.borderColor = '#c084fc';
+                        scaleTierLabel.style.color = '#c084fc';
+                    } else {
+                        scaleTierLabel.textContent = '1 Å (0.1 nm) • Átomos & Orbitais';
+                        scaleTierLabel.style.borderColor = '#f43f5e';
+                        scaleTierLabel.style.color = '#f43f5e';
+                    }
+                }
+            }
+
+            if (scaleSlider) {
+                scaleSlider.addEventListener('input', (e) => {
+                    const pct = parseFloat(e.target.value) || 0;
+                    const minD = 0.16, maxD = 45.0;
+                    const targetDist = Math.exp(Math.log(maxD) - (pct / 100.0) * (Math.log(maxD) - Math.log(minD)));
+                    const dir = camera.position.clone().sub(controls.target).normalize();
+                    if (dir.lengthSq() < 0.0001) dir.set(0, 0.08, 1).normalize();
+                    if (pct >= 58) {
+                        controls.target.set(0, 0.5, 0);
+                    }
+                    camera.position.copy(controls.target).addScaledVector(dir, targetDist);
+                    controls.update();
+                    evaluateContinuousMultiscaleZoom();
+                });
+            }
+
             const clock = new THREE.Clock();
 
             function animate() {
@@ -4268,6 +4427,7 @@
                 }
 
                 controls.update();
+                evaluateContinuousMultiscaleZoom();
                 cnsAnatomy.update(dt, elapsed);
                 updateOscilloscopeAndTelemetry(dt);
                 updateFloatingPopupPosition();
