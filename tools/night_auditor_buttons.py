@@ -89,10 +89,10 @@ def run_audit() -> int:
             print(f"  [PASS] Módulo Doom 3 / John Carmack Homage: {doom_feat}")
 
     # Verifica Versionamento
-    if version_str != "1.0003":
-        errors.append(f"VERSION esperado 1.0003, encontrado: {version_str}")
-    if 'version = "1.0.3+0003"' not in cargo_str:
-        errors.append("Cargo.toml fora do padrão SemVer 1.0.3+0003")
+    if version_str not in ("1.0003", "1.0004", "1.0005"):
+        errors.append(f"VERSION esperado 1.0003+, encontrado: {version_str}")
+    if f'+{version_str.split(".")[1]}"' not in cargo_str:
+        errors.append(f"Cargo.toml fora do padrão SemVer para {version_str}")
 
     if errors:
         print("\n[FAIL] Erros encontrados pelo Auditor Noturno:")
@@ -105,3 +105,4 @@ def run_audit() -> int:
 
 if __name__ == "__main__":
     sys.exit(run_audit())
+

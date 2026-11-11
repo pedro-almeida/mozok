@@ -2270,32 +2270,38 @@ class NeuralMicrocosmos3D {
     // CONTROLADOR DE PROFUNDIDADE MULTIESCALA (TRANSIÇÃO SUAVE NEURÔNIO -> ORGANELAS -> ÁTOMOS)
     // =========================================================================
     setMultiscaleDepth(cameraDistance) {
-        // Visibilidade das Organelas (Tier 4: d < 1.35) e Átomos (Tier 5: d < 0.52)
-        const showOrganelles = (cameraDistance < 1.35 && cameraDistance > 0.32);
-        const showAtoms = (cameraDistance <= 0.52);
+        // Tier 4 (Organelas Intracelulares): visível quando cameraDistance < 3.6 e > 0.72
+        // Tier 5 (Rede Atômica & Orbitais Quânticos): visível quando cameraDistance <= 1.15
+        const showOrganelles = (cameraDistance < 3.6 && cameraDistance > 0.65);
+        const showAtoms = (cameraDistance <= 1.15);
 
         if (this.organelleGroup) {
             this.organelleGroup.visible = showOrganelles;
+            // Escala adaptativa para preencher o campo de visão com nitidez
+            this.organelleGroup.scale.setScalar(1.65);
         }
         if (this.atomicGroup) {
             this.atomicGroup.visible = showAtoms;
+            this.atomicGroup.scale.setScalar(2.85);
         }
 
-        // Torna a membrana do Soma translúcida quando a câmera entra dentro da célula (d < 1.35)
+        // Faz o Soma Piramidal abrir-se como uma câmara de vidro translúcida ao entrar nele
         if (this.somaMeshes && this.somaMeshes.length > 0) {
-            const mainSoma = this.somaMeshes[0];
-            if (mainSoma && mainSoma.material) {
-                if (cameraDistance < 0.52) {
-                    mainSoma.material.opacity = 0.12;
-                    mainSoma.material.depthWrite = false;
-                } else if (cameraDistance < 1.35) {
-                    mainSoma.material.opacity = 0.28;
-                    mainSoma.material.depthWrite = false;
-                } else {
-                    mainSoma.material.opacity = 0.88;
-                    mainSoma.material.depthWrite = true;
+            this.somaMeshes.forEach((s, idx) => {
+                if (s && s.material) {
+                    if (cameraDistance < 1.15) {
+                        s.material.opacity = idx === 0 ? 0.06 : 0.15;
+                        s.material.depthWrite = false;
+                    } else if (cameraDistance < 3.6) {
+                        const t = (cameraDistance - 1.15) / (3.6 - 1.15);
+                        s.material.opacity = idx === 0 ? (0.10 + 0.55 * t) : (0.25 + 0.55 * t);
+                        s.material.depthWrite = false;
+                    } else {
+                        s.material.opacity = 0.88;
+                        s.material.depthWrite = true;
+                    }
                 }
-            }
+            });
         }
     }
 

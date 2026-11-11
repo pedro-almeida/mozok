@@ -477,3 +477,4 @@ if "SCIENTIFIC_QUIZ_BANK" not in html:
 
 INDEX_HTML.write_text(html, encoding="utf-8")
 print("[OK] MOZOK v1.0003 atualizado com Módulo de Prova e Validação Científica Internacional.")
+

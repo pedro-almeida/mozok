@@ -1,3 +1,0 @@
-# Scripts Directory
-GDScript presentation glue, UI binding controllers, and GDExtension lifecycle orchestrators.
-Contains strictly presentation code; no neurocomputational algorithms or raw data indexing logic.

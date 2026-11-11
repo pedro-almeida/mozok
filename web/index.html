@@ -1989,7 +1989,7 @@
 
         <!-- ATO II: TERMINAL HOLOGRÁFICO DE DOOM 3 SOBRE O CÉREBRO DESFOCADO -->
         <div id="doom3-terminal-stage">
-            <div class="doom3-uac-header" id="doom3-uac-header">ESPECTRO IPÊ CORP // MOZOK NEURO-SIMULATION TERMINAL v1.0003</div>
+            <div class="doom3-uac-header" id="doom3-uac-header">ESPECTRO IPÊ CORP // MOZOK NEURO-SIMULATION TERMINAL v1.0004</div>
             <div id="doom3-typewriter-line">
                 <span id="doom3-typed-text"></span><span class="doom3-block-cursor"></span>
             </div>
@@ -2015,7 +2015,7 @@
         <div class="brand-block">
             <div class="brand-logo">🧠</div>
             <div>
-                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.3+0003">v1.0003</span></div>
+                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.4+0004">v1.0004</span></div>
                 <div class="brand-subtitle" id="gpu-status-subtitle" data-i18n="subtitle_macro">SNC, SNP & Meninges • Córtex MNI152 • 7 Patologias</div>
             </div>
         </div>
@@ -2971,7 +2971,7 @@
             const container = document.getElementById('webgl-container');
             const scene = new THREE.Scene();
 
-            const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 500);
+            const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.015, 500);
             camera.position.set(0, 1.5, 22.0);
 
             const renderer = new THREE.WebGLRenderer({
@@ -3666,9 +3666,11 @@
             }
 
             async function speakText(text, lang = currentLang, itemId = null) {
-                if (!text) return;
+                if (!text) return Promise.resolve();
+                // Remove qualquer resquício de meta-prompt caso venha de cache externo
+                const cleanText = text.replace(/^(Narrate|Narra|Narre)[^:]*:\s*/i, '').trim();
                 const thisSpeechId = ++activeSpeechId;
-                syncSpeechWithVLibras(text);
+                syncSpeechWithVLibras(cleanText);
 
                 if (currentAudio) {
                     try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (_) {}
@@ -3678,40 +3680,52 @@
                     try { window.speechSynthesis.cancel(); } catch (_) {}
                 }
 
-                // 1. Tenta primeiro o MP3 estático pré-gerado pela Gemini TTS (0ms tanto na VPS quanto no Desktop)
-                if (itemId) {
-                    try {
-                        const staticMp3Url = `assets/audio/${encodeURIComponent(lang)}/${encodeURIComponent(itemId)}.mp3`;
-                        const audio = new Audio(staticMp3Url);
-                        if (thisSpeechId !== activeSpeechId) return;
-                        currentAudio = audio;
-                        await audio.play();
-                        return;
-                    } catch (_) {
-                        if (thisSpeechId !== activeSpeechId) return;
-                    }
+                const playAndWait = (audioObj) => new Promise((resolve) => {
+                    let settled = false;
+                    const done = () => { if (!settled) { settled = true; resolve(true); } };
+                    audioObj.onended = done;
+                    audioObj.onerror = () => { if (!settled) { settled = true; resolve(false); } };
+                    audioObj.play().catch(() => { if (!settled) { settled = true; resolve(false); } });
+                });
+
+                // 1. Tenta primeiro o MP3 estático pré-gerado (exceto se estiver na lista de regeneração dinâmica)
+                const skipStaticIds = new Set(['HIPPOCAMPUS', 'NEURON_SYNAPSE']);
+                if (itemId && !skipStaticIds.has(itemId)) {
+                    const staticMp3Url = `assets/audio/${encodeURIComponent(lang)}/${encodeURIComponent(itemId)}.mp3`;
+                    const audio = new Audio(staticMp3Url);
+                    if (thisSpeechId !== activeSpeechId) return false;
+                    currentAudio = audio;
+                    const ok = await playAndWait(audio);
+                    if (ok) return true;
                 }
 
-                // 2. Tenta a síntese dinâmica Gemini TTS com rotação de chaves (/api/gemini-tts)
+                // 2. Tenta a síntese dinâmica Gemini TTS (/api/gemini-tts) sem passar id contaminado
+                if (thisSpeechId !== activeSpeechId) return false;
                 try {
-                    const audioUrl = `/api/gemini-tts?text=${encodeURIComponent(text)}&lang=${encodeURIComponent(lang)}&id=${encodeURIComponent(itemId || '')}&_t=${Date.now()}`;
+                    const safeId = skipStaticIds.has(itemId) ? '' : (itemId || '');
+                    const audioUrl = `/api/gemini-tts?text=${encodeURIComponent(cleanText)}&lang=${encodeURIComponent(lang)}&id=${encodeURIComponent(safeId)}&_t=${Date.now()}`;
                     const audio = new Audio(audioUrl);
-                    if (thisSpeechId !== activeSpeechId) return;
                     currentAudio = audio;
-                    await audio.play();
-                    return;
-                } catch (_) {
-                    if (thisSpeechId !== activeSpeechId) return;
-                    // 3. Fallback para Web Speech API nativa
-                    if ('speechSynthesis' in window) {
+                    const ok = await playAndWait(audio);
+                    if (ok) return true;
+                } catch (_) {}
+
+                // 3. Fallback para Web Speech API nativa aguardando onend
+                if (thisSpeechId === activeSpeechId && 'speechSynthesis' in window) {
+                    return new Promise((resolve) => {
                         try {
-                            const utter = new SpeechSynthesisUtterance(text);
+                            const utter = new SpeechSynthesisUtterance(cleanText);
                             utter.lang = lang;
-                            utter.rate = 1.04;
+                            utter.rate = 1.03;
+                            utter.onend = () => resolve(true);
+                            utter.onerror = () => resolve(false);
                             window.speechSynthesis.speak(utter);
-                        } catch (err) {}
-                    }
+                        } catch (_) {
+                            resolve(false);
+                        }
+                    });
                 }
+                return false;
             }
 
             async function narrateCurrentSelection() {
@@ -3724,7 +3738,7 @@
                     (currentLang === 'es-ES') ? 'Correlación clínica: ' :
                     (currentLang === 'it-IT') ? 'Correlazione clinica: ' :
                     (currentLang === 'uk-UA') ? 'Клінічна кореляція: ' : 'Clinical correlation: ';
-                speakText(`${meta.name}. ${meta.summary} ${clinicalPrefix}${meta.clinical}`, currentLang, rawMeta.id);
+                return await speakText(`${meta.name}. ${meta.summary} ${clinicalPrefix}${meta.clinical}`, currentLang, rawMeta.id);
             }
 
             function narrateAboutModal() {
@@ -4767,7 +4781,6 @@
             function evaluateContinuousMultiscaleZoom() {
                 const dist = camera.position.distanceTo(controls.target);
 
-                // Calcula porcentagem de profundidade logarítmica (dist de 45.0 até 0.16)
                 const minD = 0.16, maxD = 45.0;
                 const clampedD = Math.max(minD, Math.min(maxD, dist));
                 const depthPct = Math.round((1.0 - (Math.log(clampedD) - Math.log(minD)) / (Math.log(maxD) - Math.log(minD))) * 100);
@@ -4775,58 +4788,72 @@
                     scaleSlider.value = String(Math.max(0, Math.min(100, depthPct)));
                 }
 
-                // Transição contínua Macro <-> Micro pelo scroll do mouse (limiar em dist = 6.2)
-                if (!isMicroMode && dist < 8.8 && dist >= 5.2) {
-                    // Fase de penetração cortical: torna o córtex progressivamente translúcido
-                    const alpha = THREE.MathUtils.clamp((dist - 5.2) / (8.8 - 5.2), 0.12, 1.0);
-                    cnsAnatomy.setCortexAlpha(alpha);
-                } else if (!isMicroMode && dist < 5.2) {
-                    // Mergulho automático para dentro da rede neuronal da Camada V!
-                    autoZoomMicroTriggered = true;
-                    isMicroMode = true;
+                // CROSS-FADE CONTÍNUO ESTILO GOOGLE EARTH (Sem piscar e sem corte abrupto):
+                // Zona 1 (dist > 9.5): 100% Macro SNC
+                // Zona 2 (9.5 >= dist > 5.0): Zona de Transição Dual-Layer (Córtex fica translúcido E Neurônios já aparecem ao fundo!)
+                // Zona 3 (dist <= 5.0): Imersão Microscópica (Neurônios -> Sinapses -> Organelas -> Átomos)
+                if (dist > 9.5) {
+                    if (autoZoomMicroTriggered) {
+                        autoZoomMicroTriggered = false;
+                        isMicroMode = false;
+                        cnsAnatomy.rootGroup.visible = true;
+                        neuralMicro.setVisible(false);
+                        if (cnsAnatomy.viewMode === 'EXTERNAL' && !cnsAnatomy.isolatedId) {
+                            cnsAnatomy.setCortexAlpha(1.0);
+                        }
+                        document.getElementById('neuron-parts-bar').classList.remove('visible');
+                        setActiveTopViewBtn('btn-view-external');
+                    }
+                } else if (dist <= 9.5 && dist > 5.0) {
+                    // Cross-fade suave: mostra o Córtex semi-transparente E o Microcosmos simultaneamente!
+                    const tFade = (dist - 5.0) / (9.5 - 5.0); // 1.0 em 9.5 -> 0.0 em 5.0
+                    cnsAnatomy.rootGroup.visible = true;
+                    cnsAnatomy.setCortexAlpha(THREE.MathUtils.clamp(tFade * 0.85, 0.08, 0.90));
+                    neuralMicro.setVisible(true, selectedStructureId);
+                    if (dist < 6.2 && !isMicroMode) {
+                        autoZoomMicroTriggered = true;
+                        isMicroMode = true;
+                        document.getElementById('neuron-parts-bar').classList.add('visible');
+                        setActiveTopViewBtn('btn-view-micro');
+                    }
+                } else if (dist <= 5.0) {
+                    if (!isMicroMode) {
+                        autoZoomMicroTriggered = true;
+                        isMicroMode = true;
+                        document.getElementById('neuron-parts-bar').classList.add('visible');
+                        setActiveTopViewBtn('btn-view-micro');
+                    }
                     cnsAnatomy.rootGroup.visible = false;
                     neuralMicro.setVisible(true, selectedStructureId);
-                    document.getElementById('neuron-parts-bar').classList.add('visible');
-                    setActiveTopViewBtn('btn-view-micro');
-                    const meta = neuralMicro.getPartMetadata(selectedNeuronPartId || 'NEURON_SOMA');
-                    updateHUDAndPopup(meta, false);
-                } else if (isMicroMode && autoZoomMicroTriggered && dist > 6.4) {
-                    // Retorno suave ao Córtex Macroscópico ao afastar o zoom (scroll out)
-                    autoZoomMicroTriggered = false;
-                    isMicroMode = false;
-                    cnsAnatomy.rootGroup.visible = true;
-                    neuralMicro.setVisible(false);
-                    cnsAnatomy.setCortexAlpha(1.0);
-                    document.getElementById('neuron-parts-bar').classList.remove('visible');
-                    setActiveTopViewBtn('btn-view-external');
-                    const meta = ontologyMap.get(selectedStructureId) || MOZOK_ONTOLOGY[0];
-                    updateHUDAndPopup(meta, false);
+                    // Interpola suavemente o centro de órbita para o Soma (0, 0.5, 0) ao entrar nas Organelas e Átomos
+                    if (dist < 3.6) {
+                        const centerSoma = new THREE.Vector3(0, 0.5, 0);
+                        controls.target.lerp(centerSoma, 0.08);
+                    }
                 }
 
-                // Atualiza visibilidade de Organelas (Tier 4) e Átomos (Tier 5)
-                if (isMicroMode && typeof neuralMicro.setMultiscaleDepth === 'function') {
+                if ((isMicroMode || dist <= 9.5) && typeof neuralMicro.setMultiscaleDepth === 'function') {
                     neuralMicro.setMultiscaleDepth(dist);
                 }
 
-                // Atualiza rótulo da Régua Biológica (6 Escalas)
                 if (scaleTierLabel) {
                     if (dist > 11.5) {
                         scaleTierLabel.textContent = '15 cm • Macro SNC';
                         scaleTierLabel.style.borderColor = '#00f2fe';
                         scaleTierLabel.style.color = '#00f2fe';
-                    } else if (dist > 5.2) {
+                    } else if (dist > 5.5) {
                         scaleTierLabel.textContent = '10 mm • Parênquima Cortical';
                         scaleTierLabel.style.borderColor = '#38bdf8';
                         scaleTierLabel.style.color = '#38bdf8';
-                    } else if (dist > 2.2) {
+                    } else if (dist > 3.6) {
                         scaleTierLabel.textContent = '100 µm • Neurônios Camada V';
                         scaleTierLabel.style.borderColor = '#facc15';
                         scaleTierLabel.style.color = '#facc15';
-                    } else if (dist > 1.35) {
+                    } else if (dist > 2.2) {
                         scaleTierLabel.textContent = '500 nm • Fenda Sináptica';
                         scaleTierLabel.style.borderColor = '#34d399';
                         scaleTierLabel.style.color = '#34d399';
-                    } else if (dist > 0.52) {
+                    } else if (dist > 1.15) {
                         scaleTierLabel.textContent = '50 nm • Organelas Celulares';
                         scaleTierLabel.style.borderColor = '#c084fc';
                         scaleTierLabel.style.color = '#c084fc';
@@ -5328,7 +5355,7 @@
             const DOOM3_NARRATIVE_SEGMENTS = [
                 {
                     id: 'DOOM3_SEG_0',
-                    header: 'ESPECTRO IPÊ // INICIALIZAÇÃO DO NÚCLEO MOZOK v1.0003',
+                    header: 'ESPECTRO IPÊ // INICIALIZAÇÃO DO NÚCLEO MOZOK v1.0004',
                     display: 'O cérebro humano é a fronteira mais complexa do universo conhecido.',
                     speech: 'O cérebro humano é a fronteira mais complexa do universo conhecido.'
                 },
@@ -5505,8 +5532,10 @@
             let deckPlaying = false;
             let deckStationIdx = 0;
 
-            function runDeckStation(idx) {
+            async function runDeckStation(idx) {
+                if (tourTimer) { clearTimeout(tourTimer); tourTimer = null; }
                 deckStationIdx = (idx + CONCIC_PRESENTATION_STATIONS.length) % CONCIC_PRESENTATION_STATIONS.length;
+                const myStationToken = ++activeSpeechId;
                 const st = CONCIC_PRESENTATION_STATIONS[deckStationIdx];
                 const lbl = document.getElementById('deck-station-label');
                 if (lbl) lbl.textContent = st.title;
@@ -5515,6 +5544,10 @@
                     pathologySelect.value = st.pathology;
                     applyPathologySelection(st.pathology, st.pathology === 'HEALTHY' ? 0.0 : 0.85);
                 }
+
+                // Desativa temporariamente voiceEnabled automático dentro de selectMacroStructure para controlarmos a Promise aqui
+                const prevVoice = voiceEnabled;
+                voiceEnabled = false;
 
                 if (st.mode === 'MACRO') {
                     if (isMicroMode) setMicrocosmosMode(false);
@@ -5527,17 +5560,21 @@
                     flyCameraTo(target, pos, 1.1);
                 }
 
+                voiceEnabled = prevVoice;
+
                 if (voiceEnabled) {
-                    narrateCurrentSelection();
+                    await narrateCurrentSelection();
+                } else {
+                    await new Promise(r => setTimeout(r, 6500));
                 }
 
-                if (tourTimer) clearTimeout(tourTimer);
+                // Só avança para a próxima estação após o término completo da fala + 1.2s de respiro!
                 if (deckActive && deckPlaying) {
                     tourTimer = setTimeout(() => {
                         if (deckActive && deckPlaying) {
                             runDeckStation(deckStationIdx + 1);
                         }
-                    }, 9500);
+                    }, 1200);
                 }
             }
 
@@ -5605,7 +5642,7 @@
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div class="brand-logo" style="width:36px; height:36px; font-size:18px;">📊</div>
                     <div>
-                        <h2 id="mozok-research-title" style="font-size:16px; font-weight:800; color:#f8fafc; margin:0;">Módulo de Prova &amp; Validação Científica Internacional (MOZOK v1.0003)</h2>
+                        <h2 id="mozok-research-title" style="font-size:16px; font-weight:800; color:#f8fafc; margin:0;">Módulo de Prova &amp; Validação Científica Internacional (MOZOK v1.0004)</h2>
                         <div style="font-size:11px; color:#00f2fe; font-weight:600;">Protocolo Quase-Experimental • Ganho Normalizado de Hake (g) • NASA-TLX • Escala SUS (0–100)</div>
                     </div>
                 </div>

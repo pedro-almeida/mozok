@@ -146,10 +146,7 @@ def synthesize_one_mp3(lang: str, item_id: str, spoken_text: str, all_keys: list
         return "CACHED"
 
     lang_desc = LANGUAGE_NAMES.get(lang, lang)
-    tts_prompt = (
-        f"Narrate clearly with the warm, natural voice of a university neuroanatomy professor "
-        f"speaking natively in {lang_desc} ({lang}):\n\n{spoken_text}"
-    )
+    tts_prompt = spoken_text.strip()
 
     all_rest_slots = [(k, m) for m in REST_TTS_MODELS for k in all_keys]
 
@@ -165,6 +162,7 @@ def synthesize_one_mp3(lang: str, item_id: str, spoken_text: str, all_keys: list
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={key_candidate}"
             req_body = {
+                "systemInstruction": {"parts": [{"text": f"Read the user text verbatim in {lang_desc} ({lang}). Do not add any introductory words or meta-commentary."}]},
                 "contents": [{"parts": [{"text": tts_prompt}]}],
                 "generationConfig": {
                     "responseModalities": ["AUDIO"],
