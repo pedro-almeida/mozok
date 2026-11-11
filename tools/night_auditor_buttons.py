@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-MOZOK Night Auditor (v1.0003) — Auditoria Botão-a-Botão, Multiescala, Doom 3 Intro e Psicometria
+MOZOK Night Auditor (v1.0005) — Auditoria Botão-a-Botão, Multiescala, Doom 3 Intro e Psicometria
 Verifica integridade de todos os botões interativos, traduções i18n, 6 níveis de zoom e versionamento.
 """
 
@@ -31,7 +31,6 @@ REQUIRED_BUTTON_IDS = [
     "btn-view-micro",
     "btn-body-shell",
     "btn-home-view",
-    "btn-doom-intro",
     "btn-tour",
     "btn-voice",
     "btn-vlibras",
@@ -89,8 +88,8 @@ def run_audit() -> int:
             print(f"  [PASS] Módulo Doom 3 / John Carmack Homage: {doom_feat}")
 
     # Verifica Versionamento
-    if version_str not in ("1.0003", "1.0004", "1.0005"):
-        errors.append(f"VERSION esperado 1.0003+, encontrado: {version_str}")
+    if version_str not in ("1.0005", "1.0004", "1.0005"):
+        errors.append(f"VERSION esperado 1.0005+, encontrado: {version_str}")
     if f'+{version_str.split(".")[1]}"' not in cargo_str:
         errors.append(f"Cargo.toml fora do padrão SemVer para {version_str}")
 

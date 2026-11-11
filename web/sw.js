@@ -1,5 +1,5 @@
 // PT: Service Worker com purga automática sincronizada com o GitHub para celular e WebView2.
-const SW_VERSION = 'mozok-v1.0004-github-sync';
+const SW_VERSION = 'mozok-v1.0005-github-sync';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
