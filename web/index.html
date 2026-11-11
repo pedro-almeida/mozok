@@ -2020,7 +2020,7 @@
         <div class="brand-block">
             <div class="brand-logo">🧠</div>
             <div>
-                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.5+0005">v1.0005</span></div>
+                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.6+0006">v1.0006</span></div>
                 <div class="brand-subtitle" id="gpu-status-subtitle" data-i18n="subtitle_macro">SNC, SNP & Meninges • Córtex MNI152 • 7 Patologias</div>
             </div>
         </div>
@@ -3888,6 +3888,8 @@
             // SELEÇÃO DE ESTRUTURA DO SNC/SNP OU DE SUB-PEÇA DO NEURÔNIO
             // =====================================================================
             function selectMacroStructure(structureId, focusCamera = true, showFloatingPopup = true) {
+                userWheelZoomActive = false;
+                autoZoomMicroTriggered = false;
                 const meta = ontologyMap.get(structureId);
                 if (!meta) return;
                 selectedStructureId = structureId;
@@ -4781,6 +4783,33 @@
             const scaleTierLabel = document.getElementById('scale-tier-label');
             const scaleSlider = document.getElementById('mozok-scale-slider');
             let autoZoomMicroTriggered = false;
+            let userWheelZoomActive = false;
+
+            renderer.domElement.addEventListener('wheel', () => {
+                if (camAnimId) {
+                    cancelAnimationFrame(camAnimId);
+                    camAnimId = null;
+                }
+                userWheelZoomActive = true;
+            }, { passive: true });
+
+            // Ao clicar nos botões de visão macroscópica ou selecionar peça na lista, desativa imediatamente qualquer sobreposição neuronal
+            ['btn-view-external', 'btn-view-xray', 'btn-view-vascular', 'btn-home-view'].forEach(btnId => {
+                const el = document.getElementById(btnId);
+                if (el) {
+                    el.addEventListener('click', () => {
+                        userWheelZoomActive = false;
+                        autoZoomMicroTriggered = false;
+                        isMicroMode = false;
+                        cnsAnatomy.rootGroup.visible = true;
+                        neuralMicro.setVisible(false);
+                        document.getElementById('neuron-parts-bar').classList.remove('visible');
+                        if (btnId === 'btn-view-external' || btnId === 'btn-home-view') {
+                            cnsAnatomy.setCortexAlpha(1.0);
+                        }
+                    });
+                }
+            });
 
             function evaluateContinuousMultiscaleZoom() {
                 const dist = camera.position.distanceTo(controls.target);
@@ -4792,85 +4821,85 @@
                     scaleSlider.value = String(Math.max(0, Math.min(100, depthPct)));
                 }
 
-                // CROSS-FADE CONTÍNUO ESTILO GOOGLE EARTH (Sem piscar e sem corte abrupto):
-                // Zona 1 (dist > 9.5): 100% Macro SNC
-                // Zona 2 (9.5 >= dist > 5.0): Zona de Transição Dual-Layer (Córtex fica translúcido E Neurônios já aparecem ao fundo!)
-                // Zona 3 (dist <= 5.0): Imersão Microscópica (Neurônios -> Sinapses -> Organelas -> Átomos)
-                if (dist > 9.5) {
-                    if (autoZoomMicroTriggered) {
+                // Só faz transição automática Macro <-> Micro pelo scroll se o usuário estiver usando o zoom manual (userWheelZoomActive)
+                // e o limiar de entrada nos neurônios é estritamente dist < 4.4 (quando atravessa a superfície cortical!)
+                if (userWheelZoomActive) {
+                    if (!isMicroMode && dist < 6.4 && dist >= 4.4) {
+                        // Transparência sutil apenas muito perto da superfície cortical (6.4 -> 4.4)
+                        const alpha = THREE.MathUtils.clamp((dist - 4.4) / (6.4 - 4.4), 0.18, 1.0);
+                        cnsAnatomy.setCortexAlpha(alpha);
+                        neuralMicro.setVisible(false);
+                    } else if (!isMicroMode && dist < 4.4) {
+                        // Atravessou o córtex pelo scroll: entra limpiamente nos Neurônios da Camada V (sem misturar malhas!)
+                        autoZoomMicroTriggered = true;
+                        isMicroMode = true;
+                        cnsAnatomy.rootGroup.visible = false;
+                        neuralMicro.setVisible(true, selectedStructureId);
+                        document.getElementById('neuron-parts-bar').classList.add('visible');
+                        setActiveTopViewBtn('btn-view-micro');
+                        const meta = neuralMicro.getPartMetadata(selectedNeuronPartId || 'NEURON_SOMA');
+                        updateHUDAndPopup(meta, false);
+                    } else if (isMicroMode && autoZoomMicroTriggered && dist > 5.4) {
+                        // Saiu do córtex pelo scroll out: restaura 100% o Córtex opaco e esconde os Neurônios!
                         autoZoomMicroTriggered = false;
                         isMicroMode = false;
-                        cnsAnatomy.rootGroup.visible = true;
                         neuralMicro.setVisible(false);
-                        if (cnsAnatomy.viewMode === 'EXTERNAL' && !cnsAnatomy.isolatedId) {
-                            cnsAnatomy.setCortexAlpha(1.0);
-                        }
+                        cnsAnatomy.rootGroup.visible = true;
+                        cnsAnatomy.setCortexAlpha(1.0);
                         document.getElementById('neuron-parts-bar').classList.remove('visible');
                         setActiveTopViewBtn('btn-view-external');
-                    }
-                } else if (dist <= 9.5 && dist > 5.0) {
-                    // Cross-fade suave: mostra o Córtex semi-transparente E o Microcosmos simultaneamente!
-                    const tFade = (dist - 5.0) / (9.5 - 5.0); // 1.0 em 9.5 -> 0.0 em 5.0
-                    cnsAnatomy.rootGroup.visible = true;
-                    cnsAnatomy.setCortexAlpha(THREE.MathUtils.clamp(tFade * 0.85, 0.08, 0.90));
-                    neuralMicro.setVisible(true, selectedStructureId);
-                    if (dist < 6.2 && !isMicroMode) {
-                        autoZoomMicroTriggered = true;
-                        isMicroMode = true;
-                        document.getElementById('neuron-parts-bar').classList.add('visible');
-                        setActiveTopViewBtn('btn-view-micro');
-                    }
-                } else if (dist <= 5.0) {
-                    if (!isMicroMode) {
-                        autoZoomMicroTriggered = true;
-                        isMicroMode = true;
-                        document.getElementById('neuron-parts-bar').classList.add('visible');
-                        setActiveTopViewBtn('btn-view-micro');
-                    }
-                    cnsAnatomy.rootGroup.visible = false;
-                    neuralMicro.setVisible(true, selectedStructureId);
-                    // Interpola suavemente o centro de órbita para o Soma (0, 0.5, 0) ao entrar nas Organelas e Átomos
-                    if (dist < 3.6) {
-                        const centerSoma = new THREE.Vector3(0, 0.5, 0);
-                        controls.target.lerp(centerSoma, 0.08);
+                        const meta = ontologyMap.get(selectedStructureId) || MOZOK_ONTOLOGY[0];
+                        updateHUDAndPopup(meta, false);
+                    } else if (!isMicroMode && dist >= 6.4 && cnsAnatomy.viewMode === 'EXTERNAL' && !cnsAnatomy.isolatedId) {
+                        cnsAnatomy.setCortexAlpha(1.0);
+                        neuralMicro.setVisible(false);
                     }
                 }
 
-                if ((isMicroMode || dist <= 9.5) && typeof neuralMicro.setMultiscaleDepth === 'function') {
+                // Quando está no Modo Micro, controla a profundidade para Organelas (Tier 4) e Átomos (Tier 5)
+                if (isMicroMode && typeof neuralMicro.setMultiscaleDepth === 'function') {
                     neuralMicro.setMultiscaleDepth(dist);
+                    if (dist < 3.2) {
+                        controls.target.lerp(new THREE.Vector3(0, 0.5, 0), 0.10);
+                    }
                 }
 
                 if (scaleTierLabel) {
-                    if (dist > 11.5) {
-                        scaleTierLabel.textContent = '15 cm • Macro SNC';
-                        scaleTierLabel.style.borderColor = '#00f2fe';
-                        scaleTierLabel.style.color = '#00f2fe';
-                    } else if (dist > 5.5) {
-                        scaleTierLabel.textContent = '10 mm • Parênquima Cortical';
-                        scaleTierLabel.style.borderColor = '#38bdf8';
-                        scaleTierLabel.style.color = '#38bdf8';
-                    } else if (dist > 3.6) {
-                        scaleTierLabel.textContent = '100 µm • Neurônios Camada V';
-                        scaleTierLabel.style.borderColor = '#facc15';
-                        scaleTierLabel.style.color = '#facc15';
-                    } else if (dist > 2.2) {
-                        scaleTierLabel.textContent = '500 nm • Fenda Sináptica';
-                        scaleTierLabel.style.borderColor = '#34d399';
-                        scaleTierLabel.style.color = '#34d399';
-                    } else if (dist > 1.15) {
-                        scaleTierLabel.textContent = '50 nm • Organelas Celulares';
-                        scaleTierLabel.style.borderColor = '#c084fc';
-                        scaleTierLabel.style.color = '#c084fc';
+                    if (!isMicroMode) {
+                        if (dist > 6.4) {
+                            scaleTierLabel.textContent = '15 cm • Macro SNC';
+                            scaleTierLabel.style.borderColor = '#00f2fe';
+                            scaleTierLabel.style.color = '#00f2fe';
+                        } else {
+                            scaleTierLabel.textContent = '10 mm • Parênquima Cortical';
+                            scaleTierLabel.style.borderColor = '#38bdf8';
+                            scaleTierLabel.style.color = '#38bdf8';
+                        }
                     } else {
-                        scaleTierLabel.textContent = '1 Å (0.1 nm) • Átomos & Orbitais';
-                        scaleTierLabel.style.borderColor = '#f43f5e';
-                        scaleTierLabel.style.color = '#f43f5e';
+                        if (dist > 3.2) {
+                            scaleTierLabel.textContent = '100 µm • Neurônios Camada V';
+                            scaleTierLabel.style.borderColor = '#facc15';
+                            scaleTierLabel.style.color = '#facc15';
+                        } else if (dist > 2.0) {
+                            scaleTierLabel.textContent = '500 nm • Fenda Sináptica';
+                            scaleTierLabel.style.borderColor = '#34d399';
+                            scaleTierLabel.style.color = '#34d399';
+                        } else if (dist > 1.05) {
+                            scaleTierLabel.textContent = '50 nm • Organelas Celulares';
+                            scaleTierLabel.style.borderColor = '#c084fc';
+                            scaleTierLabel.style.color = '#c084fc';
+                        } else {
+                            scaleTierLabel.textContent = '1 Å (0.1 nm) • Átomos & Orbitais';
+                            scaleTierLabel.style.borderColor = '#f43f5e';
+                            scaleTierLabel.style.color = '#f43f5e';
+                        }
                     }
                 }
             }
 
             if (scaleSlider) {
                 scaleSlider.addEventListener('input', (e) => {
+                    userWheelZoomActive = true;
                     const pct = parseFloat(e.target.value) || 0;
                     const minD = 0.16, maxD = 45.0;
                     const targetDist = Math.exp(Math.log(maxD) - (pct / 100.0) * (Math.log(maxD) - Math.log(minD)));
@@ -5719,7 +5748,7 @@
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div class="brand-logo" style="width:36px; height:36px; font-size:18px;">📊</div>
                     <div>
-                        <h2 id="mozok-research-title" style="font-size:16px; font-weight:800; color:#f8fafc; margin:0;">Módulo de Prova &amp; Validação Científica Internacional (MOZOK v1.0005)</h2>
+                        <h2 id="mozok-research-title" style="font-size:16px; font-weight:800; color:#f8fafc; margin:0;">Módulo de Prova &amp; Validação Científica Internacional (MOZOK v1.0006)</h2>
                         <div style="font-size:11px; color:#00f2fe; font-weight:600;">Protocolo Quase-Experimental • Ganho Normalizado de Hake (g) • NASA-TLX • Escala SUS (0–100)</div>
                     </div>
                 </div>
@@ -6078,7 +6107,7 @@
                     susScore: Number(susScore.toFixed(2)),
                     nasaTlxMean: Number(tlxMean.toFixed(2)),
                     timestamp: new Date().toISOString(),
-                    version: '1.0005'
+                    version: '1.0006'
                 };
             }
 

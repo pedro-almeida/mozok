@@ -934,3 +934,4 @@ if AUDITOR_PY.exists():
     AUDITOR_PY.write_text(aud_code, encoding="utf-8")
 
 print("[OK] MOZOK v1.0005 atualizado: Apresentação Científica vinculada ao botão 'Sobre' (com botão Pular para Informações), Grade Hexagonal Canvas 2D perfeita e Voz Robótica AudioBuffer DSP!")
+
