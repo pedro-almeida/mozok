@@ -24,7 +24,7 @@ default-members = [
 resolver = "2"
 
 [workspace.package]
-version = "1.0.6+0006"
+version = "1.0.7+0007"
 edition = "2021"
 authors = ["Pedro Luís <pedro@mozok.org>", "MOZOK Open Source Contributors"]
 license = "Apache-2.0"
