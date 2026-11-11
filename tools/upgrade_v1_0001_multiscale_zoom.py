@@ -635,3 +635,4 @@ if "evaluateContinuousMultiscaleZoom()" not in html_code:
 
 INDEX_HTML.write_text(html_code, encoding="utf-8")
 print("[OK] web/index.html atualizado para v1.0001 com Google Earth Zoom e correções do Auditor Noturno.")
+
