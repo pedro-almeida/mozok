@@ -492,7 +492,7 @@
         /* Barra de Legendas Acessíveis Sincronizada com Gemini TTS + VLibras (Corrigida Desktop + Mobile) */
         #mozok-subtitle-bar {
             position: fixed;
-            bottom: 68px;
+            bottom: 114px;
             left: 50%;
             transform: translateX(-50%);
             width: min(640px, calc(100vw - 760px));
@@ -1458,19 +1458,21 @@
         /* RÉGUA MULTIESCALA ESTILO GOOGLE EARTH BIOLÓGICO (6 ESCALAS: CÉREBRO -> ÁTOMO) */
         #mozok-scale-hud {
             position: fixed;
-            bottom: 18px;
-            right: 402px;
+            bottom: 66px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 25;
             background: rgba(8, 15, 30, 0.88);
             backdrop-filter: blur(14px);
             border: 1px solid rgba(0, 242, 254, 0.35);
             border-radius: 12px;
-            padding: 8px 12px;
+            padding: 6px 14px;
             display: flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
-            font-size: 11px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+            max-width: calc(100vw - 760px);
+            white-space: nowrap;
         }
         @media screen and (max-width: 1180px) {
             #mozok-scale-hud {
@@ -1861,7 +1863,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <style id="mozok-v10008-doom3-styles">
+    <style id="mozok-v10009-doom3-styles">
         .doom3-font-title {
             font-family: 'Orbitron', 'Rajdhani', sans-serif !important;
             letter-spacing: 0.24em !important;
@@ -1871,22 +1873,23 @@
             font-family: 'Share Tech Mono', 'Orbitron', monospace !important;
             letter-spacing: 0.08em !important;
         }
-        /* Overlay Doom 3 Oficial */
         #doom3-intro-overlay {
             position: fixed;
             inset: 0;
             z-index: 95;
-            background: rgba(0, 2, 6, 0.42);
+            background: rgba(0, 2, 6, 0.38);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+            transition: opacity 0.45s ease;
         }
         #doom3-intro-overlay.hidden-intro {
             display: none !important;
             opacity: 0 !important;
+            pointer-events: none !important;
         }
         #cyber-hex-canvas {
             position: absolute;
@@ -1901,23 +1904,23 @@
             inset: 0;
             z-index: 2;
             pointer-events: none;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.28) 50%),
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.30) 50%),
+                        linear-gradient(90deg, rgba(0, 242, 254, 0.025), rgba(0, 0, 0, 0), rgba(0, 242, 254, 0.025));
             background-size: 100% 3px, 6px 100%;
         }
 
-        /* ATO I: ABERTURA COM TÍTULO MOZOK E RAIOS ELÉTRICOS (SEM FLOR / SEM BEIJA-FLOR) */
+        /* ATO I: TELA PRETA COM NOME MOZOK E RAIOS ELÉTRICOS */
         #mozok-lightning-stage {
             position: absolute;
             inset: 0;
             z-index: 20;
-            background: #000104;
+            background: #000206;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             pointer-events: none;
-            transition: opacity 0.75s ease;
+            transition: opacity 0.65s ease;
         }
         #mozok-lightning-canvas {
             position: absolute;
@@ -1930,247 +1933,163 @@
             position: relative;
             z-index: 22;
             font-family: 'Orbitron', sans-serif;
-            font-size: clamp(3.2rem, 8vw, 6.8rem);
+            font-size: clamp(3.4rem, 8.5vw, 7.2rem);
             font-weight: 900;
-            letter-spacing: 0.28em;
-            color: #f0fdfa;
-            text-shadow: 0 0 25px rgba(0, 242, 254, 0.95), 0 0 60px rgba(0, 180, 216, 0.8), 0 0 100px rgba(0, 242, 254, 0.4);
+            letter-spacing: 0.30em;
+            color: #e0f2fe;
+            text-shadow: 0 0 22px rgba(0, 242, 254, 0.95), 0 0 58px rgba(0, 180, 216, 0.85), 0 0 110px rgba(0, 242, 254, 0.45);
             user-select: none;
             text-align: center;
+            animation: mozokElectricPulse 2.4s ease-in-out infinite;
         }
         .mozok-subtitle-sci {
             position: relative;
             z-index: 22;
             font-family: 'Share Tech Mono', monospace;
-            font-size: clamp(0.75rem, 1.8vw, 1.15rem);
+            font-size: clamp(0.75rem, 1.6vw, 1.05rem);
             color: #38bdf8;
-            letter-spacing: 0.45em;
+            letter-spacing: 0.44em;
             text-transform: uppercase;
-            margin-top: 14px;
-            text-shadow: 0 0 15px rgba(56, 189, 248, 0.8);
+            margin-top: 12px;
+            text-shadow: 0 0 14px rgba(56, 189, 248, 0.85);
             text-align: center;
+        }
+        @keyframes mozokElectricPulse {
+            0%, 100% { filter: brightness(1); transform: scale(1); }
+            48% { filter: brightness(1.08); }
+            50% { filter: brightness(1.35) drop-shadow(0 0 18px #00f2fe); transform: scale(1.008); }
+            52% { filter: brightness(1); transform: scale(1); }
         }
 
-        /* ATO II: FRASES EM AZUL CIANO PURO NO CENTRO DA TELA (SEM CAIXAS OPACAS) */
+        /* ATO II: SOMENTE AS FRASES EM AZUL CIANO NO CENTRO DA TELA (ESTILO DOOM 3 PURO) */
         #doom3-narrative-stage {
-            position: absolute;
-            inset: 0;
+            position: relative;
             z-index: 10;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 30px 40px;
-            pointer-events: none;
-            transition: opacity 0.6s ease;
-        }
-        #doom3-center-stage {
-            margin: auto;
-            max-width: 980px;
-            width: 90%;
+            max-width: 960px;
+            width: 88%;
             text-align: center;
             pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            transition: opacity 0.5s ease;
         }
-        #doom3-segment-indicator {
-            font-family: 'Orbitron', monospace;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.35em;
-            color: #fbbf24;
-            text-transform: uppercase;
-            margin-bottom: 24px;
-            text-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
-        }
-        /* O texto flutua puro em azul ciano brilhante diretamente no centro da tela */
         #doom3-typewriter-text {
             font-family: 'Orbitron', 'Share Tech Mono', sans-serif;
-            font-size: clamp(1.4rem, 2.7vw, 2.35rem);
+            font-size: clamp(1.35rem, 2.5vw, 2.2rem);
             font-weight: 700;
             line-height: 1.55;
-            color: #00f2fe !important;
-            text-shadow: 0 0 20px rgba(0, 242, 254, 0.95), 0 0 45px rgba(0, 180, 216, 0.65), 0 0 80px rgba(0, 242, 254, 0.35);
-            margin: 0;
-            min-height: 5.5rem;
-            display: inline;
+            color: #00f2fe;
+            text-shadow: 0 0 18px rgba(0, 242, 254, 0.95), 0 0 42px rgba(0, 180, 216, 0.65);
+            transition: transform 0.04s linear, filter 0.04s linear;
+        }
+        #doom3-typewriter-text.shock-glitch {
+            text-shadow: -3px 0 #ff2a85, 3px 0 #00f2fe, 0 0 28px #ffffff;
+            transform: translate(1.5px, -1px) skewX(-1.5deg);
+            filter: brightness(1.45);
         }
         #doom3-cursor-block {
             display: inline-block;
             color: #00f2fe;
-            font-size: clamp(1.4rem, 2.7vw, 2.35rem);
-            margin-left: 6px;
-            animation: doom3CursorBlink 0.75s infinite steps(1);
             text-shadow: 0 0 18px #00f2fe;
+            animation: doom3CursorBlink 0.72s infinite steps(1);
         }
         @keyframes doom3CursorBlink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0; }
         }
 
-        /* Barra de Controle Superior Discreta */
-        #doom3-controls-bar {
+        /* CONTROLES MINIMALISTAS NO CANTO INFERIOR DIREITO (QUASE INVISÍVEIS ATÉ HOVER) */
+        #doom3-minimal-controls {
+            position: fixed;
+            bottom: 22px;
+            right: 24px;
+            z-index: 125;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            pointer-events: auto;
-            z-index: 15;
-            background: rgba(2, 6, 14, 0.75);
-            backdrop-filter: blur(8px);
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 242, 254, 0.25);
-            flex-wrap: wrap;
             gap: 10px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(2, 10, 20, 0.35);
+            border: 1px solid rgba(0, 242, 254, 0.16);
+            backdrop-filter: blur(8px);
+            opacity: 0.14;
+            transition: opacity 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+            pointer-events: auto;
         }
-        .doom3-ctrl-group {
+        #doom3-minimal-controls:hover,
+        #doom3-minimal-controls.paused-highlight {
+            opacity: 1 !important;
+            background: rgba(2, 10, 22, 0.88);
+            border-color: rgba(0, 242, 254, 0.55);
+            box-shadow: 0 0 24px rgba(0, 242, 254, 0.25);
+        }
+        .doom3-icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 242, 254, 0.32);
+            background: rgba(0, 242, 254, 0.08);
+            color: #bae6fd;
             display: flex;
             align-items: center;
-            gap: 12px;
-        }
-        #doom3-status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #22d3ee;
-            box-shadow: 0 0 12px #00f2fe;
-            display: inline-block;
-        }
-        .doom3-briefing-label {
-            font-size: 11px;
-            color: #67e8f9;
-            font-weight: 700;
-        }
-        #btn-doom3-pause {
-            background: rgba(8, 51, 68, 0.85);
-            color: #a5f3fc;
-            border: 1px solid rgba(34, 211, 238, 0.55);
-            border-radius: 6px;
-            padding: 7px 14px;
-            font-size: 11px;
-            font-weight: 700;
+            justify-content: center;
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        #btn-doom3-pause:hover {
-            background: rgba(22, 78, 99, 0.95);
-            box-shadow: 0 0 18px rgba(0, 242, 254, 0.45);
+        .doom3-icon-btn svg.hidden {
+            display: none !important;
         }
-        #btn-doom3-skip {
-            background: rgba(69, 10, 10, 0.75);
-            color: #fecdd3;
-            border: 1px solid rgba(239, 68, 68, 0.5);
-            border-radius: 6px;
-            padding: 7px 14px;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        .doom3-icon-btn:hover {
+            background: rgba(0, 242, 254, 0.25);
+            border-color: #00f2fe;
+            color: #ffffff;
+            transform: scale(1.08);
         }
-        #btn-doom3-skip:hover {
-            background: rgba(127, 29, 29, 0.9);
-            box-shadow: 0 0 18px rgba(244, 63, 94, 0.45);
+        .doom3-icon-btn.active {
+            background: rgba(16, 185, 129, 0.25);
+            border-color: #34d399;
+            color: #6ee7b7;
         }
-        #doom3-progress-line {
-            width: 100%;
-            height: 3px;
-            background: rgba(0, 242, 254, 0.18);
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 15px;
-        }
-        #doom3-progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #00f2fe, #38bdf8, #f59e0b);
-            box-shadow: 0 0 12px #00f2fe;
-            transition: width 0.35s ease;
+        .doom3-icon-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.28);
+            border-color: #f87171;
+            color: #fecaca;
         }
 
-        /* DOCK NATIVO DO VLIBRAS INTEGRADO AO HUD DO MOZOK */
-        #mozok-vlibras-dock {
+        /* AVATAR NATIVO DE LIBRAS INTEGRADO AO LAYOUT DO MOZOK (SEM PLUGIN EXTERNO) */
+        #mozok-libras-native-panel {
             position: fixed;
+            bottom: 72px;
             right: 24px;
-            bottom: 24px;
-            width: 280px;
-            height: 380px;
-            z-index: 120;
-            background: rgba(2, 10, 20, 0.94);
-            border: 1.5px solid rgba(0, 242, 254, 0.65);
+            width: 220px;
+            z-index: 122;
+            background: rgba(2, 10, 20, 0.88);
+            border: 1px solid rgba(0, 242, 254, 0.45);
             border-radius: 14px;
-            box-shadow: 0 0 35px rgba(0, 242, 254, 0.28), 0 14px 40px rgba(0, 0, 0, 0.88);
             backdrop-filter: blur(12px);
+            box-shadow: 0 0 28px rgba(0, 242, 254, 0.22);
             display: none;
             flex-direction: column;
             overflow: hidden;
-            clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: auto;
         }
-        #mozok-vlibras-dock.active {
-            display: flex !important;
-        }
-        #mozok-vlibras-header {
+        #mozok-libras-native-panel.active {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 12px;
-            background: rgba(0, 242, 254, 0.08);
-            border-bottom: 1px solid rgba(0, 242, 254, 0.35);
-            font-family: 'Orbitron', monospace;
+        }
+        #mozok-libras-canvas {
+            width: 220px;
+            height: 220px;
+            display: block;
+        }
+        #mozok-libras-gloss-bar {
+            padding: 6px 10px;
+            font-family: 'Share Tech Mono', monospace;
             font-size: 10.5px;
-            font-weight: 700;
-            color: #38bdf8;
-            letter-spacing: 0.12em;
-        }
-        .vlibras-led-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #34d399;
-            box-shadow: 0 0 8px #34d399;
-            display: inline-block;
-            margin-right: 6px;
-        }
-        #btn-close-vlibras-dock {
-            background: transparent;
-            border: 1px solid rgba(0, 242, 254, 0.35);
-            color: #38bdf8;
-            border-radius: 4px;
-            padding: 2px 7px;
-            cursor: pointer;
-            font-size: 11px;
-        }
-        #btn-close-vlibras-dock:hover {
-            color: #ffffff;
-            background: rgba(0, 242, 254, 0.2);
-        }
-        #mozok-vlibras-viewport {
-            flex: 1;
-            position: relative;
-            width: 100%;
-            height: 100%;
-            background: #010408;
+            color: #67e8f9;
+            background: rgba(0, 242, 254, 0.08);
+            border-top: 1px solid rgba(0, 242, 254, 0.25);
+            text-align: center;
+            white-space: nowrap;
             overflow: hidden;
-        }
-        /* Oculta o botão flutuante redondo azul padrão do plugin */
-        div[vw] [vw-access-button] {
-            display: none !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-        div[vw] [vw-plugin-wrapper] {
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            border: none !important;
-            box-shadow: none !important;
-            background: transparent !important;
+            text-overflow: ellipsis;
         }
     </style>
 
@@ -2253,74 +2172,45 @@
 
     <!-- TOPBAR -->
     
-        <!-- OVERLAY DE APRESENTAÇÃO CIENTÍFICA CIBERNÉTICA (MOZOK v1.0008 — DOOM 3 / ESPECTRO IPÊ) -->
+        <!-- OVERLAY DE APRESENTAÇÃO CIENTÍFICA CIBERNÉTICA (MOZOK v1.0009 — DOOM 3 / ESPECTRO IPÊ) -->
     <div id="doom3-intro-overlay" class="hidden-intro" role="dialog" aria-label="Apresentação Científica MOZOK">
         <canvas id="cyber-hex-canvas"></canvas>
         <div class="cyber-scanline-overlay"></div>
 
-        <!-- ATO I: ABERTURA MOZOK COM RAIOS ELÉTRICOS (SEM FLOR, SEM BEIJA-FLOR) -->
+        <!-- ATO I: ABERTURA MOZOK COM RAIOS ELÉTRICOS -->
         <div id="mozok-lightning-stage">
             <canvas id="mozok-lightning-canvas"></canvas>
             <div class="mozok-title-glow">MOZOK</div>
             <div class="mozok-subtitle-sci">BIO-SIMULATION ENGINE // ESPECTRO IPÊ</div>
         </div>
 
-        <!-- ATO II: TEXTO EM AZUL CIANO NO CENTRO DA TELA (ESTILO DOOM 3 ORIGINAL) -->
+        <!-- ATO II: FRASES EM AZUL CIANO PURO NO MEIO DA TELA (SEM BARRAS OU CAIXAS) -->
         <div id="doom3-narrative-stage" style="display:none; opacity:0;">
-            <!-- Barra Superior Discreta de Controle -->
-            <div id="doom3-controls-bar">
-                <div class="doom3-ctrl-group">
-                    <span id="doom3-status-dot"></span>
-                    <span class="doom3-font-title doom3-briefing-label">
-                        MOZOK // BRIEFING CIENTÍFICO OFICIAL
-                    </span>
-                </div>
-                <div class="doom3-ctrl-group">
-                    <button id="btn-doom3-pause" class="doom3-font-title">
-                        ⏸ Pausar [Espaço]
-                    </button>
-                    <button id="btn-doom3-skip" class="doom3-font-title">
-                        ✕ Encerrar [ESC]
-                    </button>
-                </div>
-            </div>
+            <span id="doom3-typewriter-text"></span><span id="doom3-cursor-block">█</span>
+        </div>
 
-            <!-- Centro da Tela: Frase Pura em Azul Ciano Brilhante Flutuando Sobre o Cérebro e Hexágonos -->
-            <div id="doom3-center-stage">
-                <div id="doom3-segment-indicator">SEQUÊNCIA CIENTÍFICA 01 / 05</div>
-                <div style="position:relative; width:100%;">
-                    <span id="doom3-typewriter-text"></span><span id="doom3-cursor-block">█</span>
-                </div>
-            </div>
-
-            <!-- Rodapé Discreto com Barra de Progresso -->
-            <div style="width:100%;">
-                <div id="doom3-progress-line">
-                    <div id="doom3-progress-bar"></div>
-                </div>
-            </div>
+        <!-- CONTROLES MINIMALISTAS NO CANTO INFERIOR DIREITO (QUASE INVISÍVEIS ATÉ HOVER) -->
+        <div id="doom3-minimal-controls">
+            <button id="btn-doom3-pause" class="doom3-icon-btn" title="Pausar / Continuar [Espaço]">
+                <svg id="icon-doom3-pause" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+                <svg id="icon-doom3-play" class="hidden" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button id="btn-doom3-restart" class="doom3-icon-btn" title="Recomeçar Pausado com MOZOK e Raios Elétricos">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+            <button id="btn-doom3-libras" class="doom3-icon-btn" title="Ativar/Ocultar Intérprete de Libras Integrado">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><path d="M7 10.5c1.5-1 3.2-1.5 5-1.5s3.5.5 5 1.5"/><path d="M8 10.5l-2.5 4.5 2 1.5"/><path d="M16 10.5l2.5 4.5-2 1.5"/><path d="M10 14v6"/><path d="M14 14v6"/></svg>
+            </button>
+            <button id="btn-doom3-skip" class="doom3-icon-btn danger" title="Sair da Apresentação [ESC]">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
         </div>
     </div>
 
-    <!-- DOCK NATIVO INTEGRADO DO VLIBRAS NO LAYOUT DO MOZOK -->
-    <div id="mozok-vlibras-dock">
-        <div id="mozok-vlibras-header">
-            <div style="display:flex; align-items:center;">
-                <span class="vlibras-led-dot"></span>
-                <span>[ VLIBRAS // INTÉRPRETE VIRTUAL DE LIBRAS ]</span>
-            </div>
-            <button id="btn-close-vlibras-dock" title="Fechar Dock VLibras">✕</button>
-        </div>
-        <div id="mozok-vlibras-viewport">
-            <div id="vlibras-container">
-                <div vw class="enabled">
-                    <div vw-access-button class="active"></div>
-                    <div vw-plugin-wrapper>
-                        <div class="vw-plugin-top-wrapper"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- AVATAR NATIVO DE LIBRAS INTEGRADO AO LAYOUT DO MOZOK -->
+    <div id="mozok-libras-native-panel">
+        <canvas id="mozok-libras-canvas" width="220" height="220"></canvas>
+        <div id="mozok-libras-gloss-bar">LIBRAS // AGUARDANDO FALA</div>
     </div>
 
     <!-- BARRA DE PALCO — APRESENTADOR DE ESTRUTURAS (CONCIC) -->
@@ -2336,7 +2226,7 @@
         <div class="brand-block">
             <div class="brand-logo">🧠</div>
             <div>
-                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.8+0008">v1.0008</span></div>
+                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.9+0009">v1.0009</span></div>
                 <div class="brand-subtitle" id="gpu-status-subtitle" data-i18n="subtitle_macro">SNC, SNP & Meninges • Córtex MNI152 • 7 Patologias</div>
             </div>
         </div>
@@ -4694,21 +4584,7 @@
                 if (cont) cont.style.display = 'block';
                 if (!vlibrasInitialized) {
                     vlibrasInitialized = true;
-                    const script = document.createElement('script');
-                    script.src = 'https://vlibras.gov.br/app/vlibras-plugin.js';
-                    script.onload = () => {
-                        if (window.VLibras && window.VLibras.Widget) {
-                            new window.VLibras.Widget('https://vlibras.gov.br/app');
-                        }
-                        setTimeout(() => {
-                            const vwBtn = document.querySelector('[vw-access-button]');
-                            const vwWrapper = document.querySelector('[vw-plugin-wrapper]');
-                            if (vwBtn && vwWrapper && !vwWrapper.classList.contains('active')) {
-                                vwBtn.click();
-                            }
-                        }, 450);
-                    };
-                    document.body.appendChild(script);
+                    // VLibras plugin externo removido em favor do Avatar 3D Nativo MOZOK (v1.0009)
                 } else {
                     const vwBtn = document.querySelector('[vw-access-button]');
                     const vwWrapper = document.querySelector('[vw-plugin-wrapper]');
@@ -5145,46 +5021,15 @@
 
             function evaluateContinuousMultiscaleZoom() {
                 const dist = camera.position.distanceTo(controls.target);
-
                 const minD = 0.16, maxD = 45.0;
                 const clampedD = Math.max(minD, Math.min(maxD, dist));
                 const depthPct = Math.round((1.0 - (Math.log(clampedD) - Math.log(minD)) / (Math.log(maxD) - Math.log(minD))) * 100);
                 if (scaleSlider && document.activeElement !== scaleSlider) {
                     scaleSlider.value = String(Math.max(0, Math.min(100, depthPct)));
                 }
-
-                // v1.0008: FIM DO ZOOM INTRUSIVO!
-                // O scroll do mouse nunca mais altera entre Macro e Micro sozinho!
-                // No modo neuronal, o usuário pode afastar a câmera o quanto quiser para ver a rede inteira de longe sem voltar pro cérebro.
-                // A alternância volta a ser 100% manual e explícita pelos botões "🔬 Microcosmos Neuronal" e "🧠 Córtex Real".
+                // v1.0009: Sem zoom intrusivo. O usuário pode afastar a câmera nos neurônios livremente sem voltar pro cérebro.
                 if (isMicroMode && typeof neuralMicro.setMultiscaleDepth === 'function') {
                     neuralMicro.setMultiscaleDepth(dist);
-                }
-
-                if (scaleTierLabel) {
-                    if (!isMicroMode) {
-                        scaleTierLabel.textContent = '15 cm • Macro SNC';
-                        scaleTierLabel.style.borderColor = '#00f2fe';
-                        scaleTierLabel.style.color = '#00f2fe';
-                    } else {
-                        if (dist > 3.2) {
-                            scaleTierLabel.textContent = '100 µm • Neurônios Camada V';
-                            scaleTierLabel.style.borderColor = '#facc15';
-                            scaleTierLabel.style.color = '#facc15';
-                        } else if (dist > 2.0) {
-                            scaleTierLabel.textContent = '500 nm • Fenda Sináptica';
-                            scaleTierLabel.style.borderColor = '#34d399';
-                            scaleTierLabel.style.color = '#34d399';
-                        } else if (dist > 1.05) {
-                            scaleTierLabel.textContent = '50 nm • Organelas Celulares';
-                            scaleTierLabel.style.borderColor = '#c084fc';
-                            scaleTierLabel.style.color = '#c084fc';
-                        } else {
-                            scaleTierLabel.textContent = '1 Å (0.1 nm) • Átomos & Orbitais';
-                            scaleTierLabel.style.borderColor = '#f43f5e';
-                            scaleTierLabel.style.color = '#f43f5e';
-                        }
-                    }
                 }
             }
 
@@ -5455,7 +5300,7 @@
 
             
                         // =====================================================================
-            // MÓDULO DE APRESENTAÇÃO CIENTÍFICA MOZOK v1.0008 (DOOM 3 / ESPECTRO IPÊ)
+            // MÓDULO DE APRESENTAÇÃO CIENTÍFICA MOZOK v1.0009 (DOOM 3 / ESPECTRO IPÊ)
             // + PAUSA COM EMBLEMA ELÉTRICO MOZOK + VLIBRAS NATIVO + TRANSIÇÃO PARA TOUR
             // =====================================================================
             let doomAudioCtx = null;
@@ -5732,14 +5577,7 @@
                     vlibrasActive = true;
                     if (!vlibrasInitialized) {
                         vlibrasInitialized = true;
-                        const script = document.createElement('script');
-                        script.src = 'https://vlibras.gov.br/app/vlibras-plugin.js';
-                        script.onload = () => {
-                            if (window.VLibras && window.VLibras.Widget) {
-                                new window.VLibras.Widget('https://vlibras.gov.br/app');
-                            }
-                        };
-                        document.body.appendChild(script);
+                        // VLibras plugin externo removido em favor do Avatar 3D Nativo MOZOK (v1.0009)
                     }
                     const vwBtn = document.querySelector('[vw-access-button]');
                     const vwWrapper = document.querySelector('[vw-plugin-wrapper]');
@@ -5941,264 +5779,402 @@
                     if (doomAudioCtx && doomAudioCtx.state === 'running') {
                         doomAudioCtx.suspend().catch(() => {});
                     }
-                    if (pauseBtn) pauseBtn.textContent = '▶ Continuar [Espaço]';
+                    
                     if (narrativeStage) narrativeStage.style.opacity = '0.16';
                 } else {
                     if (doomAudioCtx && doomAudioCtx.state === 'suspended') {
                         doomAudioCtx.resume().catch(() => {});
                     }
-                    if (pauseBtn) pauseBtn.textContent = '⏸ Pausar [Espaço]';
+                    
                     if (narrativeStage) narrativeStage.style.opacity = '1';
                 }
             }
 
-            // RENDERIZADOR DE RAIOS ELÉTRICOS EM TEMPO REAL PARA O ATO I (TÍTULO MOZOK)
+            // AVATAR INTÉRPRETE DE LIBRAS NATIVO EM THREE.JS / CANVAS INTEGRADO AO MOZOK
+            const MozokLibrasAvatar = (() => {
+                let animId = null;
+                let active = false;
+                let signing = false;
+                let currentGlossTokens = [];
+                let phase = 0;
+
+                async function translateToLibrasGloss(text) {
+                    try {
+                        const res = await fetch("https://traducao2.vlibras.gov.br/translate", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ text })
+                        });
+                        if (res.ok) {
+                            const data = await res.text();
+                            const tokens = data.trim().split(/\s+/).filter(Boolean);
+                            if (tokens.length > 0) return tokens;
+                        }
+                    } catch (_) {}
+                    // Fallback local instantâneo de glosas em Português
+                    return text.toUpperCase()
+                        .replace(/[^A-ZÀ-Ú0-9\s]/g, "")
+                        .split(/\s+/)
+                        .filter(w => w.length > 2)
+                        .slice(0, 14);
+                }
+
+                function drawAvatarFrame() {
+                    if (!active) return;
+                    const canvas = document.getElementById("mozok-libras-canvas");
+                    if (!canvas) return;
+                    const ctx = canvas.getContext("2d");
+                    const w = canvas.width, h = canvas.height;
+                    ctx.clearRect(0, 0, w, h);
+
+                    if (signing) phase += 0.14;
+                    else phase += 0.03;
+
+                    // Aura holográfica de fundo
+                    const bgGrad = ctx.createRadialGradient(w/2, h*0.48, 12, w/2, h*0.5, 105);
+                    bgGrad.addColorStop(0, "rgba(0, 242, 254, 0.14)");
+                    bgGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+                    ctx.fillStyle = bgGrad;
+                    ctx.fillRect(0, 0, w, h);
+
+                    const cx = w / 2;
+                    const headY = 54 + (signing ? Math.sin(phase * 0.7) * 2.5 : Math.sin(phase) * 1.2);
+                    const torsoTopY = 82;
+
+                    // Tronco / Jaleco Cibernético MOZOK
+                    ctx.beginPath();
+                    ctx.moveTo(cx - 38, h - 14);
+                    ctx.lineTo(cx - 32, torsoTopY + 12);
+                    ctx.quadraticCurveTo(cx, torsoTopY - 4, cx + 32, torsoTopY + 12);
+                    ctx.lineTo(cx + 38, h - 14);
+                    ctx.closePath();
+                    ctx.fillStyle = "rgba(14, 34, 58, 0.92)";
+                    ctx.strokeStyle = "#00f2fe";
+                    ctx.lineWidth = 1.8;
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Pescoço e Cabeça
+                    ctx.beginPath();
+                    ctx.arc(cx, headY, 20, 0, Math.PI * 2);
+                    ctx.fillStyle = "#16324f";
+                    ctx.strokeStyle = "#38bdf8";
+                    ctx.lineWidth = 2;
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Visor / Expressão Facial
+                    ctx.fillStyle = "#00f2fe";
+                    ctx.fillRect(cx - 9, headY - 4, 5, 3);
+                    ctx.fillRect(cx + 4, headY - 4, 5, 3);
+
+                    // Braços e Mãos articulados executando os sinais de Libras
+                    const amp = signing ? 1.0 : 0.12;
+                    const lHandX = cx - 42 + Math.sin(phase * 1.3) * 26 * amp;
+                    const lHandY = 128 + Math.cos(phase * 1.8) * 24 * amp;
+                    const rHandX = cx + 42 + Math.cos(phase * 1.5) * 26 * amp;
+                    const rHandY = 124 + Math.sin(phase * 2.0) * 24 * amp;
+
+                    ctx.strokeStyle = "#38bdf8";
+                    ctx.lineWidth = 5;
+                    ctx.lineCap = "round";
+                    ctx.lineJoin = "round";
+
+                    // Braço Esquerdo
+                    ctx.beginPath();
+                    ctx.moveTo(cx - 30, torsoTopY + 16);
+                    ctx.lineTo(cx - 52, 138);
+                    ctx.lineTo(lHandX, lHandY);
+                    ctx.stroke();
+
+                    // Braço Direito
+                    ctx.beginPath();
+                    ctx.moveTo(cx + 30, torsoTopY + 16);
+                    ctx.lineTo(cx + 52, 138);
+                    ctx.lineTo(rHandX, rHandY);
+                    ctx.stroke();
+
+                    // Mãos e Dedos sinalizando com brilho ciano
+                    for (const [hx, hy, dir] of [[lHandX, lHandY, -1], [rHandX, rHandY, 1]]) {
+                        ctx.beginPath();
+                        ctx.arc(hx, hy, 7.5, 0, Math.PI * 2);
+                        ctx.fillStyle = "#00f2fe";
+                        ctx.shadowColor = "#00f2fe";
+                        ctx.shadowBlur = 12;
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+
+                        // Dedos articulados
+                        if (signing) {
+                            ctx.strokeStyle = "#e0f2fe";
+                            ctx.lineWidth = 1.6;
+                            for (let d = -1; d <= 1; d++) {
+                                ctx.beginPath();
+                                ctx.moveTo(hx, hy);
+                                ctx.lineTo(hx + d * 6 + dir * 3, hy - 11 - Math.abs(Math.sin(phase + d)) * 4);
+                                ctx.stroke();
+                            }
+                        }
+                    }
+
+                    if (signing && currentGlossTokens.length > 0 && Math.floor(phase) % 6 === 0) {
+                        const tok = currentGlossTokens[Math.floor(phase / 6) % currentGlossTokens.length];
+                        const bar = document.getElementById("mozok-libras-gloss-bar");
+                        if (bar) bar.textContent = "LIBRAS: " + tok;
+                    }
+
+                    animId = requestAnimationFrame(drawAvatarFrame);
+                }
+
+                return {
+                    show() {
+                        active = true;
+                        document.getElementById("mozok-libras-native-panel")?.classList.add("active");
+                        document.getElementById("btn-doom3-libras")?.classList.add("active");
+                        document.getElementById("btn-vlibras")?.classList.add("active");
+                        if (!animId) drawAvatarFrame();
+                    },
+                    hide() {
+                        active = false;
+                        signing = false;
+                        if (animId) { cancelAnimationFrame(animId); animId = null; }
+                        document.getElementById("mozok-libras-native-panel")?.classList.remove("active");
+                        document.getElementById("btn-doom3-libras")?.classList.remove("active");
+                        document.getElementById("btn-vlibras")?.classList.remove("active");
+                    },
+                    toggle() {
+                        if (active) this.hide();
+                        else this.show();
+                    },
+                    async speak(text) {
+                        if (!active) return;
+                        signing = true;
+                        currentGlossTokens = await translateToLibrasGloss(text);
+                        const bar = document.getElementById("mozok-libras-gloss-bar");
+                        if (bar && currentGlossTokens[0]) bar.textContent = "LIBRAS: " + currentGlossTokens[0];
+                    },
+                    stopSpeaking() {
+                        signing = false;
+                        const bar = document.getElementById("mozok-libras-gloss-bar");
+                        if (bar) bar.textContent = "LIBRAS // EM ESPERA";
+                    }
+                };
+            })();
+
+            // Botão "Libras" na barra principal do simulador aciona o Avatar Nativo
+            const mainBtnVlibras = document.getElementById("btn-vlibras");
+            if (mainBtnVlibras) {
+                const cloneVl = mainBtnVlibras.cloneNode(true);
+                mainBtnVlibras.parentNode.replaceChild(cloneVl, mainBtnVlibras);
+                cloneVl.addEventListener("click", () => MozokLibrasAvatar.toggle());
+            }
+
+            // Efeito de Raios Elétricos contínuos no Ato I (MOZOK) e Faíscas de Choque no Ato II
             let lightningAnimId = null;
             function startMozokLightningEffect() {
-                const canvas = document.getElementById('mozok-lightning-canvas');
+                const canvas = document.getElementById("mozok-lightning-canvas");
                 if (!canvas) return;
-                const ctx = canvas.getContext('2d');
-                canvas.width = canvas.parentElement.clientWidth || window.innerWidth;
-                canvas.height = canvas.parentElement.clientHeight || window.innerHeight;
-
+                const ctx = canvas.getContext("2d");
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
                 const bolts = [];
+
                 function createBolt(x1, y1, x2, y2) {
-                    const points = [{ x: x1, y: y1 }];
-                    const dist = Math.hypot(x2 - x1, y2 - y1);
-                    const steps = Math.max(4, Math.floor(dist / 22));
+                    const pts = [{ x: x1, y: y1 }];
+                    const steps = Math.max(4, Math.floor(Math.hypot(x2 - x1, y2 - y1) / 20));
                     for (let i = 1; i < steps; i++) {
                         const t = i / steps;
-                        const bx = x1 + (x2 - x1) * t + (Math.random() - 0.5) * 45;
-                        const by = y1 + (y2 - y1) * t + (Math.random() - 0.5) * 45;
-                        points.push({ x: bx, y: by });
+                        pts.push({
+                            x: x1 + (x2 - x1) * t + (Math.random() - 0.5) * 44,
+                            y: y1 + (y2 - y1) * t + (Math.random() - 0.5) * 44
+                        });
                     }
-                    points.push({ x: x2, y: y2 });
-                    return { points, life: 1.0, width: Math.random() * 2.5 + 1.2 };
+                    pts.push({ x: x2, y: y2 });
+                    return { pts, life: 1.0, width: Math.random() * 2.4 + 1.2 };
                 }
 
-                function renderLightning() {
-                    if (!cyberPresentationActive) return;
+                function render() {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                    // Gera novos raios em torno do centro onde fica "MOZOK"
                     if (Math.random() < 0.34) {
-                        const cx = canvas.width / 2;
-                        const cy = canvas.height / 2;
-                        const angle = Math.random() * Math.PI * 2;
-                        const r1 = 70 + Math.random() * 65;
-                        const r2 = 240 + Math.random() * 140;
+                        const cx = canvas.width / 2, cy = canvas.height / 2;
+                        const a = Math.random() * Math.PI * 2;
+                        const r1 = 70 + Math.random() * 60;
+                        const r2 = 230 + Math.random() * 140;
                         bolts.push(createBolt(
-                            cx + Math.cos(angle) * r1,
-                            cy + Math.sin(angle) * r1,
-                            cx + Math.cos(angle + (Math.random() - 0.5) * 0.8) * r2,
-                            cy + Math.sin(angle + (Math.random() - 0.5) * 0.8) * r2
+                            cx + Math.cos(a) * r1, cy + Math.sin(a) * r1,
+                            cx + Math.cos(a + (Math.random() - 0.5) * 0.7) * r2,
+                            cy + Math.sin(a + (Math.random() - 0.5) * 0.7) * r2
                         ));
                     }
-
                     for (let i = bolts.length - 1; i >= 0; i--) {
                         const b = bolts[i];
-                        b.life -= 0.085;
-                        if (b.life <= 0) {
-                            bolts.splice(i, 1);
-                            continue;
-                        }
+                        b.life -= 0.08;
+                        if (b.life <= 0) { bolts.splice(i, 1); continue; }
                         ctx.beginPath();
-                        ctx.moveTo(b.points[0].x, b.points[0].y);
-                        for (let j = 1; j < b.points.length; j++) {
-                            ctx.lineTo(b.points[j].x, b.points[j].y);
-                        }
-                        ctx.strokeStyle = `rgba(0, 242, 254, ${b.life * 0.95})`;
+                        ctx.moveTo(b.pts[0].x, b.pts[0].y);
+                        for (let j = 1; j < b.pts.length; j++) ctx.lineTo(b.pts[j].x, b.pts[j].y);
+                        ctx.strokeStyle = `rgba(0, 242, 254, ${b.life})`;
                         ctx.lineWidth = b.width;
-                        ctx.shadowColor = '#00f2fe';
+                        ctx.shadowColor = "#00f2fe";
                         ctx.shadowBlur = 22;
                         ctx.stroke();
-
-                        // Núcleo branco intenso do relâmpago
                         ctx.strokeStyle = `rgba(255, 255, 255, ${b.life * 0.85})`;
-                        ctx.lineWidth = b.width * 0.45;
+                        ctx.lineWidth = b.width * 0.4;
                         ctx.stroke();
                     }
-
-                    lightningAnimId = requestAnimationFrame(renderLightning);
+                    lightningAnimId = requestAnimationFrame(render);
                 }
-                renderLightning();
+                render();
             }
 
             function stopMozokLightningEffect() {
-                if (lightningAnimId) {
-                    cancelAnimationFrame(lightningAnimId);
-                    lightningAnimId = null;
+                if (lightningAnimId) { cancelAnimationFrame(lightningAnimId); lightningAnimId = null; }
+            }
+
+            // Efeito de Choque / Interferência Elétrica no texto estilo Doom 3
+            let shockIntervalId = null;
+            function startDoom3ShockGlitches() {
+                stopDoom3ShockGlitches();
+                shockIntervalId = setInterval(() => {
+                    if (!cyberPresentationActive || cyberPresentationPaused) return;
+                    if (Math.random() < 0.22) {
+                        const el = document.getElementById("doom3-typewriter-text");
+                        if (el) {
+                            el.classList.add("shock-glitch");
+                            setTimeout(() => el.classList.remove("shock-glitch"), 90 + Math.random() * 80);
+                        }
+                    }
+                }, 480);
+            }
+            function stopDoom3ShockGlitches() {
+                if (shockIntervalId) { clearInterval(shockIntervalId); shockIntervalId = null; }
+            }
+
+            function updatePauseButtonsUI() {
+                const pIcon = document.getElementById("icon-doom3-pause");
+                const playIcon = document.getElementById("icon-doom3-play");
+                const ctrlBox = document.getElementById("doom3-minimal-controls");
+                if (pIcon && playIcon) {
+                    pIcon.classList.toggle("hidden", cyberPresentationPaused);
+                    playIcon.classList.toggle("hidden", !cyberPresentationPaused);
+                }
+                if (ctrlBox) {
+                    ctrlBox.classList.toggle("paused-highlight", cyberPresentationPaused);
                 }
             }
 
-            // ATIVAÇÃO DO DOCK NATIVO DO VLIBRAS NO CANTO DA TELA
-            function activateNativeVLibrasDock() {
-                const lang = currentLang || 'pt-BR';
-                if (!lang.toLowerCase().startsWith('pt')) return;
-                const dock = document.getElementById('mozok-vlibras-dock');
-                if (dock) dock.classList.add('active');
-                vlibrasActive = true;
-                if (btnVlibras) btnVlibras.classList.add('active');
-                ensureVLibrasWidgetLoaded();
-            }
-
-            document.getElementById('btn-close-vlibras-dock')?.addEventListener('click', () => {
-                document.getElementById('mozok-vlibras-dock')?.classList.remove('active');
-                vlibrasActive = false;
-                if (btnVlibras) btnVlibras.classList.remove('active');
-            });
-
-            // CONTROLADOR PRINCIPAL DA APRESENTAÇÃO CIENTÍFICA (v1.0008)
-            async function startDoom3ScientificPresentation() {
-                const overlay = document.getElementById('doom3-intro-overlay');
-                const lightningStage = document.getElementById('mozok-lightning-stage');
-                const narrative = document.getElementById('doom3-narrative-stage');
-                const pauseBtn = document.getElementById('btn-doom3-pause');
-                const indicatorEl = document.getElementById('doom3-segment-indicator');
-                const progressBar = document.getElementById('doom3-progress-bar');
-                const aboutModal = document.getElementById('mozok-about-modal');
+            async function startDoom3ScientificPresentation(startPausedOnMozok = false) {
+                const overlay = document.getElementById("doom3-intro-overlay");
+                const lightningStage = document.getElementById("mozok-lightning-stage");
+                const narrative = document.getElementById("doom3-narrative-stage");
+                const textEl = document.getElementById("doom3-typewriter-text");
+                const aboutModal = document.getElementById("mozok-about-modal");
 
                 if (!overlay) return;
-                if (aboutModal) aboutModal.classList.add('hidden');
+                if (aboutModal) aboutModal.classList.add("hidden");
 
-                // Cancela qualquer áudio ou tour anterior
-                if (tourTimer) {
-                    clearTimeout(tourTimer);
-                    tourTimer = null;
-                }
-                if (currentAudio) {
-                    try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (_) {}
-                    currentAudio = null;
-                }
-                if (activeRoboticSource) {
-                    try { activeRoboticSource.stop(); } catch (_) {}
-                    activeRoboticSource = null;
-                }
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
-                }
-
-                // Garante que nenhum modal/deck de slides fique encavalado
-                const deckEl = document.getElementById('mozok-presenter-deck');
-                if (deckEl) deckEl.classList.remove('active');
+                // Para qualquer áudio anterior
+                if (activeRoboticSource) { try { activeRoboticSource.stop(); } catch (_) {} activeRoboticSource = null; }
+                if (currentAudio) { try { currentAudio.pause(); } catch (_) {} currentAudio = null; }
+                if ("speechSynthesis" in window) window.speechSynthesis.cancel();
 
                 cyberPresentationActive = true;
-                cyberPresentationPaused = false;
+                cyberPresentationPaused = startPausedOnMozok;
                 cyberPresentationAborted = false;
+                updatePauseButtonsUI();
 
-                if (pauseBtn) pauseBtn.textContent = '⏸ Pausar [Espaço]';
-                overlay.classList.remove('hidden-intro');
-                document.body.classList.add('cyber-intro-active');
+                overlay.classList.remove("hidden-intro");
+                document.body.classList.add("cyber-intro-active");
 
-                // ATO I: Fundo escuro com Nome MOZOK e Raios Elétricos (sem vazar cérebro)
                 if (isMicroMode) setMicrocosmosMode(false);
                 if (cnsAnatomy && cnsAnatomy.rootGroup) cnsAnatomy.rootGroup.visible = false;
                 if (neuralMicro) neuralMicro.setVisible(false);
 
-                if (lightningStage) {
-                    lightningStage.style.display = 'flex';
-                    lightningStage.style.opacity = '1';
-                }
-                if (narrative) {
-                    narrative.style.display = 'none';
-                    narrative.style.opacity = '0';
-                }
+                if (lightningStage) { lightningStage.style.display = "flex"; lightningStage.style.opacity = "1"; }
+                if (narrative) { narrative.style.display = "none"; narrative.style.opacity = "0"; }
+                if (textEl) textEl.textContent = "";
 
                 startHexagonalVisorCanvas();
                 startMozokLightningEffect();
-                activateNativeVLibrasDock();
-                playIdSoftwareLogoSound();
 
+                // Se idioma for pt-BR, ativa o Avatar Nativo de Libras automaticamente
+                if ((currentLang || "pt-BR").toLowerCase().startsWith("pt")) {
+                    MozokLibrasAvatar.show();
+                }
+
+                if (!startPausedOnMozok) {
+                    playIdSoftwareLogoSound();
+                }
+
+                // Se foi acionado por "Recomeçar", fica pausado aqui com MOZOK + raios elétricos até o usuário dar Play!
                 const okSplash = await waitWithPauseAndAbort(3400);
                 if (!okSplash || cyberPresentationAborted) return finishDoom3Presentation();
 
                 stopMozokLightningEffect();
-                if (lightningStage) lightningStage.style.opacity = '0';
-                const okFade = await waitWithPauseAndAbort(750);
+                if (lightningStage) lightningStage.style.opacity = "0";
+                const okFade = await waitWithPauseAndAbort(650);
                 if (!okFade || cyberPresentationAborted) return finishDoom3Presentation();
-                if (lightningStage) lightningStage.style.display = 'none';
+                if (lightningStage) lightningStage.style.display = "none";
 
-                // ATO II: Cérebro 3D desfocado ao fundo + Malha Hexagonal + Frases Centrais em Azul Ciano Puro
+                // ATO II: Cérebro desfocado + Malha Hexagonal + Frases em Azul Ciano no Meio da Tela + Choque
                 if (cnsAnatomy && cnsAnatomy.rootGroup) {
                     cnsAnatomy.rootGroup.visible = true;
-                    cnsAnatomy.setViewMode('EXTERNAL');
+                    cnsAnatomy.setViewMode("EXTERNAL");
                     cnsAnatomy.spinalGroup.visible = false;
                     cnsAnatomy.pnsGroup.visible = false;
                     cnsAnatomy.vascularGroup.visible = false;
                 }
-                document.body.classList.add('cyber-brain-blurred');
+                document.body.classList.add("cyber-brain-blurred");
                 flyCameraTo(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1.2, 14.5), 0.85);
 
-                if (narrative) {
-                    narrative.style.display = 'flex';
-                    narrative.style.opacity = '1';
-                }
+                if (narrative) { narrative.style.display = "block"; narrative.style.opacity = "1"; }
+                startDoom3ShockGlitches();
 
-                const lang = currentLang || 'pt-BR';
-                const segments = INTRO_SEGMENTS_I18N[lang] || INTRO_SEGMENTS_I18N['pt-BR'];
+                const lang = currentLang || "pt-BR";
+                const segments = INTRO_SEGMENTS_I18N[lang] || INTRO_SEGMENTS_I18N["pt-BR"];
 
                 for (let s = 0; s < segments.length; s++) {
                     if (cyberPresentationAborted) break;
-                    if (indicatorEl) indicatorEl.textContent = `SEQUÊNCIA CIENTÍFICA 0${s + 1} / 0${segments.length}`;
-                    if (progressBar) progressBar.style.width = `${((s + 1) / segments.length) * 100}%`;
-
+                    MozokLibrasAvatar.speak(segments[s]);
                     await playSegmentWithExactSyncedTypewriter(segments[s], s, segments.length);
+                    MozokLibrasAvatar.stopSpeaking();
                 }
 
-                // Ao terminar todos os segmentos, encerra limpamente (sem invadir outros modais)
                 finishDoom3Presentation();
             }
 
-            // ENCERRAMENTO LIMPO DA APRESENTAÇÃO (PARA DE VERDADE, SEM ENCAVALAR ELEMENTOS)
             function finishDoom3Presentation() {
                 cyberPresentationAborted = true;
                 cyberPresentationActive = false;
                 cyberPresentationPaused = false;
+                updatePauseButtonsUI();
 
                 stopMozokLightningEffect();
+                stopDoom3ShockGlitches();
+                MozokLibrasAvatar.stopSpeaking();
+                MozokLibrasAvatar.hide();
 
-                if (hexAnimId) {
-                    cancelAnimationFrame(hexAnimId);
-                    hexAnimId = null;
-                }
-                if (activeRoboticSource) {
-                    try { activeRoboticSource.stop(); } catch (_) {}
-                    activeRoboticSource = null;
-                }
-                if (currentAudio) {
-                    try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (_) {}
-                    currentAudio = null;
-                }
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
-                }
-                if (doomAudioCtx && doomAudioCtx.state === 'suspended') {
-                    doomAudioCtx.resume().catch(() => {});
-                }
+                if (hexAnimId) { cancelAnimationFrame(hexAnimId); hexAnimId = null; }
+                if (activeRoboticSource) { try { activeRoboticSource.stop(); } catch (_) {} activeRoboticSource = null; }
+                if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+                if (doomAudioCtx && doomAudioCtx.state === "suspended") doomAudioCtx.resume().catch(() => {});
 
-                const overlay = document.getElementById('doom3-intro-overlay');
-                if (overlay) overlay.classList.add('hidden-intro');
-
-                document.body.classList.remove('cyber-brain-blurred');
-                document.body.classList.remove('cyber-intro-active');
+                document.getElementById("doom3-intro-overlay")?.classList.add("hidden-intro");
+                document.body.classList.remove("cyber-brain-blurred");
+                document.body.classList.remove("cyber-intro-active");
 
                 if (cnsAnatomy && cnsAnatomy.rootGroup) {
                     cnsAnatomy.rootGroup.visible = true;
-                    cnsAnatomy.setViewMode('EXTERNAL');
+                    cnsAnatomy.setViewMode("EXTERNAL");
                 }
                 flyCameraTo(new THREE.Vector3(0, -1.5, 0), new THREE.Vector3(0, 1.5, 22.0), 1.0);
+                document.getElementById("mozok-presenter-deck")?.classList.remove("active");
+            }
 
-                // Garante que o deck modal ou tours não abram sozinhos por trás
-                deckActive = false;
-                deckPlaying = false;
-                if (tourTimer) {
-                    clearTimeout(tourTimer);
-                    tourTimer = null;
-                }
-                const deckEl = document.getElementById('mozok-presenter-deck');
-                if (deckEl) deckEl.classList.remove('active');
-                const tourBtn = document.getElementById('btn-tour');
-                if (tourBtn) tourBtn.classList.remove('active');
+            function toggleDoom3PauseWrapper() {
+                if (!cyberPresentationActive) return;
+                toggleDoom3PresentationPause();
+                updatePauseButtonsUI();
             }
 
             // Rotação suave do encéfalo enquanto a apresentação estiver ativa (congela na pausa!)
@@ -6215,18 +6191,30 @@
             window.startDoom3ScientificPresentation = startDoom3ScientificPresentation;
             window.startDoom3CinematicIntro = startDoom3ScientificPresentation;
             window.finishDoom3Presentation = finishDoom3Presentation;
-            window.toggleDoom3PresentationPause = toggleDoom3PresentationPause;
+            window.toggleDoom3PresentationPause = toggleDoom3PauseWrapper;
 
-            document.getElementById('btn-doom3-pause')?.addEventListener('click', () => toggleDoom3PresentationPause());
-            document.getElementById('btn-doom3-skip')?.addEventListener('click', () => finishDoom3Presentation());
+            document.getElementById("btn-doom3-pause")?.addEventListener("click", toggleDoom3PauseWrapper);
+            document.getElementById("btn-doom3-restart")?.addEventListener("click", () => {
+                cyberPresentationAborted = true;
+                setTimeout(() => startDoom3ScientificPresentation(true), 60);
+            });
+            document.getElementById("btn-doom3-libras")?.addEventListener("click", () => MozokLibrasAvatar.toggle());
+            document.getElementById("btn-doom3-skip")?.addEventListener("click", finishDoom3Presentation);
 
-            window.addEventListener('keydown', (e) => {
+            const tourTopBtn = document.getElementById("btn-tour");
+            if (tourTopBtn) {
+                const cleanTourBtn = tourTopBtn.cloneNode(true);
+                tourTopBtn.parentNode.replaceChild(cleanTourBtn, tourTopBtn);
+                cleanTourBtn.addEventListener("click", () => startDoom3ScientificPresentation(false));
+            }
+
+            window.addEventListener("keydown", (e) => {
                 if (!cyberPresentationActive) return;
-                if (e.code === 'Space') {
+                if (e.code === "Space") {
                     e.preventDefault();
                     e.stopPropagation();
-                    toggleDoom3PresentationPause();
-                } else if (e.key === 'Escape') {
+                    toggleDoom3PauseWrapper();
+                } else if (e.key === "Escape") {
                     e.preventDefault();
                     finishDoom3Presentation();
                 }
@@ -6297,19 +6285,7 @@
             }
 
             const presenterDeckEl = document.getElementById('mozok-presenter-deck');
-            const btnTourEl = document.getElementById('btn-tour');
-
-            // Substitui o comportamento antigo do #btn-tour pelo Deck de Apresentação Estruturada
-            const newBtnTour = btnTourEl.cloneNode(true);
-            btnTourEl.parentNode.replaceChild(newBtnTour, btnTourEl);
-
-            newBtnTour.addEventListener('click', () => {
-                if (cyberPresentationActive) {
-                    finishDoom3Presentation();
-                    return;
-                }
-                startDoom3ScientificPresentation();
-            });
+            const newBtnTour = document.getElementById('btn-tour');
 
             document.getElementById('btn-deck-prev').addEventListener('click', () => runDeckStation(deckStationIdx - 1));
             document.getElementById('btn-deck-next').addEventListener('click', () => runDeckStation(deckStationIdx + 1));
@@ -6352,7 +6328,7 @@
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div class="brand-logo" style="width:36px; height:36px; font-size:18px;">📊</div>
                     <div>
-                        <h2 id="mozok-research-title" style="font-size:16px; font-weight:800; color:#f8fafc; margin:0;">Módulo de Prova &amp; Validação Científica Internacional (MOZOK v1.0008)</h2>
+                        <h2 id="mozok-research-title" style="font-size:16px; font-weight:800; color:#f8fafc; margin:0;">Módulo de Prova &amp; Validação Científica Internacional (MOZOK v1.0009)</h2>
                         <div style="font-size:11px; color:#00f2fe; font-weight:600;">Protocolo Quase-Experimental • Ganho Normalizado de Hake (g) • NASA-TLX • Escala SUS (0–100)</div>
                     </div>
                 </div>
@@ -6713,7 +6689,7 @@
                     susScore: Number(susScore.toFixed(2)),
                     nasaTlxMean: Number(tlxMean.toFixed(2)),
                     timestamp: new Date().toISOString(),
-                    version: '1.0008'
+                    version: '1.0009'
                 };
             }
 
@@ -6778,7 +6754,7 @@
         })();
     </script>
 
-    <input id="vlibras-speech-bridge" class="sr-only-vlibras" aria-live="assertive" tabindex="-1" readonly />
+    
 
 </body>
 </html>
