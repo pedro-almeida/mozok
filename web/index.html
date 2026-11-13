@@ -439,54 +439,81 @@
         }
 
         /* =========================================================================
-           VLIBRAS SOB DEMANDA EM DOCK COMPACTO PiP (ZERO ESPAÇO QUANDO DESATIVADO)
+           INTÉRPRETE OFICIAL 3D VLIBRAS (WebGL REAL) EM PALCO RECORTADO v1.0010
            ========================================================================= */
-        #vlibras-container {
-            display: none !important;
+        #mozok-vlibras-3d-stage {
+            position: fixed;
+            bottom: 72px;
+            right: 24px;
+            width: 224px;
+            height: 286px;
+            z-index: 122;
+            border-radius: 14px;
+            border: 1px solid rgba(0, 242, 254, 0.48);
+            background: rgba(2, 10, 20, 0.86);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 0 28px rgba(0, 242, 254, 0.25);
+            overflow: hidden !important;
+            display: none;
+            pointer-events: auto;
         }
-        body.vlibras-dock-open #vlibras-container {
+        #mozok-vlibras-3d-stage.active {
             display: block !important;
-            position: fixed !important;
-            right: 396px !important;
-            bottom: 66px !important;
-            top: auto !important;
-            left: auto !important;
-            z-index: 32 !important;
         }
-        body:not(.vlibras-dock-open) [vw],
-        body:not(.vlibras-dock-open) [vw-access-button],
-        body:not(.vlibras-dock-open) [vw-plugin-wrapper] {
+        #mozok-vlibras-3d-stage div[vw],
+        #mozok-vlibras-3d-stage [vw] {
+            position: relative !important;
+            inset: auto !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: auto !important;
+            bottom: auto !important;
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: block !important;
+            transform: none !important;
+        }
+        #mozok-vlibras-3d-stage div[vw] [vw-access-button],
+        #mozok-vlibras-3d-stage [vw-access-button] {
             display: none !important;
             opacity: 0 !important;
             pointer-events: none !important;
         }
-        body.vlibras-dock-open [vw] {
+        #mozok-vlibras-3d-stage [vw-plugin-wrapper],
+        #mozok-vlibras-3d-stage .vw-plugin-wrapper,
+        #mozok-vlibras-3d-stage .vpw-box {
+            position: relative !important;
+            top: -34px !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: calc(100% + 74px) !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
             display: block !important;
-            position: fixed !important;
-            right: 396px !important;
-            bottom: 66px !important;
-            top: auto !important;
-            left: auto !important;
-            z-index: 32 !important;
-            transform: scale(0.72) !important;
-            transform-origin: bottom right !important;
-            filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.75));
-        }
-        @media (max-width: 1440px) {
-            body.vlibras-dock-open [vw],
-            body.vlibras-dock-open #vlibras-container {
-                right: 324px !important;
-                bottom: 62px !important;
-                transform: scale(0.66) !important;
-            }
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
         }
         @media (max-width: 1180px) {
-            body.vlibras-dock-open [vw],
-            body.vlibras-dock-open #vlibras-container {
-                right: 12px !important;
-                bottom: 64px !important;
-                transform: scale(0.64) !important;
+            #mozok-vlibras-3d-stage {
+                right: 12px;
+                bottom: 66px;
+                width: 185px;
+                height: 235px;
             }
+        }
+
+        /* Oculta barras inferiores residuais e players nativos durante a Apresentação Doom 3 */
+        body.cyber-intro-active #mozok-scale-hud,
+        body.cyber-intro-active #nav-pan-hud,
+        body.cyber-intro-active #mozok-subtitle-bar,
+        body.cyber-intro-active #mobile-bottom-nav,
+        body.cyber-intro-active audio {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
         }
 
         /* Barra de Legendas Acessíveis Sincronizada com Gemini TTS + VLibras (Corrigida Desktop + Mobile) */
@@ -2054,43 +2081,7 @@
             color: #fecaca;
         }
 
-        /* AVATAR NATIVO DE LIBRAS INTEGRADO AO LAYOUT DO MOZOK (SEM PLUGIN EXTERNO) */
-        #mozok-libras-native-panel {
-            position: fixed;
-            bottom: 72px;
-            right: 24px;
-            width: 220px;
-            z-index: 122;
-            background: rgba(2, 10, 20, 0.88);
-            border: 1px solid rgba(0, 242, 254, 0.45);
-            border-radius: 14px;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 0 28px rgba(0, 242, 254, 0.22);
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            pointer-events: auto;
-        }
-        #mozok-libras-native-panel.active {
-            display: flex;
-        }
-        #mozok-libras-canvas {
-            width: 220px;
-            height: 220px;
-            display: block;
-        }
-        #mozok-libras-gloss-bar {
-            padding: 6px 10px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10.5px;
-            color: #67e8f9;
-            background: rgba(0, 242, 254, 0.08);
-            border-top: 1px solid rgba(0, 242, 254, 0.25);
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+
     </style>
 
     <script>
@@ -2172,7 +2163,7 @@
 
     <!-- TOPBAR -->
     
-        <!-- OVERLAY DE APRESENTAÇÃO CIENTÍFICA CIBERNÉTICA (MOZOK v1.0009 — DOOM 3 / ESPECTRO IPÊ) -->
+        <!-- OVERLAY DE APRESENTAÇÃO CIENTÍFICA CIBERNÉTICA (MOZOK v1.0010 — DOOM 3 / ESPECTRO IPÊ) -->
     <div id="doom3-intro-overlay" class="hidden-intro" role="dialog" aria-label="Apresentação Científica MOZOK">
         <canvas id="cyber-hex-canvas"></canvas>
         <div class="cyber-scanline-overlay"></div>
@@ -2207,10 +2198,14 @@
         </div>
     </div>
 
-    <!-- AVATAR NATIVO DE LIBRAS INTEGRADO AO LAYOUT DO MOZOK -->
-    <div id="mozok-libras-native-panel">
-        <canvas id="mozok-libras-canvas" width="220" height="220"></canvas>
-        <div id="mozok-libras-gloss-bar">LIBRAS // AGUARDANDO FALA</div>
+    <!-- INTÉRPRETE OFICIAL 3D DO VLIBRAS (WebGL REAL) EMBUTIDO EM VIEWPORT LIMPO -->
+    <div id="mozok-vlibras-3d-stage" title="Intérprete Oficial 3D VLibras">
+        <div vw class="enabled" id="mozok-vw-root">
+            <div vw-access-button class="active"></div>
+            <div vw-plugin-wrapper>
+                <div class="vw-plugin-top-wrapper"></div>
+            </div>
+        </div>
     </div>
 
     <!-- BARRA DE PALCO — APRESENTADOR DE ESTRUTURAS (CONCIC) -->
@@ -2226,7 +2221,7 @@
         <div class="brand-block">
             <div class="brand-logo">🧠</div>
             <div>
-                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.9+0009">v1.0009</span></div>
+                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.10+0010">v1.0010</span></div>
                 <div class="brand-subtitle" id="gpu-status-subtitle" data-i18n="subtitle_macro">SNC, SNP & Meninges • Córtex MNI152 • 7 Patologias</div>
             </div>
         </div>
@@ -3814,6 +3809,9 @@
                         bridge.setAttribute('aria-label', text);
                         bridge.dispatchEvent(new Event('input', { bubbles: true }));
                         bridge.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+                        if (typeof MozokLibrasAvatar !== 'undefined' && typeof MozokLibrasAvatar.speak === 'function') {
+                            MozokLibrasAvatar.speak(text);
+                        }
                         if (window.plugin && typeof window.plugin.translate === 'function') {
                             window.plugin.translate(text);
                         } else if (window.VLibras && typeof window.VLibras.translate === 'function') {
@@ -3875,6 +3873,40 @@
                 return meta;
             }
 
+            let isMozokNarrating = false;
+
+            function updateNarrateButtonsState(playing) {
+                isMozokNarrating = !!playing;
+                const hudDict = UI_I18N[currentLang] || UI_I18N['pt-BR'];
+                const bPop = document.getElementById('btn-popup-narrate');
+                const bCard = document.getElementById('btn-narrate-card');
+                const stopLbl = (currentLang === 'en-GB') ? '⏹ Stop' : (currentLang === 'es-ES') ? '⏹ Detener' : (currentLang === 'it-IT') ? '⏹ Ferma' : (currentLang === 'uk-UA') ? '⏹ Стоп' : '⏹ Parar';
+                if (bPop) bPop.textContent = playing ? stopLbl : (hudDict.btn_narrate || '🔊 Narrar');
+                if (bCard) bCard.textContent = playing ? stopLbl : (hudDict.btn_narrate_card || '🔊 Narrar Peça');
+            }
+
+            function stopCurrentNarration() {
+                activeSpeechId++;
+                if (currentAudio) {
+                    try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (_) {}
+                    currentAudio = null;
+                }
+                if ('speechSynthesis' in window) {
+                    try { window.speechSynthesis.cancel(); } catch (_) {}
+                }
+                updateNarrateButtonsState(false);
+            }
+
+            async function toggleNarrationPlayback() {
+                const isBrowserSpeaking = ('speechSynthesis' in window) && window.speechSynthesis.speaking;
+                const isAudioPlaying = !!(currentAudio && !currentAudio.paused);
+                if (isMozokNarrating || isBrowserSpeaking || isAudioPlaying) {
+                    stopCurrentNarration();
+                    return;
+                }
+                return await narrateCurrentSelection();
+            }
+
             async function speakText(text, lang = currentLang, itemId = null) {
                 if (!text) return Promise.resolve();
                 // Remove qualquer resquício de meta-prompt caso venha de cache externo
@@ -3889,6 +3921,7 @@
                 if ('speechSynthesis' in window) {
                     try { window.speechSynthesis.cancel(); } catch (_) {}
                 }
+                updateNarrateButtonsState(true);
 
                 const playAndWait = (audioObj) => new Promise((resolve) => {
                     let settled = false;
@@ -3898,44 +3931,50 @@
                     audioObj.play().catch(() => { if (!settled) { settled = true; resolve(false); } });
                 });
 
-                // 1. Tenta primeiro o MP3 estático pré-gerado (exceto se estiver na lista de regeneração dinâmica)
-                const skipStaticIds = new Set(['HIPPOCAMPUS', 'NEURON_SYNAPSE']);
-                if (itemId && !skipStaticIds.has(itemId)) {
-                    const staticMp3Url = `assets/audio/${encodeURIComponent(lang)}/${encodeURIComponent(itemId)}.mp3`;
-                    const audio = new Audio(staticMp3Url);
-                    if (thisSpeechId !== activeSpeechId) return false;
-                    currentAudio = audio;
-                    const ok = await playAndWait(audio);
-                    if (ok) return true;
-                }
-
-                // 2. Tenta a síntese dinâmica Gemini TTS (/api/gemini-tts) sem passar id contaminado
-                if (thisSpeechId !== activeSpeechId) return false;
                 try {
-                    const safeId = skipStaticIds.has(itemId) ? '' : (itemId || '');
-                    const audioUrl = `/api/gemini-tts?text=${encodeURIComponent(cleanText)}&lang=${encodeURIComponent(lang)}&id=${encodeURIComponent(safeId)}&_t=${Date.now()}`;
-                    const audio = new Audio(audioUrl);
-                    currentAudio = audio;
-                    const ok = await playAndWait(audio);
-                    if (ok) return true;
-                } catch (_) {}
+                    // 1. Tenta primeiro o MP3 estático pré-gerado (exceto se estiver na lista de regeneração dinâmica)
+                    const skipStaticIds = new Set(['HIPPOCAMPUS', 'NEURON_SYNAPSE']);
+                    if (itemId && !skipStaticIds.has(itemId)) {
+                        const staticMp3Url = `assets/audio/${encodeURIComponent(lang)}/${encodeURIComponent(itemId)}.mp3`;
+                        const audio = new Audio(staticMp3Url);
+                        if (thisSpeechId !== activeSpeechId) return false;
+                        currentAudio = audio;
+                        const ok = await playAndWait(audio);
+                        if (ok) return true;
+                    }
 
-                // 3. Fallback para Web Speech API nativa aguardando onend
-                if (thisSpeechId === activeSpeechId && 'speechSynthesis' in window) {
-                    return new Promise((resolve) => {
-                        try {
-                            const utter = new SpeechSynthesisUtterance(cleanText);
-                            utter.lang = lang;
-                            utter.rate = 1.03;
-                            utter.onend = () => resolve(true);
-                            utter.onerror = () => resolve(false);
-                            window.speechSynthesis.speak(utter);
-                        } catch (_) {
-                            resolve(false);
-                        }
-                    });
+                    // 2. Tenta a síntese dinâmica Gemini TTS (/api/gemini-tts) sem passar id contaminado
+                    if (thisSpeechId !== activeSpeechId) return false;
+                    try {
+                        const safeId = skipStaticIds.has(itemId) ? '' : (itemId || '');
+                        const audioUrl = `/api/gemini-tts?text=${encodeURIComponent(cleanText)}&lang=${encodeURIComponent(lang)}&id=${encodeURIComponent(safeId)}&_t=${Date.now()}`;
+                        const audio = new Audio(audioUrl);
+                        currentAudio = audio;
+                        const ok = await playAndWait(audio);
+                        if (ok) return true;
+                    } catch (_) {}
+
+                    // 3. Fallback para Web Speech API nativa aguardando onend
+                    if (thisSpeechId === activeSpeechId && 'speechSynthesis' in window) {
+                        return await new Promise((resolve) => {
+                            try {
+                                const utter = new SpeechSynthesisUtterance(cleanText);
+                                utter.lang = lang;
+                                utter.rate = 1.03;
+                                utter.onend = () => resolve(true);
+                                utter.onerror = () => resolve(false);
+                                window.speechSynthesis.speak(utter);
+                            } catch (_) {
+                                resolve(false);
+                            }
+                        });
+                    }
+                    return false;
+                } finally {
+                    if (thisSpeechId === activeSpeechId) {
+                        updateNarrateButtonsState(false);
+                    }
                 }
-                return false;
             }
 
             async function narrateCurrentSelection() {
@@ -4210,6 +4249,11 @@
                         document.getElementById(id).classList.remove('active');
                     });
                     selectNeuronSubPart(selectedNeuronPartId || 'NEURON_SOMA', false, false);
+                    if (typeof neuralMicro.setPathology === 'function' && typeof pathologySelect !== 'undefined' && pathologySelect) {
+                        const curKey = pathologySelect.value || 'HEALTHY';
+                        const curSev = curKey === 'HEALTHY' ? 0.0 : (parseFloat(pathologySeveritySlider ? pathologySeveritySlider.value : '0.75') || 0.75);
+                        neuralMicro.setPathology(curKey, curSev);
+                    }
                     flyCameraTo(new THREE.Vector3(0.0, 0.5, 0.0), new THREE.Vector3(0.0, 1.5, 22.5), 0.75);
                 } else {
                     document.getElementById('btn-view-external').classList.add('active');
@@ -4584,7 +4628,7 @@
                 if (cont) cont.style.display = 'block';
                 if (!vlibrasInitialized) {
                     vlibrasInitialized = true;
-                    // VLibras plugin externo removido em favor do Avatar 3D Nativo MOZOK (v1.0009)
+                    // VLibras plugin externo removido em favor do Avatar 3D Nativo MOZOK (v1.0010)
                 } else {
                     const vwBtn = document.querySelector('[vw-access-button]');
                     const vwWrapper = document.querySelector('[vw-plugin-wrapper]');
@@ -4593,16 +4637,7 @@
                     }
                 }
             }
-            if (btnVlibras) {
-                btnVlibras.addEventListener('click', () => {
-                    const dock = document.getElementById('mozok-vlibras-dock');
-                    vlibrasActive = !vlibrasActive;
-                    btnVlibras.classList.toggle('active', vlibrasActive);
-                    document.body.classList.toggle('vlibras-dock-open', vlibrasActive);
-                    if (dock) dock.classList.toggle('active', vlibrasActive);
-                    if (vlibrasActive) ensureVLibrasWidgetLoaded();
-                });
-            }
+
 
             // Tela Cheia (Navegador + WebView2 Nativo via IPC)
             function toggleFullscreen() {
@@ -4670,7 +4705,7 @@
                 setMicrocosmosMode(!isMicroMode);
             });
 
-            document.getElementById('btn-popup-narrate').addEventListener('click', narrateCurrentSelection);
+            document.getElementById('btn-popup-narrate').addEventListener('click', toggleNarrationPlayback);
 
             // Botões do Painel Direito
             document.getElementById('btn-isolate-piece').addEventListener('click', (e) => {
@@ -4687,7 +4722,7 @@
                 setMicrocosmosMode(!isMicroMode);
             });
 
-            document.getElementById('btn-narrate-card').addEventListener('click', narrateCurrentSelection);
+            document.getElementById('btn-narrate-card').addEventListener('click', toggleNarrationPlayback);
 
             document.getElementById('btn-stimulate-neuron').addEventListener('click', () => {
                 neuralMicro.triggerManualSpike();
@@ -4788,8 +4823,11 @@
                     setTimeout(() => restoreBtn.classList.remove('emerald-flash'), 650);
                 }
 
-                cnsAnatomy.setPathologySimulation(diseaseKey, sev);
-                neuralMicro.setPathologySimulation(diseaseKey, sev);
+                if (typeof neuralMicro.setPathology === 'function') {
+                    neuralMicro.setPathology(diseaseKey, sev);
+                } else {
+                    neuralMicro.setPathologySimulation(diseaseKey, sev);
+                }
 
                 const stageBadge = document.getElementById('pathology-stage-badge');
                 stageBadge.textContent = profile.stage;
@@ -4811,15 +4849,11 @@
                 document.getElementById('bm-nfl-prion').textContent = profile.nflPrion;
                 document.getElementById('bm-ocb').textContent = profile.ocb;
 
-                // Se estiver no modo Macro SNC/SNP e a doença tiver uma estrutura-alvo primária, destaca os dados clínicos sem perder o foco
-                if (!isMicroMode && profile.targetStructure && ontologyMap.has(profile.targetStructure)) {
-                    selectedStructureId = profile.targetStructure;
-                    cnsAnatomy.selectStructure(selectedStructureId);
-                    updateHUDAndPopup(ontologyMap.get(selectedStructureId));
-                    document.querySelectorAll('.structure-item').forEach(el => {
-                        el.classList.toggle('active', el.dataset.id === selectedStructureId);
-                    });
+                // No modo Macro SNC/SNP, move a câmera para a estrutura acometida e reaplica a simulação fisiopatológica 3D
+                if (!isMicroMode && diseaseKey !== 'HEALTHY' && profile.targetStructure && ontologyMap.has(profile.targetStructure)) {
+                    selectMacroStructure(profile.targetStructure, true, false);
                 }
+                cnsAnatomy.setPathologySimulation(diseaseKey, sev);
             }
 
             pathologySelect.addEventListener('change', () => {
@@ -5027,7 +5061,7 @@
                 if (scaleSlider && document.activeElement !== scaleSlider) {
                     scaleSlider.value = String(Math.max(0, Math.min(100, depthPct)));
                 }
-                // v1.0009: Sem zoom intrusivo. O usuário pode afastar a câmera nos neurônios livremente sem voltar pro cérebro.
+                // v1.0010: Sem zoom intrusivo. O usuário pode afastar a câmera nos neurônios livremente sem voltar pro cérebro.
                 if (isMicroMode && typeof neuralMicro.setMultiscaleDepth === 'function') {
                     neuralMicro.setMultiscaleDepth(dist);
                 }
@@ -5300,7 +5334,7 @@
 
             
                         // =====================================================================
-            // MÓDULO DE APRESENTAÇÃO CIENTÍFICA MOZOK v1.0009 (DOOM 3 / ESPECTRO IPÊ)
+            // MÓDULO DE APRESENTAÇÃO CIENTÍFICA MOZOK v1.0010 (DOOM 3 / ESPECTRO IPÊ)
             // + PAUSA COM EMBLEMA ELÉTRICO MOZOK + VLIBRAS NATIVO + TRANSIÇÃO PARA TOUR
             // =====================================================================
             let doomAudioCtx = null;
@@ -5577,7 +5611,7 @@
                     vlibrasActive = true;
                     if (!vlibrasInitialized) {
                         vlibrasInitialized = true;
-                        // VLibras plugin externo removido em favor do Avatar 3D Nativo MOZOK (v1.0009)
+                        // VLibras plugin externo removido em favor do Avatar 3D Nativo MOZOK (v1.0010)
                     }
                     const vwBtn = document.querySelector('[vw-access-button]');
                     const vwWrapper = document.querySelector('[vw-plugin-wrapper]');
@@ -5790,174 +5824,79 @@
                 }
             }
 
-            // AVATAR INTÉRPRETE DE LIBRAS NATIVO EM THREE.JS / CANVAS INTEGRADO AO MOZOK
+            // INTÉRPRETE OFICIAL 3D VLIBRAS (WebGL REAL) EMBUTIDO NO PALCO RECORTADO
             const MozokLibrasAvatar = (() => {
-                let animId = null;
+                let scriptLoaded = false;
                 let active = false;
-                let signing = false;
-                let currentGlossTokens = [];
-                let phase = 0;
 
-                async function translateToLibrasGloss(text) {
-                    try {
-                        const res = await fetch("https://traducao2.vlibras.gov.br/translate", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ text })
-                        });
-                        if (res.ok) {
-                            const data = await res.text();
-                            const tokens = data.trim().split(/\s+/).filter(Boolean);
-                            if (tokens.length > 0) return tokens;
+                function loadOfficialVLibrasScript() {
+                    if (scriptLoaded || document.getElementById('mozok-vlibras-script')) {
+                        scriptLoaded = true;
+                        if (window.VLibras && !window.mozokVLibrasWidget) {
+                            try { window.mozokVLibrasWidget = new window.VLibras.Widget('https://vlibras.gov.br/app'); } catch (_) {}
                         }
-                    } catch (_) {}
-                    // Fallback local instantâneo de glosas em Português
-                    return text.toUpperCase()
-                        .replace(/[^A-ZÀ-Ú0-9\s]/g, "")
-                        .split(/\s+/)
-                        .filter(w => w.length > 2)
-                        .slice(0, 14);
-                }
-
-                function drawAvatarFrame() {
-                    if (!active) return;
-                    const canvas = document.getElementById("mozok-libras-canvas");
-                    if (!canvas) return;
-                    const ctx = canvas.getContext("2d");
-                    const w = canvas.width, h = canvas.height;
-                    ctx.clearRect(0, 0, w, h);
-
-                    if (signing) phase += 0.14;
-                    else phase += 0.03;
-
-                    // Aura holográfica de fundo
-                    const bgGrad = ctx.createRadialGradient(w/2, h*0.48, 12, w/2, h*0.5, 105);
-                    bgGrad.addColorStop(0, "rgba(0, 242, 254, 0.14)");
-                    bgGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
-                    ctx.fillStyle = bgGrad;
-                    ctx.fillRect(0, 0, w, h);
-
-                    const cx = w / 2;
-                    const headY = 54 + (signing ? Math.sin(phase * 0.7) * 2.5 : Math.sin(phase) * 1.2);
-                    const torsoTopY = 82;
-
-                    // Tronco / Jaleco Cibernético MOZOK
-                    ctx.beginPath();
-                    ctx.moveTo(cx - 38, h - 14);
-                    ctx.lineTo(cx - 32, torsoTopY + 12);
-                    ctx.quadraticCurveTo(cx, torsoTopY - 4, cx + 32, torsoTopY + 12);
-                    ctx.lineTo(cx + 38, h - 14);
-                    ctx.closePath();
-                    ctx.fillStyle = "rgba(14, 34, 58, 0.92)";
-                    ctx.strokeStyle = "#00f2fe";
-                    ctx.lineWidth = 1.8;
-                    ctx.fill();
-                    ctx.stroke();
-
-                    // Pescoço e Cabeça
-                    ctx.beginPath();
-                    ctx.arc(cx, headY, 20, 0, Math.PI * 2);
-                    ctx.fillStyle = "#16324f";
-                    ctx.strokeStyle = "#38bdf8";
-                    ctx.lineWidth = 2;
-                    ctx.fill();
-                    ctx.stroke();
-
-                    // Visor / Expressão Facial
-                    ctx.fillStyle = "#00f2fe";
-                    ctx.fillRect(cx - 9, headY - 4, 5, 3);
-                    ctx.fillRect(cx + 4, headY - 4, 5, 3);
-
-                    // Braços e Mãos articulados executando os sinais de Libras
-                    const amp = signing ? 1.0 : 0.12;
-                    const lHandX = cx - 42 + Math.sin(phase * 1.3) * 26 * amp;
-                    const lHandY = 128 + Math.cos(phase * 1.8) * 24 * amp;
-                    const rHandX = cx + 42 + Math.cos(phase * 1.5) * 26 * amp;
-                    const rHandY = 124 + Math.sin(phase * 2.0) * 24 * amp;
-
-                    ctx.strokeStyle = "#38bdf8";
-                    ctx.lineWidth = 5;
-                    ctx.lineCap = "round";
-                    ctx.lineJoin = "round";
-
-                    // Braço Esquerdo
-                    ctx.beginPath();
-                    ctx.moveTo(cx - 30, torsoTopY + 16);
-                    ctx.lineTo(cx - 52, 138);
-                    ctx.lineTo(lHandX, lHandY);
-                    ctx.stroke();
-
-                    // Braço Direito
-                    ctx.beginPath();
-                    ctx.moveTo(cx + 30, torsoTopY + 16);
-                    ctx.lineTo(cx + 52, 138);
-                    ctx.lineTo(rHandX, rHandY);
-                    ctx.stroke();
-
-                    // Mãos e Dedos sinalizando com brilho ciano
-                    for (const [hx, hy, dir] of [[lHandX, lHandY, -1], [rHandX, rHandY, 1]]) {
-                        ctx.beginPath();
-                        ctx.arc(hx, hy, 7.5, 0, Math.PI * 2);
-                        ctx.fillStyle = "#00f2fe";
-                        ctx.shadowColor = "#00f2fe";
-                        ctx.shadowBlur = 12;
-                        ctx.fill();
-                        ctx.shadowBlur = 0;
-
-                        // Dedos articulados
-                        if (signing) {
-                            ctx.strokeStyle = "#e0f2fe";
-                            ctx.lineWidth = 1.6;
-                            for (let d = -1; d <= 1; d++) {
-                                ctx.beginPath();
-                                ctx.moveTo(hx, hy);
-                                ctx.lineTo(hx + d * 6 + dir * 3, hy - 11 - Math.abs(Math.sin(phase + d)) * 4);
-                                ctx.stroke();
+                        return;
+                    }
+                    const s = document.createElement('script');
+                    s.id = 'mozok-vlibras-script';
+                    s.src = 'https://vlibras.gov.br/app/vlibras-plugin.js';
+                    s.async = true;
+                    s.onload = () => {
+                        scriptLoaded = true;
+                        try {
+                            if (window.VLibras && !window.mozokVLibrasWidget) {
+                                window.mozokVLibrasWidget = new window.VLibras.Widget('https://vlibras.gov.br/app');
                             }
-                        }
-                    }
-
-                    if (signing && currentGlossTokens.length > 0 && Math.floor(phase) % 6 === 0) {
-                        const tok = currentGlossTokens[Math.floor(phase / 6) % currentGlossTokens.length];
-                        const bar = document.getElementById("mozok-libras-gloss-bar");
-                        if (bar) bar.textContent = "LIBRAS: " + tok;
-                    }
-
-                    animId = requestAnimationFrame(drawAvatarFrame);
+                            setTimeout(() => {
+                                const btn = document.querySelector('#mozok-vlibras-3d-stage [vw-access-button]');
+                                const wrap = document.querySelector('#mozok-vlibras-3d-stage [vw-plugin-wrapper]');
+                                if (btn && wrap && !wrap.classList.contains('active')) btn.click();
+                            }, 500);
+                        } catch (_) {}
+                    };
+                    document.body.appendChild(s);
                 }
 
                 return {
                     show() {
                         active = true;
-                        document.getElementById("mozok-libras-native-panel")?.classList.add("active");
-                        document.getElementById("btn-doom3-libras")?.classList.add("active");
-                        document.getElementById("btn-vlibras")?.classList.add("active");
-                        if (!animId) drawAvatarFrame();
+                        vlibrasActive = true;
+                        document.body.classList.add('vlibras-dock-open');
+                        document.getElementById('mozok-vlibras-3d-stage')?.classList.add('active');
+                        document.getElementById('btn-doom3-libras')?.classList.add('active');
+                        document.getElementById('btn-vlibras')?.classList.add('active');
+                        loadOfficialVLibrasScript();
+                        setTimeout(() => {
+                            const btn = document.querySelector('#mozok-vlibras-3d-stage [vw-access-button]');
+                            const wrap = document.querySelector('#mozok-vlibras-3d-stage [vw-plugin-wrapper]');
+                            if (btn && wrap && !wrap.classList.contains('active')) btn.click();
+                        }, 300);
                     },
                     hide() {
                         active = false;
-                        signing = false;
-                        if (animId) { cancelAnimationFrame(animId); animId = null; }
-                        document.getElementById("mozok-libras-native-panel")?.classList.remove("active");
-                        document.getElementById("btn-doom3-libras")?.classList.remove("active");
-                        document.getElementById("btn-vlibras")?.classList.remove("active");
+                        vlibrasActive = false;
+                        document.body.classList.remove('vlibras-dock-open');
+                        document.getElementById('mozok-vlibras-3d-stage')?.classList.remove('active');
+                        document.getElementById('btn-doom3-libras')?.classList.remove('active');
+                        document.getElementById('btn-vlibras')?.classList.remove('active');
                     },
                     toggle() {
                         if (active) this.hide();
                         else this.show();
                     },
-                    async speak(text) {
-                        if (!active) return;
-                        signing = true;
-                        currentGlossTokens = await translateToLibrasGloss(text);
-                        const bar = document.getElementById("mozok-libras-gloss-bar");
-                        if (bar && currentGlossTokens[0]) bar.textContent = "LIBRAS: " + currentGlossTokens[0];
+                    speak(text) {
+                        if (!active || !text) return;
+                        try {
+                            if (window.plugin && typeof window.plugin.translate === 'function') {
+                                window.plugin.translate(text);
+                            } else if (window.VLibras && typeof window.VLibras.translate === 'function') {
+                                window.VLibras.translate(text);
+                            } else if (window.mozokVLibrasWidget && typeof window.mozokVLibrasWidget.translate === 'function') {
+                                window.mozokVLibrasWidget.translate(text);
+                            }
+                        } catch (_) {}
                     },
-                    stopSpeaking() {
-                        signing = false;
-                        const bar = document.getElementById("mozok-libras-gloss-bar");
-                        if (bar) bar.textContent = "LIBRAS // EM ESPERA";
-                    }
+                    stopSpeaking() {}
                 };
             })();
 
@@ -6328,7 +6267,7 @@
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div class="brand-logo" style="width:36px; height:36px; font-size:18px;">📊</div>
                     <div>
-                        <h2 id="mozok-research-title" style="font-size:16px; font-weight:800; color:#f8fafc; margin:0;">Módulo de Prova &amp; Validação Científica Internacional (MOZOK v1.0009)</h2>
+                        <h2 id="mozok-research-title" style="font-size:16px; font-weight:800; color:#f8fafc; margin:0;">Módulo de Prova &amp; Validação Científica Internacional (MOZOK v1.0010)</h2>
                         <div style="font-size:11px; color:#00f2fe; font-weight:600;">Protocolo Quase-Experimental • Ganho Normalizado de Hake (g) • NASA-TLX • Escala SUS (0–100)</div>
                     </div>
                 </div>
