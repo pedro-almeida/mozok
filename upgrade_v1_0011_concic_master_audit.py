@@ -1162,3 +1162,4 @@ if set_micro_start != -1 and set_micro_end != -1:
 
 html_path.write_text(html, encoding="utf-8")
 print("MOZOK v1.0011 aplicado e auditado com sucesso!")
+
