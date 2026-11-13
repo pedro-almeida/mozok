@@ -281,7 +281,7 @@ fn handle_http_stream(mut stream: TcpStream, web_root: PathBuf, port: u16) {
 
     if path_only == "/api/version" {
         let body = format!(
-            r#"{{"version":"6.1.0","git_sha":"{}"}}"#,
+            r#"{{"version":"1.0011","git_sha":"{}"}}"#,
             env!("CARGO_PKG_VERSION")
         );
         let header = format!(

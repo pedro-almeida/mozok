@@ -439,81 +439,54 @@
         }
 
         /* =========================================================================
-           INTÉRPRETE OFICIAL 3D VLIBRAS (WebGL REAL) EM PALCO RECORTADO v1.0010
+           VLIBRAS SOB DEMANDA EM DOCK COMPACTO PiP (ZERO ESPAÇO QUANDO DESATIVADO)
            ========================================================================= */
-        #mozok-vlibras-3d-stage {
-            position: fixed;
-            bottom: 72px;
-            right: 24px;
-            width: 224px;
-            height: 286px;
-            z-index: 122;
-            border-radius: 14px;
-            border: 1px solid rgba(0, 242, 254, 0.48);
-            background: rgba(2, 10, 20, 0.86);
-            backdrop-filter: blur(12px);
-            box-shadow: 0 0 28px rgba(0, 242, 254, 0.25);
-            overflow: hidden !important;
-            display: none;
-            pointer-events: auto;
+        #vlibras-container {
+            display: none !important;
         }
-        #mozok-vlibras-3d-stage.active {
+        body.vlibras-dock-open #vlibras-container {
             display: block !important;
+            position: fixed !important;
+            right: 396px !important;
+            bottom: 66px !important;
+            top: auto !important;
+            left: auto !important;
+            z-index: 32 !important;
         }
-        #mozok-vlibras-3d-stage div[vw],
-        #mozok-vlibras-3d-stage [vw] {
-            position: relative !important;
-            inset: auto !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: auto !important;
-            bottom: auto !important;
-            width: 100% !important;
-            height: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            display: block !important;
-            transform: none !important;
-        }
-        #mozok-vlibras-3d-stage div[vw] [vw-access-button],
-        #mozok-vlibras-3d-stage [vw-access-button] {
+        body:not(.vlibras-dock-open) [vw],
+        body:not(.vlibras-dock-open) [vw-access-button],
+        body:not(.vlibras-dock-open) [vw-plugin-wrapper] {
             display: none !important;
             opacity: 0 !important;
             pointer-events: none !important;
         }
-        #mozok-vlibras-3d-stage [vw-plugin-wrapper],
-        #mozok-vlibras-3d-stage .vw-plugin-wrapper,
-        #mozok-vlibras-3d-stage .vpw-box {
-            position: relative !important;
-            top: -34px !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: calc(100% + 74px) !important;
-            max-width: 100% !important;
-            min-width: 0 !important;
+        body.vlibras-dock-open [vw] {
             display: block !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            border: none !important;
+            position: fixed !important;
+            right: 396px !important;
+            bottom: 66px !important;
+            top: auto !important;
+            left: auto !important;
+            z-index: 32 !important;
+            transform: scale(0.72) !important;
+            transform-origin: bottom right !important;
+            filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.75));
         }
-        @media (max-width: 1180px) {
-            #mozok-vlibras-3d-stage {
-                right: 12px;
-                bottom: 66px;
-                width: 185px;
-                height: 235px;
+        @media (max-width: 1440px) {
+            body.vlibras-dock-open [vw],
+            body.vlibras-dock-open #vlibras-container {
+                right: 324px !important;
+                bottom: 62px !important;
+                transform: scale(0.66) !important;
             }
         }
-
-        /* Oculta barras inferiores residuais e players nativos durante a Apresentação Doom 3 */
-        body.cyber-intro-active #mozok-scale-hud,
-        body.cyber-intro-active #nav-pan-hud,
-        body.cyber-intro-active #mozok-subtitle-bar,
-        body.cyber-intro-active #mobile-bottom-nav,
-        body.cyber-intro-active audio {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
+        @media (max-width: 1180px) {
+            body.vlibras-dock-open [vw],
+            body.vlibras-dock-open #vlibras-container {
+                right: 12px !important;
+                bottom: 64px !important;
+                transform: scale(0.64) !important;
+            }
         }
 
         /* Barra de Legendas Acessíveis Sincronizada com Gemini TTS + VLibras (Corrigida Desktop + Mobile) */
@@ -1884,6 +1857,76 @@
             margin-top: 4px;
         }
 
+    
+        /* v1.0011: Erradicação total de qualquer botão flutuante ou caixa vazia de plugin externo */
+        [vw], [vw-access-button], [vw-plugin-wrapper], #vlibras-container, #mozok-vlibras-3d-stage {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+            pointer-events: none !important;
+        }
+        body.cyber-intro-active #mozok-scale-hud,
+        body.cyber-intro-active #nav-pan-hud,
+        body.cyber-intro-active #mozok-subtitle-bar,
+        body.cyber-intro-active audio {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+        #mozok-libras-native-panel {
+            position: fixed;
+            bottom: 74px;
+            right: 24px;
+            width: 246px;
+            z-index: 122;
+            background: linear-gradient(180deg, rgba(4, 14, 28, 0.94) 0%, rgba(2, 8, 18, 0.96) 100%);
+            border: 1.5px solid rgba(0, 242, 254, 0.55);
+            border-radius: 16px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 0 32px rgba(0, 242, 254, 0.24), 0 12px 34px rgba(0, 0, 0, 0.85);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            pointer-events: auto;
+        }
+        #mozok-libras-native-panel.active {
+            display: flex !important;
+        }
+        #mozok-libras-header {
+            padding: 6px 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            color: #e0f2fe;
+            background: rgba(0, 242, 254, 0.12);
+            border-bottom: 1px solid rgba(0, 242, 254, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        #mozok-libras-canvas {
+            width: 246px;
+            height: 246px;
+            display: block;
+            background: radial-gradient(circle at 50% 42%, rgba(0, 180, 216, 0.16) 0%, rgba(2, 8, 20, 0.98) 78%);
+        }
+        #mozok-libras-gloss-bar {
+            padding: 7px 10px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: #67e8f9;
+            background: rgba(0, 242, 254, 0.10);
+            border-top: 1px solid rgba(0, 242, 254, 0.28);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
     </style>
 
     <!-- Tipografia Industrial Cibernética estilo Doom 3 / UAC Mars Terminal -->
@@ -2081,7 +2124,43 @@
             color: #fecaca;
         }
 
-
+        /* AVATAR NATIVO DE LIBRAS INTEGRADO AO LAYOUT DO MOZOK (SEM PLUGIN EXTERNO) */
+        #mozok-libras-native-panel {
+            position: fixed;
+            bottom: 72px;
+            right: 24px;
+            width: 220px;
+            z-index: 122;
+            background: rgba(2, 10, 20, 0.88);
+            border: 1px solid rgba(0, 242, 254, 0.45);
+            border-radius: 14px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 0 28px rgba(0, 242, 254, 0.22);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            pointer-events: auto;
+        }
+        #mozok-libras-native-panel.active {
+            display: flex;
+        }
+        #mozok-libras-canvas {
+            width: 220px;
+            height: 220px;
+            display: block;
+        }
+        #mozok-libras-gloss-bar {
+            padding: 6px 10px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10.5px;
+            color: #67e8f9;
+            background: rgba(0, 242, 254, 0.08);
+            border-top: 1px solid rgba(0, 242, 254, 0.25);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 
     <script>
@@ -2163,7 +2242,7 @@
 
     <!-- TOPBAR -->
     
-        <!-- OVERLAY DE APRESENTAÇÃO CIENTÍFICA CIBERNÉTICA (MOZOK v1.0010 — DOOM 3 / ESPECTRO IPÊ) -->
+        <!-- OVERLAY DE APRESENTAÇÃO CIENTÍFICA CIBERNÉTICA (MOZOK v1.0011 — DOOM 3 / ESPECTRO IPÊ) -->
     <div id="doom3-intro-overlay" class="hidden-intro" role="dialog" aria-label="Apresentação Científica MOZOK">
         <canvas id="cyber-hex-canvas"></canvas>
         <div class="cyber-scanline-overlay"></div>
@@ -2198,14 +2277,14 @@
         </div>
     </div>
 
-    <!-- INTÉRPRETE OFICIAL 3D DO VLIBRAS (WebGL REAL) EMBUTIDO EM VIEWPORT LIMPO -->
-    <div id="mozok-vlibras-3d-stage" title="Intérprete Oficial 3D VLibras">
-        <div vw class="enabled" id="mozok-vw-root">
-            <div vw-access-button class="active"></div>
-            <div vw-plugin-wrapper>
-                <div class="vw-plugin-top-wrapper"></div>
-            </div>
+    <!-- AVATAR NATIVO DE LIBRAS INTEGRADO AO LAYOUT DO MOZOK -->
+    <div id="mozok-libras-native-panel">
+        <div id="mozok-libras-header">
+            <span>🤟 INTÉRPRETE 3D LIBRAS</span>
+            <span style="color:#34d399;">● WEBGL 3D</span>
         </div>
+        <canvas id="mozok-libras-canvas" width="246" height="246"></canvas>
+        <div id="mozok-libras-gloss-bar">LIBRAS 3D // PRONTO</div>
     </div>
 
     <!-- BARRA DE PALCO — APRESENTADOR DE ESTRUTURAS (CONCIC) -->
@@ -2221,7 +2300,7 @@
         <div class="brand-block">
             <div class="brand-logo">🧠</div>
             <div>
-                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.10+0010">v1.0010</span></div>
+                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.9+0009">v1.0011</span></div>
                 <div class="brand-subtitle" id="gpu-status-subtitle" data-i18n="subtitle_macro">SNC, SNP & Meninges • Córtex MNI152 • 7 Patologias</div>
             </div>
         </div>
@@ -3799,26 +3878,14 @@
                     subText.textContent = text;
                     subBar.classList.add('visible');
                     clearTimeout(window._subTimeout);
-                    window._subTimeout = setTimeout(() => subBar.classList.remove('visible'), Math.max(6000, text.length * 65));
+                    window._subTimeout = setTimeout(() => {
+                        subBar.classList.remove('visible');
+                        if (typeof MozokLibrasAvatar !== 'undefined') MozokLibrasAvatar.stopSpeaking();
+                    }, Math.max(6000, text.length * 65));
                 }
-                try {
-                    const bridge = document.getElementById('vlibras-speech-bridge');
-                    if (bridge && vlibrasActive && currentLang === 'pt-BR') {
-                        bridge.value = text;
-                        bridge.textContent = text;
-                        bridge.setAttribute('aria-label', text);
-                        bridge.dispatchEvent(new Event('input', { bubbles: true }));
-                        bridge.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
-                        if (typeof MozokLibrasAvatar !== 'undefined' && typeof MozokLibrasAvatar.speak === 'function') {
-                            MozokLibrasAvatar.speak(text);
-                        }
-                        if (window.plugin && typeof window.plugin.translate === 'function') {
-                            window.plugin.translate(text);
-                        } else if (window.VLibras && typeof window.VLibras.translate === 'function') {
-                            window.VLibras.translate(text);
-                        }
-                    }
-                } catch (_) {}
+                if (typeof MozokLibrasAvatar !== 'undefined' && (currentLang || 'pt-BR').toLowerCase().startsWith('pt')) {
+                    MozokLibrasAvatar.speak(text);
+                }
             }
 
             async function getTranslatedMetadata(meta, lang) {
@@ -3873,40 +3940,6 @@
                 return meta;
             }
 
-            let isMozokNarrating = false;
-
-            function updateNarrateButtonsState(playing) {
-                isMozokNarrating = !!playing;
-                const hudDict = UI_I18N[currentLang] || UI_I18N['pt-BR'];
-                const bPop = document.getElementById('btn-popup-narrate');
-                const bCard = document.getElementById('btn-narrate-card');
-                const stopLbl = (currentLang === 'en-GB') ? '⏹ Stop' : (currentLang === 'es-ES') ? '⏹ Detener' : (currentLang === 'it-IT') ? '⏹ Ferma' : (currentLang === 'uk-UA') ? '⏹ Стоп' : '⏹ Parar';
-                if (bPop) bPop.textContent = playing ? stopLbl : (hudDict.btn_narrate || '🔊 Narrar');
-                if (bCard) bCard.textContent = playing ? stopLbl : (hudDict.btn_narrate_card || '🔊 Narrar Peça');
-            }
-
-            function stopCurrentNarration() {
-                activeSpeechId++;
-                if (currentAudio) {
-                    try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (_) {}
-                    currentAudio = null;
-                }
-                if ('speechSynthesis' in window) {
-                    try { window.speechSynthesis.cancel(); } catch (_) {}
-                }
-                updateNarrateButtonsState(false);
-            }
-
-            async function toggleNarrationPlayback() {
-                const isBrowserSpeaking = ('speechSynthesis' in window) && window.speechSynthesis.speaking;
-                const isAudioPlaying = !!(currentAudio && !currentAudio.paused);
-                if (isMozokNarrating || isBrowserSpeaking || isAudioPlaying) {
-                    stopCurrentNarration();
-                    return;
-                }
-                return await narrateCurrentSelection();
-            }
-
             async function speakText(text, lang = currentLang, itemId = null) {
                 if (!text) return Promise.resolve();
                 // Remove qualquer resquício de meta-prompt caso venha de cache externo
@@ -3921,7 +3954,6 @@
                 if ('speechSynthesis' in window) {
                     try { window.speechSynthesis.cancel(); } catch (_) {}
                 }
-                updateNarrateButtonsState(true);
 
                 const playAndWait = (audioObj) => new Promise((resolve) => {
                     let settled = false;
@@ -3931,49 +3963,70 @@
                     audioObj.play().catch(() => { if (!settled) { settled = true; resolve(false); } });
                 });
 
-                try {
-                    // 1. Tenta primeiro o MP3 estático pré-gerado (exceto se estiver na lista de regeneração dinâmica)
-                    const skipStaticIds = new Set(['HIPPOCAMPUS', 'NEURON_SYNAPSE']);
-                    if (itemId && !skipStaticIds.has(itemId)) {
-                        const staticMp3Url = `assets/audio/${encodeURIComponent(lang)}/${encodeURIComponent(itemId)}.mp3`;
-                        const audio = new Audio(staticMp3Url);
-                        if (thisSpeechId !== activeSpeechId) return false;
-                        currentAudio = audio;
-                        const ok = await playAndWait(audio);
-                        if (ok) return true;
-                    }
-
-                    // 2. Tenta a síntese dinâmica Gemini TTS (/api/gemini-tts) sem passar id contaminado
+                // 1. Tenta primeiro o MP3 estático pré-gerado (exceto se estiver na lista de regeneração dinâmica)
+                const skipStaticIds = new Set(['HIPPOCAMPUS', 'NEURON_SYNAPSE']);
+                if (itemId && !skipStaticIds.has(itemId)) {
+                    const staticMp3Url = `assets/audio/${encodeURIComponent(lang)}/${encodeURIComponent(itemId)}.mp3`;
+                    const audio = new Audio(staticMp3Url);
                     if (thisSpeechId !== activeSpeechId) return false;
-                    try {
-                        const safeId = skipStaticIds.has(itemId) ? '' : (itemId || '');
-                        const audioUrl = `/api/gemini-tts?text=${encodeURIComponent(cleanText)}&lang=${encodeURIComponent(lang)}&id=${encodeURIComponent(safeId)}&_t=${Date.now()}`;
-                        const audio = new Audio(audioUrl);
-                        currentAudio = audio;
-                        const ok = await playAndWait(audio);
-                        if (ok) return true;
-                    } catch (_) {}
+                    currentAudio = audio;
+                    const ok = await playAndWait(audio);
+                    if (ok) return true;
+                }
 
-                    // 3. Fallback para Web Speech API nativa aguardando onend
-                    if (thisSpeechId === activeSpeechId && 'speechSynthesis' in window) {
-                        return await new Promise((resolve) => {
-                            try {
-                                const utter = new SpeechSynthesisUtterance(cleanText);
-                                utter.lang = lang;
-                                utter.rate = 1.03;
-                                utter.onend = () => resolve(true);
-                                utter.onerror = () => resolve(false);
-                                window.speechSynthesis.speak(utter);
-                            } catch (_) {
-                                resolve(false);
-                            }
-                        });
+                // 2. Tenta a síntese dinâmica Gemini TTS (/api/gemini-tts) sem passar id contaminado
+                if (thisSpeechId !== activeSpeechId) return false;
+                try {
+                    const safeId = skipStaticIds.has(itemId) ? '' : (itemId || '');
+                    const audioUrl = `/api/gemini-tts?text=${encodeURIComponent(cleanText)}&lang=${encodeURIComponent(lang)}&id=${encodeURIComponent(safeId)}&_t=${Date.now()}`;
+                    const audio = new Audio(audioUrl);
+                    currentAudio = audio;
+                    const ok = await playAndWait(audio);
+                    if (ok) return true;
+                } catch (_) {}
+
+                // 3. Fallback para Web Speech API nativa aguardando onend
+                if (thisSpeechId === activeSpeechId && 'speechSynthesis' in window) {
+                    return new Promise((resolve) => {
+                        try {
+                            const utter = new SpeechSynthesisUtterance(cleanText);
+                            utter.lang = lang;
+                            utter.rate = 1.03;
+                            utter.onend = () => resolve(true);
+                            utter.onerror = () => resolve(false);
+                            window.speechSynthesis.speak(utter);
+                        } catch (_) {
+                            resolve(false);
+                        }
+                    });
+                }
+                return false;
+            }
+
+                        async function toggleNarrateCurrentSelection() {
+                const btnPop = document.getElementById('btn-popup-narrate');
+                const btnCard = document.getElementById('btn-narrate-card');
+                if (currentAudio || ('speechSynthesis' in window && window.speechSynthesis.speaking)) {
+                    activeSpeechId++;
+                    if (currentAudio) {
+                        try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (_) {}
+                        currentAudio = null;
                     }
-                    return false;
+                    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                    if (typeof MozokLibrasAvatar !== 'undefined') MozokLibrasAvatar.stopSpeaking();
+                    document.getElementById('mozok-subtitle-bar')?.classList.remove('visible');
+                    if (btnPop) btnPop.innerHTML = '🔊 Ouvir';
+                    if (btnCard) btnCard.innerHTML = '🔊 Ouvir';
+                    return;
+                }
+                if (btnPop) btnPop.innerHTML = '⏹ Parar';
+                if (btnCard) btnCard.innerHTML = '⏹ Parar';
+                try {
+                    await narrateCurrentSelection();
                 } finally {
-                    if (thisSpeechId === activeSpeechId) {
-                        updateNarrateButtonsState(false);
-                    }
+                    if (btnPop) btnPop.innerHTML = '🔊 Ouvir';
+                    if (btnCard) btnCard.innerHTML = '🔊 Ouvir';
+                    if (typeof MozokLibrasAvatar !== 'undefined') MozokLibrasAvatar.stopSpeaking();
                 }
             }
 
@@ -4244,22 +4297,22 @@
                 document.getElementById('neuron-parts-bar').classList.toggle('visible', enable);
                 document.getElementById('btn-view-micro').classList.toggle('active', enable);
 
+                const curDisease = pathologySelect ? pathologySelect.value : 'HEALTHY';
+                const curSev = pathologySeveritySlider ? (parseFloat(pathologySeveritySlider.value) || 0.75) : 0.75;
+
                 if (enable) {
                     ['btn-view-external', 'btn-view-xray', 'btn-view-vascular'].forEach(id => {
                         document.getElementById(id).classList.remove('active');
                     });
                     selectNeuronSubPart(selectedNeuronPartId || 'NEURON_SOMA', false, false);
-                    if (typeof neuralMicro.setPathology === 'function' && typeof pathologySelect !== 'undefined' && pathologySelect) {
-                        const curKey = pathologySelect.value || 'HEALTHY';
-                        const curSev = curKey === 'HEALTHY' ? 0.0 : (parseFloat(pathologySeveritySlider ? pathologySeveritySlider.value : '0.75') || 0.75);
-                        neuralMicro.setPathology(curKey, curSev);
-                    }
+                    neuralMicro.setPathologySimulation(curDisease, curDisease === 'HEALTHY' ? 0.0 : curSev);
                     flyCameraTo(new THREE.Vector3(0.0, 0.5, 0.0), new THREE.Vector3(0.0, 1.5, 22.5), 0.75);
                 } else {
                     document.getElementById('btn-view-external').classList.add('active');
                     cnsAnatomy.setViewMode('EXTERNAL');
                     const meta = ontologyMap.get(selectedStructureId) || MOZOK_ONTOLOGY[0];
                     updateHUDAndPopup(meta, false);
+                    cnsAnatomy.setPathologySimulation(curDisease, curDisease === 'HEALTHY' ? 0.0 : curSev);
                     flyCameraTo(new THREE.Vector3(0, -1.5, 0), new THREE.Vector3(0, 1.5, 22.0), 0.75);
                 }
             }
@@ -4628,7 +4681,7 @@
                 if (cont) cont.style.display = 'block';
                 if (!vlibrasInitialized) {
                     vlibrasInitialized = true;
-                    // VLibras plugin externo removido em favor do Avatar 3D Nativo MOZOK (v1.0010)
+                    // VLibras plugin externo removido em favor do Avatar 3D Nativo MOZOK (v1.0011)
                 } else {
                     const vwBtn = document.querySelector('[vw-access-button]');
                     const vwWrapper = document.querySelector('[vw-plugin-wrapper]');
@@ -4637,7 +4690,16 @@
                     }
                 }
             }
-
+            if (btnVlibras) {
+                btnVlibras.addEventListener('click', () => {
+                    const dock = document.getElementById('mozok-vlibras-dock');
+                    vlibrasActive = !vlibrasActive;
+                    btnVlibras.classList.toggle('active', vlibrasActive);
+                    document.body.classList.toggle('vlibras-dock-open', vlibrasActive);
+                    if (dock) dock.classList.toggle('active', vlibrasActive);
+                    if (vlibrasActive) ensureVLibrasWidgetLoaded();
+                });
+            }
 
             // Tela Cheia (Navegador + WebView2 Nativo via IPC)
             function toggleFullscreen() {
@@ -4705,7 +4767,7 @@
                 setMicrocosmosMode(!isMicroMode);
             });
 
-            document.getElementById('btn-popup-narrate').addEventListener('click', toggleNarrationPlayback);
+            document.getElementById('btn-popup-narrate').addEventListener('click', toggleNarrateCurrentSelection);
 
             // Botões do Painel Direito
             document.getElementById('btn-isolate-piece').addEventListener('click', (e) => {
@@ -4722,7 +4784,7 @@
                 setMicrocosmosMode(!isMicroMode);
             });
 
-            document.getElementById('btn-narrate-card').addEventListener('click', toggleNarrationPlayback);
+            document.getElementById('btn-narrate-card').addEventListener('click', toggleNarrateCurrentSelection);
 
             document.getElementById('btn-stimulate-neuron').addEventListener('click', () => {
                 neuralMicro.triggerManualSpike();
@@ -4809,9 +4871,9 @@
             const pathologySelect = document.getElementById('pathology-select');
             const pathologySeveritySlider = document.getElementById('pathology-severity-slider');
 
-            function applyPathologySelection(diseaseKey, severityVal) {
+            function applyPathologySelection(diseaseKey, severityVal, focusCameraOnDiseaseChange = false) {
                 const profile = PATHOLOGY_PROFILES[diseaseKey] || PATHOLOGY_PROFILES['HEALTHY'];
-                const sev = diseaseKey === 'HEALTHY' ? 0.0 : severityVal;
+                const sev = diseaseKey === 'HEALTHY' ? 0.0 : Math.max(0.05, Math.min(1.0, Number(severityVal) || 0.75));
 
                 isStrokeActive = (diseaseKey === 'ISCHEMIC_STROKE' && sev > 0.01);
                 hypoxiaProgress = isStrokeActive ? sev : 0.0;
@@ -4823,11 +4885,29 @@
                     setTimeout(() => restoreBtn.classList.remove('emerald-flash'), 650);
                 }
 
-                if (typeof neuralMicro.setPathology === 'function') {
-                    neuralMicro.setPathology(diseaseKey, sev);
-                } else {
-                    neuralMicro.setPathologySimulation(diseaseKey, sev);
+                if (focusCameraOnDiseaseChange && !isMicroMode) {
+                    if (diseaseKey === 'HEALTHY') {
+                        cnsAnatomy.setViewMode('EXTERNAL');
+                        flyCameraTo(new THREE.Vector3(0, -1.5, 0), new THREE.Vector3(0, 1.5, 22.0), 0.75);
+                    } else if (profile.targetStructure && ontologyMap.has(profile.targetStructure)) {
+                        selectedStructureId = profile.targetStructure;
+                        cnsAnatomy.selectStructure(selectedStructureId);
+                        updateHUDAndPopup(ontologyMap.get(selectedStructureId), false);
+                        document.querySelectorAll('.structure-item').forEach(el => {
+                            el.classList.toggle('active', el.dataset.id === selectedStructureId);
+                        });
+                        const anchor = cnsAnatomy.getStructureWorldAnchor(selectedStructureId);
+                        const sideX = Math.abs(anchor.x) > 0.6 ? Math.sign(anchor.x) * 6.8 : 4.0;
+                        const sideZ = anchor.z < -2.0 ? -10.5 : 10.5;
+                        const distScale = anchor.y < -8.0 ? 1.28 : 0.95;
+                        const camTarget = new THREE.Vector3(anchor.x * 0.45, anchor.y, anchor.z * 0.45);
+                        const camPos = camTarget.clone().add(new THREE.Vector3(sideX * distScale, 2.0, sideZ * distScale));
+                        flyCameraTo(camTarget, camPos, 0.72);
+                    }
                 }
+
+                cnsAnatomy.setPathologySimulation(diseaseKey, sev);
+                neuralMicro.setPathologySimulation(diseaseKey, sev);
 
                 const stageBadge = document.getElementById('pathology-stage-badge');
                 stageBadge.textContent = profile.stage;
@@ -4848,35 +4928,29 @@
                 document.getElementById('bm-abeta-tau').textContent = profile.abetaTau;
                 document.getElementById('bm-nfl-prion').textContent = profile.nflPrion;
                 document.getElementById('bm-ocb').textContent = profile.ocb;
-
-                // No modo Macro SNC/SNP, move a câmera para a estrutura acometida e reaplica a simulação fisiopatológica 3D
-                if (!isMicroMode && diseaseKey !== 'HEALTHY' && profile.targetStructure && ontologyMap.has(profile.targetStructure)) {
-                    selectMacroStructure(profile.targetStructure, true, false);
-                }
-                cnsAnatomy.setPathologySimulation(diseaseKey, sev);
             }
 
             pathologySelect.addEventListener('change', () => {
                 const key = pathologySelect.value;
                 const sev = parseFloat(pathologySeveritySlider.value) || 0.75;
-                applyPathologySelection(key, sev);
+                applyPathologySelection(key, sev, true);
             });
 
             pathologySeveritySlider.addEventListener('input', () => {
                 const key = pathologySelect.value;
                 const sev = parseFloat(pathologySeveritySlider.value) || 0.75;
-                applyPathologySelection(key, sev);
+                applyPathologySelection(key, sev, false);
             });
 
             document.getElementById('btn-trigger-stroke-card').addEventListener('click', () => {
                 pathologySelect.value = 'ISCHEMIC_STROKE';
                 pathologySeveritySlider.value = '0.85';
-                applyPathologySelection('ISCHEMIC_STROKE', 0.85);
+                applyPathologySelection('ISCHEMIC_STROKE', 0.85, true);
             });
 
             document.getElementById('btn-restore-tissue-card').addEventListener('click', () => {
                 pathologySelect.value = 'HEALTHY';
-                applyPathologySelection('HEALTHY', 0.0);
+                applyPathologySelection('HEALTHY', 0.0, true);
             });
 
             // Controle de Densidade de Neurônios Conectados (54 a 180 Neurônios) + Status GPU
@@ -5061,7 +5135,7 @@
                 if (scaleSlider && document.activeElement !== scaleSlider) {
                     scaleSlider.value = String(Math.max(0, Math.min(100, depthPct)));
                 }
-                // v1.0010: Sem zoom intrusivo. O usuário pode afastar a câmera nos neurônios livremente sem voltar pro cérebro.
+                // v1.0011: Sem zoom intrusivo. O usuário pode afastar a câmera nos neurônios livremente sem voltar pro cérebro.
                 if (isMicroMode && typeof neuralMicro.setMultiscaleDepth === 'function') {
                     neuralMicro.setMultiscaleDepth(dist);
                 }
@@ -5334,7 +5408,7 @@
 
             
                         // =====================================================================
-            // MÓDULO DE APRESENTAÇÃO CIENTÍFICA MOZOK v1.0010 (DOOM 3 / ESPECTRO IPÊ)
+            // MÓDULO DE APRESENTAÇÃO CIENTÍFICA MOZOK v1.0011 (DOOM 3 / ESPECTRO IPÊ)
             // + PAUSA COM EMBLEMA ELÉTRICO MOZOK + VLIBRAS NATIVO + TRANSIÇÃO PARA TOUR
             // =====================================================================
             let doomAudioCtx = null;
@@ -5611,7 +5685,7 @@
                     vlibrasActive = true;
                     if (!vlibrasInitialized) {
                         vlibrasInitialized = true;
-                        // VLibras plugin externo removido em favor do Avatar 3D Nativo MOZOK (v1.0010)
+                        // VLibras plugin externo removido em favor do Avatar 3D Nativo MOZOK (v1.0011)
                     }
                     const vwBtn = document.querySelector('[vw-access-button]');
                     const vwWrapper = document.querySelector('[vw-plugin-wrapper]');
@@ -5824,79 +5898,308 @@
                 }
             }
 
-            // INTÉRPRETE OFICIAL 3D VLIBRAS (WebGL REAL) EMBUTIDO NO PALCO RECORTADO
-            const MozokLibrasAvatar = (() => {
-                let scriptLoaded = false;
+            // AVATAR INTÉRPRETE DE LIBRAS NATIVO EM THREE.JS / CANVAS INTEGRADO AO MOZOK
+                        const MozokLibrasAvatar = (() => {
+                let renderer3D = null;
+                let scene3D = null;
+                let camera3D = null;
+                let avatarRoot = null;
+                let headGroup = null;
+                let jawMesh = null;
+                let browL = null, browR = null;
+                let shoulderL = null, shoulderR = null;
+                let elbowL = null, elbowR = null;
+                let wristL = null, wristR = null;
+                let fingersL = [], fingersR = [];
+                let animId = null;
                 let active = false;
+                let signing = false;
+                let currentGlossTokens = [];
+                let phase = 0;
 
-                function loadOfficialVLibrasScript() {
-                    if (scriptLoaded || document.getElementById('mozok-vlibras-script')) {
-                        scriptLoaded = true;
-                        if (window.VLibras && !window.mozokVLibrasWidget) {
-                            try { window.mozokVLibrasWidget = new window.VLibras.Widget('https://vlibras.gov.br/app'); } catch (_) {}
-                        }
-                        return;
+                function hashWord(w) {
+                    let h = 2166136261;
+                    for (let i = 0; i < w.length; i++) {
+                        h ^= w.charCodeAt(i);
+                        h = Math.imul(h, 16777619);
                     }
-                    const s = document.createElement('script');
-                    s.id = 'mozok-vlibras-script';
-                    s.src = 'https://vlibras.gov.br/app/vlibras-plugin.js';
-                    s.async = true;
-                    s.onload = () => {
-                        scriptLoaded = true;
-                        try {
-                            if (window.VLibras && !window.mozokVLibrasWidget) {
-                                window.mozokVLibrasWidget = new window.VLibras.Widget('https://vlibras.gov.br/app');
-                            }
-                            setTimeout(() => {
-                                const btn = document.querySelector('#mozok-vlibras-3d-stage [vw-access-button]');
-                                const wrap = document.querySelector('#mozok-vlibras-3d-stage [vw-plugin-wrapper]');
-                                if (btn && wrap && !wrap.classList.contains('active')) btn.click();
-                            }, 500);
-                        } catch (_) {}
-                    };
-                    document.body.appendChild(s);
+                    return Math.abs(h);
+                }
+
+                function initThree3DAvatar() {
+                    if (renderer3D) return;
+                    const canvas = document.getElementById("mozok-libras-canvas");
+                    if (!canvas || typeof THREE === "undefined") return;
+
+                    renderer3D = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+                    renderer3D.setSize(246, 246, false);
+                    renderer3D.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+                    scene3D = new THREE.Scene();
+                    camera3D = new THREE.PerspectiveCamera(34, 1.0, 0.1, 50);
+                    camera3D.position.set(0, 1.28, 3.35);
+                    camera3D.lookAt(0, 1.12, 0);
+
+                    const amb = new THREE.AmbientLight(0xdbeafe, 0.85);
+                    const keyLight = new THREE.DirectionalLight(0xffffff, 1.15);
+                    keyLight.position.set(2.2, 3.5, 4.0);
+                    const rimLight = new THREE.PointLight(0x00f2fe, 1.35, 10);
+                    rimLight.position.set(-2.0, 2.2, -1.8);
+                    scene3D.add(amb, keyLight, rimLight);
+
+                    avatarRoot = new THREE.Group();
+                    scene3D.add(avatarRoot);
+
+                    const skinMat = new THREE.MeshStandardMaterial({ color: 0xe6b89c, roughness: 0.42, metalness: 0.05 });
+                    const suitMat = new THREE.MeshStandardMaterial({ color: 0x0f2942, roughness: 0.48, metalness: 0.18 });
+                    const cyanTrimMat = new THREE.MeshStandardMaterial({ color: 0x00f2fe, emissive: 0x0096c7, emissiveIntensity: 0.55 });
+                    const hairMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.65 });
+                    const eyeMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.15 });
+
+                    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.36, 0.92, 24), suitMat);
+                    torso.position.set(0, 0.78, 0);
+                    torso.scale.set(1.18, 1.0, 0.68);
+                    avatarRoot.add(torso);
+
+                    const collarL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.34, 0.04), cyanTrimMat);
+                    collarL.position.set(-0.09, 1.08, 0.25);
+                    collarL.rotation.z = -0.32;
+                    const collarR = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.34, 0.04), cyanTrimMat);
+                    collarR.position.set(0.09, 1.08, 0.25);
+                    collarR.rotation.z = 0.32;
+                    avatarRoot.add(collarL, collarR);
+
+                    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.125, 0.22, 18), skinMat);
+                    neck.position.set(0, 1.29, 0);
+                    avatarRoot.add(neck);
+
+                    headGroup = new THREE.Group();
+                    headGroup.position.set(0, 1.54, 0.02);
+                    avatarRoot.add(headGroup);
+
+                    const cranium = new THREE.Mesh(new THREE.SphereGeometry(0.24, 28, 28), skinMat);
+                    cranium.scale.set(0.92, 1.08, 0.96);
+                    headGroup.add(cranium);
+
+                    const hairCap = new THREE.Mesh(new THREE.SphereGeometry(0.248, 24, 20, 0, Math.PI * 2, 0, Math.PI * 0.58), hairMat);
+                    hairCap.position.set(0, 0.02, -0.02);
+                    hairCap.rotation.x = -0.18;
+                    headGroup.add(hairCap);
+
+                    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.026, 14, 14), eyeMat);
+                    eyeL.position.set(-0.08, 0.03, 0.21);
+                    const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.026, 14, 14), eyeMat);
+                    eyeR.position.set(0.08, 0.03, 0.21);
+                    headGroup.add(eyeL, eyeR);
+
+                    browL = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.014, 0.02), hairMat);
+                    browL.position.set(-0.08, 0.082, 0.215);
+                    browR = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.014, 0.02), hairMat);
+                    browR.position.set(0.08, 0.082, 0.215);
+                    headGroup.add(browL, browR);
+
+                    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.026, 0.075, 12), skinMat);
+                    nose.position.set(0, -0.01, 0.235);
+                    nose.rotation.x = Math.PI * 0.42;
+                    headGroup.add(nose);
+
+                    jawMesh = new THREE.Mesh(new THREE.BoxGeometry(0.082, 0.022, 0.025), new THREE.MeshStandardMaterial({ color: 0xb56557, roughness: 0.4 }));
+                    jawMesh.position.set(0, -0.095, 0.205);
+                    headGroup.add(jawMesh);
+
+                    function buildArmChain(side) {
+                        const sPivot = new THREE.Group();
+                        sPivot.position.set(side * 0.48, 1.15, 0.02);
+                        avatarRoot.add(sPivot);
+
+                        const shoulderBall = new THREE.Mesh(new THREE.SphereGeometry(0.105, 16, 16), suitMat);
+                        sPivot.add(shoulderBall);
+
+                        const upperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.072, 0.42, 16), suitMat);
+                        upperArm.position.set(0, -0.21, 0);
+                        sPivot.add(upperArm);
+
+                        const ePivot = new THREE.Group();
+                        ePivot.position.set(0, -0.42, 0);
+                        sPivot.add(ePivot);
+
+                        const elbowJoint = new THREE.Mesh(new THREE.SphereGeometry(0.072, 14, 14), suitMat);
+                        ePivot.add(elbowJoint);
+
+                        const forearm = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.055, 0.38, 16), skinMat);
+                        forearm.position.set(0, -0.19, 0);
+                        ePivot.add(forearm);
+
+                        const cuff = new THREE.Mesh(new THREE.TorusGeometry(0.066, 0.012, 10, 20), cyanTrimMat);
+                        cuff.rotation.x = Math.PI / 2;
+                        cuff.position.set(0, -0.06, 0);
+                        ePivot.add(cuff);
+
+                        const wPivot = new THREE.Group();
+                        wPivot.position.set(0, -0.38, 0);
+                        ePivot.add(wPivot);
+
+                        const palm = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.12, 0.042), skinMat);
+                        palm.position.set(0, -0.055, 0);
+                        wPivot.add(palm);
+
+                        const fingerList = [];
+                        const fingerOffsets = [
+                            { x: -side * 0.058, y: -0.04, len: 0.075, isThumb: true },
+                            { x: -side * 0.038, y: -0.115, len: 0.095, isThumb: false },
+                            { x: -side * 0.012, y: -0.120, len: 0.105, isThumb: false },
+                            { x: side * 0.014,  y: -0.116, len: 0.096, isThumb: false },
+                            { x: side * 0.038,  y: -0.108, len: 0.078, isThumb: false }
+                        ];
+                        fingerOffsets.forEach((fo) => {
+                            const fPivot = new THREE.Group();
+                            fPivot.position.set(fo.x, fo.y, 0.008);
+                            if (fo.isThumb) fPivot.rotation.z = -side * 0.48;
+                            const phalanx = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.011, fo.len, 10), skinMat);
+                            phalanx.position.set(0, -fo.len * 0.5, 0);
+                            const tip = new THREE.Mesh(new THREE.SphereGeometry(0.012, 8, 8), skinMat);
+                            tip.position.set(0, -fo.len, 0);
+                            fPivot.add(phalanx, tip);
+                            wPivot.add(fPivot);
+                            fingerList.push(fPivot);
+                        });
+
+                        return { sPivot, ePivot, wPivot, fingerList };
+                    }
+
+                    const leftChain = buildArmChain(-1);
+                    const rightChain = buildArmChain(1);
+                    shoulderL = leftChain.sPivot; elbowL = leftChain.ePivot; wristL = leftChain.wPivot; fingersL = leftChain.fingerList;
+                    shoulderR = rightChain.sPivot; elbowR = rightChain.ePivot; wristR = rightChain.wPivot; fingersR = rightChain.fingerList;
+                }
+
+                async function translateToLibrasGloss(text) {
+                    try {
+                        const res = await fetch("https://traducao2.vlibras.gov.br/translate", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ text })
+                        });
+                        if (res.ok) {
+                            const data = await res.text();
+                            const tokens = data.trim().split(/\s+/).filter(Boolean);
+                            if (tokens.length > 0) return tokens;
+                        }
+                    } catch (_) {}
+                    return text.toUpperCase()
+                        .replace(/[^A-ZÀ-Ú0-9\s]/g, "")
+                        .split(/\s+/)
+                        .filter(w => w.length > 2)
+                        .slice(0, 18);
+                }
+
+                function drawAvatarFrame() {
+                    if (!active) return;
+                    initThree3DAvatar();
+                    if (!renderer3D) return;
+
+                    if (signing) phase += 0.095;
+                    else phase += 0.025;
+
+                    const tokIdx = currentGlossTokens.length > 0 ? (Math.floor(phase / 3.2) % currentGlossTokens.length) : 0;
+                    const activeToken = currentGlossTokens[tokIdx] || "PRONTO";
+                    const seed = hashWord(activeToken);
+
+                    if (signing) {
+                        const bar = document.getElementById("mozok-libras-gloss-bar");
+                        if (bar) bar.textContent = "SINAL LIBRAS: " + activeToken;
+
+                        headGroup.rotation.y = Math.sin(phase * 0.85 + (seed % 5)) * 0.16;
+                        headGroup.rotation.x = Math.cos(phase * 0.7) * 0.09;
+                        browL.position.y = 0.082 + Math.sin(phase * 1.4) * 0.012;
+                        browR.position.y = 0.082 + Math.sin(phase * 1.4) * 0.012;
+                        jawMesh.scale.y = 1.0 + Math.abs(Math.sin(phase * 2.6)) * 0.85;
+
+                        const locMode = seed % 3;
+                        const targetHeightL = locMode === 1 ? -0.95 : (locMode === 2 ? -0.65 : -0.78);
+                        const targetHeightR = locMode === 1 ? -1.08 : (locMode === 2 ? -0.70 : -0.82);
+
+                        shoulderL.rotation.x = targetHeightL + Math.sin(phase * 1.6) * 0.28;
+                        shoulderL.rotation.z = 0.22 + Math.cos(phase * 1.3) * 0.18;
+                        shoulderL.rotation.y = 0.35 + Math.sin(phase * 1.1) * 0.22;
+
+                        shoulderR.rotation.x = targetHeightR + Math.cos(phase * 1.7) * 0.32;
+                        shoulderR.rotation.z = -0.22 - Math.sin(phase * 1.4) * 0.18;
+                        shoulderR.rotation.y = -0.35 + Math.cos(phase * 1.2) * 0.22;
+
+                        elbowL.rotation.x = -1.35 + Math.cos(phase * 2.1) * 0.35;
+                        elbowL.rotation.z = -0.38 + Math.sin(phase * 1.5) * 0.20;
+
+                        elbowR.rotation.x = -1.42 + Math.sin(phase * 2.2) * 0.38;
+                        elbowR.rotation.z = 0.38 - Math.cos(phase * 1.6) * 0.20;
+
+                        wristL.rotation.x = Math.sin(phase * 2.8) * 0.45;
+                        wristL.rotation.y = Math.cos(phase * 2.4) * 0.55;
+                        wristR.rotation.x = Math.cos(phase * 2.9) * 0.45;
+                        wristR.rotation.y = Math.sin(phase * 2.5) * 0.55;
+
+                        for (let i = 0; i < 5; i++) {
+                            const fingerBit = ((seed >> i) & 1);
+                            const curlL = fingerBit ? (0.15 + 0.25 * Math.sin(phase * 3.0 + i)) : (1.15 + 0.25 * Math.cos(phase * 2.5 + i));
+                            const curlR = ((seed >> (i + 2)) & 1) ? (0.12 + 0.25 * Math.cos(phase * 3.1 + i)) : (1.20 + 0.25 * Math.sin(phase * 2.7 + i));
+                            if (fingersL[i]) fingersL[i].rotation.x = -curlL;
+                            if (fingersR[i]) fingersR[i].rotation.x = -curlR;
+                        }
+                    } else {
+                        headGroup.rotation.y = Math.sin(phase * 0.6) * 0.05;
+                        headGroup.rotation.x = Math.cos(phase * 0.5) * 0.03;
+                        jawMesh.scale.y = 1.0;
+                        shoulderL.rotation.set(-0.28, 0.18, 0.16);
+                        shoulderR.rotation.set(-0.28, -0.18, -0.16);
+                        elbowL.rotation.set(-0.95, 0, -0.28);
+                        elbowR.rotation.set(-0.95, 0, 0.28);
+                        wristL.rotation.set(0, 0.3, 0);
+                        wristR.rotation.set(0, -0.3, 0);
+                        for (let i = 0; i < 5; i++) {
+                            if (fingersL[i]) fingersL[i].rotation.x = -0.25;
+                            if (fingersR[i]) fingersR[i].rotation.x = -0.25;
+                        }
+                    }
+
+                    renderer3D.render(scene3D, camera3D);
+                    animId = requestAnimationFrame(drawAvatarFrame);
                 }
 
                 return {
                     show() {
                         active = true;
-                        vlibrasActive = true;
-                        document.body.classList.add('vlibras-dock-open');
-                        document.getElementById('mozok-vlibras-3d-stage')?.classList.add('active');
-                        document.getElementById('btn-doom3-libras')?.classList.add('active');
-                        document.getElementById('btn-vlibras')?.classList.add('active');
-                        loadOfficialVLibrasScript();
-                        setTimeout(() => {
-                            const btn = document.querySelector('#mozok-vlibras-3d-stage [vw-access-button]');
-                            const wrap = document.querySelector('#mozok-vlibras-3d-stage [vw-plugin-wrapper]');
-                            if (btn && wrap && !wrap.classList.contains('active')) btn.click();
-                        }, 300);
+                        document.getElementById("mozok-libras-native-panel")?.classList.add("active");
+                        document.getElementById("btn-doom3-libras")?.classList.add("active");
+                        document.getElementById("btn-vlibras")?.classList.add("active");
+                        if (!animId) drawAvatarFrame();
                     },
                     hide() {
                         active = false;
-                        vlibrasActive = false;
-                        document.body.classList.remove('vlibras-dock-open');
-                        document.getElementById('mozok-vlibras-3d-stage')?.classList.remove('active');
-                        document.getElementById('btn-doom3-libras')?.classList.remove('active');
-                        document.getElementById('btn-vlibras')?.classList.remove('active');
+                        signing = false;
+                        if (animId) { cancelAnimationFrame(animId); animId = null; }
+                        document.getElementById("mozok-libras-native-panel")?.classList.remove("active");
+                        document.getElementById("btn-doom3-libras")?.classList.remove("active");
+                        document.getElementById("btn-vlibras")?.classList.remove("active");
                     },
                     toggle() {
                         if (active) this.hide();
                         else this.show();
                     },
-                    speak(text) {
-                        if (!active || !text) return;
-                        try {
-                            if (window.plugin && typeof window.plugin.translate === 'function') {
-                                window.plugin.translate(text);
-                            } else if (window.VLibras && typeof window.VLibras.translate === 'function') {
-                                window.VLibras.translate(text);
-                            } else if (window.mozokVLibrasWidget && typeof window.mozokVLibrasWidget.translate === 'function') {
-                                window.mozokVLibrasWidget.translate(text);
-                            }
-                        } catch (_) {}
+                    async speak(text) {
+                        if (!active && (currentLang || "pt-BR").toLowerCase().startsWith("pt")) {
+                            this.show();
+                        }
+                        if (!active) return;
+                        signing = true;
+                        currentGlossTokens = await translateToLibrasGloss(text);
+                        const bar = document.getElementById("mozok-libras-gloss-bar");
+                        if (bar && currentGlossTokens[0]) bar.textContent = "SINAL LIBRAS: " + currentGlossTokens[0];
                     },
-                    stopSpeaking() {}
+                    stopSpeaking() {
+                        signing = false;
+                        const bar = document.getElementById("mozok-libras-gloss-bar");
+                        if (bar) bar.textContent = "LIBRAS 3D // EM ESPERA";
+                    }
                 };
             })();
 
@@ -6267,7 +6570,7 @@
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div class="brand-logo" style="width:36px; height:36px; font-size:18px;">📊</div>
                     <div>
-                        <h2 id="mozok-research-title" style="font-size:16px; font-weight:800; color:#f8fafc; margin:0;">Módulo de Prova &amp; Validação Científica Internacional (MOZOK v1.0010)</h2>
+                        <h2 id="mozok-research-title" style="font-size:16px; font-weight:800; color:#f8fafc; margin:0;">Módulo de Prova &amp; Validação Científica Internacional (MOZOK v1.0011)</h2>
                         <div style="font-size:11px; color:#00f2fe; font-weight:600;">Protocolo Quase-Experimental • Ganho Normalizado de Hake (g) • NASA-TLX • Escala SUS (0–100)</div>
                     </div>
                 </div>

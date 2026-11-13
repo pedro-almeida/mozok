@@ -277,7 +277,7 @@ class CNSAnatomy3D {
 
                     // Atrofia cortical difusa na Doença de Alzheimer (modo 2) ou DCJ Priônica (modo 5) sem auto-interseção de giros
                     if ((abs(uDiseaseMode - 2.0) < 0.2 || abs(uDiseaseMode - 5.0) < 0.2) && uDiseaseSeverity > 0.01) {
-                        float shrink = 1.0 - (0.055 * uDiseaseSeverity);
+                        float shrink = 1.0 - (0.125 * uDiseaseSeverity);
                         pos *= shrink;
                     }
 
@@ -2285,6 +2285,20 @@ class CNSAnatomy3D {
     }
 
     setPathologySimulation(diseaseKey, severity = 0.75) {
+        const canonicalKeyMap = {
+            'HEALTHY': 'HEALTHY',
+            'ISCHEMIC_STROKE': 'ISCHEMIC_STROKE',
+            'ALZHEIMER': 'ALZHEIMER',
+            'PARKINSON': 'PARKINSON',
+            'MULTIPLE_SCLEROSIS': 'MULTIPLE_SCLEROSIS',
+            'PRION_DCJ': 'PRION_DCJ',
+            'PRION_CJD': 'PRION_DCJ',
+            'ALS_ELA': 'ALS_ELA',
+            'ALS': 'ALS_ELA',
+            'EPILEPSY': 'EPILEPSY',
+            'TEMPORAL_EPILEPSY': 'EPILEPSY'
+        };
+        const normKey = canonicalKeyMap[diseaseKey] || 'HEALTHY';
         const modeMap = {
             'HEALTHY': 0.0,
             'ISCHEMIC_STROKE': 1.0,
@@ -2295,15 +2309,25 @@ class CNSAnatomy3D {
             'ALS_ELA': 6.0,
             'EPILEPSY': 7.0
         };
-        const code = modeMap[diseaseKey] !== undefined ? modeMap[diseaseKey] : 0.0;
+        const code = modeMap[normKey] !== undefined ? modeMap[normKey] : 0.0;
+        const sev = code === 0.0 ? 0.0 : Math.max(0.05, Math.min(1.0, Number(severity) || 0.75));
         this.activeDiseaseMode = code;
-        this.diseaseSeverity = code === 0.0 ? 0.0 : severity;
+        this.diseaseSeverity = sev;
         this.uniforms.uDiseaseMode.value = code;
-        this.uniforms.uDiseaseSeverity.value = this.diseaseSeverity;
+        this.uniforms.uDiseaseSeverity.value = sev;
         this.uniforms.uStrokeActive.value = (code === 1.0) ? 1.0 : 0.0;
-        this.uniforms.uHypoxiaLevel.value = (code === 1.0) ? severity : 0.0;
+        this.uniforms.uHypoxiaLevel.value = (code === 1.0) ? sev : 0.0;
+        this.uniforms.uStrokeRadius.value = (code === 1.0) ? (1.6 + 2.4 * sev) : 3.4;
 
-        // Realça visualmente em 3D a estrutura subcortical/tronco/medula primariamente afetada pela doença!
+        if (!this.macroPathologyGroup) {
+            this.macroPathologyGroup = new THREE.Group();
+            this.macroPathologyGroup.name = 'MacroPathologyLesions3D';
+            this.rootGroup.add(this.macroPathologyGroup);
+        }
+        while (this.macroPathologyGroup.children.length > 0) {
+            this.macroPathologyGroup.remove(this.macroPathologyGroup.children[0]);
+        }
+
         const targetStructureByDisease = {
             'ISCHEMIC_STROKE': ['MIDDLE_CEREBRAL_ARTERY', 'CIRCLE_OF_WILLIS'],
             'ALZHEIMER': ['HIPPOCAMPUS', 'LATERAL_VENTRICLES'],
@@ -2314,24 +2338,170 @@ class CNSAnatomy3D {
             'EPILEPSY': ['HIPPOCAMPUS', 'AMYGDALA', 'TEMPORAL_LOBE']
         };
 
-        const highlightedSet = new Set(targetStructureByDisease[diseaseKey] || []);
-        if (highlightedSet.size > 0 && ['ALZHEIMER', 'PARKINSON', 'MULTIPLE_SCLEROSIS', 'PRION_DCJ'].includes(diseaseKey)) {
-            this.setCortexAlpha(0.28);
+        const highlightedSet = new Set(targetStructureByDisease[normKey] || []);
+        if (highlightedSet.size > 0 && ['ALZHEIMER', 'PARKINSON', 'MULTIPLE_SCLEROSIS', 'PRION_DCJ'].includes(normKey)) {
+            this.setCortexAlpha(0.44);
+            this.subcorticalGroup.visible = true;
+            this.csfGroup.visible = true;
+        } else if (normKey === 'EPILEPSY') {
+            this.setCortexAlpha(0.55);
             this.subcorticalGroup.visible = true;
         } else if (code === 0.0 && this.viewMode === 'EXTERNAL' && !this.isolatedId) {
             this.setCortexAlpha(1.0);
         }
 
+        // Restaura estado saudável salvo de cada malha subcortical/espinhal/vascular e aplica morfologia proporcional a sev
         this.structureMeshes.forEach((meshes, id) => {
-            if (!this.lobeNumericMap[id]) {
-                const isPathTarget = highlightedSet.has(id);
-                meshes.forEach(m => {
-                    if (m.material && m.material.emissive) {
-                        m.material.emissiveIntensity = isPathTarget ? (0.85 * severity + 0.25) : (id === this.selectedId ? 0.65 : 0.22);
+            if (this.lobeNumericMap[id]) return;
+            const isPathTarget = highlightedSet.has(id);
+            meshes.forEach(m => {
+                if (!m.userData._savedHealthyScale) {
+                    m.userData._savedHealthyScale = m.scale.clone();
+                    if (m.material && m.material.color) m.userData._savedHealthyColor = m.material.color.clone();
+                    if (m.material && m.material.emissive) m.userData._savedHealthyEmissive = m.material.emissive.clone();
+                }
+                m.scale.copy(m.userData._savedHealthyScale);
+                if (m.material && m.userData._savedHealthyColor) m.material.color.copy(m.userData._savedHealthyColor);
+                if (m.material && m.userData._savedHealthyEmissive) m.material.emissive.copy(m.userData._savedHealthyEmissive);
+
+                if (m.material && m.material.emissive) {
+                    m.material.emissiveIntensity = isPathTarget ? (0.45 + 1.35 * sev) : (id === this.selectedId ? 0.65 : 0.22);
+                }
+
+                if (code > 0.0 && isPathTarget && m.material) {
+                    if (normKey === 'ALZHEIMER' && id === 'HIPPOCAMPUS') {
+                        m.scale.copy(m.userData._savedHealthyScale).multiplyScalar(1.0 - 0.45 * sev);
+                        if (m.material.color) m.material.color.lerp(new THREE.Color(0xd97706), 0.78 * sev);
+                        if (m.material.emissive) m.material.emissive.lerp(new THREE.Color(0x92400e), 0.85 * sev);
+                    } else if (normKey === 'ALZHEIMER' && id === 'LATERAL_VENTRICLES') {
+                        m.scale.copy(m.userData._savedHealthyScale).multiplyScalar(1.0 + 0.42 * sev);
+                        if (m.material.color) m.material.color.lerp(new THREE.Color(0x38bdf8), 0.65 * sev);
+                    } else if (normKey === 'PARKINSON' && (id === 'MIDBRAIN' || id === 'BASAL_GANGLIA')) {
+                        if (id === 'MIDBRAIN') m.scale.copy(m.userData._savedHealthyScale).multiplyScalar(1.0 - 0.28 * sev);
+                        if (m.material.color) m.material.color.lerp(new THREE.Color(0xf43f5e), 0.82 * sev);
+                        if (m.material.emissive) m.material.emissive.lerp(new THREE.Color(0xbe123c), 0.90 * sev);
+                    } else if (normKey === 'MULTIPLE_SCLEROSIS') {
+                        if (m.material.color) m.material.color.lerp(new THREE.Color(0xec4899), 0.80 * sev);
+                        if (m.material.emissive) m.material.emissive.lerp(new THREE.Color(0xbe185d), 0.90 * sev);
+                    } else if (normKey === 'PRION_DCJ') {
+                        m.scale.copy(m.userData._savedHealthyScale).multiplyScalar(1.0 - 0.30 * sev);
+                        if (m.material.color) m.material.color.lerp(new THREE.Color(0xd946ef), 0.82 * sev);
+                        if (m.material.emissive) m.material.emissive.lerp(new THREE.Color(0xa21caf), 0.92 * sev);
+                    } else if (normKey === 'ALS_ELA' && (id === 'SPINAL_CORD' || id === 'MEDULLA_OBLONGATA')) {
+                        m.scale.set(
+                            m.userData._savedHealthyScale.x * (1.0 - 0.38 * sev),
+                            m.userData._savedHealthyScale.y,
+                            m.userData._savedHealthyScale.z * (1.0 - 0.38 * sev)
+                        );
+                        if (m.material.color) m.material.color.lerp(new THREE.Color(0xf97316), 0.85 * sev);
+                        if (m.material.emissive) m.material.emissive.lerp(new THREE.Color(0xdc2626), 0.95 * sev);
+                    } else if (normKey === 'EPILEPSY') {
+                        if (m.material.color) m.material.color.lerp(new THREE.Color(0xfacc15), 0.82 * sev);
+                        if (m.material.emissive) m.material.emissive.lerp(new THREE.Color(0x00f2fe), 0.95 * sev);
+                    } else if (normKey === 'ISCHEMIC_STROKE') {
+                        if (m.material.color) m.material.color.lerp(new THREE.Color(0x991b1b), 0.88 * sev);
+                        if (m.material.emissive) m.material.emissive.lerp(new THREE.Color(0xef4444), 0.90 * sev);
                     }
-                });
-            }
+                }
+            });
         });
+
+        if (code === 0.0 || sev <= 0.01) return;
+
+        // Marcadores 3D Macroscópicos escalando individualmente no próprio eixo local (0.25 + 1.15 * sev)
+        const sc = 0.25 + 1.15 * sev;
+        if (normKey === 'ISCHEMIC_STROKE') {
+            const clotMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0x991b1b, emissiveIntensity: 1.1, roughness: 0.3 });
+            const haloMat = new THREE.MeshBasicMaterial({ color: 0xa855f7, transparent: true, opacity: 0.32 * sev, wireframe: true });
+            const clot = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 20), clotMat);
+            clot.position.set(3.65, 0.55, 0.85);
+            clot.scale.setScalar(sc);
+            const penumbraSphere = new THREE.Mesh(new THREE.SphereGeometry(2.1, 24, 24), haloMat);
+            penumbraSphere.position.set(3.8, 1.2, 1.1);
+            penumbraSphere.scale.setScalar(0.55 + 0.75 * sev);
+            this.macroPathologyGroup.add(clot, penumbraSphere);
+        } else if (normKey === 'ALZHEIMER') {
+            const plaqueMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xb45309, emissiveIntensity: 0.95, roughness: 0.45 });
+            const coords = [
+                [1.95, -1.1, -0.2], [-1.95, -1.1, -0.2], [2.2, -0.8, 0.6], [-2.2, -0.8, 0.6],
+                [3.2, -0.5, 0.8], [-3.2, -0.5, 0.8], [2.6, 1.8, -1.2], [-2.6, 1.8, -1.2],
+                [1.5, 2.4, 1.6], [-1.5, 2.4, 1.6], [3.4, 0.9, -1.8], [-3.4, 0.9, -1.8]
+            ];
+            coords.forEach(([x, y, z], i) => {
+                const p = new THREE.Mesh(new THREE.DodecahedronGeometry(0.28 + (i % 3) * 0.06, 1), plaqueMat);
+                p.position.set(x, y, z);
+                p.scale.setScalar(sc);
+                this.macroPathologyGroup.add(p);
+            });
+        } else if (normKey === 'PARKINSON') {
+            const lewyMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e, emissive: 0xe11d48, emissiveIntensity: 1.15, roughness: 0.25 });
+            const coords = [
+                [0.48, -1.32, -0.22], [-0.48, -1.32, -0.22], [0.28, -1.45, -0.35], [-0.28, -1.45, -0.35],
+                [1.85, 0.25, 0.35], [-1.85, 0.25, 0.35], [2.15, 0.45, 0.10], [-2.15, 0.45, 0.10],
+                [1.65, -0.10, 0.55], [-1.65, -0.10, 0.55]
+            ];
+            coords.forEach(([x, y, z]) => {
+                const m = new THREE.Mesh(new THREE.SphereGeometry(0.24, 18, 18), lewyMat);
+                m.position.set(x, y, z);
+                m.scale.setScalar(sc);
+                this.macroPathologyGroup.add(m);
+            });
+        } else if (normKey === 'MULTIPLE_SCLEROSIS') {
+            const msMat = new THREE.MeshStandardMaterial({ color: 0x00f2fe, emissive: 0xec4899, emissiveIntensity: 1.1, roughness: 0.25 });
+            const dawsonCoords = [
+                [0.0, 1.72, 0.85], [0.45, 1.68, 0.25], [-0.45, 1.68, 0.25], [0.0, 1.58, -0.55],
+                [0.75, 1.62, -1.15], [-0.75, 1.62, -1.15], [1.25, -0.92, 3.1], [-1.25, -0.92, 3.1],
+                [0.18, -6.2, -1.32], [-0.18, -8.4, -1.38], [0.15, -10.8, -1.42], [-0.15, -13.2, -1.40],
+                [0.16, -15.6, -1.36], [-0.16, -17.8, -1.32]
+            ];
+            dawsonCoords.forEach(([x, y, z], idx) => {
+                const plaque = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), msMat);
+                plaque.position.set(x, y, z);
+                plaque.scale.set(sc * 0.85, sc * (idx < 6 ? 1.65 : 1.25), sc * 0.85);
+                this.macroPathologyGroup.add(plaque);
+            });
+        } else if (normKey === 'PRION_DCJ') {
+            const vacMat = new THREE.MeshPhysicalMaterial({ color: 0xf472b6, emissive: 0xd946ef, emissiveIntensity: 0.85, transparent: true, opacity: 0.72, roughness: 0.1 });
+            const coords = [
+                [0.95, 0.22, -0.35], [-0.95, 0.22, -0.35], [1.25, 0.05, -0.65], [-1.25, 0.05, -0.65],
+                [1.85, -3.25, -3.65], [-1.85, -3.25, -3.65], [2.8, 1.6, 1.8], [-2.8, 1.6, 1.8],
+                [3.1, 0.4, -1.5], [-3.1, 0.4, -1.5], [1.8, 2.8, 0.4], [-1.8, 2.8, 0.4]
+            ];
+            coords.forEach(([x, y, z]) => {
+                const v = new THREE.Mesh(new THREE.OctahedronGeometry(0.28, 1), vacMat);
+                v.position.set(x, y, z);
+                v.scale.setScalar(sc);
+                this.macroPathologyGroup.add(v);
+            });
+        } else if (normKey === 'ALS_ELA') {
+            const tdpMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xdc2626, emissiveIntensity: 1.25, roughness: 0.25 });
+            for (let i = 0; i < 14; i++) {
+                const yPos = -4.2 - i * 1.15;
+                const zPos = -1.32 - Math.sin(i * 0.28) * 0.12;
+                const leftTract = new THREE.Mesh(new THREE.SphereGeometry(0.24, 14, 14), tdpMat);
+                leftTract.position.set(0.32, yPos, zPos);
+                leftTract.scale.set(sc * 0.9, sc * 1.45, sc * 0.9);
+                const rightTract = new THREE.Mesh(new THREE.SphereGeometry(0.24, 14, 14), tdpMat);
+                rightTract.position.set(-0.32, yPos, zPos);
+                rightTract.scale.set(sc * 0.9, sc * 1.45, sc * 0.9);
+                this.macroPathologyGroup.add(leftTract, rightTract);
+            }
+            [[2.4, 2.8, 0.4], [-2.4, 2.8, 0.4], [3.2, 1.9, 0.5], [-3.2, 1.9, 0.5]].forEach(([x, y, z]) => {
+                const m1 = new THREE.Mesh(new THREE.OctahedronGeometry(0.30, 1), tdpMat);
+                m1.position.set(x, y, z);
+                m1.scale.setScalar(sc);
+                this.macroPathologyGroup.add(m1);
+            });
+        } else if (normKey === 'EPILEPSY') {
+            const epiMat = new THREE.MeshBasicMaterial({ color: 0xfacc15, wireframe: true, transparent: true, opacity: 0.45 + 0.45 * sev });
+            for (let r = 1; r <= 3; r++) {
+                const ring = new THREE.Mesh(new THREE.TorusGeometry(0.55 * r, 0.045, 12, 32), epiMat);
+                ring.position.set(2.35, -1.15, 0.25);
+                ring.rotation.y = Math.PI / 3;
+                ring.scale.setScalar(0.55 + 0.85 * sev);
+                this.macroPathologyGroup.add(ring);
+            }
+        }
     }
 
     update(dt, elapsed) {
