@@ -471,3 +471,4 @@ txt = txt[:close_class_idx] + pathology_methods + txt[close_class_idx + 1:]
 
 JS_PATH.write_text(txt, encoding="utf-8")
 print("[OK] neural-microcosmos-3d.js atualizado com simulacao 3D real das 7 patologias (v1.0010).")
+
