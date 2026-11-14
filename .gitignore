@@ -11,8 +11,13 @@ scratch_*
 *.log
 .playwright-mcp/
 
-# Python cache
+# Python cache & temporary upgrade scripts
+upgrade_v*.py
+tools/upgrade_v*.py
+tools/apply_*.py
+scripts/tmp/
 __pycache__/
+*.pyc
 *.py[cod]
 
 # Audio cache

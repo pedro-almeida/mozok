@@ -16,3 +16,7 @@
 4. **Qualidade Rust Workspace:**
    - Todo commit deve passar em `cargo fmt --all -- --check`, `cargo clippy --workspace -- -D warnings` e `cargo test --workspace`.
 
+5. **Proibição de Scripts de Upgrade no Git e Auto-Commit & Push:**
+   - **Proibição de Scripts de Upgrade no Git**: Todas as edições em `web/index.html`, `web/js/*.js` e crates Rust devem ser feitas diretamente nos arquivos-fonte. Caso um script auxiliar Python seja usado para processamento em lote, ele deve ser apagado antes do `git commit`.
+   - **Auto-Commit & Push**: Sempre finalizar o ciclo executando testes/validações, `git commit` e `git push origin main`.
+
