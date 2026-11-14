@@ -439,53 +439,90 @@
         }
 
         /* =========================================================================
-           VLIBRAS SOB DEMANDA EM DOCK COMPACTO PiP (ZERO ESPAÇO QUANDO DESATIVADO)
+           VLIBRAS OFICIAL ADAPTADO AO TEMA ESCURO/CIENTÍFICO DO MOZOK
            ========================================================================= */
-        #vlibras-container {
-            display: none !important;
-        }
-        body.vlibras-dock-open #vlibras-container {
-            display: block !important;
-            position: fixed !important;
-            right: 396px !important;
-            bottom: 66px !important;
-            top: auto !important;
-            left: auto !important;
-            z-index: 32 !important;
-        }
-        body:not(.vlibras-dock-open) [vw],
-        body:not(.vlibras-dock-open) [vw-access-button],
-        body:not(.vlibras-dock-open) [vw-plugin-wrapper] {
+        body:not(.vlibras-active):not(.vlibras-dock-open) [vw],
+        body:not(.vlibras-active):not(.vlibras-dock-open) [vw-access-button],
+        body:not(.vlibras-active):not(.vlibras-dock-open) [vw-plugin-wrapper],
+        body:not(.vlibras-active):not(.vlibras-dock-open) #vlibras-access-wrapper,
+        body:not(.vlibras-active):not(.vlibras-dock-open) #vlibras-app-root {
             display: none !important;
             opacity: 0 !important;
             pointer-events: none !important;
         }
+
+        body.vlibras-active [vw],
         body.vlibras-dock-open [vw] {
             display: block !important;
             position: fixed !important;
             right: 396px !important;
-            bottom: 66px !important;
+            bottom: 70px !important;
             top: auto !important;
             left: auto !important;
-            z-index: 32 !important;
-            transform: scale(0.72) !important;
+            z-index: 9500 !important;
+            transform: scale(0.85) !important;
             transform-origin: bottom right !important;
-            filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.75));
+            filter: drop-shadow(0 14px 32px rgba(0, 0, 0, 0.85));
+            pointer-events: auto !important;
         }
+
+        [vw-access-button] {
+            border-radius: 14px !important;
+            border: 1.5px solid rgba(0, 242, 254, 0.6) !important;
+            background: linear-gradient(135deg, rgba(8, 20, 38, 0.96) 0%, rgba(4, 12, 24, 0.98) 100%) !important;
+            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.7), 0 0 16px rgba(0, 242, 254, 0.3) !important;
+            backdrop-filter: blur(12px) !important;
+            cursor: pointer !important;
+            transition: all 0.25s ease !important;
+        }
+        [vw-access-button]:hover {
+            border-color: #00f2fe !important;
+            box-shadow: 0 0 24px rgba(0, 242, 254, 0.65) !important;
+            transform: scale(1.05);
+        }
+
+        [vw-plugin-wrapper] {
+            border-radius: 16px !important;
+            border: 1.5px solid rgba(0, 242, 254, 0.45) !important;
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85), 0 0 32px rgba(0, 242, 254, 0.28) !important;
+            overflow: hidden !important;
+            background: rgba(6, 14, 28, 0.96) !important;
+            z-index: 9500 !important;
+        }
+
+        #vlibras-access-wrapper {
+            position: fixed !important;
+            right: 396px !important;
+            bottom: 70px !important;
+            top: auto !important;
+            z-index: 9500 !important;
+        }
+
         @media (max-width: 1440px) {
+            body.vlibras-active [vw],
             body.vlibras-dock-open [vw],
-            body.vlibras-dock-open #vlibras-container {
+            #vlibras-access-wrapper {
                 right: 324px !important;
-                bottom: 62px !important;
-                transform: scale(0.66) !important;
+                bottom: 68px !important;
+                transform: scale(0.8) !important;
             }
         }
         @media (max-width: 1180px) {
+            body.vlibras-active [vw],
             body.vlibras-dock-open [vw],
-            body.vlibras-dock-open #vlibras-container {
-                right: 12px !important;
-                bottom: 64px !important;
-                transform: scale(0.64) !important;
+            #vlibras-access-wrapper {
+                right: 14px !important;
+                bottom: 72px !important;
+                transform: scale(0.72) !important;
+            }
+        }
+        @media (max-width: 768px) {
+            body.vlibras-active [vw],
+            body.vlibras-dock-open [vw],
+            #vlibras-access-wrapper {
+                right: 8px !important;
+                bottom: 74px !important;
+                transform: scale(0.66) !important;
             }
         }
 
@@ -1858,15 +1895,6 @@
         }
 
     
-        /* v1.0011: Erradicação total de qualquer botão flutuante ou caixa vazia de plugin externo */
-        [vw], [vw-access-button], [vw-plugin-wrapper], #vlibras-container, #mozok-vlibras-3d-stage {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            width: 0 !important;
-            height: 0 !important;
-            pointer-events: none !important;
-        }
         body.cyber-intro-active #mozok-scale-hud,
         body.cyber-intro-active #nav-pan-hud,
         body.cyber-intro-active #mozok-subtitle-bar,
@@ -1874,57 +1902,6 @@
             display: none !important;
             opacity: 0 !important;
             pointer-events: none !important;
-        }
-        #mozok-libras-native-panel {
-            position: fixed;
-            bottom: 74px;
-            right: 24px;
-            width: 246px;
-            z-index: 122;
-            background: linear-gradient(180deg, rgba(4, 14, 28, 0.94) 0%, rgba(2, 8, 18, 0.96) 100%);
-            border: 1.5px solid rgba(0, 242, 254, 0.55);
-            border-radius: 16px;
-            backdrop-filter: blur(14px);
-            box-shadow: 0 0 32px rgba(0, 242, 254, 0.24), 0 12px 34px rgba(0, 0, 0, 0.85);
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            pointer-events: auto;
-        }
-        #mozok-libras-native-panel.active {
-            display: flex !important;
-        }
-        #mozok-libras-header {
-            padding: 6px 12px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 9.5px;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            color: #e0f2fe;
-            background: rgba(0, 242, 254, 0.12);
-            border-bottom: 1px solid rgba(0, 242, 254, 0.25);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        #mozok-libras-canvas {
-            width: 246px;
-            height: 246px;
-            display: block;
-            background: radial-gradient(circle at 50% 42%, rgba(0, 180, 216, 0.16) 0%, rgba(2, 8, 20, 0.98) 78%);
-        }
-        #mozok-libras-gloss-bar {
-            padding: 7px 10px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 11px;
-            font-weight: 700;
-            color: #67e8f9;
-            background: rgba(0, 242, 254, 0.10);
-            border-top: 1px solid rgba(0, 242, 254, 0.28);
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
     </style>
@@ -2124,43 +2101,6 @@
             color: #fecaca;
         }
 
-        /* AVATAR NATIVO DE LIBRAS INTEGRADO AO LAYOUT DO MOZOK (SEM PLUGIN EXTERNO) */
-        #mozok-libras-native-panel {
-            position: fixed;
-            bottom: 72px;
-            right: 24px;
-            width: 220px;
-            z-index: 122;
-            background: rgba(2, 10, 20, 0.88);
-            border: 1px solid rgba(0, 242, 254, 0.45);
-            border-radius: 14px;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 0 28px rgba(0, 242, 254, 0.22);
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            pointer-events: auto;
-        }
-        #mozok-libras-native-panel.active {
-            display: flex;
-        }
-        #mozok-libras-canvas {
-            width: 220px;
-            height: 220px;
-            display: block;
-        }
-        #mozok-libras-gloss-bar {
-            padding: 6px 10px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10.5px;
-            color: #67e8f9;
-            background: rgba(0, 242, 254, 0.08);
-            border-top: 1px solid rgba(0, 242, 254, 0.25);
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
     </style>
 
     <script>
@@ -2277,14 +2217,13 @@
         </div>
     </div>
 
-    <!-- AVATAR NATIVO DE LIBRAS INTEGRADO AO LAYOUT DO MOZOK -->
-    <div id="mozok-libras-native-panel">
-        <div id="mozok-libras-header">
-            <span>🤟 INTÉRPRETE 3D LIBRAS</span>
-            <span style="color:#34d399;">● WEBGL 3D</span>
+    <!-- PONTE DE ACESSIBILIDADE E WIDGET OFICIAL DO VLIBRAS -->
+    <input id="vlibras-speech-bridge" class="sr-only-vlibras" aria-live="assertive" tabindex="-1" readonly />
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
         </div>
-        <canvas id="mozok-libras-canvas" width="246" height="246"></canvas>
-        <div id="mozok-libras-gloss-bar">LIBRAS 3D // PRONTO</div>
     </div>
 
     <!-- BARRA DE PALCO — APRESENTADOR DE ESTRUTURAS (CONCIC) -->
@@ -2333,7 +2272,7 @@
                 <option value="uk-UA">🇺🇦 UK-UA</option>
             </select>
             <button class="hud-btn" id="btn-voice" data-i18n="btn_voice" title="Narração Neural Gemini via credentials.json">🔊 Voz Gemini</button>
-            <button class="hud-btn" id="btn-vlibras" data-i18n="btn_vlibras" title="Ativar/Recolher Intérprete VLibras em Modo Compacto PiP">🤟 Libras</button>
+            <button class="hud-btn" id="btn-vlibras" data-i18n="btn_vlibras" title="Ativar/Recolher Intérprete Oficial VLibras Adaptado ao MOZOK">🤟 Libras (VLibras)</button>
             <button class="hud-btn" id="btn-fullscreen" data-i18n="btn_fullscreen" title="Tela Cheia (F11)">⛶ Tela Cheia</button>
             <button class="hud-btn" id="btn-research-eval" title="Módulo de Prova, Validação Psicométrica (SUS / NASA-TLX) e Exportação CSV para Publicação Científica Internacional">📊 Prova &amp; Pesquisa</button>
             <button class="hud-btn gold" id="btn-about" data-i18n="btn_about" title="Sobre o Projeto MOZOK, Licença Apache 2.0, Patrimônio da Humanidade e Homenagem à Ucrânia">ℹ️ Sobre</button>
@@ -3377,7 +3316,7 @@
                     btn_center: '🎯 Centralizar',
                     btn_tour: '⚡ Apresentação',
                     btn_voice: '🔊 Voz Gemini',
-                    btn_vlibras: '🤟 Libras',
+                    btn_vlibras: '🤟 Libras (VLibras)',
                     btn_fullscreen: '⛶ Tela Cheia',
                     btn_about: 'ℹ️ Sobre',
                     lbl_sci_ref: '📄 Referência Científica (DOI)',
@@ -3881,22 +3820,49 @@
                 }
             }
 
-            function syncSpeechWithVLibras(text) {
+            function mozokTriggerVLibras(text) {
                 if (!text) return;
+                const cleanText = text
+                    .replace(/<[^>]*>/g, '')
+                    .replace(/^(Narrate|Narra|Narre)[^:]*:\s*/i, '')
+                    .trim();
+                if (!cleanText) return;
+
                 const subBar = document.getElementById('mozok-subtitle-bar');
                 const subText = document.getElementById('mozok-subtitle-text');
                 if (subBar && subText) {
-                    subText.textContent = text;
+                    subText.textContent = cleanText;
                     subBar.classList.add('visible');
                     clearTimeout(window._subTimeout);
                     window._subTimeout = setTimeout(() => {
                         subBar.classList.remove('visible');
-                        if (typeof MozokLibrasAvatar !== 'undefined') MozokLibrasAvatar.stopSpeaking();
-                    }, Math.max(6000, text.length * 65));
+                    }, Math.max(6000, cleanText.length * 65));
                 }
-                if (typeof MozokLibrasAvatar !== 'undefined' && (currentLang || 'pt-BR').toLowerCase().startsWith('pt')) {
-                    MozokLibrasAvatar.speak(text);
-                }
+
+                try {
+                    const bridge = document.getElementById('vlibras-speech-bridge');
+                    if (bridge) {
+                        bridge.value = cleanText;
+                        bridge.textContent = cleanText;
+                        bridge.setAttribute('aria-label', cleanText);
+                        bridge.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+                    }
+
+                    if (window.plugin && typeof window.plugin.translate === 'function') {
+                        window.plugin.translate(cleanText);
+                    } else if (window.VLibras && typeof window.VLibras.translate === 'function') {
+                        window.VLibras.translate(cleanText);
+                    } else if (window.vLibras && typeof window.vLibras.translate === 'function') {
+                        window.vLibras.translate(cleanText);
+                    } else if (window._vlibrasWidget && typeof window._vlibrasWidget.translate === 'function') {
+                        window._vlibrasWidget.translate(cleanText);
+                    }
+                } catch (_) {}
+            }
+            window.mozokTriggerVLibras = mozokTriggerVLibras;
+
+            function syncSpeechWithVLibras(text) {
+                mozokTriggerVLibras(text);
             }
 
             async function getTranslatedMetadata(meta, lang) {
@@ -4024,7 +3990,7 @@
                         currentAudio = null;
                     }
                     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-                    if (typeof MozokLibrasAvatar !== 'undefined') MozokLibrasAvatar.stopSpeaking();
+                    // VLibras
                     document.getElementById('mozok-subtitle-bar')?.classList.remove('visible');
                     if (btnPop) btnPop.innerHTML = '🔊 Ouvir';
                     if (btnCard) btnCard.innerHTML = '🔊 Ouvir';
@@ -4037,7 +4003,6 @@
                 } finally {
                     if (btnPop) btnPop.innerHTML = '🔊 Ouvir';
                     if (btnCard) btnCard.innerHTML = '🔊 Ouvir';
-                    if (typeof MozokLibrasAvatar !== 'undefined') MozokLibrasAvatar.stopSpeaking();
                 }
             }
 
@@ -4230,6 +4195,8 @@
 
                 if (voiceEnabled) {
                     narrateCurrentSelection();
+                } else if (vlibrasActive) {
+                    mozokTriggerVLibras(`${meta.name}. ${meta.summary}`);
                 }
             }
 
@@ -4252,6 +4219,8 @@
 
                 if (voiceEnabled) {
                     narrateCurrentSelection();
+                } else if (vlibrasActive) {
+                    mozokTriggerVLibras(`${meta.name}. ${meta.summary}`);
                 }
             }
 
@@ -4940,6 +4909,9 @@
                 document.getElementById('bm-abeta-tau').textContent = profile.abetaTau;
                 document.getElementById('bm-nfl-prion').textContent = profile.nflPrion;
                 document.getElementById('bm-ocb').textContent = profile.ocb;
+                if (vlibrasActive && !voiceEnabled && profile && profile.name) {
+                    mozokTriggerVLibras(`Simulação Clínica: ${profile.name}. Estágio: ${profile.stage}. ${profile.note}`);
+                }
             }
 
             pathologySelect.addEventListener('change', () => {
@@ -5910,317 +5882,59 @@
                 }
             }
 
-            // AVATAR INTÉRPRETE DE LIBRAS NATIVO EM THREE.JS / CANVAS INTEGRADO AO MOZOK
-                        const MozokLibrasAvatar = (() => {
-                let renderer3D = null;
-                let scene3D = null;
-                let camera3D = null;
-                let avatarRoot = null;
-                let headGroup = null;
-                let jawMesh = null;
-                let browL = null, browR = null;
-                let shoulderL = null, shoulderR = null;
-                let elbowL = null, elbowR = null;
-                let wristL = null, wristR = null;
-                let fingersL = [], fingersR = [];
-                let animId = null;
-                let active = false;
-                let signing = false;
-                let currentGlossTokens = [];
-                let phase = 0;
+            // =====================================================================
+            // WIDGET OFICIAL DO VLIBRAS & CONTROLE DE ACESSIBILIDADE DO MOZOK
+            // =====================================================================
+            let vlibrasActive = false;
 
-                function hashWord(w) {
-                    let h = 2166136261;
-                    for (let i = 0; i < w.length; i++) {
-                        h ^= w.charCodeAt(i);
-                        h = Math.imul(h, 16777619);
-                    }
-                    return Math.abs(h);
-                }
+            function toggleVLibras(forceState) {
+                vlibrasActive = (typeof forceState === 'boolean') ? forceState : !vlibrasActive;
+                document.body.classList.toggle('vlibras-active', vlibrasActive);
+                document.body.classList.toggle('vlibras-dock-open', vlibrasActive);
 
-                function initThree3DAvatar() {
-                    if (renderer3D) return;
-                    const canvas = document.getElementById("mozok-libras-canvas");
-                    if (!canvas || typeof THREE === "undefined") return;
+                const btnVl = document.getElementById('btn-vlibras');
+                const btnDoomLibras = document.getElementById('btn-doom3-libras');
+                if (btnVl) btnVl.classList.toggle('active', vlibrasActive);
+                if (btnDoomLibras) btnDoomLibras.classList.toggle('active', vlibrasActive);
 
-                    renderer3D = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-                    renderer3D.setSize(246, 246, false);
-                    renderer3D.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-
-                    scene3D = new THREE.Scene();
-                    camera3D = new THREE.PerspectiveCamera(34, 1.0, 0.1, 50);
-                    camera3D.position.set(0, 1.28, 3.35);
-                    camera3D.lookAt(0, 1.12, 0);
-
-                    const amb = new THREE.AmbientLight(0xdbeafe, 0.85);
-                    const keyLight = new THREE.DirectionalLight(0xffffff, 1.15);
-                    keyLight.position.set(2.2, 3.5, 4.0);
-                    const rimLight = new THREE.PointLight(0x00f2fe, 1.35, 10);
-                    rimLight.position.set(-2.0, 2.2, -1.8);
-                    scene3D.add(amb, keyLight, rimLight);
-
-                    avatarRoot = new THREE.Group();
-                    scene3D.add(avatarRoot);
-
-                    const skinMat = new THREE.MeshStandardMaterial({ color: 0xe6b89c, roughness: 0.42, metalness: 0.05 });
-                    const suitMat = new THREE.MeshStandardMaterial({ color: 0x0f2942, roughness: 0.48, metalness: 0.18 });
-                    const cyanTrimMat = new THREE.MeshStandardMaterial({ color: 0x00f2fe, emissive: 0x0096c7, emissiveIntensity: 0.55 });
-                    const hairMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.65 });
-                    const eyeMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.15 });
-
-                    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.36, 0.92, 24), suitMat);
-                    torso.position.set(0, 0.78, 0);
-                    torso.scale.set(1.18, 1.0, 0.68);
-                    avatarRoot.add(torso);
-
-                    const collarL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.34, 0.04), cyanTrimMat);
-                    collarL.position.set(-0.09, 1.08, 0.25);
-                    collarL.rotation.z = -0.32;
-                    const collarR = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.34, 0.04), cyanTrimMat);
-                    collarR.position.set(0.09, 1.08, 0.25);
-                    collarR.rotation.z = 0.32;
-                    avatarRoot.add(collarL, collarR);
-
-                    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.125, 0.22, 18), skinMat);
-                    neck.position.set(0, 1.29, 0);
-                    avatarRoot.add(neck);
-
-                    headGroup = new THREE.Group();
-                    headGroup.position.set(0, 1.54, 0.02);
-                    avatarRoot.add(headGroup);
-
-                    const cranium = new THREE.Mesh(new THREE.SphereGeometry(0.24, 28, 28), skinMat);
-                    cranium.scale.set(0.92, 1.08, 0.96);
-                    headGroup.add(cranium);
-
-                    const hairCap = new THREE.Mesh(new THREE.SphereGeometry(0.248, 24, 20, 0, Math.PI * 2, 0, Math.PI * 0.58), hairMat);
-                    hairCap.position.set(0, 0.02, -0.02);
-                    hairCap.rotation.x = -0.18;
-                    headGroup.add(hairCap);
-
-                    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.026, 14, 14), eyeMat);
-                    eyeL.position.set(-0.08, 0.03, 0.21);
-                    const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.026, 14, 14), eyeMat);
-                    eyeR.position.set(0.08, 0.03, 0.21);
-                    headGroup.add(eyeL, eyeR);
-
-                    browL = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.014, 0.02), hairMat);
-                    browL.position.set(-0.08, 0.082, 0.215);
-                    browR = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.014, 0.02), hairMat);
-                    browR.position.set(0.08, 0.082, 0.215);
-                    headGroup.add(browL, browR);
-
-                    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.026, 0.075, 12), skinMat);
-                    nose.position.set(0, -0.01, 0.235);
-                    nose.rotation.x = Math.PI * 0.42;
-                    headGroup.add(nose);
-
-                    jawMesh = new THREE.Mesh(new THREE.BoxGeometry(0.082, 0.022, 0.025), new THREE.MeshStandardMaterial({ color: 0xb56557, roughness: 0.4 }));
-                    jawMesh.position.set(0, -0.095, 0.205);
-                    headGroup.add(jawMesh);
-
-                    function buildArmChain(side) {
-                        const sPivot = new THREE.Group();
-                        sPivot.position.set(side * 0.48, 1.15, 0.02);
-                        avatarRoot.add(sPivot);
-
-                        const shoulderBall = new THREE.Mesh(new THREE.SphereGeometry(0.105, 16, 16), suitMat);
-                        sPivot.add(shoulderBall);
-
-                        const upperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.072, 0.42, 16), suitMat);
-                        upperArm.position.set(0, -0.21, 0);
-                        sPivot.add(upperArm);
-
-                        const ePivot = new THREE.Group();
-                        ePivot.position.set(0, -0.42, 0);
-                        sPivot.add(ePivot);
-
-                        const elbowJoint = new THREE.Mesh(new THREE.SphereGeometry(0.072, 14, 14), suitMat);
-                        ePivot.add(elbowJoint);
-
-                        const forearm = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.055, 0.38, 16), skinMat);
-                        forearm.position.set(0, -0.19, 0);
-                        ePivot.add(forearm);
-
-                        const cuff = new THREE.Mesh(new THREE.TorusGeometry(0.066, 0.012, 10, 20), cyanTrimMat);
-                        cuff.rotation.x = Math.PI / 2;
-                        cuff.position.set(0, -0.06, 0);
-                        ePivot.add(cuff);
-
-                        const wPivot = new THREE.Group();
-                        wPivot.position.set(0, -0.38, 0);
-                        ePivot.add(wPivot);
-
-                        const palm = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.12, 0.042), skinMat);
-                        palm.position.set(0, -0.055, 0);
-                        wPivot.add(palm);
-
-                        const fingerList = [];
-                        const fingerOffsets = [
-                            { x: -side * 0.058, y: -0.04, len: 0.075, isThumb: true },
-                            { x: -side * 0.038, y: -0.115, len: 0.095, isThumb: false },
-                            { x: -side * 0.012, y: -0.120, len: 0.105, isThumb: false },
-                            { x: side * 0.014,  y: -0.116, len: 0.096, isThumb: false },
-                            { x: side * 0.038,  y: -0.108, len: 0.078, isThumb: false }
-                        ];
-                        fingerOffsets.forEach((fo) => {
-                            const fPivot = new THREE.Group();
-                            fPivot.position.set(fo.x, fo.y, 0.008);
-                            if (fo.isThumb) fPivot.rotation.z = -side * 0.48;
-                            const phalanx = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.011, fo.len, 10), skinMat);
-                            phalanx.position.set(0, -fo.len * 0.5, 0);
-                            const tip = new THREE.Mesh(new THREE.SphereGeometry(0.012, 8, 8), skinMat);
-                            tip.position.set(0, -fo.len, 0);
-                            fPivot.add(phalanx, tip);
-                            wPivot.add(fPivot);
-                            fingerList.push(fPivot);
-                        });
-
-                        return { sPivot, ePivot, wPivot, fingerList };
-                    }
-
-                    const leftChain = buildArmChain(-1);
-                    const rightChain = buildArmChain(1);
-                    shoulderL = leftChain.sPivot; elbowL = leftChain.ePivot; wristL = leftChain.wPivot; fingersL = leftChain.fingerList;
-                    shoulderR = rightChain.sPivot; elbowR = rightChain.ePivot; wristR = rightChain.wPivot; fingersR = rightChain.fingerList;
-                }
-
-                async function translateToLibrasGloss(text) {
-                    try {
-                        const res = await fetch("https://traducao2.vlibras.gov.br/translate", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ text })
-                        });
-                        if (res.ok) {
-                            const data = await res.text();
-                            const tokens = data.trim().split(/\s+/).filter(Boolean);
-                            if (tokens.length > 0) return tokens;
+                try {
+                    if (vlibrasActive) {
+                        if (window.VLibrasWidget && typeof window.VLibrasWidget.open === 'function') {
+                            window.VLibrasWidget.open();
                         }
-                    } catch (_) {}
-                    return text.toUpperCase()
-                        .replace(/[^A-ZÀ-Ú0-9\s]/g, "")
-                        .split(/\s+/)
-                        .filter(w => w.length > 2)
-                        .slice(0, 18);
-                }
-
-                function drawAvatarFrame() {
-                    if (!active) return;
-                    initThree3DAvatar();
-                    if (!renderer3D) return;
-
-                    if (signing) phase += 0.095;
-                    else phase += 0.025;
-
-                    const tokIdx = currentGlossTokens.length > 0 ? (Math.floor(phase / 3.2) % currentGlossTokens.length) : 0;
-                    const activeToken = currentGlossTokens[tokIdx] || "PRONTO";
-                    const seed = hashWord(activeToken);
-
-                    if (signing) {
-                        const bar = document.getElementById("mozok-libras-gloss-bar");
-                        if (bar) bar.textContent = "SINAL LIBRAS: " + activeToken;
-
-                        headGroup.rotation.y = Math.sin(phase * 0.85 + (seed % 5)) * 0.16;
-                        headGroup.rotation.x = Math.cos(phase * 0.7) * 0.09;
-                        browL.position.y = 0.082 + Math.sin(phase * 1.4) * 0.012;
-                        browR.position.y = 0.082 + Math.sin(phase * 1.4) * 0.012;
-                        jawMesh.scale.y = 1.0 + Math.abs(Math.sin(phase * 2.6)) * 0.85;
-
-                        const locMode = seed % 3;
-                        const targetHeightL = locMode === 1 ? -0.95 : (locMode === 2 ? -0.65 : -0.78);
-                        const targetHeightR = locMode === 1 ? -1.08 : (locMode === 2 ? -0.70 : -0.82);
-
-                        shoulderL.rotation.x = targetHeightL + Math.sin(phase * 1.6) * 0.28;
-                        shoulderL.rotation.z = 0.22 + Math.cos(phase * 1.3) * 0.18;
-                        shoulderL.rotation.y = 0.35 + Math.sin(phase * 1.1) * 0.22;
-
-                        shoulderR.rotation.x = targetHeightR + Math.cos(phase * 1.7) * 0.32;
-                        shoulderR.rotation.z = -0.22 - Math.sin(phase * 1.4) * 0.18;
-                        shoulderR.rotation.y = -0.35 + Math.cos(phase * 1.2) * 0.22;
-
-                        elbowL.rotation.x = -1.35 + Math.cos(phase * 2.1) * 0.35;
-                        elbowL.rotation.z = -0.38 + Math.sin(phase * 1.5) * 0.20;
-
-                        elbowR.rotation.x = -1.42 + Math.sin(phase * 2.2) * 0.38;
-                        elbowR.rotation.z = 0.38 - Math.cos(phase * 1.6) * 0.20;
-
-                        wristL.rotation.x = Math.sin(phase * 2.8) * 0.45;
-                        wristL.rotation.y = Math.cos(phase * 2.4) * 0.55;
-                        wristR.rotation.x = Math.cos(phase * 2.9) * 0.45;
-                        wristR.rotation.y = Math.sin(phase * 2.5) * 0.55;
-
-                        for (let i = 0; i < 5; i++) {
-                            const fingerBit = ((seed >> i) & 1);
-                            const curlL = fingerBit ? (0.15 + 0.25 * Math.sin(phase * 3.0 + i)) : (1.15 + 0.25 * Math.cos(phase * 2.5 + i));
-                            const curlR = ((seed >> (i + 2)) & 1) ? (0.12 + 0.25 * Math.cos(phase * 3.1 + i)) : (1.20 + 0.25 * Math.sin(phase * 2.7 + i));
-                            if (fingersL[i]) fingersL[i].rotation.x = -curlL;
-                            if (fingersR[i]) fingersR[i].rotation.x = -curlR;
+                        const vwBtn = document.querySelector('[vw-access-button]') || (window.VLibrasWidget && window.VLibrasWidget.initBtn);
+                        const vwWrapper = document.querySelector('[vw-plugin-wrapper]');
+                        if (vwBtn && vwWrapper && !vwWrapper.classList.contains('active')) {
+                            vwBtn.click();
+                        }
+                        const curSubtitle = document.getElementById('mozok-subtitle-text')?.textContent;
+                        if (curSubtitle) {
+                            mozokTriggerVLibras(curSubtitle);
                         }
                     } else {
-                        headGroup.rotation.y = Math.sin(phase * 0.6) * 0.05;
-                        headGroup.rotation.x = Math.cos(phase * 0.5) * 0.03;
-                        jawMesh.scale.y = 1.0;
-                        shoulderL.rotation.set(-0.28, 0.18, 0.16);
-                        shoulderR.rotation.set(-0.28, -0.18, -0.16);
-                        elbowL.rotation.set(-0.95, 0, -0.28);
-                        elbowR.rotation.set(-0.95, 0, 0.28);
-                        wristL.rotation.set(0, 0.3, 0);
-                        wristR.rotation.set(0, -0.3, 0);
-                        for (let i = 0; i < 5; i++) {
-                            if (fingersL[i]) fingersL[i].rotation.x = -0.25;
-                            if (fingersR[i]) fingersR[i].rotation.x = -0.25;
+                        const closeBtn = document.querySelector('.vpw-header-btn-close') ||
+                                         document.querySelector('[vw-plugin-wrapper] .btn-close') ||
+                                         document.querySelector('[vw-plugin-wrapper] [aria-label*="Fechar"]') ||
+                                         document.querySelector('#vlibras-access-wrapper')?.shadowRoot?.querySelector('#vlibras-button');
+                        if (closeBtn) {
+                            closeBtn.click();
+                        } else {
+                            const vwBtn = document.querySelector('[vw-access-button]');
+                            const vwWrapper = document.querySelector('[vw-plugin-wrapper]');
+                            if (vwBtn && vwWrapper && vwWrapper.classList.contains('active')) {
+                                vwBtn.click();
+                            }
                         }
                     }
+                } catch (_) {}
+            }
+            window.toggleVLibras = toggleVLibras;
 
-                    renderer3D.render(scene3D, camera3D);
-                    animId = requestAnimationFrame(drawAvatarFrame);
-                }
-
-                return {
-                    show() {
-                        active = true;
-                        document.getElementById("mozok-libras-native-panel")?.classList.add("active");
-                        document.getElementById("btn-doom3-libras")?.classList.add("active");
-                        document.getElementById("btn-vlibras")?.classList.add("active");
-                        if (!animId) drawAvatarFrame();
-                    },
-                    hide() {
-                        active = false;
-                        signing = false;
-                        if (animId) { cancelAnimationFrame(animId); animId = null; }
-                        document.getElementById("mozok-libras-native-panel")?.classList.remove("active");
-                        document.getElementById("btn-doom3-libras")?.classList.remove("active");
-                        document.getElementById("btn-vlibras")?.classList.remove("active");
-                    },
-                    toggle() {
-                        if (active) this.hide();
-                        else this.show();
-                    },
-                    async speak(text) {
-                        if (!active && (currentLang || "pt-BR").toLowerCase().startsWith("pt")) {
-                            this.show();
-                        }
-                        if (!active) return;
-                        signing = true;
-                        currentGlossTokens = await translateToLibrasGloss(text);
-                        const bar = document.getElementById("mozok-libras-gloss-bar");
-                        if (bar && currentGlossTokens[0]) bar.textContent = "SINAL LIBRAS: " + currentGlossTokens[0];
-                    },
-                    stopSpeaking() {
-                        signing = false;
-                        const bar = document.getElementById("mozok-libras-gloss-bar");
-                        if (bar) bar.textContent = "LIBRAS 3D // EM ESPERA";
-                    }
-                };
-            })();
-
-            // Botão "Libras" na barra principal do simulador aciona o Avatar Nativo
-            const mainBtnVlibras = document.getElementById("btn-vlibras");
+            const mainBtnVlibras = document.getElementById('btn-vlibras');
             if (mainBtnVlibras) {
                 const cloneVl = mainBtnVlibras.cloneNode(true);
                 mainBtnVlibras.parentNode.replaceChild(cloneVl, mainBtnVlibras);
-                cloneVl.addEventListener("click", () => MozokLibrasAvatar.toggle());
+                cloneVl.addEventListener('click', () => toggleVLibras());
             }
 
             // Efeito de Raios Elétricos contínuos no Ato I (MOZOK) e Faíscas de Choque no Ato II
@@ -6353,7 +6067,7 @@
 
                 // Se idioma for pt-BR, ativa o Avatar Nativo de Libras automaticamente
                 if ((currentLang || "pt-BR").toLowerCase().startsWith("pt")) {
-                    MozokLibrasAvatar.show();
+                    if (vlibrasActive) mozokTriggerVLibras(segments[0] || "");
                 }
 
                 if (!startPausedOnMozok) {
@@ -6389,10 +6103,9 @@
 
                 for (let s = 0; s < segments.length; s++) {
                     if (cyberPresentationAborted) break;
-                    MozokLibrasAvatar.speak(segments[s]);
+                    mozokTriggerVLibras(segments[s]);
                     await playSegmentWithExactSyncedTypewriter(segments[s], s, segments.length);
-                    MozokLibrasAvatar.stopSpeaking();
-                }
+                                    }
 
                 finishDoom3Presentation();
             }
@@ -6405,9 +6118,7 @@
 
                 stopMozokLightningEffect();
                 stopDoom3ShockGlitches();
-                MozokLibrasAvatar.stopSpeaking();
-                MozokLibrasAvatar.hide();
-
+                                
                 if (hexAnimId) { cancelAnimationFrame(hexAnimId); hexAnimId = null; }
                 if (activeRoboticSource) { try { activeRoboticSource.stop(); } catch (_) {} activeRoboticSource = null; }
                 if ("speechSynthesis" in window) window.speechSynthesis.cancel();
@@ -6452,7 +6163,7 @@
                 cyberPresentationAborted = true;
                 setTimeout(() => startDoom3ScientificPresentation(true), 60);
             });
-            document.getElementById("btn-doom3-libras")?.addEventListener("click", () => MozokLibrasAvatar.toggle());
+            document.getElementById("btn-doom3-libras")?.addEventListener("click", () => toggleVLibras());
             document.getElementById("btn-doom3-skip")?.addEventListener("click", finishDoom3Presentation);
 
             const tourTopBtn = document.getElementById("btn-tour");
@@ -6576,8 +6287,8 @@
 
                 voiceEnabled = prevVoice;
 
-                if (typeof MozokLibrasAvatar !== 'undefined' && st.slideBody) {
-                    MozokLibrasAvatar.speak(st.slideBody);
+                if (st.slideBody) {
+                    mozokTriggerVLibras(st.slideBody);
                 }
 
                 if (voiceEnabled) {
@@ -7108,5 +6819,10 @@
 
     
 
+    <!-- WIDGET OFICIAL DO VLIBRAS (BRASIL) -->
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
 </body>
 </html>
