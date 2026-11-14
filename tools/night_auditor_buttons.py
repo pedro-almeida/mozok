@@ -32,6 +32,7 @@ REQUIRED_BUTTON_IDS = [
     "btn-body-shell",
     "btn-home-view",
     "btn-tour",
+    "btn-concic",
     "btn-voice",
     "btn-vlibras",
     "btn-fullscreen",

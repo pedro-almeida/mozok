@@ -2296,6 +2296,16 @@
         <button class="hud-btn danger" id="btn-deck-close" title="Encerrar Modo Apresentação">✕ Sair</button>
     </div>
 
+    <!-- CARD DE SLIDE EM CÓDIGO — I CONCIC (ID 575444) -->
+    <div id="mozok-concic-slide-card" style="display:none;position:fixed;left:24px;bottom:86px;z-index:9600;max-width:460px;background:rgba(10,15,28,0.92);border:1px solid rgba(251,191,36,0.55);border-radius:14px;padding:18px 20px;color:#F8FAFC;backdrop-filter:blur(12px);box-shadow:0 12px 32px rgba(0,0,0,0.65);font-family:'Inter',system-ui,sans-serif;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;">
+            <span id="concic-slide-speaker" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:3px 9px;border-radius:999px;background:rgba(251,191,36,0.2);color:#FBBF24;">I CONCIC • ID 575444</span>
+            <span id="concic-slide-step" style="font-size:11.5px;color:#94A3B8;font-weight:600;">Slide 1/8</span>
+        </div>
+        <h3 id="concic-slide-title" style="margin:0 0 8px;font-size:16.5px;color:#FDE68A;line-height:1.3;"></h3>
+        <p id="concic-slide-body" style="margin:0;font-size:13px;color:#E2E8F0;line-height:1.55;"></p>
+    </div>
+
     <header class="topbar">
         <div class="brand-block">
             <div class="brand-logo">🧠</div>
@@ -2314,6 +2324,7 @@
             <button class="hud-btn" id="btn-body-shell" data-i18n="btn_body_shell" title="Exibir/Ocultar Silhueta Corporal Bioluminescente">🫧 Corpo Translúcido</button>
             <button class="hud-btn" id="btn-home-view" data-i18n="btn_center">🎯 Centralizar</button>
             <button class="hud-btn gold" id="btn-tour" data-i18n="btn_tour" title="Iniciar Apresentação Científica estilo Doom 3 seguida do Tour Peça por Peça do Cérebro">⚡ Apresentação</button>
+            <button class="hud-btn gold" id="btn-concic" title="Iniciar Apresentação Oficial do I CONCIC (Slides em Código + Estações 3D Ao Vivo — Pedro &amp; Gyz)">🎓 CONCIC</button>
             <select id="lang-select" class="lang-select-hud" title="Selecionar Idioma (Tradução e Voz Neural Gemini)">
                 <option value="pt-BR">🇧🇷 PT-BR</option>
                 <option value="en-GB">🇬🇧 EN-GB</option>
@@ -4581,6 +4592,7 @@
             let spacePanActive = false;
             window.addEventListener('keydown', (e) => {
                 if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+                if (deckActive && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) return;
                 if (e.code === 'Space' && !spacePanActive) {
                     spacePanActive = true;
                     controls.mouseButtons.LEFT = THREE.MOUSE.PAN;
@@ -6466,19 +6478,73 @@
             // MODO APRESENTAÇÃO DE ESTRUTURAS (DECK CONCIC COM VOZ E MERGULHO MULTIESCALA)
             // =====================================================================
             const CONCIC_PRESENTATION_STATIONS = [
-                { title: '1/8 • Córtex MNI152 & Lobo Frontal', mode: 'MACRO', structId: 'FRONTAL_LOBE', pathology: 'HEALTHY' },
-                { title: '2/8 • Circuito da Linguagem (Área de Broca)', mode: 'MACRO', structId: 'BROCA_AREA_BA44_45', pathology: 'HEALTHY' },
-                { title: '3/8 • Simulação Clínica: AVC na Artéria Cerebral Média', mode: 'MACRO', structId: 'MIDDLE_CEREBRAL_ARTERY', pathology: 'ISCHEMIC_STROKE' },
-                { title: '4/8 • Hipocampo & Degeneração no Alzheimer', mode: 'MACRO', structId: 'HIPPOCAMPUS', pathology: 'ALZHEIMER' },
-                { title: '5/8 • Mergulho na Camada V: Neurônios de Betz', mode: 'MICRO', partId: 'NEURON_SOMA', dist: 4.2, pathology: 'HEALTHY' },
-                { title: '6/8 • Condução Saltatória & Fenda Sináptica', mode: 'MICRO', partId: 'NEURON_SYNAPSE', dist: 1.8, pathology: 'HEALTHY' },
-                { title: '7/8 • Interior Celular: Organelas & Mitocôndrias', mode: 'MICRO', partId: 'NEURON_NUCLEUS', dist: 0.85, pathology: 'HEALTHY' },
-                { title: '8/8 • Escala Sub-Nanométrica: Átomos & Orbitais', mode: 'MICRO', partId: 'NEURON_NUCLEUS', dist: 0.32, pathology: 'HEALTHY' }
+                {
+                    title: '1/8 • Córtex MNI152 & Lobo Frontal',
+                    speaker: '🎤 Gyz • Abertura & Relevância Neurocientífica',
+                    slideBody: 'O ensino tradicional de neuroanatomia enfrenta barreiras de abstração visuoespacial. O MOZOK reconstrói o encéfalo humano em coordenadas estereotáxicas MNI152 (FIPAT), destacando funções executivas no Lobo Frontal.',
+                    mode: 'MACRO', structId: 'FRONTAL_LOBE', pathology: 'HEALTHY'
+                },
+                {
+                    title: '2/8 • Circuito da Linguagem (Área de Broca)',
+                    speaker: '🎤 Gyz • Neuropsicologia da Linguagem',
+                    slideBody: 'Mapeamento funcional do Giro Frontal Inferior (BA44/BA45) e integração com a Área de Wernicke pelo Fascículo Arqueado, permitindo visualizar a base cortical da expressão verbal.',
+                    mode: 'MACRO', structId: 'BROCA_AREA_BA44_45', pathology: 'HEALTHY'
+                },
+                {
+                    title: '3/8 • Simulação Clínica: AVC na Artéria Cerebral Média',
+                    speaker: '🎤 Gyz • Correlação Anatomoclínica (AVC Isquêmico)',
+                    slideBody: 'Simulação hemodinâmica ao vivo da oclusão da Artéria Cerebral Média, demonstrando a cascata isquêmica perissilviana e os déficits motores e afásicos decorrentes.',
+                    mode: 'MACRO', structId: 'MIDDLE_CEREBRAL_ARTERY', pathology: 'ISCHEMIC_STROKE'
+                },
+                {
+                    title: '4/8 • Hipocampo & Degeneração no Alzheimer',
+                    speaker: '🎤 Gyz • Memória, Demências & Inclusão em Libras',
+                    slideBody: 'Visualização subcortical da formação hipocampal sob atrofia progressiva na Doença de Alzheimer, integrada ao Intérprete Humanoide 3D de Libras para acessibilidade universal.',
+                    mode: 'MACRO', structId: 'HIPPOCAMPUS', pathology: 'ALZHEIMER'
+                },
+                {
+                    title: '5/8 • Mergulho na Camada V: Neurônios de Betz',
+                    speaker: '💻 Pedro • Arquitetura Multiescala (Macro -> Micro)',
+                    slideBody: 'Transição contínua em WebGL/Rust da macroanatomia para a citoarquitetura cortical na Camada V Piramidal, renderizando soma neuronal, árvore dendrítica e potencial de ação em tempo real.',
+                    mode: 'MICRO', partId: 'NEURON_SOMA', dist: 4.2, pathology: 'HEALTHY'
+                },
+                {
+                    title: '6/8 • Condução Saltatória & Fenda Sináptica',
+                    speaker: '💻 Pedro • Biofísica Computacional & Sinapse',
+                    slideBody: 'Modelagem tridimensional dos Nodos de Ranvier, bainha de mielina e exocitose vesicular de neurotransmissores na fenda sináptica a 60 FPS em hardware acessível.',
+                    mode: 'MICRO', partId: 'NEURON_SYNAPSE', dist: 1.8, pathology: 'HEALTHY'
+                },
+                {
+                    title: '7/8 • Interior Celular: Organelas & Mitocôndrias',
+                    speaker: '💻 Pedro • Escala Intracelular & Bioenergética',
+                    slideBody: 'Mergulho no núcleo neuronal, retículo endoplasmático e síntese de ATP mitocondrial para sustentar bombas de sódio e potássio durante a atividade sináptica.',
+                    mode: 'MICRO', partId: 'NEURON_NUCLEUS', dist: 0.85, pathology: 'HEALTHY'
+                },
+                {
+                    title: '8/8 • Escala Sub-Nanométrica & Roadmap Pesquisa 2027',
+                    speaker: '💻🎤 Pedro & Gyz • Escala Quântica & Pesquisa 2027',
+                    slideBody: 'Do nível atômico ao protocolo psicométrico (SUS e NASA-TLX) já embarcado no MOZOK (#btn-research-eval), pronto para coleta empírica com estudantes em 2027 sob licença aberta Apache 2.0.',
+                    mode: 'MICRO', partId: 'NEURON_NUCLEUS', dist: 0.32, pathology: 'HEALTHY'
+                }
             ];
 
             let deckActive = false;
             let deckPlaying = false;
             let deckStationIdx = 0;
+
+            function renderConcicSlideCard(st, idx) {
+                const card = document.getElementById('mozok-concic-slide-card');
+                if (!card) return;
+                card.style.display = deckActive ? 'block' : 'none';
+                const spk = document.getElementById('concic-slide-speaker');
+                const stp = document.getElementById('concic-slide-step');
+                const ttl = document.getElementById('concic-slide-title');
+                const bdy = document.getElementById('concic-slide-body');
+                if (spk) spk.textContent = st.speaker || 'I CONCIC • ID 575444';
+                if (stp) stp.textContent = `Estação ${idx + 1}/${CONCIC_PRESENTATION_STATIONS.length}`;
+                if (ttl) ttl.textContent = st.title;
+                if (bdy) bdy.textContent = st.slideBody || '';
+            }
 
             async function runDeckStation(idx) {
                 if (tourTimer) { clearTimeout(tourTimer); tourTimer = null; }
@@ -6487,13 +6553,13 @@
                 const st = CONCIC_PRESENTATION_STATIONS[deckStationIdx];
                 const lbl = document.getElementById('deck-station-label');
                 if (lbl) lbl.textContent = st.title;
+                renderConcicSlideCard(st, deckStationIdx);
 
                 if (st.pathology) {
                     pathologySelect.value = st.pathology;
                     applyPathologySelection(st.pathology, st.pathology === 'HEALTHY' ? 0.0 : 0.85);
                 }
 
-                // Desativa temporariamente voiceEnabled automático dentro de selectMacroStructure para controlarmos a Promise aqui
                 const prevVoice = voiceEnabled;
                 voiceEnabled = false;
 
@@ -6510,14 +6576,17 @@
 
                 voiceEnabled = prevVoice;
 
+                if (typeof MozokLibrasAvatar !== 'undefined' && st.slideBody) {
+                    MozokLibrasAvatar.speak(st.slideBody);
+                }
+
                 if (voiceEnabled) {
                     await narrateCurrentSelection();
                 } else {
-                    await new Promise(r => setTimeout(r, 6500));
+                    await new Promise(r => setTimeout(r, 7500));
                 }
 
-                // Só avança para a próxima estação após o término completo da fala + 1.2s de respiro!
-                if (deckActive && deckPlaying) {
+                if (deckActive && deckPlaying && myStationToken === activeSpeechId) {
                     tourTimer = setTimeout(() => {
                         if (deckActive && deckPlaying) {
                             runDeckStation(deckStationIdx + 1);
@@ -6528,6 +6597,39 @@
 
             const presenterDeckEl = document.getElementById('mozok-presenter-deck');
             const newBtnTour = document.getElementById('btn-tour');
+            const btnConcic = document.getElementById('btn-concic');
+
+            function startConcicPresentation() {
+                if (cyberPresentationActive) finishDoom3Presentation();
+                deckActive = true;
+                deckPlaying = true;
+                if (btnConcic) btnConcic.classList.add('active');
+                if (presenterDeckEl) presenterDeckEl.classList.add('active');
+                const playBtn = document.getElementById('btn-deck-play');
+                if (playBtn) playBtn.textContent = '⏸ Pausar';
+                runDeckStation(0);
+            }
+
+            function closeConcicPresentation() {
+                deckActive = false;
+                deckPlaying = false;
+                if (btnConcic) btnConcic.classList.remove('active');
+                if (newBtnTour) newBtnTour.classList.remove('active');
+                if (presenterDeckEl) presenterDeckEl.classList.remove('active');
+                const card = document.getElementById('mozok-concic-slide-card');
+                if (card) card.style.display = 'none';
+                if (tourTimer) { clearTimeout(tourTimer); tourTimer = null; }
+            }
+
+            window.startConcicPresentation = startConcicPresentation;
+            window.closeConcicPresentation = closeConcicPresentation;
+
+            if (btnConcic) {
+                btnConcic.addEventListener('click', () => {
+                    if (deckActive) closeConcicPresentation();
+                    else startConcicPresentation();
+                });
+            }
 
             document.getElementById('btn-deck-prev').addEventListener('click', () => runDeckStation(deckStationIdx - 1));
             document.getElementById('btn-deck-next').addEventListener('click', () => runDeckStation(deckStationIdx + 1));
@@ -6537,12 +6639,20 @@
                 if (deckPlaying) runDeckStation(deckStationIdx);
                 else if (tourTimer) { clearTimeout(tourTimer); tourTimer = null; }
             });
-            document.getElementById('btn-deck-close').addEventListener('click', () => {
-                deckActive = false;
-                deckPlaying = false;
-                newBtnTour.classList.remove('active');
-                if (presenterDeckEl) presenterDeckEl.classList.remove('active');
-                if (tourTimer) { clearTimeout(tourTimer); tourTimer = null; }
+            document.getElementById('btn-deck-close').addEventListener('click', closeConcicPresentation);
+
+            window.addEventListener('keydown', (e) => {
+                if (!deckActive) return;
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    runDeckStation(deckStationIdx - 1);
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    runDeckStation(deckStationIdx + 1);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeConcicPresentation();
+                }
             });
 
             // Inicialização padrão
