@@ -1898,6 +1898,184 @@
             pointer-events: none !important;
         }
 
+    
+        /* =========================================================================
+           MODO PALCO I CONCIC — SLIDE TRADICIONAL + MOTOR 3D AO VIVO + LEGENDA EN
+           ========================================================================= */
+        body.concic-stage-mode .left-sidebar,
+        body.concic-stage-mode .right-sidebar,
+        body.concic-stage-mode #mozok-scale-hud,
+        body.concic-stage-mode #nav-pan-hud,
+        body.concic-stage-mode #mobile-bottom-nav,
+        body.concic-stage-mode #anatomical-popup-3d,
+        body.concic-stage-mode #popup-pin-dot,
+        body.concic-stage-mode #popup-leader-svg {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            transition: opacity 0.35s ease;
+        }
+        body.concic-stage-mode .topbar {
+            opacity: 0.14;
+            transition: opacity 0.25s ease;
+        }
+        body.concic-stage-mode .topbar:hover {
+            opacity: 1;
+        }
+        #mozok-concic-slide-card {
+            display: none;
+            position: fixed;
+            left: 28px;
+            top: 84px;
+            bottom: 92px;
+            width: min(560px, 44vw);
+            z-index: 9600;
+            background: linear-gradient(160deg, rgba(6, 13, 28, 0.92) 0%, rgba(10, 20, 42, 0.88) 100%);
+            border: 1.5px solid rgba(0, 242, 254, 0.45);
+            border-radius: 18px;
+            padding: 26px 28px;
+            color: #f8fafc;
+            backdrop-filter: blur(18px);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.72), 0 0 32px rgba(0, 242, 254, 0.16);
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-y: auto;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        #mozok-concic-slide-card.active {
+            display: flex !important;
+        }
+        #mozok-concic-slide-card.cover-slide {
+            left: 50%;
+            top: 50%;
+            bottom: auto;
+            transform: translate(-50%, -52%);
+            width: min(760px, 86vw);
+            min-height: 410px;
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            background: linear-gradient(160deg, rgba(4, 10, 24, 0.86) 0%, rgba(9, 19, 40, 0.82) 100%);
+            border-color: rgba(250, 204, 21, 0.6);
+        }
+        .concic-slide-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            width: 100%;
+            border-bottom: 1px solid rgba(0, 242, 254, 0.22);
+            padding-bottom: 12px;
+        }
+        .concic-speaker-pill {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 4px 11px;
+            border-radius: 999px;
+            background: rgba(250, 204, 21, 0.18);
+            border: 1px solid rgba(250, 204, 21, 0.45);
+            color: #fde047;
+        }
+        .concic-step-pill {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #67e8f9;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        .concic-slide-kicker {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #38bdf8;
+            margin-top: 14px;
+            margin-bottom: 6px;
+        }
+        .concic-slide-title {
+            font-size: clamp(18px, 1.85vw, 24px);
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.25;
+            margin: 0 0 14px 0;
+        }
+        #mozok-concic-slide-card.cover-slide .concic-slide-title {
+            font-size: clamp(22px, 2.3vw, 30px);
+            color: #fde68a;
+        }
+        .concic-slide-bullets {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 0;
+            padding: 0;
+            text-align: left;
+            width: 100%;
+        }
+        .concic-slide-bullets li {
+            font-size: clamp(13px, 1.05vw, 15px);
+            line-height: 1.48;
+            color: #e2e8f0;
+            padding: 9px 12px 9px 14px;
+            background: rgba(15, 28, 55, 0.62);
+            border-left: 3px solid #00f2fe;
+            border-radius: 8px;
+        }
+        .concic-slide-bullets li strong {
+            color: #67e8f9;
+        }
+        .concic-slide-ref {
+            margin-top: 14px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: rgba(250, 204, 21, 0.08);
+            border: 1px solid rgba(250, 204, 21, 0.28);
+            font-size: 11.5px;
+            color: #fef08a;
+            line-height: 1.4;
+            width: 100%;
+            text-align: left;
+        }
+        #mozok-concic-en-subtitle {
+            display: none;
+            position: fixed;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(860px, 90vw);
+            z-index: 9650;
+            background: rgba(2, 6, 16, 0.90);
+            border: 1px solid rgba(56, 189, 248, 0.55);
+            border-radius: 12px;
+            padding: 10px 18px;
+            color: #f8fafc;
+            font-size: 14px;
+            line-height: 1.45;
+            text-align: center;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+        #mozok-concic-en-subtitle.visible {
+            display: block !important;
+        }
+        #mozok-presenter-deck {
+            top: 14px !important;
+            z-index: 9700 !important;
+        }
+        @media (max-width: 1024px) {
+            #mozok-concic-slide-card {
+                width: calc(100vw - 24px);
+                left: 12px;
+                top: auto;
+                bottom: 84px;
+                max-height: 46vh;
+            }
+        }
+
     </style>
 
     <!-- Tipografia Industrial Cibernética estilo Doom 3 / UAC Mars Terminal -->
@@ -2222,30 +2400,33 @@
 
     <!-- BARRA DE PALCO — APRESENTADOR DE ESTRUTURAS (CONCIC) -->
     <div id="mozok-presenter-deck">
-        <button class="hud-btn" id="btn-deck-prev" title="Estação Anterior (Seta Esquerda)">⏮ Anterior</button>
-        <button class="hud-btn active" id="btn-deck-play" title="Pausar / Retomar Apresentação">⏸ Pausar</button>
-        <span class="deck-station-badge" id="deck-station-label">1/8 • Córtex MNI152</span>
-        <button class="hud-btn" id="btn-deck-next" title="Próxima Estação (Seta Direita)">⏭ Próxima</button>
-        <button class="hud-btn danger" id="btn-deck-close" title="Encerrar Modo Apresentação">✕ Sair</button>
+        <button class="hud-btn" id="btn-deck-prev" title="Slide Anterior (Seta Esquerda)">⏮ Anterior</button>
+        <button class="hud-btn active" id="btn-deck-play" title="Pausar / Retomar Avanço Automático">⏸ Pausar</button>
+        <span class="deck-station-badge" id="deck-station-label">Slide 1/9 • Capa I CONCIC</span>
+        <button class="hud-btn" id="btn-deck-next" title="Próximo Slide (Seta Direita)">⏭ Próximo</button>
+        <button class="hud-btn active" id="btn-deck-en-sub" title="Exibir/Ocultar Legendas em Inglês">🇬🇧 EN Subtitles</button>
+        <button class="hud-btn danger" id="btn-deck-close" title="Encerrar Apresentação [ESC]">✕ Sair</button>
     </div>
 
-    <!-- CARD DE SLIDE EM CÓDIGO — I CONCIC (ID 575444) -->
-    <div id="mozok-concic-slide-card" style="display:none;position:fixed;left:24px;bottom:86px;z-index:9600;max-width:460px;background:rgba(10,15,28,0.92);border:1px solid rgba(251,191,36,0.55);border-radius:14px;padding:18px 20px;color:#F8FAFC;backdrop-filter:blur(12px);box-shadow:0 12px 32px rgba(0,0,0,0.65);font-family:'Inter',system-ui,sans-serif;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;">
-            <span id="concic-slide-speaker" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:3px 9px;border-radius:999px;background:rgba(251,191,36,0.2);color:#FBBF24;">I CONCIC • ID 575444</span>
-            <span id="concic-slide-step" style="font-size:11.5px;color:#94A3B8;font-weight:600;">Slide 1/8</span>
+    <!-- SLIDE TRADICIONAL DINÂMICO SOBRE O MOTOR 3D — I CONCIC (ID 575444) -->
+    <div id="mozok-concic-slide-card">
+        <div class="concic-slide-top">
+            <span class="concic-speaker-pill" id="concic-slide-speaker">🎤💻 Pedro &amp; Gyz</span>
+            <span class="concic-step-pill" id="concic-slide-step">SLIDE 1 / 9</span>
         </div>
-        <h3 id="concic-slide-title" style="margin:0 0 8px;font-size:16.5px;color:#FDE68A;line-height:1.3;"></h3>
-        <p id="concic-slide-body" style="margin:0;font-size:13px;color:#E2E8F0;line-height:1.55;"></p>
+        <div style="width:100%;">
+            <div class="concic-slide-kicker" id="concic-slide-kicker">I CONCIC • ESTÁCIO JUAZEIRO DO NORTE</div>
+            <h2 class="concic-slide-title" id="concic-slide-title"></h2>
+            <ul class="concic-slide-bullets" id="concic-slide-bullets"></ul>
+        </div>
+        <div class="concic-slide-ref" id="concic-slide-ref"></div>
     </div>
 
-    <header class="topbar">
-        <div class="brand-block">
-            <div class="brand-logo">🧠</div>
-            <div>
-                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.11+0011">v1.0011</span></div>
-                <div class="brand-subtitle" id="gpu-status-subtitle" data-i18n="subtitle_macro">SNC, SNP & Meninges • Córtex MNI152 • 7 Patologias</div>
-            </div>
+    <!-- LEGENDA BILÍNGUE EM INGLÊS PARA ACOMPANHAMENTO INTERNACIONAL -->
+    <div id="mozok-concic-en-subtitle">
+        <strong style="color:#38bdf8; margin-right:6px;">🇬🇧 EN:</strong>
+        <span id="mozok-concic-en-text"></span>
+    </div>
         </div>
 
         <div class="topbar-controls">
@@ -6186,71 +6367,165 @@
             // =====================================================================
             const CONCIC_PRESENTATION_STATIONS = [
                 {
-                    title: '1/8 • Córtex MNI152 & Lobo Frontal',
-                    speaker: '🎤 Gyz • Abertura & Relevância Neurocientífica',
-                    slideBody: 'O ensino tradicional de neuroanatomia enfrenta barreiras de abstração visuoespacial. O MOZOK reconstrói o encéfalo humano em coordenadas estereotáxicas MNI152 (FIPAT), destacando funções executivas no Lobo Frontal.',
-                    mode: 'MACRO', structId: 'FRONTAL_LOBE', pathology: 'HEALTHY'
+                    isCover: true,
+                    kicker: 'I CONCIC • TRABALHO ID 575444 • COMUNICAÇÃO ORAL',
+                    title: 'O Ensino Assistido por Plataforma: MOZOK como Modelagem Tridimensional ao Ensino de Neurociências',
+                    speaker: '🎤💻 Pedro Luís & Gysllainy Rosy',
+                    bullets: [
+                        '<strong>Autores:</strong> Pedro Luís Tenório Rocha de Almeida; Gysllainy Rosy Pereira Nunes de Sousa',
+                        '<strong>Orientação:</strong> Prof. Jair Nunes Rocha &amp; Profa. Maria Eniana Araújo Gomes Pacheco',
+                        '<strong>Plataforma Aberta:</strong> Licença Apache 2.0 • 5 Idiomas • Libras Integrado • TRL 6 (v1.0)'
+                    ],
+                    ref: 'Faculdade Estácio Juazeiro do Norte • Curso de Psicologia • 16 a 19 de Novembro de 2026',
+                    enSubtitle: 'Platform-Assisted Teaching: MOZOK as 3D Modeling for Neuroscience Education. Open-source platform (Apache 2.0) built at Estácio Juazeiro do Norte in 5 languages with Brazilian Sign Language accessibility.',
+                    mode: 'MACRO', structId: 'FRONTAL_LOBE', pathology: 'HEALTHY', openPopup: false
                 },
                 {
-                    title: '2/8 • Circuito da Linguagem (Área de Broca)',
-                    speaker: '🎤 Gyz • Neuropsicologia da Linguagem',
-                    slideBody: 'Mapeamento funcional do Giro Frontal Inferior (BA44/BA45) e integração com a Área de Wernicke pelo Fascículo Arqueado, permitindo visualizar a base cortical da expressão verbal.',
-                    mode: 'MACRO', structId: 'BROCA_AREA_BA44_45', pathology: 'HEALTHY'
+                    kicker: '1. PROBLEMA & JUSTIFICATIVA PEDAGÓGICA',
+                    title: 'Barreiras no Ensino de Neuroanatomofisiologia',
+                    speaker: '🎤 Gyz • Problema & Objetivos',
+                    bullets: [
+                        '<strong>Abstração Espacial:</strong> Dificuldade de visualizar estruturas subcorticais profundas em atlas 2D estáticos.',
+                        '<strong>Barreira Financeira e Física:</strong> Alto custo de modelos sintéticos e escassez de peças cadavéricas preservadas.',
+                        '<strong>Barreira Sensorial:</strong> Reações aversivas dos discentes ao formol e à manipulação biológica.',
+                        '<strong>Objetivo:</strong> Democratizar globalmente o ensino 3D gratuito do SNC e SNP a 60 FPS no navegador.'
+                    ],
+                    ref: 'Referência da Banca: SOUZA, J. P. N. (Rev. Bras. Educ. Méd., 2024 • DOI: 10.1590/1981-5271v48.2-2023-0264)',
+                    enSubtitle: 'Traditional neuroanatomy teaching faces spatial abstraction barriers in 2D atlases, high costs of anatomical models, scarcity of cadavers, and student aversion to formaldehyde. MOZOK overcomes this for free at 60 FPS.',
+                    mode: 'MACRO', structId: 'HIPPOCAMPUS', pathology: 'HEALTHY', openPopup: false
                 },
                 {
-                    title: '3/8 • Simulação Clínica: AVC na Artéria Cerebral Média',
-                    speaker: '🎤 Gyz • Correlação Anatomoclínica (AVC Isquêmico)',
-                    slideBody: 'Simulação hemodinâmica ao vivo da oclusão da Artéria Cerebral Média, demonstrando a cascata isquêmica perissilviana e os déficits motores e afásicos decorrentes.',
-                    mode: 'MACRO', structId: 'MIDDLE_CEREBRAL_ARTERY', pathology: 'ISCHEMIC_STROKE'
+                    kicker: '2. REFERENCIAL TEÓRICO ENVIADO À BANCA',
+                    title: 'Fundamentação Científica e Epistemológica',
+                    speaker: '🎤 Gyz • Referencial Teórico',
+                    bullets: [
+                        '<strong>Neuroanatomia &amp; Neurociências:</strong> Machado &amp; Haidar (2022) na topografia funcional e Kandel et al. (2014) na biofísica sináptica.',
+                        '<strong>Conectômica Multiescala:</strong> Sporns (2012) na integração de redes corticais e circuitos cerebrais.',
+                        '<strong>Inclusão Linguística:</strong> Quadros &amp; Karnopp (2004) nos fundamentos linguísticos da Libras.',
+                        '<strong>Software Livre &amp; Ética:</strong> Silveira (2004) na emancipação do conhecimento digital aberto.'
+                    ],
+                    ref: 'Referências: Kandel (2014); Machado &amp; Haidar (2022); Sporns (2012); Quadros &amp; Karnopp (2004); Silveira (2004); Souza (2024)',
+                    enSubtitle: 'Theoretical framework submitted to the committee: Kandel (2014) for synaptic biophysics, Machado & Haidar (2022) for functional neuroanatomy, Sporns (2012) for the human connectome, Quadros & Karnopp (2004) for Sign Language, and Silveira (2004) for open-source ethics.',
+                    mode: 'MACRO', structId: 'ARCUATE_FASCICULUS_BA39_40', pathology: 'HEALTHY', openPopup: false
                 },
                 {
-                    title: '4/8 • Hipocampo & Degeneração no Alzheimer',
-                    speaker: '🎤 Gyz • Memória, Demências & Inclusão em Libras',
-                    slideBody: 'Visualização subcortical da formação hipocampal sob atrofia progressiva na Doença de Alzheimer, integrada ao Intérprete Humanoide 3D de Libras para acessibilidade universal.',
-                    mode: 'MACRO', structId: 'HIPPOCAMPUS', pathology: 'ALZHEIMER'
+                    kicker: '3. METODOLOGIA & ARQUITETURA MNI152',
+                    title: 'Espaço Estereotáxico Canônico &amp; Stack Aberta',
+                    speaker: '💻 Pedro • Arquitetura Técnica',
+                    bullets: [
+                        '<strong>Malha Cortical Real:</strong> Reconstrução no espaço MNI152 com 81.924 vértices e shaders GLSL.',
+                        '<strong>Engine Híbrida:</strong> Núcleo matemático em Rust + renderização WebGL / Three.js a 60 FPS em hardware comum.',
+                        '<strong>Módulo 1 (Atlas FIPAT):</strong> 56 estruturas do SNC e SNP indexadas diretamente com artigos científicos (DOI).'
+                    ],
+                    ref: 'Padrão Internacional MNI152 • Taxonomia FIPAT • Rust Workspace + WebGL / Three.js',
+                    enSubtitle: 'Methodology: Unified Rust, WebGL, and Three.js architecture built on the international MNI152 stereotaxic brain space (81,924 vertices), running at 60 FPS on standard student computers with 56 DOI-indexed anatomical structures.',
+                    mode: 'MACRO', structId: 'BROCA_AREA_BA44_45', pathology: 'HEALTHY', openPopup: true
                 },
                 {
-                    title: '5/8 • Mergulho na Camada V: Neurônios de Betz',
-                    speaker: '💻 Pedro • Arquitetura Multiescala (Macro -> Micro)',
-                    slideBody: 'Transição contínua em WebGL/Rust da macroanatomia para a citoarquitetura cortical na Camada V Piramidal, renderizando soma neuronal, árvore dendrítica e potencial de ação em tempo real.',
-                    mode: 'MICRO', partId: 'NEURON_SOMA', dist: 4.2, pathology: 'HEALTHY'
+                    kicker: '4. MÓDULO CLÍNICO (7 PATOLOGIAS AO VIVO)',
+                    title: 'Simulação Fisiopatológica: AVC &amp; Alzheimer',
+                    speaker: '🎤 Gyz • Correlação Clínica',
+                    bullets: [
+                        '<strong>AVC Isquêmico (ACM Esquerda):</strong> Core necrótico e penumbra na Área de Broca com queda de perfusão.',
+                        '<strong>Doença de Alzheimer:</strong> Atrofia hipocampal progressiva, dilatação ventricular e placas Beta-Amiloide.',
+                        '<strong>Espectro Completo (7 Doenças):</strong> Inclui Parkinson, Esclerose Múltipla, Príons (DCJ), ELA e Epilepsia.'
+                    ],
+                    ref: 'Biomarcadores LCR simulados em tempo real (Aβ42/Tau, NfL, 14-3-3 e Bandas Oligoclonais)',
+                    enSubtitle: 'Live clinical pathology simulator modeling 7 neurological disorders with real-time severity sliders: Ischemic Stroke in Broca area, Alzheimer hippocampal atrophy, Parkinson, Multiple Sclerosis, Prion Disease, ALS, and Epilepsy.',
+                    mode: 'MACRO', structId: 'MIDDLE_CEREBRAL_ARTERY', pathology: 'ISCHEMIC_STROKE', openPopup: false
                 },
                 {
-                    title: '6/8 • Condução Saltatória & Fenda Sináptica',
-                    speaker: '💻 Pedro • Biofísica Computacional & Sinapse',
-                    slideBody: 'Modelagem tridimensional dos Nodos de Ranvier, bainha de mielina e exocitose vesicular de neurotransmissores na fenda sináptica a 60 FPS em hardware acessível.',
-                    mode: 'MICRO', partId: 'NEURON_SYNAPSE', dist: 1.8, pathology: 'HEALTHY'
+                    kicker: '5. MÓDULO 2: MICROCOSMOS NEURONAL',
+                    title: 'Transição Contínua para Camada V (Células de Betz)',
+                    speaker: '💻 Pedro • Biofísica Neuronal',
+                    bullets: [
+                        '<strong>Conectoma da Lâmina V:</strong> Rede piramidal interconectada com espinhas dendríticas e terminais axônicos.',
+                        '<strong>Equações de Hodgkin &amp; Huxley:</strong> Potenciais de ação em tempo real no osciloscópio sináptico.',
+                        '<strong>Lei do Cabo de Rall &amp; Mielina:</strong> Condução saltatória pelos Nódulos de Ranvier (~110 m/s fisiológicos).'
+                    ],
+                    ref: 'Referência: KANDEL, E. R. et al. (2014) • SPORNS, O. (2012)',
+                    enSubtitle: 'Continuous zoom from macro brain anatomy down to Layer V pyramidal neurons (Betz cells), simulating Hodgkin-Huxley action potentials, Rall dendritic cable law, and saltatory conduction across Nodes of Ranvier.',
+                    mode: 'MICRO', partId: 'NEURON_SOMA', dist: 11.5, pathology: 'HEALTHY', openPopup: false
                 },
                 {
-                    title: '7/8 • Interior Celular: Organelas & Mitocôndrias',
-                    speaker: '💻 Pedro • Escala Intracelular & Bioenergética',
-                    slideBody: 'Mergulho no núcleo neuronal, retículo endoplasmático e síntese de ATP mitocondrial para sustentar bombas de sódio e potássio durante a atividade sináptica.',
-                    mode: 'MICRO', partId: 'NEURON_NUCLEUS', dist: 0.85, pathology: 'HEALTHY'
+                    kicker: '6. SINAPSE &amp; PATOLOGIA CELULAR AO VIVO',
+                    title: 'Fenda Sináptica e Efeitos Patológicos em Escala Micro',
+                    speaker: '💻 Pedro • Sinapse &amp; Patologia Micro',
+                    bullets: [
+                        '<strong>Transmissão Bidirecional:</strong> Exocitose vesicular e modulação excitatória (Glutamato) / inibitória (GABA).',
+                        '<strong>Impacto Patológico 3D:</strong> Visualização direta de placas Aβ42, emaranhados Tau e perda de mielina nos axônios.',
+                        '<strong>Telemetria Hemodinâmica:</strong> Frequência de disparo (Hz), fluxo sanguíneo (CBF) e velocidade axonal.'
+                    ],
+                    ref: 'Simulação acoplada Macro ↔ Micro sincronizada pelo controle de severidade',
+                    enSubtitle: 'At the synaptic scale, MOZOK models neurotransmitter release and renders cellular lesions directly on the 3D neurons, such as amyloid plaques, tau tangles, Lewy bodies, and demyelination.',
+                    mode: 'MICRO', partId: 'NEURON_SYNAPSE', dist: 6.8, pathology: 'ALZHEIMER', openPopup: false
                 },
                 {
-                    title: '8/8 • Escala Sub-Nanométrica & Roadmap Pesquisa 2027',
-                    speaker: '💻🎤 Pedro & Gyz • Escala Quântica & Pesquisa 2027',
-                    slideBody: 'Do nível atômico ao protocolo psicométrico (SUS e NASA-TLX) já embarcado no MOZOK (#btn-research-eval), pronto para coleta empírica com estudantes em 2027 sob licença aberta Apache 2.0.',
-                    mode: 'MICRO', partId: 'NEURON_NUCLEUS', dist: 0.32, pathology: 'HEALTHY'
+                    kicker: '7. MÓDULO 4: ACESSIBILIDADE UNIVERSAL',
+                    title: 'Multilinguismo (5 Idiomas) &amp; Libras Integrado',
+                    speaker: '🎤 Gyz • Inclusão &amp; Direitos Humanos',
+                    bullets: [
+                        '<strong>5 Idiomas Nativos:</strong> Português, Inglês (UK), Espanhol, Italiano e Ucraniano com voz neural.',
+                        '<strong>Audiodescrição &amp; Legendas:</strong> Barra de leitura acessível sincronizada para deficiência visual ou auditiva.',
+                        '<strong>Intérprete em Libras:</strong> Suporte integrado à Língua Brasileira de Sinais fundamentado em Quadros &amp; Karnopp (2004).'
+                    ],
+                    ref: 'Referência da Banca: QUADROS, R. M.; KARNOPP, L. B. (2004) • SILVEIRA, S. A. (2004)',
+                    enSubtitle: 'Universal accessibility: native translation and neural voice in 5 languages (Portuguese, English, Spanish, Italian, and Ukrainian), audio descriptions, and Brazilian Sign Language support.',
+                    mode: 'MACRO', structId: 'WERNICKE_AREA_BA22', pathology: 'HEALTHY', openPopup: false
+                },
+                {
+                    kicker: '8. MÓDULO 5 &amp; CRONOGRAMA DE CONTINUIDADE 2027',
+                    title: 'Validação Psicométrica &amp; Próximas Etapas (TRL 6 → v2.0)',
+                    speaker: '🎤💻 Pedro &amp; Gyz • Validação &amp; Futuro',
+                    bullets: [
+                        '<strong>Módulo Psicométrico Embarcado:</strong> Pré e pós testes, Ganho Normalizado de Hake (g), NASA TLX e Escala SUS.',
+                        '<strong>Etapa 1 (Nov/2026 a Fev/2027):</strong> Conclusão das organelas subcelulares, módulo ontogenético e submissão ao CEP.',
+                        '<strong>Etapa 2 (Mar a Mai/2027):</strong> Ensaio quase-experimental com 60 a 80 graduandos (MOZOK 3D vs. Atlas 2D).',
+                        '<strong>Etapa 3 (Jun a Ago/2027):</strong> Análise estatística, lançamento v2.0 e publicação científica internacional.'
+                    ],
+                    ref: 'Estágio Atual: Versão estável v1.0 (TRL 6) • Obrigado! • Repositório: github.com/pedro-almeida/mozok',
+                    enSubtitle: 'Built-in psychometric module (Hake normalized gain, NASA-TLX, and SUS usability scale). Roadmap 2027: Ethics Committee submission, controlled trial with 60 to 80 health students, and v2.0 international publication.',
+                    mode: 'MACRO', structId: 'FRONTAL_LOBE', pathology: 'HEALTHY', openPopup: false
                 }
             ];
 
             let deckActive = false;
             let deckPlaying = false;
             let deckStationIdx = 0;
+            let concicEnSubEnabled = true;
 
             function renderConcicSlideCard(st, idx) {
                 const card = document.getElementById('mozok-concic-slide-card');
+                const enBar = document.getElementById('mozok-concic-en-subtitle');
+                const enText = document.getElementById('mozok-concic-en-text');
                 if (!card) return;
-                card.style.display = deckActive ? 'block' : 'none';
+
+                card.classList.toggle('active', deckActive);
+                card.classList.toggle('cover-slide', !!st.isCover);
+
                 const spk = document.getElementById('concic-slide-speaker');
                 const stp = document.getElementById('concic-slide-step');
+                const kck = document.getElementById('concic-slide-kicker');
                 const ttl = document.getElementById('concic-slide-title');
-                const bdy = document.getElementById('concic-slide-body');
-                if (spk) spk.textContent = st.speaker || 'I CONCIC • ID 575444';
-                if (stp) stp.textContent = `Estação ${idx + 1}/${CONCIC_PRESENTATION_STATIONS.length}`;
-                if (ttl) ttl.textContent = st.title;
-                if (bdy) bdy.textContent = st.slideBody || '';
+                const blt = document.getElementById('concic-slide-bullets');
+                const ref = document.getElementById('concic-slide-ref');
+
+                if (spk) spk.innerHTML = st.speaker || 'I CONCIC • ID 575444';
+                if (stp) stp.textContent = `SLIDE ${idx + 1} / ${CONCIC_PRESENTATION_STATIONS.length}`;
+                if (kck) kck.textContent = st.kicker || 'I CONCIC • MOZOK';
+                if (ttl) ttl.innerHTML = st.title || '';
+                if (blt) {
+                    blt.innerHTML = (st.bullets || []).map(item => `<li>${item}</li>`).join('');
+                }
+                if (ref) {
+                    ref.innerHTML = st.ref || '';
+                    ref.style.display = st.ref ? 'block' : 'none';
+                }
+
+                if (enBar && enText) {
+                    enText.textContent = st.enSubtitle || '';
+                    enBar.classList.toggle('visible', deckActive && concicEnSubEnabled && !!st.enSubtitle);
+                }
             }
 
             async function runDeckStation(idx) {
@@ -6259,12 +6534,12 @@
                 const myStationToken = ++activeSpeechId;
                 const st = CONCIC_PRESENTATION_STATIONS[deckStationIdx];
                 const lbl = document.getElementById('deck-station-label');
-                if (lbl) lbl.textContent = st.title;
+                if (lbl) lbl.textContent = `Slide ${deckStationIdx + 1}/${CONCIC_PRESENTATION_STATIONS.length}`;
                 renderConcicSlideCard(st, deckStationIdx);
 
                 if (st.pathology) {
                     pathologySelect.value = st.pathology;
-                    applyPathologySelection(st.pathology, st.pathology === 'HEALTHY' ? 0.0 : 0.85);
+                    applyPathologySelection(st.pathology, st.pathology === 'HEALTHY' ? 0.0 : 0.85, false);
                 }
 
                 const prevVoice = voiceEnabled;
@@ -6272,25 +6547,33 @@
 
                 if (st.mode === 'MACRO') {
                     if (isMicroMode) setMicrocosmosMode(false);
-                    selectMacroStructure(st.structId, true, true);
+                    selectMacroStructure(st.structId, true, !!st.openPopup);
+                    if (!st.isCover) {
+                        const anchor = cnsAnatomy.getStructureWorldAnchor(st.structId);
+                        const target = new THREE.Vector3(anchor.x - 3.6, anchor.y, anchor.z);
+                        const camPos = target.clone().add(new THREE.Vector3(5.8, 2.0, 14.5));
+                        flyCameraTo(target, camPos, 0.85);
+                    } else {
+                        flyCameraTo(new THREE.Vector3(0, -1.0, 0), new THREE.Vector3(0, 1.4, 21.0), 0.9);
+                    }
                 } else {
                     if (!isMicroMode) setMicrocosmosMode(true);
-                    selectNeuronSubPart(st.partId, false, true);
-                    const target = new THREE.Vector3(0, 0.5, 0);
-                    const pos = new THREE.Vector3(0, 0.5 + st.dist * 0.12, st.dist);
-                    flyCameraTo(target, pos, 1.1);
+                    selectNeuronSubPart(st.partId, false, !!st.openPopup);
+                    const target = new THREE.Vector3(-4.2, 0.5, 0);
+                    const pos = new THREE.Vector3(-4.2, 1.4, st.dist || 10.5);
+                    flyCameraTo(target, pos, 0.95);
                 }
 
                 voiceEnabled = prevVoice;
 
-                if (st.slideBody) {
-                    mozokTriggerVLibras(st.slideBody);
+                if (vlibrasActive && st.title) {
+                    mozokTriggerVLibras(st.title);
                 }
 
                 if (voiceEnabled) {
                     await narrateCurrentSelection();
                 } else {
-                    await new Promise(r => setTimeout(r, 7500));
+                    await new Promise(r => setTimeout(r, 11000));
                 }
 
                 if (deckActive && deckPlaying && myStationToken === activeSpeechId) {
@@ -6298,18 +6581,20 @@
                         if (deckActive && deckPlaying) {
                             runDeckStation(deckStationIdx + 1);
                         }
-                    }, 1200);
+                    }, 1500);
                 }
             }
 
             const presenterDeckEl = document.getElementById('mozok-presenter-deck');
             const newBtnTour = document.getElementById('btn-tour');
             const btnConcic = document.getElementById('btn-concic');
+            const btnDeckEnSub = document.getElementById('btn-deck-en-sub');
 
             function startConcicPresentation() {
                 if (cyberPresentationActive) finishDoom3Presentation();
                 deckActive = true;
                 deckPlaying = true;
+                document.body.classList.add('concic-stage-mode');
                 if (btnConcic) btnConcic.classList.add('active');
                 if (presenterDeckEl) presenterDeckEl.classList.add('active');
                 const playBtn = document.getElementById('btn-deck-play');
@@ -6320,11 +6605,15 @@
             function closeConcicPresentation() {
                 deckActive = false;
                 deckPlaying = false;
+                document.body.classList.remove('concic-stage-mode');
                 if (btnConcic) btnConcic.classList.remove('active');
                 if (newBtnTour) newBtnTour.classList.remove('active');
                 if (presenterDeckEl) presenterDeckEl.classList.remove('active');
                 const card = document.getElementById('mozok-concic-slide-card');
-                if (card) card.style.display = 'none';
+                if (card) {
+                    card.classList.remove('active', 'cover-slide');
+                }
+                document.getElementById('mozok-concic-en-subtitle')?.classList.remove('visible');
                 if (tourTimer) { clearTimeout(tourTimer); tourTimer = null; }
             }
 
@@ -6335,6 +6624,14 @@
                 btnConcic.addEventListener('click', () => {
                     if (deckActive) closeConcicPresentation();
                     else startConcicPresentation();
+                });
+            }
+            if (btnDeckEnSub) {
+                btnDeckEnSub.addEventListener('click', () => {
+                    concicEnSubEnabled = !concicEnSubEnabled;
+                    btnDeckEnSub.classList.toggle('active', concicEnSubEnabled);
+                    const curSt = CONCIC_PRESENTATION_STATIONS[deckStationIdx];
+                    if (curSt) renderConcicSlideCard(curSt, deckStationIdx);
                 });
             }
 
