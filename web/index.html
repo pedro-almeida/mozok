@@ -147,12 +147,6 @@
             white-space: nowrap;
             flex-shrink: 0;
         }
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.18s ease;
-            white-space: nowrap;
-        }
 
         .hud-btn:hover {
             border-color: var(--accent-cyan);
@@ -2249,7 +2243,7 @@
         <div class="brand-block">
             <div class="brand-logo">🧠</div>
             <div>
-                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.9+0009">v1.0011</span></div>
+                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.11+0011">v1.0011</span></div>
                 <div class="brand-subtitle" id="gpu-status-subtitle" data-i18n="subtitle_macro">SNC, SNP & Meninges • Córtex MNI152 • 7 Patologias</div>
             </div>
         </div>
@@ -5885,7 +5879,7 @@
             // =====================================================================
             // WIDGET OFICIAL DO VLIBRAS & CONTROLE DE ACESSIBILIDADE DO MOZOK
             // =====================================================================
-            let vlibrasActive = false;
+            // vlibrasActive já declarado no escopo principal
 
             function toggleVLibras(forceState) {
                 vlibrasActive = (typeof forceState === 'boolean') ? forceState : !vlibrasActive;
@@ -6065,8 +6059,11 @@
                 startHexagonalVisorCanvas();
                 startMozokLightningEffect();
 
-                // Se idioma for pt-BR, ativa o Avatar Nativo de Libras automaticamente
-                if ((currentLang || "pt-BR").toLowerCase().startsWith("pt")) {
+                const lang = currentLang || "pt-BR";
+                const segments = INTRO_SEGMENTS_I18N[lang] || INTRO_SEGMENTS_I18N["pt-BR"];
+
+                // Se idioma for pt-BR, dispara o primeiro segmento no VLibras quando ativo
+                if (lang.toLowerCase().startsWith("pt")) {
                     if (vlibrasActive) mozokTriggerVLibras(segments[0] || "");
                 }
 
@@ -6098,8 +6095,7 @@
                 if (narrative) { narrative.style.display = "block"; narrative.style.opacity = "1"; }
                 startDoom3ShockGlitches();
 
-                const lang = currentLang || "pt-BR";
-                const segments = INTRO_SEGMENTS_I18N[lang] || INTRO_SEGMENTS_I18N["pt-BR"];
+                // segments já inicializado no topo da função
 
                 for (let s = 0; s < segments.length; s++) {
                     if (cyberPresentationAborted) break;
