@@ -20,3 +20,10 @@
    - **Proibição de Scripts de Upgrade no Git**: Todas as edições em `web/index.html`, `web/js/*.js` e crates Rust devem ser feitas diretamente nos arquivos-fonte. Caso um script auxiliar Python seja usado para processamento em lote, ele deve ser apagado antes do `git commit`.
    - **Auto-Commit & Push**: Sempre finalizar o ciclo executando testes/validações, `git commit` e `git push origin main`.
 
+## Política Obrigatória de Versionamento (SemVer 2.0.0 + Build Metadata)
+- Formato oficial em `VERSION`, `Cargo.toml`, `web/sw.js`, `web/index.html` e `rust/mozok-native/src/main.rs`: `MAJOR.MINOR.PATCH+build.<N>` (ex: `1.1.0+build.12`).
+- Ao concluir qualquer alteração no repositório, o agente DEVE avaliar o escopo e atualizar a versão automaticamente:
+  - `MAJOR`: mudança incompatível na API/arquitetura.
+  - `MINOR`: nova funcionalidade (ex: novos slides, modos 3D, idiomas, workflows).
+  - `PATCH`: correção de bug, ajuste visual ou hotfix.
+  - `+build.<N>`: sempre incrementar o número sequencial de build (`+build.12` -> `+build.13`, etc.) a cada release/commit.

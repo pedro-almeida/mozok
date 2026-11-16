@@ -89,9 +89,9 @@ def run_audit() -> int:
             print(f"  [PASS] Módulo Doom 3 / John Carmack Homage: {doom_feat}")
 
     # Verifica Versionamento
-    if not version_str.startswith("1.00"):
-        errors.append(f"VERSION esperado 1.000x, encontrado: {version_str}")
-    if f'+{version_str.split(".")[1]}"' not in cargo_str:
+    if not re.match(r"^\d+\.\d+\.\d+(\+build\.\d+)?$", version_str):
+        errors.append(f"VERSION fora do padrão SemVer 2.0.0, encontrado: {version_str}")
+    if f'version = "{version_str}"' not in cargo_str:
         errors.append(f"Cargo.toml fora do padrão SemVer para {version_str}")
 
     if errors:

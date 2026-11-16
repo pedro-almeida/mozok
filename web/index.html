@@ -2367,7 +2367,7 @@
 
     <!-- TOPBAR -->
     
-        <!-- OVERLAY DE APRESENTAÇÃO CIENTÍFICA CIBERNÉTICA (MOZOK v1.0011 — DOOM 3 / ESPECTRO IPÊ) -->
+        <!-- OVERLAY DE APRESENTAÇÃO CIENTÍFICA CIBERNÉTICA (MOZOK v1.1.0 — DOOM 3 / ESPECTRO IPÊ) -->
     <div id="doom3-intro-overlay" class="hidden-intro" role="dialog" aria-label="Apresentação Científica MOZOK">
         <canvas id="cyber-hex-canvas"></canvas>
         <div class="cyber-scanline-overlay"></div>
@@ -2446,7 +2446,7 @@
         <div class="brand-block">
             <div class="brand-logo">🧠</div>
             <div>
-                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.0.11+0011">v1.0011</span></div>
+                <div class="brand-title"><span id="brand-title-text" data-i18n="title_macro">MOZOK</span> <span class="brand-preset-tag" id="brand-version-badge" title="SemVer 1.1.0+build.12">v1.1.0</span></div>
                 <div class="brand-subtitle" id="gpu-status-subtitle" data-i18n="subtitle_macro">SNC, SNP & Meninges • Córtex MNI152 • 7 Patologias</div>
             </div>
         </div>
@@ -4859,7 +4859,7 @@
                 if (cont) cont.style.display = 'block';
                 if (!vlibrasInitialized) {
                     vlibrasInitialized = true;
-                    // VLibras plugin externo removido em favor do Avatar 3D Nativo MOZOK (v1.0011)
+                    // VLibras plugin externo removido em favor do Avatar 3D Nativo MOZOK (v1.1.0)
                 } else {
                     const vwBtn = document.querySelector('[vw-access-button]');
                     const vwWrapper = document.querySelector('[vw-plugin-wrapper]');
@@ -5316,7 +5316,7 @@
                 if (scaleSlider && document.activeElement !== scaleSlider) {
                     scaleSlider.value = String(Math.max(0, Math.min(100, depthPct)));
                 }
-                // v1.0011: Sem zoom intrusivo. O usuário pode afastar a câmera nos neurônios livremente sem voltar pro cérebro.
+                // v1.1.0: Sem zoom intrusivo. O usuário pode afastar a câmera nos neurônios livremente sem voltar pro cérebro.
                 if (isMicroMode && typeof neuralMicro.setMultiscaleDepth === 'function') {
                     neuralMicro.setMultiscaleDepth(dist);
                 }
@@ -5589,7 +5589,7 @@
 
             
                         // =====================================================================
-            // MÓDULO DE APRESENTAÇÃO CIENTÍFICA MOZOK v1.0011 (DOOM 3 / ESPECTRO IPÊ)
+            // MÓDULO DE APRESENTAÇÃO CIENTÍFICA MOZOK v1.1.0 (DOOM 3 / ESPECTRO IPÊ)
             // + PAUSA COM EMBLEMA ELÉTRICO MOZOK + VLIBRAS NATIVO + TRANSIÇÃO PARA TOUR
             // =====================================================================
             let doomAudioCtx = null;
@@ -5866,7 +5866,7 @@
                     vlibrasActive = true;
                     if (!vlibrasInitialized) {
                         vlibrasInitialized = true;
-                        // VLibras plugin externo removido em favor do Avatar 3D Nativo MOZOK (v1.0011)
+                        // VLibras plugin externo removido em favor do Avatar 3D Nativo MOZOK (v1.1.0)
                     }
                     const vwBtn = document.querySelector('[vw-access-button]');
                     const vwWrapper = document.querySelector('[vw-plugin-wrapper]');
@@ -5925,9 +5925,9 @@
                 if (!ctx) return null;
                 const lang = currentLang || 'pt-BR';
                 const candidateUrls = [
+                    `assets/audio/${lang}/CYBER_INTRO_${segmentIndex + 1}.mp3?v=1.1.0+build.12`,
                     `/api/gemini-tts?text=${encodeURIComponent(segmentText)}&lang=${encodeURIComponent(lang)}&voice=Aoede`,
-                    `assets/audio/${lang}/CYBER_INTRO_${segmentIndex + 1}.mp3`,
-                    `assets/audio/pt-BR/CYBER_INTRO_${segmentIndex + 1}.mp3`
+                    `assets/audio/pt-BR/CYBER_INTRO_${segmentIndex + 1}.mp3?v=1.1.0+build.12`
                 ];
                 for (const url of candidateUrls) {
                     if (cyberPresentationAborted) return null;
@@ -6706,7 +6706,7 @@
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div class="brand-logo" style="width:36px; height:36px; font-size:18px;">📊</div>
                     <div>
-                        <h2 id="mozok-research-title" style="font-size:16px; font-weight:800; color:#f8fafc; margin:0;">Módulo de Prova &amp; Validação Científica Internacional (MOZOK v1.0011)</h2>
+                        <h2 id="mozok-research-title" style="font-size:16px; font-weight:800; color:#f8fafc; margin:0;">Módulo de Prova &amp; Validação Científica Internacional (MOZOK v1.1.0)</h2>
                         <div style="font-size:11px; color:#00f2fe; font-weight:600;">Protocolo Quase-Experimental • Ganho Normalizado de Hake (g) • NASA-TLX • Escala SUS (0–100)</div>
                     </div>
                 </div>
