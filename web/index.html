@@ -2182,13 +2182,26 @@
 
         /* ATO II: SOMENTE AS FRASES EM AZUL CIANO NO CENTRO DA TELA (ESTILO DOOM 3 PURO) */
         #doom3-narrative-stage {
-            position: relative;
+            position: fixed;
+            left: 36%;
+            right: 6%;
+            top: 48%;
+            transform: translateY(-50%);
             z-index: 10;
-            max-width: 960px;
-            width: 88%;
-            text-align: center;
+            text-align: left;
             pointer-events: none;
             transition: opacity 0.5s ease;
+        }
+        .doom3-uac-kicker {
+            font-family: 'Share Tech Mono', Consolas, monospace;
+            font-size: 11px;
+            letter-spacing: 3.2px;
+            color: rgba(0, 242, 254, 0.78);
+            text-transform: uppercase;
+            border-left: 3px solid #00f2fe;
+            padding-left: 10px;
+            margin-bottom: 12px;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.55);
         }
         #doom3-typewriter-text {
             font-family: 'Orbitron', 'Share Tech Mono', sans-serif;
@@ -2368,6 +2381,7 @@
 
         <!-- ATO II: FRASES EM AZUL CIANO PURO NO MEIO DA TELA (SEM BARRAS OU CAIXAS) -->
         <div id="doom3-narrative-stage" style="display:none; opacity:0;">
+            <div class="doom3-uac-kicker">MOZOK // OPEN NEUROSCIENCE INITIATIVE</div>
             <span id="doom3-typewriter-text"></span><span id="doom3-cursor-block">█</span>
         </div>
 
@@ -5862,50 +5876,50 @@
 
             const INTRO_SEGMENTS_I18N = {
                 "pt-BR": [
-                                "O estudo da neuroanatomia e da eletrofisiologia humana historicamente enfrentou barreiras severas: o custo proibitivo de laboratórios cadavéricos e a limitação estática dos atlas bidimensionais.",
-                                "Para superar essas fronteiras educacionais e clínicas, a Espectro Ipê desenvolveu o MOZOK: um simulador neurofisiológico tridimensional aberto, construído sobre o padrão estereotáxico internacional MNI cento e cinquenta e dois.",
-                                "A plataforma integra em tempo real nove escalas biológicas contínuas: do córtex cerebral, tronco encefálico e árvore vascular até colunas corticais da camada cinco, fendas sinápticas, organelas e átomos.",
-                                "Seu motor biofísico resolve as equações diferenciais de Hodgkin-Huxley e modela sete patologias neurológicas críticas com referências indexadas por DOI, incluindo acidente vascular cerebral, Alzheimer e doenças priônicas.",
-                                "Totalmente gratuito, traduzido em cinco idiomas e integrado à Língua Brasileira de Sinais via VLibras, o MOZOK democratiza a neurociência de alta precisão como patrimônio científico aberto da humanidade."
+                    "Nascido da necessidade de uma mente autista de decodificar o cérebro humano, o projeto MOZOK é uma iniciativa pioneira de neurociência educacional aberta.",
+                    "Originalmente concebido para superar as limitações do ensino tradicional, seus sistemas expandiram para:",
+                    "Neuroanatomia estereotáxica MNI152. Biofísica sináptica em tempo real. E simulação de patologias críticas.",
+                    "Livre de barreiras financeiras, e submetido ao dever ético inegociável de nunca tratar a ciência como mercadoria,",
+                    "O MOZOK integra da macroanatomia à sinapse em uma única arquitetura aberta... e a entrega, sem barreiras, à humanidade."
                 ],
                 "en-GB": [
-                                "The study of human neuroanatomy and electrophysiology has historically faced severe barriers: the prohibitive cost of cadaveric laboratories and the static limitation of two-dimensional atlases.",
-                                "To overcome these educational and clinical boundaries, Espectro Ipê developed MOZOK: an open three-dimensional neurophysiological simulator built upon the international MNI one-five-two stereotaxic standard.",
-                                "The platform integrates in real time nine continuous biological scales: from the cerebral cortex, brainstem, and vascular tree down to layer five cortical columns, synaptic clefts, organelles, and atoms.",
-                                "Its biophysical engine solves the Hodgkin-Huxley differential equations and models seven critical neurological pathologies with DOI-indexed references, including ischaemic stroke, Alzheimer's, and prion diseases.",
-                                "Completely free and open to humanity in five languages, MOZOK democratizes high-precision neuroscience as an open scientific heritage for all humanity."
+                    "Born from an autistic mind's need to decode the human brain, the MOZOK project is a pioneering open educational neuroscience initiative.",
+                    "Originally conceived to overcome the limitations of traditional teaching, its systems expanded into:",
+                    "MNI152 stereotaxic neuroanatomy. Real-time synaptic biophysics. And simulation of critical pathologies.",
+                    "Free from financial barriers, and bound by the non-negotiable ethical duty never to treat science as a commodity,",
+                    "MOZOK integrates from macroanatomy to the synapse in a single open architecture... and delivers it, without barriers, to humanity."
                 ],
                 "es-ES": [
-                                "El estudio de la neuroanatomía y la electrofisiología humana históricamente enfrentó severas barreras: el costo prohibitivo de los laboratorios cadavéricos y la limitación estática de los atlas bidimensionales.",
-                                "Para superar estas fronteras educativas y clínicas, Espectro Ipê desarrolló MOZOK: un simulador neurofisiológico tridimensional abierto, construido sobre el estándar estereotáxico internacional MNI ciento cincuenta y dos.",
-                                "La plataforma integra en tiempo real nueve escalas biológicas continuas: desde la corteza cerebral, el tronco encefálico y el árbol vascular hasta las columnas corticales de la capa cinco, sinapsis, orgánulos y átomos.",
-                                "Su motor biofísico resuelve las ecuaciones diferenciales de Hodgkin-Huxley y modela siete patologías neurológicas críticas con referencias indexadas por DOI, incluyendo accidente cerebrovascular, Alzheimer y enfermedades priónicas.",
-                                "Totalmente gratuito y abierto a la humanidad en cinco idiomas, MOZOK democratiza la neurociencia de alta precisión como patrimonio científico abierto de la humanidad."
+                    "Nacido de la necesidad de una mente autista de decodificar el cerebro humano, el proyecto MOZOK es una iniciativa pionera de neurociencia educativa abierta.",
+                    "Originalmente concebido para superar las limitaciones de la enseñanza tradicional, sus sistemas se expandieron hacia:",
+                    "Neuroanatomía estereotáxica MNI152. Biofísica sináptica en tiempo real. Y simulación de patologías críticas.",
+                    "Libre de barreras financieras, y sometido al deber ético innegociable de nunca tratar la ciencia como mercancía,",
+                    "MOZOK integra desde la macroanatomía hasta la sinapsis en una única arquitectura abierta... y la entrega, sin barreras, a la humanidad."
                 ],
                 "it-IT": [
-                                "Lo studio della neuroanatomia e dell'elettrofisiologia umana ha storicamente affrontato gravi barriere: il costo proibitivo dei laboratori cadaverici e il limite statico degli atlanti bidimensionali.",
-                                "Per superare queste frontiere educative e cliniche, Espectro Ipê ha sviluppato MOZOK: un simulatore neurofisiologico tridimensionale aperto, costruito sullo standard stereotassico internazionale MNI centocinquantadue.",
-                                "La piattaforma integra in tempo reale nove scale biologiche continue: dalla corteccia cerebrale, tronco encefalico e albero vascolare fino alle colonne corticali dello strato cinque, sinapsi, organelli e atomi.",
-                                "Il suo motore biofisico risolve le equazioni differenziali di Hodgkin-Huxley e modella sette patologie neurologiche critiche con riferimenti indicizzati DOI, inclusi ictus ischemico, Alzheimer e malattie da prioni.",
-                                "Totalmente gratuito e aperto all'umanità in cinque lingue, MOZOK democratizza le neuroscienze ad alta precisione come patrimonio scientifico aperto dell'umanità."
+                    "Nato dal bisogno di una mente autistica di decodificare il cervello umano, il projeto MOZOK è un'iniziativa pionieristica di neuroscienza educativa aperta.",
+                    "Originariamente concepito per superare i limiti dell'insegnamento tradizionale, i suoi sistemi si sono espansi in:",
+                    "Neuroanatomia stereotassica MNI152. Biofisica sinaptica in tempo reale. E simulazione di patologie critiche.",
+                    "Libero da barriere finanziarie, e guidato dal dovere etico non negoziabile di non trattare mai la scienza come merce,",
+                    "MOZOK integra dalla macroanatomia alla sinapsi in un'unica architettura aperta... e la entrega, senza barriere, all'umanità."
                 ],
                 "uk-UA": [
-                                "Вивчення нейроанатомії та електрофізіології людини історично стикалося з серйозними бар'єрами: високою вартістю анатомічних лабораторій та статичністю двовимірних атласів.",
-                                "Щоб подолати ці освітні та клінічні межі, Espectro Ipê розробила MOZOK: відкритий тривимірний нейрофізіологічний симулятор, побудований на міжнародному стереотаксичному стандарті MNI сто п'ятдесят два.",
-                                "Платформа інтегрує в реальному часі дев'ять неперервних біологічних масштабів: від кори головного мозку, стовбура та судинного дерева до кортикальних колонок п'ятого шару, синапсів, органел та атомів.",
-                                "Його біофізичне ядро розв'язує диференціальні рівняння Годжкіна-Гакслі та моделює сім критичних неврологічних патологій із індексованими DOI публікаціями, включаючи інсульт, хворобу Альцгеймера та пріонні хвороби.",
-                                "Повністю безкоштовний і відкритий для людства п'ятьма мовами, MOZOK демократизує високоточну нейронауку як відкриту наукову спадщину людства."
+                    "Народжений із потреби аутичного розуму декодувати людський мозок, проєкт MOZOK є новаторською ініціативою відкритої освітньої нейронауки.",
+                    "Спершу створений для подолання обмежень традиційного навчання, його модулі розширилися до:",
+                    "Стереотаксичної нейроанатомії MNI152. Синаптичної біофізики в реальному часі. Та симуляції критичних патологій.",
+                    "Вільний від фінансових бар'єрів і підпорядкований незмінному етичному обов'язку ніколи не перетворювати науку на товар,",
+                    "MOZOK об'єднує шлях від макроанатомії до синапсу в єдиній відкритій архітектурі... і передає її людству без жодних бар'єрів."
                 ]
-};
+            };
 
             async function fetchIntroAudioBuffer(segmentText, segmentIndex) {
                 const ctx = getDoomAudioContext();
                 if (!ctx) return null;
                 const lang = currentLang || 'pt-BR';
                 const candidateUrls = [
+                    `/api/gemini-tts?text=${encodeURIComponent(segmentText)}&lang=${encodeURIComponent(lang)}&voice=Aoede`,
                     `assets/audio/${lang}/CYBER_INTRO_${segmentIndex + 1}.mp3`,
-                    `assets/audio/pt-BR/CYBER_INTRO_${segmentIndex + 1}.mp3`,
-                    `/api/gemini-tts?text=${encodeURIComponent(segmentText)}&lang=${encodeURIComponent(lang)}`
+                    `assets/audio/pt-BR/CYBER_INTRO_${segmentIndex + 1}.mp3`
                 ];
                 for (const url of candidateUrls) {
                     if (cyberPresentationAborted) return null;
@@ -6271,7 +6285,7 @@
                     cnsAnatomy.vascularGroup.visible = false;
                 }
                 document.body.classList.add("cyber-brain-blurred");
-                flyCameraTo(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1.2, 14.5), 0.85);
+                flyCameraTo(new THREE.Vector3(4.2, 0.2, 0), new THREE.Vector3(4.2, 1.0, 14.2), 0.85);
 
                 if (narrative) { narrative.style.display = "block"; narrative.style.opacity = "1"; }
                 startDoom3ShockGlitches();
